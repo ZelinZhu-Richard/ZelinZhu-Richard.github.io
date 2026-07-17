@@ -25,7 +25,7 @@ const Contact = () => {
 
   return (
     <section id="contact" className="ctc">
-      <div ref={ref} className="ctc__in">
+      <div ref={ref} className="ctc__in" data-skew>
         <div {...fade(0)} className="sec__lbl">Say hello</div>
         <h2 {...fade(0.1)} className="ctc__ttl">
           The <span className="ctc__night">night</span> has passed,{' '}

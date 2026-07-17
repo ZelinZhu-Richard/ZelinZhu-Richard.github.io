@@ -22,7 +22,7 @@ const ProjectCard = ({ p, idx }) => {
   const onLeave = () => { setTilt({ x: 0, y: 0 }); setHovered(false); };
 
   return (
-    <div ref={ref}>
+    <div ref={ref} className="pcard-wrap">
       <article
         ref={cardRef}
         className={`pcard ${p.wide ? 'pcard--wide' : ''}`}
@@ -77,7 +77,7 @@ const Work = () => {
         <h2 className="sec__ttl">Shipped, not just started.</h2>
         <p className="proj__sub">Three things I built that I'd defend in a room full of skeptics.</p>
       </div>
-      <div className="proj__grid">
+      <div className="proj__grid" data-skew>
         {PROJECTS.map((p, i) => <ProjectCard key={p.name} p={p} idx={i} />)}
       </div>
     </section>

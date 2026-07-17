@@ -32,7 +32,7 @@ const Experience = () => {
         <div className="sec__lbl">Trajectory</div>
         <h2 className="sec__ttl">Where I've been,<br />where I am.</h2>
       </div>
-      <ol className="tl">
+      <ol className="tl" data-skew>
         {EXPERIENCE.map((item, i) => <TimelineItem key={item.org} item={item} idx={i} />)}
       </ol>
     </section>

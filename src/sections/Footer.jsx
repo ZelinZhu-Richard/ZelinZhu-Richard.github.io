@@ -41,9 +41,6 @@ const Footer = () => {
         <div {...fade(0.3)} className="ftr__bot">
           <span className="ftr__sm">{FOOTER.copyright} <em>{FOOTER.easterEgg}</em></span>
           <div className="ftr__btns">
-            <button className="btt" data-bigbang title="Collapse the black hole cursor back to its original size">
-              💥 Big Bang
-            </button>
             <button className="btt" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">
               ↑ Back to top
             </button>

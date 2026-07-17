@@ -23,7 +23,7 @@ const About = () => {
 
   return (
     <section id="about" className="about">
-      <div className="about__in">
+      <div className="about__in" data-skew>
         <div ref={tRef}>
           <div {...fade(0.05, tVis)} className="sec__lbl">About me</div>
           <h2 {...fade(0.15, tVis)} className="about__ttl">About me</h2>

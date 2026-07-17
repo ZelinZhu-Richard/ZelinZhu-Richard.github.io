@@ -32,7 +32,7 @@ const Skills = () => {
         <h2 className="sec__ttl">Skills & tools.</h2>
       </div>
 
-      <div ref={gRef} className="skills__grid">
+      <div ref={gRef} className="skills__grid" data-skew>
         {SKILLS.buckets.map((b, i) => <Bucket key={b.label} {...b} idx={i} vis={gVis} />)}
 
         <div

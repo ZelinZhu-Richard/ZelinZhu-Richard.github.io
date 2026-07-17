@@ -122,6 +122,11 @@ export const SKILLS = {
   languages: ['English', 'Mandarin', 'Shanghainese'],
 };
 
+export const MARQUEES = {
+  ship: ['Wake up', 'Ship', 'Learn', 'Repeat', 'Build in public', 'Compound'],
+  build: ["Let's build the future", 'Say hi', 'Open to collabs', 'Ship it'],
+};
+
 export const CONTACT = {
   sub: 'Love talking to interesting people!',
 };
