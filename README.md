@@ -1,35 +1,17 @@
-# Zelin (Richard) Zhu — Personal Portfolio
+# Richard Zhu’s personal website
 
-Galaxy-themed personal portfolio, live at **https://zelinzhu-richard.github.io/**.
+Production: **https://zelinzhu-richard.github.io/**
 
-React 18 + Vite + three.js (interactive particle hero) + GSAP (scroll reveals).
-
-## Develop
+Requires Node.js 22 or newer and npm. No environment variables or API keys are required.
 
 ```bash
-npm install
-npm run dev
+npm ci
+npm run dev       # build and serve at http://127.0.0.1:5173
+npm test
+npm run build     # clean production output: dist/
+npm run preview   # serve dist/ at http://127.0.0.1:4173
 ```
 
-## Build & preview
+Edit personal information in `site/content.mjs`, the phoenix narrative in `site/story.mjs`, and detail-page templates in `site/pages.mjs`. Restart development after edits. `public/` contains the adapted Nuxt/Vue phoenix runtime and its local assets; it is a captured frontend, not the agency’s original Nuxt source project. See [THIRD_PARTY.md](THIRD_PARTY.md) for provenance. After intentional changes to `public/`, run `npm run manifest` to update its integrity inventory.
 
-```bash
-npm run build
-npm run preview
-```
-
-## Deploy
-
-Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the site
-and publishes `dist/` to GitHub Pages. One-time setup: repo **Settings → Pages →
-Source: GitHub Actions**.
-
-## Where things live
-
-- `src/data/content.js` — all copy, links, projects, timeline entries. Edit content here.
-- `src/sections/` — one component per page section.
-- `src/components/` — splash, preloader, cursor, header, scramble text, starfield.
-- `src/canvas/` — three.js particle text engine + domain-expansion intro.
-- `public/` — headshot, resume PDF, favicon, OG card, particle sprite.
-- `fix&improve.md` — deferred features backlog.
-- `q.md` — the original personalization questionnaire (source of truth for content).
+GitHub Actions builds on pushes to `main`, verifies the site, uploads **dist/**, and deploys through GitHub Pages. All paths use `/` for this GitHub user site. Detail pages have real HTML files and work on direct navigation and refresh; unknown paths return 404. No SPA fallback or server backend is required.

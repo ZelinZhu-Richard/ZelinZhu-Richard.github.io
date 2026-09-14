@@ -1,0 +1,28 @@
+/* motion-site · profile: reference-cinematic · archetype: Design Replica · patterns: camera-timeline·scroll-reveal·phoenix-morph · critique: P5 T4 C5 R4 A3 V5 */
+/* Preserve the reference styling; add keyboard and reduced-motion CSS support. */
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+a:active,
+button:active {
+  transform: scale(0.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.home-hero h1 {font-size:16.4vw;transform:none;letter-spacing:-.045em;margin-left:0;white-space:nowrap;}
+.home-hero h1 .char {margin:0!important;padding:.12em .015em .18em!important;}
+.home-hero h2 {margin-left:1vw;margin-bottom:-2vw;}
+.logo-wrapper-2 {display:none;}
+header .logo-link:hover .logo-wrapper {opacity:1!important;}
+.mobile-menu-button {font:inherit;border:0;padding:0;cursor:pointer;}
+.mobile-menu:not(:has(.opacity-100)) {visibility:hidden;}
+footer a[href^="mailto:"] {font-size:clamp(20px,4vw,60px);overflow-wrap:anywhere;}
+@media(max-width:767px){.home-hero h1{font-size:16vw;}.home-hero h2{margin-bottom:0;}}

@@ -1,0 +1,9 @@
+# Visual runtime provenance
+
+The phoenix experience is adapted from the public frontend at https://storytelling.noomoagency.com/, captured in the local `noomo-storytelling` project on September 8, 2026. Its Nuxt/Vue runtime, Three.js renderer, GSAP choreography, Draco decoder, phoenix/crystal models, textures, fonts, and audio are retained in `public/`. This repository does not contain Noomo’s original authoring project and does not claim original authorship of those materials.
+
+Personalization replaces the agency logo, copy, navigation, contact information, metadata, and crystal destinations. Agency case-study pages, videos, and their page module/styles were removed. The home animation module reads the editable narrative generated from `site/story.mjs`. The home/contact shells mount the runtime on the client to avoid stale captured hydration markup, with a no-JavaScript link to the readable personal pages. Local fonts load before SplitText initializes. The zero-size cursor shader guard from the local recreation is retained. Upstream Google Analytics is disabled and its tracking ID removed. The original audio remains enabled after visitor interaction.
+
+Richard’s biography, experience, projects, skills, CV PDF, and portrait were retained from commit `27e53264071e9ce9d5b690833f361e5d82e80cda` of this repository. The old React/Vite interface is replaced. `asset-manifest.json` records every retained public file’s size and SHA-256 digest; it is verified on every build.
+
+The WebGL introduction preserves the reference’s intensive motion and audio controls. The Work, About, and Research pages provide a conventional, keyboard-accessible way to read all personal information without running the WebGL scene. No publications were supplied in the previous site, so none are invented here.

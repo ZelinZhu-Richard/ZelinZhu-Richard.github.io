@@ -1,0 +1,400 @@
+{
+  "source": "Adapted from the local noomo-storytelling project; see THIRD_PARTY.md",
+  "files": [
+    {
+      "file": "Zelin_Zhu_CV.pdf",
+      "bytes": 94251,
+      "sha256": "a5babf6546a3934843171592b2fd13e0844f981989e9629282c18df9322b5f11"
+    },
+    {
+      "file": "_nuxt/CbdjwYMp.js",
+      "bytes": 1607308,
+      "sha256": "323fc0b4625745ae95ad6c2734065ef1c70b9c1570749c7b9a3a7dead91993d5"
+    },
+    {
+      "file": "_nuxt/CoNJmAYZ.js",
+      "bytes": 90,
+      "sha256": "5bfea990c40c05b45234822982b008ba51077b6c7a045709c219e2b8d7486cef"
+    },
+    {
+      "file": "_nuxt/FZFS71Nt.js",
+      "bytes": 29969,
+      "sha256": "f98f8bd95c37dad372244bd6d2c88600520cd332efb59f89e3ca2c09cda651a2"
+    },
+    {
+      "file": "_nuxt/N9wcHCtb.js",
+      "bytes": 3563,
+      "sha256": "c658323b4b7ca5945385c2c421e292d14eb2495f2247f82c186938ed92256ce7"
+    },
+    {
+      "file": "_nuxt/TTNeorisTrialRegular.CykOY4gR.ttf",
+      "bytes": 251756,
+      "sha256": "409150dd6b4f0dd2e999d20561b10a8d72fec8cae201518e7c91d10ef5ef314f"
+    },
+    {
+      "file": "_nuxt/builds/latest.json",
+      "bytes": 75,
+      "sha256": "15c84741b09fc311cbe04acdfda8df442d46ba12800d8333d0990d6ea489ec9f"
+    },
+    {
+      "file": "_nuxt/builds/meta/78d24864-e7ac-4700-9d87-77655fc8a92f.json",
+      "bytes": 139,
+      "sha256": "63f043e9e7686174b4cf13f8b1216a3ec72251ce3aa56b39fb3bacbdac05ba7b"
+    },
+    {
+      "file": "_nuxt/entry.BEbxiOYI.css",
+      "bytes": 54112,
+      "sha256": "521ae1966e98ceecc939cfbaff6bdf2c9a20d0539f8be7cf3386bee95105c2ce"
+    },
+    {
+      "file": "_nuxt/fonnts.com-theseasons-it.CUCq9ttA.otf",
+      "bytes": 19048,
+      "sha256": "99b9ba33339b2d814c0a9640722052c178649e8404d65f421bb5a66145edc96e"
+    },
+    {
+      "file": "_nuxt/index.CeGRoErV.css",
+      "bytes": 3680,
+      "sha256": "7e63d48699b8cbaf14b7130bbc60cba6393ba9c2c16b31ef1b7cd891b0b00914"
+    },
+    {
+      "file": "audio/BG_music_ST.mp3",
+      "bytes": 1686873,
+      "sha256": "c840d48310d44161dbf342530e9dfbc38c53fbf537e0ca14fde5e612dfd7163c"
+    },
+    {
+      "file": "audio/ReleaseSpirit.mp3",
+      "bytes": 41844,
+      "sha256": "43cd13cc4df4a0f09f74099584b42a80e7a7a7a0b01ad0ce1b83c46977cd7a25"
+    },
+    {
+      "file": "audio/hover1.mp3",
+      "bytes": 21620,
+      "sha256": "f1f01070b161e930bb15c92bb1b52b9cffe63670ffddd5ced255f715cebb2386"
+    },
+    {
+      "file": "audio/hover2.mp3",
+      "bytes": 21620,
+      "sha256": "423cf889bcc1190b3b71f53f84e5aba5fb87330b5effe1e1e5a75272d72246c0"
+    },
+    {
+      "file": "audio/hover3.mp3",
+      "bytes": 21620,
+      "sha256": "f97b9a02b01c24787cd5906c363ff4da00cae2f9045f4d410fb4975b6cde275b"
+    },
+    {
+      "file": "audio/hover4.mp3",
+      "bytes": 21620,
+      "sha256": "156bc6e9dd670e264868adf5d036ebfc42ebc6e80b2b0ab62fa6f8cfe9c82343"
+    },
+    {
+      "file": "audio/hover5.mp3",
+      "bytes": 21620,
+      "sha256": "d1051fbf1fb4ec8e8c543dd5c2ddf385a8addfcfc8bd13f76d7187e288d2484f"
+    },
+    {
+      "file": "contacts/index.html",
+      "bytes": 7703,
+      "sha256": "d2021889231b77bd5374f613e07f9f12332f979abbf85f56872ffca03c7e5660"
+    },
+    {
+      "file": "favicon.svg",
+      "bytes": 266,
+      "sha256": "1ca458cf386cf5a5d4af31daec8d8699005a2ff1ec1084af8e03668ab1b1987d"
+    },
+    {
+      "file": "images/loader.gif",
+      "bytes": 5071,
+      "sha256": "2d355d0c21d0474489693c4952ac073dbffa56e99675d6994d9a5ac3013dd5db"
+    },
+    {
+      "file": "images/menu_back.jpg",
+      "bytes": 192078,
+      "sha256": "fc73737b323992209462b209522041327cffaccec5b3a120885392439c9e3e61"
+    },
+    {
+      "file": "images/svg/UnionWhite.svg",
+      "bytes": 1296,
+      "sha256": "37f97c790187b3d715fba850fae40d8f1f5d007ec740f3ccf6f556f92002cdf8"
+    },
+    {
+      "file": "images/svg/backArrowNew.svg",
+      "bytes": 1607,
+      "sha256": "705d92e215b93090655f968adc0b30b47fc0db45dc20da410a3c494d8bfe959d"
+    },
+    {
+      "file": "images/svg/buttonStar.svg",
+      "bytes": 792,
+      "sha256": "cfc265d18758171f187be5e0c9336c046d553205ef8195aa906e213ae4709c42"
+    },
+    {
+      "file": "images/svg/close.svg",
+      "bytes": 389,
+      "sha256": "ed9b343d2befc2c14b9fb264097bd3ece968d56d34f74ceb2f50e69ec5b19a6b"
+    },
+    {
+      "file": "images/svg/cursor_border.svg",
+      "bytes": 687,
+      "sha256": "12d900116bd1bbebf3ad7bf2464f305e7566208c06a8bd955459062e5f3032dd"
+    },
+    {
+      "file": "images/svg/fromError.svg",
+      "bytes": 758,
+      "sha256": "c705b63507c98c0af6681c3bd3d596c486abcd556b35a0ad2b9d6c410bd3d243"
+    },
+    {
+      "file": "images/svg/logo.svg",
+      "bytes": 219,
+      "sha256": "d1a3569deaeb46335ea84874a8e3a5de6e8b6eeae33e444723d75c49783b146c"
+    },
+    {
+      "file": "images/svg/logo2.svg",
+      "bytes": 219,
+      "sha256": "d1a3569deaeb46335ea84874a8e3a5de6e8b6eeae33e444723d75c49783b146c"
+    },
+    {
+      "file": "images/svg/logoSimple.svg",
+      "bytes": 219,
+      "sha256": "b3c51992640fb6145a5af38dab6dbae7fbc5ef616e60a18315947059ed846a89"
+    },
+    {
+      "file": "images/svg/soundBorder.svg",
+      "bytes": 515,
+      "sha256": "e39b0147b0d9ec5e913a39246fc5e69b6cf446758ddd05f0d1d5c0de120a15ee"
+    },
+    {
+      "file": "images/text_icons/black_bird.svg",
+      "bytes": 1569,
+      "sha256": "d71a2e75c97bd2afc5e94e9a4d072fbb4c16720774bb21a173e2bf9293a97a77"
+    },
+    {
+      "file": "images/text_icons/black_bird_2.svg",
+      "bytes": 953,
+      "sha256": "d5039e1a5a6edf27f2c4fe9c6eb80b35d349a6dee3cf21d97a2c08547276f659"
+    },
+    {
+      "file": "images/text_icons/blue_bird.svg",
+      "bytes": 1129,
+      "sha256": "f87fd50e0c41e0e920f580eb05bebc2d810ee275e2dbd3b74e0f520349d9e0d0"
+    },
+    {
+      "file": "images/text_icons/fater_white.svg",
+      "bytes": 625,
+      "sha256": "8ddc9f66b87d9ca446847673223d42fefc0b1857846931a8cbd39807dcf7f5f0"
+    },
+    {
+      "file": "images/text_icons/flow_white.svg",
+      "bytes": 922,
+      "sha256": "1a1ef0e14952d12671aec64947503b8dae47e274a6dd9181d5dac1e5b56e2547"
+    },
+    {
+      "file": "images/text_icons/pixelBird.png",
+      "bytes": 1261,
+      "sha256": "dc6ea645280ffe648d20f726bd9f9fbeb1cd9ee361802e033b53167840941251"
+    },
+    {
+      "file": "index.html",
+      "bytes": 10867,
+      "sha256": "900954e39a443c2a777d33450bccb89d1fc8d429b7ff3a766d17bfd4e7457472"
+    },
+    {
+      "file": "libs/draco/draco_decoder.js",
+      "bytes": 719410,
+      "sha256": "30e4d486fa020737af10e3c56197693e5b904bdc05b8bfa5d7b06751dec6da04"
+    },
+    {
+      "file": "libs/draco/draco_decoder.wasm",
+      "bytes": 285747,
+      "sha256": "c55a594e8ffd18426d36b27fea9618af3df5e173640a3e56d46f09d76f0574f2"
+    },
+    {
+      "file": "libs/draco/draco_wasm_wrapper.js",
+      "bytes": 58763,
+      "sha256": "e8049906ef3f8f75d3456c22a3f31bfdfe5b5b5bd09ccdec613b9e9a49d554d8"
+    },
+    {
+      "file": "local.css",
+      "bytes": 1256,
+      "sha256": "a90284959f31a4036696a2f2a107b7ee7b5f8646d5c4248368151e99e4e535a4"
+    },
+    {
+      "file": "models/crystal0.glb",
+      "bytes": 62204,
+      "sha256": "291b742fb377218e18db2cd850c909609804319eb5efedae326dd12acc3d50bf"
+    },
+    {
+      "file": "models/crystal1.glb",
+      "bytes": 57272,
+      "sha256": "919d6fd13cb47a2c76cda964214eb47765c660308cee3d2919d778d3da5252da"
+    },
+    {
+      "file": "models/crystal2.glb",
+      "bytes": 60788,
+      "sha256": "944799a98fdb941c6b36e248186e9871ddf953d2703e0216268c6158b4b66903"
+    },
+    {
+      "file": "models/crystal3.glb",
+      "bytes": 48332,
+      "sha256": "b4772f260f56c11e12718596220c907dcb3dbe638eb4546aba73c223a314f2f4"
+    },
+    {
+      "file": "models/crystal4.glb",
+      "bytes": 55228,
+      "sha256": "ee070be6c1414ab8b8449fcba5f1dd22212de0b1fa72fd11f926a3156567a285"
+    },
+    {
+      "file": "models/crystal5.glb",
+      "bytes": 57084,
+      "sha256": "773195de5ba2a07de7926ca48fdb6ed2a9a3fbf0602b7d20b3ab13058fe82558"
+    },
+    {
+      "file": "models/crystal6.glb",
+      "bytes": 40564,
+      "sha256": "d95db12a06327a80792a2932e594e473a9df46e288c29ea9f84cef0ee06d5a53"
+    },
+    {
+      "file": "models/feather.glb",
+      "bytes": 6652,
+      "sha256": "82ce3ea662c906b4003e107c400136464575816808088dafe10c93e5f012f03c"
+    },
+    {
+      "file": "models/v20.glb",
+      "bytes": 4354860,
+      "sha256": "15937ca06ea0003b5d1ef9d649d93de15fbc20faaf75e1467706ff9ce6e28764"
+    },
+    {
+      "file": "portfolio.css",
+      "bytes": 6700,
+      "sha256": "f5344e063d82e76cd4928406481f5ef6d56dab1fbba51f5ae1adb6b734e67c6c"
+    },
+    {
+      "file": "portfolio.js",
+      "bytes": 663,
+      "sha256": "8420d98e697c3a0e5500936222f049782bb023a15c9c50353c12852b53bd1cbb"
+    },
+    {
+      "file": "richard.jpg",
+      "bytes": 66148,
+      "sha256": "8f4a28c192384a20107bea5455e7cbac36596817661048d686d74dd227c7bdad"
+    },
+    {
+      "file": "start.js",
+      "bytes": 249,
+      "sha256": "1cad88bf0b91937928eb80cfcbe3e0525b561d12b6fa51d3068e2158d262bee4"
+    },
+    {
+      "file": "textures/404.jpg",
+      "bytes": 13062,
+      "sha256": "115afd1cfc274df244f91ce09fbe71ce9ac868cad72e47cb194948220a33f646"
+    },
+    {
+      "file": "textures/LDR_RG01_0.png",
+      "bytes": 17354,
+      "sha256": "d2651bc877facb2ed36bee6f3cbbc84affc69fcb5d4846166ef25401207b3e60"
+    },
+    {
+      "file": "textures/contact.jpg",
+      "bytes": 11368,
+      "sha256": "0849ff0818911cd119110403bb9fe233d58152e6c652c903d5881774b44e65b6"
+    },
+    {
+      "file": "textures/crystals/0.jpg",
+      "bytes": 87266,
+      "sha256": "9f89ed8927b5c5a0dc7834aadefe5f375c00c7cfcc9b0eaeebbc427a2d8102c6"
+    },
+    {
+      "file": "textures/crystals/1.jpg",
+      "bytes": 65840,
+      "sha256": "d4c8c1a197ba58c3c2975e8cd2723eaf2732e56a38f981f73a782c7ccf643212"
+    },
+    {
+      "file": "textures/crystals/2.jpg",
+      "bytes": 111119,
+      "sha256": "4c62154b837c81214efee00848a9698be9adcf9b5153babf145e24783668d9e2"
+    },
+    {
+      "file": "textures/crystals/3.jpg",
+      "bytes": 71145,
+      "sha256": "9ebece5b2793a5d6bf302ce0d10d7e2f51bc71fa429ae8f6f1eeaba8bc47b872"
+    },
+    {
+      "file": "textures/crystals/4.jpg",
+      "bytes": 63782,
+      "sha256": "23c9a391d582c5394eb2ab0914fb240a4172626b72dbf7082ed433dd12c119d5"
+    },
+    {
+      "file": "textures/crystals/5.jpg",
+      "bytes": 63514,
+      "sha256": "e4152afdcf84318da9d1ad489f73dfba0b8848b3a12a76dfaddcbe27ef910420"
+    },
+    {
+      "file": "textures/crystals/6.jpg",
+      "bytes": 70426,
+      "sha256": "8792f0ac9ac613eb6045d730047ab189cb3736c7ce2131d4b3a3abe28e13c631"
+    },
+    {
+      "file": "textures/ftrail.jpg",
+      "bytes": 1886,
+      "sha256": "887ffaba08581036f9c85e731b12df4bb59e15ab0b19fd93ec406846fee03d8f"
+    },
+    {
+      "file": "textures/ice.jpg",
+      "bytes": 82764,
+      "sha256": "bb91e5bf542952b1ece59c479b6c1f077a9f36064fed730f02decf62cf5b664a"
+    },
+    {
+      "file": "textures/iced.jpg",
+      "bytes": 74029,
+      "sha256": "fd0939167adf46047ccc6cc438ef2c7d0fc8d373bc924aa1168ac8b12cc9fbdc"
+    },
+    {
+      "file": "textures/icen.jpg",
+      "bytes": 182423,
+      "sha256": "ac5115d5ac937ceacf21995b162cdc5096debf040f112b57745aa22c1af8ffc6"
+    },
+    {
+      "file": "textures/icon.png",
+      "bytes": 114,
+      "sha256": "6c81bcb6d784415ad44ddd289c9e2908cec5279b8ab45653e28d8ef1a3d1776c"
+    },
+    {
+      "file": "textures/mountains.png",
+      "bytes": 55420,
+      "sha256": "ff6ef3ecdc41444220c7fbbc839594584b4fab5c85702c8a0a9da8ff57faff72"
+    },
+    {
+      "file": "textures/noises.jpg",
+      "bytes": 20857,
+      "sha256": "224d603977e5289f1ae626fa9b428f85658c0a5d8f7dbdb7cfb193759ab771c6"
+    },
+    {
+      "file": "textures/sprite.png",
+      "bytes": 699,
+      "sha256": "158f0a2bb73fcb5f599ef3edc3ba7f12d3b5b018ce5db92d7fbd8195beec73d2"
+    },
+    {
+      "file": "textures/waves.jpg",
+      "bytes": 156890,
+      "sha256": "e57755007672a715bfb9ae6a81dacf729892bed7aceb4f2817fdae50e7915079"
+    },
+    {
+      "file": "textures/wooden_studio_19_1k.hdr",
+      "bytes": 1517608,
+      "sha256": "d35c2f2b051d66310625d7459a54ade51e5b742c0b7a1c2491a1d7832a0f2a9f"
+    },
+    {
+      "file": "timelines/cam-mob.glb",
+      "bytes": 219844,
+      "sha256": "1d37f6d7844087755b655ff64cb082d60f9d1c159f58e52962dfaf0359e2be84"
+    },
+    {
+      "file": "timelines/cam.glb",
+      "bytes": 235160,
+      "sha256": "e0e9ce478037546af76732ed870d65aec3c16781acf93047a5822733201c66dd"
+    },
+    {
+      "file": "timelines/dev.glb",
+      "bytes": 164400,
+      "sha256": "e5153a440ce21952872686f1e1dcbfbffeb6cdc40742516768cd60998e84a330"
+    }
+  ]
+}
