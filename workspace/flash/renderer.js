@@ -79,14 +79,15 @@ export function mountCard(host, initial) {
   function draw() {
     card.style.setProperty('--rx', `${media.matches ? 0 : -current.y * settings.tilt}deg`);
     card.style.setProperty('--ry', `${media.matches ? 0 : current.x * settings.tilt}deg`);
-    card.style.setProperty('--px', `${50 + current.x * 35}%`);
-    card.style.setProperty('--py', `${50 + current.y * 35}%`);
+    card.style.setProperty('--px', `${50 + current.x * 42}%`);
+    card.style.setProperty('--py', `${50 + current.y * 42}%`);
     card.style.setProperty('--shift-x', `${current.x * 23}%`);
     card.style.setProperty('--shift-y', `${current.y * 23}%`);
-    card.style.setProperty('--hue', `${current.x * 28 - current.y * 18}deg`);
+    card.style.setProperty('--hue', `${current.x * 36 - current.y * 24}deg`);
   }
   function tick(time) {
-    const amount = media.matches ? 1 : 1 - Math.exp(-Math.min(time - (previousTime || time - 16), 40) / 95);
+    const response = target.x === 0 && target.y === 0 ? 95 : 75;
+    const amount = media.matches ? 1 : 1 - Math.exp(-Math.min(time - (previousTime || time - 16), 40) / response);
     previousTime = time;
     current.x += (target.x - current.x) * amount;
     current.y += (target.y - current.y) * amount;
@@ -100,7 +101,10 @@ export function mountCard(host, initial) {
   }
   function pointer(e) {
     const rect = host.getBoundingClientRect();
-    move((e.clientX - rect.left - rect.width / 2) / (card.offsetWidth / 2), (e.clientY - rect.top - rect.height / 2) / (card.offsetHeight / 2));
+    // Measure the untransformed card so its own tilt cannot move the pointer's origin.
+    const x = e.clientX - rect.left - card.offsetLeft - card.offsetWidth / 2;
+    const y = e.clientY - rect.top - card.offsetTop - card.offsetHeight / 2;
+    move(x / (card.offsetWidth / 2) * 1.25, y / (card.offsetHeight / 2) * 1.25);
   }
   card.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || activePointer === e.pointerId) pointer(e); });
   card.addEventListener('pointerdown', e => { activePointer = e.pointerId; card.setPointerCapture(e.pointerId); pointer(e); });
@@ -111,7 +115,7 @@ export function mountCard(host, initial) {
   card.addEventListener('lostpointercapture', release);
   card.addEventListener('blur', release);
   card.addEventListener('keydown', e => {
-    const directions = { ArrowLeft: [-.22, 0], ArrowRight: [.22, 0], ArrowUp: [0, -.22], ArrowDown: [0, .22] };
+    const directions = { ArrowLeft: [-.28, 0], ArrowRight: [.28, 0], ArrowUp: [0, -.28], ArrowDown: [0, .28] };
     if (e.key === 'Escape') { e.preventDefault(); release(); }
     if (directions[e.key]) { e.preventDefault(); const [x, y] = directions[e.key]; move(target.x + x, target.y + y); }
   });
