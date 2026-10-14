@@ -1,0 +1,35 @@
+@font-face{font-family:FlashSerif;src:url('./assets/InstrumentSerif-Regular.ttf') format('truetype');font-display:swap}
+.flash-scene{position:relative;isolation:isolate;overflow:hidden;background:#101010;min-width:0;display:grid;place-items:center}
+.flash-scene::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 35% 19% at 30% 110%,#f47cd7,transparent 95%),radial-gradient(ellipse 35% 19% at 70% 110%,#65f5ed,transparent 95%),radial-gradient(ellipse 65% 28% at 50% 108%,#292b83,transparent 95%)}
+.flash-scene.flash-webgl::before,.flash-scene.flash-aurora-off::before{opacity:0}
+.flash-aurora{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.flash-aurora-off .flash-aurora{visibility:hidden}
+.flash-card-host{width:100%;display:grid;place-items:center;perspective:1100px;padding:70px 34px;min-width:0}
+.flash-card{--rx:0deg;--ry:0deg;--px:50%;--py:50%;--shift-x:0%;--shift-y:0%;--hue:0deg;position:relative;width:min(var(--card-width),100%);aspect-ratio:var(--ratio);container-type:inline-size;transform:rotateX(var(--rx)) rotateY(var(--ry));transform-style:preserve-3d;will-change:transform;filter:drop-shadow(0 18px 24px #0005);touch-action:none;outline:none;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+.flash-card:focus-visible{outline:2px solid #e5e1ff;outline-offset:9px;border-radius:var(--radius)}
+.flash-face{position:absolute;inset:0;isolation:isolate;border-radius:var(--radius);mask-image:var(--card-mask);mask-size:100% 100%;mask-repeat:no-repeat;-webkit-mask-image:var(--card-mask);-webkit-mask-size:100% 100%;overflow:hidden;background:var(--secondary)}
+.flash-base,.flash-foil,.flash-texture,.flash-grain,.flash-glare,.flash-edge{position:absolute;inset:0;pointer-events:none}
+.flash-base{background:linear-gradient(var(--angle),var(--accent) 0%,var(--secondary) 44%,var(--primary) 100%)}
+.flash-foil{inset:0;opacity:calc(var(--foil) * .72);background:repeating-linear-gradient(calc(125deg + var(--angle) / 9),#e5d79e 0%,#97dbc9 13%,#acdce4 25%,#9e80d3 39%,#ec9acb 52%,#e5d79e 66%);background-size:100% 100%;background-position:calc(50% + var(--shift-x)) calc(50% + var(--shift-y));mix-blend-mode:normal;filter:hue-rotate(var(--hue));transform:translate(calc(var(--shift-x) * -.3),calc(var(--shift-y) * -.3))}
+.flash-texture{background-size:var(--texture-size);background-position:50% 50%;opacity:var(--texture-opacity)}
+.flash-grain{background-size:140px;opacity:calc(var(--grain) * .12);mix-blend-mode:soft-light}
+.flash-glare{inset:-40%;opacity:calc(var(--glare) * .64);background:radial-gradient(ellipse at var(--px) var(--py),#fff9 0%,#fff5 16%,#fff0 42%,#28213922 80%);mix-blend-mode:soft-light}
+.flash-edge{z-index:2;border:1px solid #ffffff95;border-radius:var(--radius);box-shadow:inset 0 1px 1px #fff8,inset 0 -1px 1px #0002}
+.flash-logo{position:absolute;left:8%;top:7%;width:12%;height:auto;fill:currentColor;color:#397f67;opacity:.73;filter:drop-shadow(0 1px 0 #fff8)}
+.flash-perforation{display:none;position:absolute;top:66%;left:7%;right:7%;border-top:1px dashed #395b3e36}
+.flash-ticket .flash-perforation{display:block}
+.flash-copy{position:absolute;left:7%;right:7%;bottom:6%;text-shadow:0 .5px .5px #ffffff45}
+.flash-title{font:400 11.5cqw/.99 FlashSerif,Georgia,serif;letter-spacing:-.025em;white-space:nowrap;margin:0 0 3.3cqw;overflow:hidden}
+.flash-subtitle{font-size:3.75cqw;line-height:1.15;text-transform:uppercase;letter-spacing:.025em;white-space:nowrap;opacity:.7;margin-bottom:6cqw;overflow:hidden}
+.flash-meta{display:grid;grid-template-columns:1.3fr .7fr 1.25fr;gap:5%;line-height:1.2}
+.flash-meta>div{min-width:0}
+.flash-meta span{display:block;text-transform:uppercase;font-size:2.9cqw;opacity:.55;margin-bottom:1cqw;white-space:nowrap}
+.flash-meta strong{display:block;font-size:4cqw;line-height:1.2;font-weight:500;white-space:nowrap;overflow:hidden}
+.flash-wide .flash-perforation{top:53%}
+.flash-wide .flash-copy{bottom:7%}
+.flash-wide .flash-title{font-size:8cqw;margin-bottom:1.6cqw}
+.flash-wide .flash-subtitle{font-size:2.9cqw;margin-bottom:3cqw}
+.flash-wide .flash-meta span{font-size:2.2cqw}
+.flash-wide .flash-meta strong{font-size:3.1cqw}
+.flash-wide .flash-logo{width:9%;top:9%}
+@media(prefers-reduced-motion:reduce){.flash-card{transform:none;will-change:auto}}

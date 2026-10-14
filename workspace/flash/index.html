@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#101010">
+  <title>Flash — Holographic Card Station · Richard Zhu</title>
+  <meta name="description" content="Make a card that catches the light. Design a holographic foil card with live textures, colors, and reflections, then download an interactive card.">
+  <link rel="canonical" href="https://zelinzhu-richard.github.io/flash/">
+  <meta property="og:title" content="Flash — Holographic Card Station">
+  <meta property="og:description" content="Your own little piece of light. Make and export an interactive holographic card.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zelinzhu-richard.github.io/flash/">
+  <meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/flash/card.css">
+  <link rel="stylesheet" href="/flash/editor.css">
+  <script type="module" src="/flash/editor.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#customize">Skip to customization</a>
+  <main class="station" aria-label="Holographic card designer">
+    <section class="flash-scene" aria-label="Live card preview">
+      <canvas class="flash-aurora" aria-hidden="true"></canvas>
+      <a class="home-link" href="/" aria-label="Return to Richard Zhu’s website"><span aria-hidden="true">↖</span> Richard Zhu <span class="home-divider" aria-hidden="true">/</span> <span class="station-name">Flash</span></a>
+      <div class="flash-card-host"></div>
+      <p class="preview-hint"><span class="desktop-hint">Move your pointer to catch the light</span><span class="touch-hint">Drag the card to catch the light</span></p>
+    </section>
+    <aside class="customizer" aria-labelledby="customize">
+      <header class="panel-header"><h1 id="customize" tabindex="-1">Customize</h1><p id="save-status" role="status">Live preview · auto-saved locally</p></header>
+      <form id="controls" class="controls" aria-label="Card settings"></form>
+      <footer class="panel-footer">
+        <button type="button" class="icon-button" id="reset" aria-label="Reset card to reference defaults" title="Reset to defaults"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 5v4h4M4.4 8a6 6 0 1 1-.2 5M4 9l4-4"/></svg></button>
+        <div class="footer-actions"><button type="button" id="import"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3m-4 4 4-4 4 4M4 12v4h12v-4"/></svg>Import</button>
+        <div class="export-wrapper"><button type="button" class="primary-button" id="export" aria-expanded="false" aria-controls="export-options"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m-4-4 4 4 4-4M4 13v4h12v-4"/></svg>Export</button>
+          <div class="export-options" id="export-options" hidden><button type="button" id="export-card"><strong>Download interactive card</strong><span>Shimmer, reflections &amp; tilt · HTML</span></button><button type="button" id="export-settings"><strong>Export settings</strong><span>Keep editing later · JSON</span></button></div>
+        </div></div>
+      </footer>
+      <input type="file" id="settings-file" accept=".json,application/json" hidden>
+      <input type="file" id="texture-file" accept="image/png,image/jpeg,image/webp" hidden>
+    </aside>
+  </main>
+  <div class="toast" id="message" role="status" hidden></div>
+  <noscript><p class="no-script">Flash needs JavaScript for live customization and reflective effects. <a href="/">Return to Richard Zhu’s website.</a></p></noscript>
+</body>
+</html>

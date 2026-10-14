@@ -2,7 +2,7 @@ import { LINKS, ABOUT, EXPERIENCE, PROJECTS, SKILLS } from './content.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
-const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],[LINKS.resume,'CV'],['/contacts/','Contact']];
+const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/flash/','Flash'],[LINKS.resume,'CV'],['/contacts/','Contact']];
 const frame = (path, title, description, body) => `<!doctype html>
 <html lang="en">
 <head>

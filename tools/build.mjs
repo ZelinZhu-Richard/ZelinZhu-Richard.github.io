@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { pages } from '../site/pages.mjs';
 import { story } from '../site/story.mjs';
 import { verifyManifest } from './manifest.mjs';
+import { buildFlash } from '../workspace/flash/build.mjs';
 await verifyManifest();
 await rm('dist', { recursive: true, force: true });
 await cp('public', 'dist', { recursive: true });
@@ -11,8 +12,9 @@ for (const [file, html] of pages()) {
   await mkdir(`dist/${file.substring(0, file.lastIndexOf('/') + 1)}`, { recursive: true });
   await writeFile(`dist/${file}`, html);
 }
+await buildFlash('dist');
 await writeFile('dist/.nojekyll', '');
-const urls = ['/', '/work/', '/about/', '/research/', '/contacts/'];
+const urls = ['/', '/work/', '/about/', '/research/', '/contacts/', '/flash/'];
 await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(url => `<url><loc>https://zelinzhu-richard.github.io${url}</loc></url>`).join('')}</urlset>\n`);
 await writeFile('dist/robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://zelinzhu-richard.github.io/sitemap.xml\n');
 const check = spawnSync(process.execPath, ['tools/verify.mjs', 'dist'], { stdio: 'inherit' });
