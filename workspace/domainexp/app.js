@@ -1,6 +1,6 @@
 import {CameraSession, cameraError} from './camera.js';
 import {VisionClient} from './vision.js';
-import {FrameTracker, DomainState} from './geometry.js';
+import {FrameTracker, DomainState, applyTrackingResult} from './geometry.js';
 import {Renderer} from './render.js';
 
 const $ = id => document.getElementById(id);
@@ -35,14 +35,13 @@ function loop(time) {
   const state = domain.snapshot(time);
   renderer.draw(video, state, time, Number($('pixel-size').value));
   say(state.reason); arena.dataset.active = String(state.active);
-  $('domain-label').textContent = state.active ? 'DOMAIN EXPANDED' : 'FRAME / TRANSFORM';
+  $('domain-label').textContent = state.active ? 'DOMAIN EXPANDED' : `${state.hands.length} / 2 HANDS TRACKED`;
   const interval = client.mode === 'worker' ? 45 : 100;
   if (!busy && video.readyState >= 2 && video.videoWidth && video.currentTime !== lastVideoTime && time - lastInference >= interval) {
     busy = true; lastInference = time; lastVideoTime = video.currentTime;
     client.track(video, time).then(result => {
       if (generation !== token || !running || !result) return;
-      // Old inference results cannot bring a domain back after a long stall.
-      if (performance.now() - time < 200) domain.update(tracker.update(result, time), time);
+      applyTrackingResult(tracker, domain, result, time, performance.now());
     }).catch(problem => fail(problem, token)).finally(() => { if (generation === token) busy = false; });
   }
   animation = requestAnimationFrame(loop);

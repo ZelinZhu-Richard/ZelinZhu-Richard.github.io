@@ -1,15 +1,25 @@
 # Validation — October 15, 2026
 
-## Automated checks
+## Finger-tracking correction
+
+The first release discarded every inference taking 200 ms or more, required nearly straight index fingers, and treated handedness classification confidence as detection confidence. It also showed no finger outlines until the effect activated. These gates could make working recognition appear unresponsive.
+
+- The full repository suite now passes **79 tests**, including six new regressions for relaxed/small hands, ambiguous handedness, recognition feedback before activation, mirrored finger outlines, 300–600 ms inference, explicit hand loss, and severely stale results.
+- The production build still verifies **175 files**. All inference remains local, with the existing pinned model; confidence thresholds are now 0.4.
+- A local browser harness ran the actual worker/model on the [official MediaPipe sample photograph](https://storage.googleapis.com/mediapipe-tasks/hand_landmarker/woman_hands.jpg), referenced by [Google's sample notebook](https://github.com/google-ai-edge/mediapipe-samples/blob/main/examples/hand_landmarker/python/hand_landmarker.ipynb). It detected **two hands with 21 landmarks each**, constructed a valid window, and activated the effect. Five observed inference durations were 94, 34, 37, 37, and 38 ms. These are fixture measurements on this machine, not a performance guarantee.
+- The complete app was exercised with a local photo camera and delayed fixture worker: 320 ms responses remained active between results; one hand retained its outline/guidance while clearing the domain; zero hands displayed explicitly; 600 ms responses recovered; Stop and repeated restart ended both created streams.
+- The photo and browser harness are local QA material only and are excluded from the production build. No physical webcam or live hand movement was used. The actual-model photo check and simulated delayed-response checks are distinct.
+
+## Initial-release automated checks
 
 - `npm test`: **73 passed, 0 failed**, including all existing portfolio, Flash, Paper Piano, and Gym tests plus 19 Domain Expansion tests.
-- Geometry covers detection-order changes, hand rotation, smoothing/reacquisition, low-confidence/missing/closed/overlapping/out-of-frame hands, convex masks, activation and stale-result timing, and mirrored contained coordinates.
+- Geometry covers detection-order changes, hand rotation, smoothing/reacquisition, the original confidence/shape gates, missing/closed/overlapping/out-of-frame hands, convex masks, activation and stale-result timing, and mirrored contained coordinates.
 - Lifecycle covers delayed camera permission, cancellation during worker/model initialization, camera restart, interrupted video playback, permission denial, one inference in flight, late bitmap disposal, worker failure/recovery, compatibility fallback when bitmap transfer is unavailable, and model loading failure.
 - Site integration checks the project anchor/source link and placement after Gym in shared navigation.
 - `npm run build`: **175 production files verified**, including dependency hashes, local links, anchors, JavaScript syntax, metadata, and required route assets. Total site output was 103.8 MiB; MediaPipe files are shared in source and copied into this route at build time.
 - `git diff --check`: passed before publication.
 
-## Browser checks
+## Initial-release browser checks
 
 Headless Google Chrome on macOS, with synthetic browser camera input only. All seven browser scenarios passed without page errors:
 
@@ -25,6 +35,6 @@ Desktop, mobile, synthetic active-camera, and homepage-menu captures were opened
 
 ## Limits
 
-No physical webcam, real hand movements, iOS Safari, Android hardware, or measured real-world tracking accuracy/latency were tested. Synthetic inputs establish rendering and state behavior, not landmark accuracy on human hands. Fullscreen availability follows the browser’s API support. Test with bright, even lighting and both hands fully visible; occlusion, slow inference, and crossed fingers can interrupt the effect.
+No physical webcam, real hand movements, iOS Safari, Android hardware, or measured real-world tracking accuracy/latency were tested. The correction adds one actual-model photograph check, not live-camera validation. Synthetic inputs establish rendering and state behavior, not landmark accuracy on human hands. Fullscreen availability follows the browser’s API support. Test with bright, even lighting and both hands fully visible; occlusion, slow inference, and crossed fingers can interrupt the effect.
 
 Live deployment and asset checks are reported by the release task after GitHub Pages completes.

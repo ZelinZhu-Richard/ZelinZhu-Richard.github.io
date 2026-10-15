@@ -1,5 +1,6 @@
 export const ACTIVATE_MS = 150;
 export const LOST_MS = 200;
+export const MAX_RESULT_AGE_MS = 1500;
 const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const cross = (o, a, b) => (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 
@@ -23,69 +24,75 @@ export function polygonArea(points) {
   }, 0)) / 2;
 }
 
-function angle(a, b, c) {
-  const dot = (a.x - b.x) * (c.x - b.x) + (a.y - b.y) * (c.y - b.y);
-  return Math.acos(Math.max(-1, Math.min(1, dot / Math.max(1e-9, distance(a, b) * distance(c, b))))) * 180 / Math.PI;
-}
-
 export function isFraming(points) {
   const palm = distance(points[5], points[17]);
-  const indexLength = distance(points[5], points[6]) + distance(points[6], points[7]) + distance(points[7], points[8]);
-  return palm > .025 && angle(points[5], points[6], points[8]) > 145
-    && distance(points[5], points[8]) / Math.max(indexLength, .001) > .78
-    && distance(points[4], points[5]) > palm * .45
-    && distance(points[4], points[8]) > palm * .65;
+  // Fingertip separation is enough; a bent index or relaxed thumb is still a frame.
+  return palm > .01 && distance(points[4], points[8]) > Math.max(.015, palm * .4);
 }
 
 export class FrameTracker {
   constructor() { this.reset(); }
-  reset() { this.previous = null; this.lastTime = null; }
+  reset() { this.previous = []; this.lastTime = null; }
   update(result, time) {
-    const detections = (result?.landmarks || []).map((points, i) => ({points, confidence: result.handedness?.[i]?.[0]?.score ?? 1}));
-    if (detections.length !== 2 || detections.some(h => h.confidence < .6 || h.points.length !== 21 || h.points.some(p => !Number.isFinite(p.x) || !Number.isFinite(p.y)))) {
-      return {valid: false, reason: 'Show both hands'};
+    // Handedness confidence describes left/right classification, not hand visibility.
+    const rawHands = (result?.landmarks || []).filter(points => points.length === 21
+      && points.every(p => Number.isFinite(p.x) && Number.isFinite(p.y))).slice(0, 2);
+    let hands = rawHands;
+    if (this.previous.length && time - this.lastTime < 400) {
+      const pairs = rawHands.flatMap((hand, i) => this.previous.map((previous, j) => ({i, j, distance: distance(hand[0], previous[0])}))).sort((a, b) => a.distance - b.distance);
+      const matches = new Map(), used = new Set();
+      for (const pair of pairs) {
+        if (pair.distance < .25 && !matches.has(pair.i) && !used.has(pair.j)) { matches.set(pair.i, pair.j); used.add(pair.j); }
+      }
+      const alpha = 1 - Math.exp(-Math.max(1, time - this.lastTime) / 35);
+      hands = rawHands.map((points, i) => {
+        const previous = this.previous[matches.get(i)];
+        return previous ? points.map((p, j) => ({x: previous[j].x + alpha * (p.x - previous[j].x), y: previous[j].y + alpha * (p.y - previous[j].y)})) : points;
+      });
     }
-    let hands = detections.map(h => h.points);
-    if (!hands.every(isFraming)) return {valid: false, reason: 'Open your thumbs and index fingers'};
-    const raw = convexHull(hands.flatMap(points => [points[4], points[8]]));
-    if (raw.length !== 4 || polygonArea(raw) < .008 || raw.some(p => p.x < 0 || p.x > 1 || p.y < 0 || p.y > 1)
-      || distance(hands[0][0], hands[1][0]) < .06) {
-      return {valid: false, reason: 'Spread your hands to make a window'};
-    }
-    if (this.previous && time - this.lastTime < LOST_MS) {
-      const same = distance(hands[0][0], this.previous[0][0]) + distance(hands[1][0], this.previous[1][0]);
-      const swapped = distance(hands[0][0], this.previous[1][0]) + distance(hands[1][0], this.previous[0][0]);
-      if (swapped < same) hands.reverse();
-      const alpha = 1 - Math.exp(-Math.max(1, time - this.lastTime) / 45);
-      hands = hands.map((points, i) => points.map((p, j) => ({x: this.previous[i][j].x + alpha * (p.x - this.previous[i][j].x), y: this.previous[i][j].y + alpha * (p.y - this.previous[i][j].y)})));
-    }
-    const corners = convexHull(hands.flatMap(points => [points[4], points[8]]));
-    if (corners.length !== 4 || polygonArea(corners) < .008) return {valid: false, reason: 'Spread your hands to make a window'};
     this.previous = hands;
     this.lastTime = time;
-    return {valid: true, corners, reason: 'Hold your frame'};
+    const invalid = reason => ({valid: false, hands, reason});
+    if (hands.length < 2) return invalid(hands.length ? 'One hand tracked · Show your other hand' : 'Show both hands');
+    if (!rawHands.every(isFraming)) return invalid('Open your thumbs and index fingers');
+    const boundary = points => convexHull(points.flatMap(hand => [hand[4], hand[8]]));
+    const usable = corners => corners.length === 4 && polygonArea(corners) >= .002
+      && corners.every(p => p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1);
+    const corners = boundary(hands);
+    if (distance(rawHands[0][0], rawHands[1][0]) < .04 || !usable(boundary(rawHands)) || !usable(corners)) return invalid('Spread your hands to make a window');
+    return {valid: true, corners, hands, reason: 'Hold your frame'};
   }
 }
 
 export class DomainState {
   constructor() { this.reset(); }
-  reset() { this.since = null; this.lastValid = null; this.frame = null; this.active = false; this.activatedAt = null; this.reason = 'Show both hands'; }
-  update(frame, time) {
+  reset() { this.since = null; this.lastResult = null; this.expiresAfter = LOST_MS; this.hands = []; this.frame = null; this.active = false; this.activatedAt = null; this.reason = 'Show both hands'; }
+  update(frame, time, latency = 0) {
     this.snapshot(time);
+    this.lastResult = time;
+    // Allow one inference interval on slower devices; explicit hand loss clears immediately.
+    this.expiresAfter = Math.max(LOST_MS, Math.min(1200, latency * 2 + 100));
+    this.hands = frame.hands || [];
     this.reason = frame.reason;
-    if (!frame.valid) { this.since = null; return this.snapshot(time); }
+    if (!frame.valid) { this.since = null; this.active = false; this.frame = null; return this.snapshot(time); }
     if (this.since === null) this.since = time;
-    this.lastValid = time;
     this.frame = frame;
     if (!this.active && time - this.since >= ACTIVATE_MS) { this.active = true; this.activatedAt = time; }
     return this.snapshot(time);
   }
   snapshot(time) {
-    if (this.lastValid !== null && time - this.lastValid >= LOST_MS) {
-      this.active = false; this.since = null; this.frame = null; this.lastValid = null; this.reason = 'Show both hands';
-    }
-    return {active: this.active, frame: this.active ? this.frame : null, activatedAt: this.activatedAt, reason: this.active ? 'Domain active' : this.reason};
+    if (this.lastResult !== null && time - this.lastResult >= this.expiresAfter) this.reset();
+    return {active: this.active, frame: this.active ? this.frame : null, hands: this.hands, activatedAt: this.activatedAt, reason: this.active ? 'Domain active' : this.reason};
   }
+}
+
+export function applyTrackingResult(tracker, domain, result, capturedAt, receivedAt) {
+  const latency = receivedAt - capturedAt;
+  if (latency < 0 || latency >= MAX_RESULT_AGE_MS) {
+    tracker.reset(); domain.reset();
+    return domain.snapshot(receivedAt);
+  }
+  return domain.update(tracker.update(result, receivedAt), receivedAt, latency);
 }
 
 export function containRect(sourceWidth, sourceHeight, width, height) {

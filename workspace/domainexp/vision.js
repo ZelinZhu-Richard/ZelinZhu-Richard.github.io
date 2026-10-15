@@ -1,7 +1,7 @@
 export async function createModel(cpu = false) {
   const {FilesetResolver, HandLandmarker} = await import('./vendor/mediapipe/vision_bundle.mjs');
   const files = await FilesetResolver.forVisionTasks(new URL('./vendor/mediapipe/wasm', import.meta.url).href);
-  const options = {baseOptions: {modelAssetPath: new URL('./vendor/hand_landmarker.task', import.meta.url).href, delegate: cpu ? 'CPU' : 'GPU'}, runningMode: 'VIDEO', numHands: 2, minHandDetectionConfidence: .6, minHandPresenceConfidence: .6, minTrackingConfidence: .6};
+  const options = {baseOptions: {modelAssetPath: new URL('./vendor/hand_landmarker.task', import.meta.url).href, delegate: cpu ? 'CPU' : 'GPU'}, runningMode: 'VIDEO', numHands: 2, minHandDetectionConfidence: .4, minHandPresenceConfidence: .4, minTrackingConfidence: .4};
   try { return await HandLandmarker.createFromOptions(files, options); }
   catch (error) {
     if (cpu) throw error;

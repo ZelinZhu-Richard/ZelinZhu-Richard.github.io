@@ -1,5 +1,24 @@
 import {containRect, projectPoint} from './geometry.js';
 
+const CONNECTIONS = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+
+export function drawHands(ctx, hands, rect, scale = 1) {
+  ctx.save();
+  ctx.strokeStyle = '#c8a6ff'; ctx.lineWidth = 1.5 * scale;
+  for (const hand of hands) {
+    const points = hand.map(point => projectPoint(point, rect));
+    ctx.beginPath();
+    for (const [a, b] of CONNECTIONS) { ctx.moveTo(points[a].x, points[a].y); ctx.lineTo(points[b].x, points[b].y); }
+    ctx.stroke();
+    points.forEach((point, index) => {
+      const corner = index === 4 || index === 8;
+      ctx.beginPath(); ctx.arc(point.x, point.y, (corner ? 5 : 2.5) * scale, 0, Math.PI * 2);
+      ctx.fillStyle = corner ? '#fff2cd' : '#e7d6ff'; ctx.fill();
+    });
+  }
+  ctx.restore();
+}
+
 function path(ctx, points) {
   ctx.beginPath();
   points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
@@ -46,8 +65,9 @@ export class Renderer {
     if (!video.videoWidth || video.readyState < 2) return;
     const rect = containRect(video.videoWidth, video.videoHeight, width, height);
     drawCamera(ctx, video, rect);
-    if (!state.active || !state.frame) return;
+    if (!state.active || !state.frame) { drawHands(ctx, state.hands || [], rect, scale); return; }
     drawPixelated(ctx, video, rect, state.frame.corners, blockSize * scale, this.buffer);
+    drawHands(ctx, state.hands || [], rect, scale);
     const corners = state.frame.corners.map(p => projectPoint(p, rect));
     ctx.save();
     path(ctx, corners);

@@ -135,7 +135,7 @@
     ],
     "donts": [
       "**Don't** move controls over the live domain.",
-      "**Don't** alter the camera image outside the fingertip-defined pixel window.",
+      "**Don't** apply pixelation outside the fingertip-defined window; finger outlines and the boundary glow may extend outside it.",
       "**Don't** restore the decorative stage label or lose sentence spacing on mobile.",
       "**Don't** treat synthetic captures as evidence of physical hand-tracking accuracy."
     ]

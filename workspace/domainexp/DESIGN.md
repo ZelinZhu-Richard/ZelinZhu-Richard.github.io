@@ -114,7 +114,7 @@ The stage and dividers have straight edges. Buttons use the control-radius token
 
 **Buttons.** Start camera uses the filled primary variant; Stop, fullscreen, and Menu use outlined treatments. The introductory button adds an arrow, a 24px content gap, and 12px by 22px padding. Hover brightens the primary fill or adds a translucent violet fill and brighter border to secondary controls. Transitions last 180ms with ease timing. Disabled buttons use .38 opacity. Active buttons use a pressed lavender fill without scaling. Buttons, links, the slider, and help summary have a two-pixel lavender focus outline with five-pixel offset.
 
-**Camera stage.** The active domain uses a violet luminous boundary, four bright fingertip points with rings, a single outward activation pulse lasting 650ms, and twelve slow particles confined to its perimeter. Reduced motion keeps the boundary and points but removes the pulse and particles. The webcam is mirrored and contained; the image outside the boundary remains unchanged. There is no decorative top-left stage label. Camera metadata remains top right, status bottom left, and the secondary domain label hides on phones.
+**Camera stage.** The active domain uses a violet luminous boundary, four bright fingertip points with rings, a single outward activation pulse lasting 650ms, and twelve slow particles confined to its perimeter. Reduced motion keeps the boundary and points but removes the pulse and particles. Violet outlines and joint dots show each detected hand before activation, with gold thumb/index tips. A hand counter distinguishes recognition from framing. The webcam is mirrored and contained; the image outside the boundary remains unchanged apart from these tracking guides. There is no decorative top-left stage label. Camera metadata remains top right, status bottom left, and the secondary domain label hides on phones.
 
 **Pixel size.** The native labeled range runs from 6 to 40, initially 16. Its lavender accent and numeric output stay visible. Width is 140px on desktop, 115px at the intermediate breakpoint, and 60% of its row on phones. Preserve native keyboard interaction.
 
@@ -135,6 +135,6 @@ Camera processing is local; the initial view clearly states this. Native buttons
 
 ### Don't:
 - **Don't** move controls over the live domain.
-- **Don't** alter the camera image outside the fingertip-defined pixel window.
+- **Don't** apply pixelation outside the fingertip-defined window; finger outlines and the boundary glow may extend outside it.
 - **Don't** restore the decorative stage label or lose sentence spacing on mobile.
 - **Don't** treat synthetic captures as evidence of physical hand-tracking accuracy.
