@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-15T15:28:36.443828+00:00",
+  "title": "Design System: Domain Expansion",
+  "extensions": {
+    "typographyMeta": {
+      "emphasis": {
+        "displayName": "Seasons italic",
+        "purpose": "Title emphasis, invitation, wordmark, and closing aside."
+      }
+    },
+    "shadows": [
+      {
+        "name": "active-status",
+        "value": "0 0 12px #c384ff",
+        "purpose": "Halo for the active status point."
+      },
+      {
+        "name": "canvas-boundary",
+        "value": "shadowColor: #964cff; shadowBlur: 22 * renderScale",
+        "purpose": "Canvas glow around the active polygon; not a CSS shadow."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-transition",
+        "value": "180ms ease",
+        "purpose": "Button background, border, and color feedback."
+      },
+      {
+        "name": "activation-pulse",
+        "value": "650ms; scale 1 to 1.12; opacity .6 to 0",
+        "purpose": "One outward pulse at activation."
+      },
+      {
+        "name": "perimeter-particles",
+        "value": "12 particles; 4200ms edge traversal",
+        "purpose": "Slow movement confined to the domain perimeter."
+      },
+      {
+        "name": "loading-diamond",
+        "value": "1.6s ease-in-out infinite",
+        "purpose": "Outlined diamond rotates during loading."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Remove CSS animations/transitions and canvas pulse/particles; preserve boundary and fingertip points."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "700px"
+      },
+      {
+        "name": "compact-controls",
+        "value": "1000px"
+      },
+      {
+        "name": "short-desktop",
+        "value": "max-height: 600px and min-width: 701px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Start camera",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Filled camera-permission action.",
+      "html": "<button class=\"ds-button ds-primary\" type=\"button\">Start camera</button>",
+      "css": ".ds-button{font-family:Neoris,Arial,sans-serif;font-size:14px;line-height:1.3;border:1px solid #baa2d557;border-radius:3px;padding:11px 18px;min-height:46px;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease}.ds-button:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}.ds-button:disabled{opacity:.38;cursor:default}.ds-button:active:not(:disabled){background:#c1a0e0;transform:none}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-primary{background:#dfc4fa;color:#231333;border-color:#dfc4fa}.ds-primary:hover:not(:disabled){background:#f0ddff;border-color:#f0ddff}"
+    },
+    {
+      "name": "Stop",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined secondary control, kept outside the loading overlay.",
+      "html": "<button class=\"ds-button ds-secondary\" type=\"button\">Stop</button>",
+      "css": ".ds-button{font-family:Neoris,Arial,sans-serif;font-size:14px;line-height:1.3;border:1px solid #baa2d557;border-radius:3px;padding:11px 18px;min-height:46px;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease}.ds-button:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}.ds-button:disabled{opacity:.38;cursor:default}.ds-button:active:not(:disabled){background:#c1a0e0;transform:none}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-secondary{background:transparent;color:var(--ink,#f8f0fc)}.ds-secondary:hover:not(:disabled){background:#b589ed24;border-color:#d4b2f6}"
+    },
+    {
+      "name": "Pixel size",
+      "kind": "input",
+      "description": "Native keyboard-operable range with initial numeric output.",
+      "html": "<div class=\"ds-pixel\"><label for=\"ds-pixel-size\">Pixel size <output for=\"ds-pixel-size\">16</output></label><input id=\"ds-pixel-size\" type=\"range\" min=\"6\" max=\"40\" step=\"1\" value=\"16\"></div>",
+      "css": ".ds-pixel{display:flex;align-items:center;gap:22px;font-family:Neoris,Arial,sans-serif}.ds-pixel label{font-size:13px;color:#d5c6e4;white-space:nowrap}.ds-pixel output{display:inline-block;min-width:26px;margin-left:8px;color:var(--ink,#f8f0fc);font-variant-numeric:tabular-nums}.ds-pixel input{width:140px;min-height:44px;margin:0;accent-color:#d9b7f8;cursor:pointer}.ds-pixel input:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}"
+    },
+    {
+      "name": "Active status",
+      "kind": "custom",
+      "refersTo": "live-status",
+      "description": "Stable text backing and halo over live camera footage.",
+      "html": "<div class=\"ds-status\"><span class=\"ds-dot\" aria-hidden=\"true\"></span><span role=\"status\">Domain active</span></div>",
+      "css": ".ds-status{display:inline-flex;gap:10px;align-items:center;background:#090713e6;color:#f2e7ff;padding:6px 10px;font:13px/1.4 Neoris,Arial,sans-serif}.ds-dot{width:6px;height:6px;flex-shrink:0;border-radius:50%;background:#e2c3ff;box-shadow:0 0 12px #c384ff}"
+    },
+    {
+      "name": "Current navigation",
+      "kind": "nav",
+      "description": "Representative portfolio navigation links with current destination underline.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><a href=\"/work/\">Work</a><a href=\"/domainexp/\" aria-current=\"page\">Domain Expansion</a></nav>",
+      "css": ".ds-nav{display:flex;gap:clamp(14px,1.7vw,28px);font:15px/1.65 Neoris,Arial,sans-serif;color:var(--ink,#f8f0fc)}.ds-nav a{color:inherit;text-decoration:none;border-bottom:1px solid transparent}.ds-nav a[aria-current]{border-color:var(--ink,#f8f0fc)}.ds-nav a:hover{color:var(--accent,#dfccff)}.ds-nav a:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}.ds-nav a:active{transform:scale(.98)}"
+    },
+    {
+      "name": "Help disclosure",
+      "kind": "custom",
+      "description": "Native expandable help below the experience.",
+      "html": "<details class=\"ds-help\"><summary>A little help opening your domain</summary><div><p>Keep both hands fully visible, with your palms facing the camera.</p></div></details>",
+      "css": ".ds-help{border:0;border-top:1px solid #baa2d53d;padding:16px 0;color:var(--muted,#c2bad0);font:14px/1.65 Neoris,Arial,sans-serif}.ds-help summary{color:#e4d6ef;cursor:pointer;padding:6px 0;width:fit-content;min-height:44px}.ds-help summary:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}.ds-help>div{max-width:70ch;padding:0 0 5px;line-height:1.75}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The webcam is the work",
+    "overview": "An Experience surface: the live webcam is the work. The portfolio’s deep purple ground, Neoris text, Seasons italics, pale lavender ink, and thin rules remain the visual authority. The title is compact so the camera occupies most of the first view. This document records the implemented Domain Expansion surface, not new rules for the whole portfolio.\n\nBefore camera permission, an authored two-hand diagram explains the frame. Start camera is the primary action. During startup, Stop remains outside the loading overlay. During play, controls remain below the camera rather than obscuring the domain. The same controls and reading order persist on phones; the pixel slider becomes a second row.",
+    "keyCharacteristics": [
+      "A large, square-cornered camera stage with a restrained editorial frame.",
+      "Neoris interface text paired with Seasons italic emphasis.",
+      "Pale lavender controls and an anime-inspired violet domain boundary.",
+      "Explicit camera states and readable text over changing footage."
+    ],
+    "rules": [
+      {
+        "name": "The Live Text Rule",
+        "body": "Live camera labels and status text keep their individual dark backings as well as the stage-edge gradients. Footage must not become their only background.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** preserve Neoris and Seasons, the purple ground, pale lavender ink, and thin rules.",
+      "**Do** keep Start camera prominent and Stop reachable during loading.",
+      "**Do** keep live labels on their dark backings and retain visible keyboard focus.",
+      "**Do** preserve the mobile control order and native labeled slider.",
+      "**Do** retain the boundary and fingertip points under reduced motion."
+    ],
+    "donts": [
+      "**Don't** move controls over the live domain.",
+      "**Don't** alter the camera image outside the fingertip-defined pixel window.",
+      "**Don't** restore the decorative stage label or lose sentence spacing on mobile.",
+      "**Don't** treat synthetic captures as evidence of physical hand-tracking accuracy."
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Domain Expansion — Richard Zhu</title>
+  <meta name="description" content="Frame a window with your hands. Turn the world inside it into pixels. A browser-local camera experiment by Richard Zhu.">
+  <link rel="canonical" href="https://zelinzhu-richard.github.io/domainexp/">
+  <meta property="og:title" content="Domain Expansion — Richard Zhu">
+  <meta property="og:description" content="Your hands draw the boundary. Reality becomes pixels.">
+  <meta property="og:url" content="https://zelinzhu-richard.github.io/domainexp/">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
+  <meta name="theme-color" content="#111022">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/portfolio.css">
+  <link rel="stylesheet" href="./style.css">
+  <script src="/portfolio.js" defer></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body class="domain-page">
+  <a class="skip-link" href="#main">Skip to experience</a>
+  <!-- PORTFOLIO_HEADER -->
+  <main id="main" class="domain-main">
+    <div class="title-row">
+      <h1>Domain <em>Expansion.</em><span lang="zh-Hans">领域展开</span></h1>
+      <p>Your hands draw the boundary.<br> The world inside becomes pixels.</p>
+    </div>
+    <section class="experience" aria-label="Domain Expansion camera experience">
+      <div class="arena" id="arena" data-state="idle">
+        <video id="camera" muted playsinline aria-hidden="true"></video>
+        <canvas id="view" aria-label="Mirrored webcam with a pixelated window between your thumbs and index fingers"></canvas>
+        <div class="arena-top" aria-hidden="true"><span id="camera-label">CAMERA OFF</span></div>
+        <div class="intro" id="intro">
+          <div class="frame-guide" aria-hidden="true">
+            <svg viewBox="0 0 560 240" fill="none">
+              <defs>
+                <pattern id="pixels" width="24" height="24" patternUnits="userSpaceOnUse"><path fill="#7c4dbb" fill-opacity=".15" d="M0 0h24v24H0z"/><path fill="#b18adf" fill-opacity=".18" d="M0 0h12v12H0zM12 12h12v12H12z"/></pattern>
+                <linearGradient id="frame-light" x1="183" y1="60" x2="377" y2="190" gradientUnits="userSpaceOnUse"><stop stop-color="#d7b5ff"/><stop offset="1" stop-color="#8956d6"/></linearGradient>
+              </defs>
+              <path d="M183 55H377V185H183Z" fill="url(#pixels)" stroke="url(#frame-light)" stroke-width="1.5"/>
+              <g stroke="#d7c2ed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M130 218l-13-24c-4-8-8-18-8-30v-44c0-13 16-13 16 0v22-36c0-13 16-13 16 0v32-45c0-13 16-13 16 0v38-65c0-17 23-17 23 0v83l37 20c12 7 3 25-9 19l-37-14-5 44"/>
+                <path d="M430 22l13 24c4 8 8 18 8 30v44c0 13-16 13-16 0V98v36c0 13-16 13-16 0v-32 45c0 13-16 13-16 0v-38 65c0 17-23 17-23 0V91l-37-20c-12-7-3-25 9-19l37 14 5-44"/>
+              </g>
+              <g fill="#f1e6ff"><circle cx="183" cy="55" r="4"/><circle cx="377" cy="55" r="4"/><circle cx="183" cy="185" r="4"/><circle cx="377" cy="185" r="4"/></g>
+            </svg>
+          </div>
+          <h2>Make room for<br><em>another reality.</em></h2>
+          <p>Make an L with each thumb and index finger.<br>Face your palms toward the camera and frame a window.</p>
+          <button class="primary start-trigger" id="intro-start" type="button">Start camera <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
+          <span class="local-note">Your camera stays on your device.</span>
+        </div>
+        <div class="loading" id="loading" hidden><span class="loading-mark" aria-hidden="true"></span><p id="loading-text">Opening camera…</p><span>You can stop at any time.</span></div>
+        <div class="arena-bottom"><div class="status"><span class="status-dot" aria-hidden="true"></span><span id="status" role="status" aria-live="polite">Ready when you are</span></div><span id="domain-label" aria-hidden="true">FRAME / TRANSFORM</span></div>
+      </div>
+      <div class="control-bar">
+        <div class="camera-controls"><button type="button" id="start" class="primary start-trigger">Start camera</button><button type="button" id="stop" disabled>Stop</button></div>
+        <div class="pixel-control"><label for="pixel-size">Pixel size <output id="pixel-value" for="pixel-size">16</output></label><input type="range" id="pixel-size" min="6" max="40" step="1" value="16"></div>
+        <button type="button" id="fullscreen" class="fullscreen"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg><span>Fullscreen</span></button>
+      </div>
+      <p class="error" id="error" role="alert" hidden></p>
+    </section>
+    <div class="below-stage"><p>Frame with both hands. Move to reshape. Lower a hand to release.</p><span>Made to be played with.</span></div>
+    <details class="help"><summary>A little help opening your domain</summary><div><p>Keep both hands fully visible, with your palms facing the camera. Extend each index finger and thumb into an L shape, and hold them as opposite corners of a window. Turn one hand upside down for a wider frame. The other fingers can stay relaxed.</p><p>Bright, even lighting and a steady camera make tracking easier. Crossed or overlapping hands can hide the fingertips; separate them to restore your domain. If tracking feels slow, try a smaller browser window.</p><p>Camera images are processed in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs turns the camera off; press Start camera to resume.</p><p>Hand tracking uses <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker" target="_blank" rel="noopener noreferrer">MediaPipe</a> · <a href="./vendor/MEDIAPIPE-LICENSE.txt">Apache 2.0 license</a>.</p></div></details>
+    <footer class="domain-footer"><a href="/work/">More experiments by Richard Zhu</a><a href="https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/domainexp" target="_blank" rel="noopener noreferrer">View source</a></footer>
+  </main>
+</body>
+</html>

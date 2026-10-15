@@ -101,6 +101,17 @@ export const PROJECTS = [
     live: '/gym/',
     repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/gym',
   },
+  {
+    id: 'domain-expansion',
+    name: 'Domain Expansion',
+    context: 'Personal · Interactive Experiment',
+    year: '2026',
+    oneLiner: 'Your hands draw the boundary. Reality becomes pixels.',
+    desc: 'Frame a window with your thumbs and index fingers to pixelate the world inside it. A live camera experiment with hand tracking, a glowing domain, and browser-local processing.',
+    tags: ['Computer Vision', 'Creative Coding', 'Canvas'],
+    live: '/domainexp/',
+    repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/domainexp',
+  },
 ];
 
 export const SKILLS = {

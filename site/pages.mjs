@@ -2,7 +2,7 @@ import { LINKS, ABOUT, EXPERIENCE, PROJECTS, SKILLS } from './content.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
-const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],[LINKS.resume,'CV'],['/contacts/','Contact']];
+const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],[LINKS.resume,'CV'],['/contacts/','Contact']];
 const frame = (path, title, description, body) => `<!doctype html>
 <html lang="en">
 <head>
@@ -101,7 +101,7 @@ export function pages() {
 <div class="actions">${link('/work/','Explore the projects')}${link(LINKS.github,'GitHub')}</div>
 </section>`;
   return new Map([
-    ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, and Gym.',work)],
+    ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, Gym, and Domain Expansion.',work)],
     ['about/index.html',frame('/about/','About','About Richard Zhu, a computer science and economics student at UNC Chapel Hill.',about)],
     ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES and related projects.',research)],
     ['404.html',frame('/404.html','Page not found','This page could not be found.',intro('404','A different<br><em>path.</em>','This page does not exist. Return to the homepage or explore the work.')+`<div class="actions">${link('/','Home')}${link('/work/','Selected work')}</div>`)],

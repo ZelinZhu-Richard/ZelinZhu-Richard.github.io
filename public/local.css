@@ -26,3 +26,10 @@ header .logo-link:hover .logo-wrapper {opacity:1!important;}
 .mobile-menu:not(:has(.opacity-100)) {visibility:hidden;}
 footer a[href^="mailto:"] {font-size:clamp(20px,4vw,60px);overflow-wrap:anywhere;}
 @media(max-width:767px){.home-hero h1{font-size:16vw;}.home-hero h2{margin-bottom:0;}}
+
+/* Domain Expansion navigation: room for every experiment at all viewport sizes. */
+@media(max-width:1199px){header .portfolio-desktop-links{display:none!important}header .portfolio-menu-trigger{display:block!important}}
+.mobile-menu{height:100svh;overflow-y:auto;justify-content:flex-start!important;padding:100px 24px 32px;gap:32px}
+.mobile-menu>div:empty{display:none}
+.mobile-menu>div:has(>a){gap:20px!important}
+.mobile-menu a{font-size:clamp(20px,3.5vh,32px);line-height:1.25}

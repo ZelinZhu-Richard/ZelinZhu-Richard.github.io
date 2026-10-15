@@ -404,3 +404,12 @@ figcaption{
     transition:none!important
   }
 }
+
+/* Domain Expansion navigation: collapse before the expanded links overflow. */
+@media(min-width:901px) and (max-width:1399px){
+  .site-header{position:relative}
+  .menu-button{display:block}
+  .site-header nav{display:none;position:absolute;top:100%;left:4vw;right:4vw;z-index:30;flex-direction:column;gap:12px;padding:24px;background:var(--page);border:1px solid var(--line)}
+  .site-header nav.open{display:flex}
+}
+@media(min-width:1400px){.site-header nav{gap:20px}.site-header nav a{font-size:16px}}
