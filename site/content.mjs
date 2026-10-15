@@ -79,6 +79,17 @@ export const PROJECTS = [
     live: 'https://apexanalysis.streamlit.app/',
     repo: 'https://github.com/ZelinZhu-Richard/Apex-Analysis',
   },
+  {
+    id: 'paper-piano',
+    name: 'Paper Piano',
+    context: 'Personal · Interactive Experiment',
+    year: '2026',
+    oneLiner: 'An instrument, anywhere.',
+    desc: 'Shape chords with hand gestures, or play a keyboard drawn on paper. Browser-local computer vision and sound, with guided calibration for experimental paper-tap detection.',
+    tags: ['Computer Vision', 'Web Audio', 'Creative Coding'],
+    live: '/ppiano/',
+    repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/ppiano',
+  },
 ];
 
 export const SKILLS = {

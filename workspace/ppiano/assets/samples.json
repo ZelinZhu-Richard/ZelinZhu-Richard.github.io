@@ -1,0 +1,80 @@
+{
+  "piano": [
+    {
+      "midi": 45,
+      "url": "/ppiano/assets/samples/piano/A2.mp3"
+    },
+    {
+      "midi": 48,
+      "url": "/ppiano/assets/samples/piano/C3.mp3"
+    },
+    {
+      "midi": 53,
+      "url": "/ppiano/assets/samples/piano/F3.mp3"
+    },
+    {
+      "midi": 60,
+      "url": "/ppiano/assets/samples/piano/C4.mp3"
+    },
+    {
+      "midi": 65,
+      "url": "/ppiano/assets/samples/piano/F4.mp3"
+    },
+    {
+      "midi": 72,
+      "url": "/ppiano/assets/samples/piano/C5.mp3"
+    },
+    {
+      "midi": 77,
+      "url": "/ppiano/assets/samples/piano/F5.mp3"
+    }
+  ],
+  "strings": [
+    {
+      "midi": 55,
+      "url": "/ppiano/assets/samples/strings/G3.mp3"
+    },
+    {
+      "midi": 60,
+      "url": "/ppiano/assets/samples/strings/C4.mp3"
+    },
+    {
+      "midi": 67,
+      "url": "/ppiano/assets/samples/strings/G4.mp3"
+    },
+    {
+      "midi": 72,
+      "url": "/ppiano/assets/samples/strings/C5.mp3"
+    },
+    {
+      "midi": 79,
+      "url": "/ppiano/assets/samples/strings/G5.mp3"
+    }
+  ],
+  "horns": [
+    {
+      "midi": 43,
+      "url": "/ppiano/assets/samples/horns/G2.mp3"
+    },
+    {
+      "midi": 50,
+      "url": "/ppiano/assets/samples/horns/D3.mp3"
+    },
+    {
+      "midi": 53,
+      "url": "/ppiano/assets/samples/horns/F3.mp3"
+    },
+    {
+      "midi": 60,
+      "url": "/ppiano/assets/samples/horns/C4.mp3"
+    },
+    {
+      "midi": 74,
+      "url": "/ppiano/assets/samples/horns/D5.mp3"
+    },
+    {
+      "midi": 77,
+      "url": "/ppiano/assets/samples/horns/F5.mp3"
+    }
+  ]
+}

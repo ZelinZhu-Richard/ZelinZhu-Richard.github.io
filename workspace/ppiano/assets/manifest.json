@@ -1,0 +1,181 @@
+{
+  "mediapipe": "0.10.14",
+  "opencv": "4.13.0",
+  "samplesCommit": "622c2f1c32c8cfce4158ddc3eb26e518ddef37e5",
+  "files": [
+    {
+      "file": "vendor/mediapipe/vision_bundle.mjs",
+      "url": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs",
+      "bytes": 136870,
+      "sha256": "e77f281f9619150d937023c355bae170e9120e3b9e43f1e23a2a7bee07197669"
+    },
+    {
+      "file": "vendor/mediapipe/wasm/vision_wasm_internal.js",
+      "url": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm/vision_wasm_internal.js",
+      "bytes": 209826,
+      "sha256": "9440cf0cc0cea21800e31581ec32aeedcc5fbf9df4509796bbc7d3f99e52ab9c"
+    },
+    {
+      "file": "vendor/mediapipe/wasm/vision_wasm_internal.wasm",
+      "url": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm/vision_wasm_internal.wasm",
+      "bytes": 9423986,
+      "sha256": "f82a8e6c05e08a44cc9f9e7ec5f845935bcbb1b1500ebe8c2f4812fb4e2917dc"
+    },
+    {
+      "file": "vendor/mediapipe/wasm/vision_wasm_nosimd_internal.js",
+      "url": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm/vision_wasm_nosimd_internal.js",
+      "bytes": 209735,
+      "sha256": "abe9b6fbeaf86fcb53a5edce3926c82ccb0619e18fed4d9d9ce561ee7f55e054"
+    },
+    {
+      "file": "vendor/mediapipe/wasm/vision_wasm_nosimd_internal.wasm",
+      "url": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm/vision_wasm_nosimd_internal.wasm",
+      "bytes": 9294247,
+      "sha256": "38b61feab2fd7934e05cbe9f68baa308978a5e3b7f85c1913bb8ae89b8ef8b97"
+    },
+    {
+      "file": "vendor/hand_landmarker.task",
+      "url": "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+      "bytes": 7819105,
+      "sha256": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1"
+    },
+    {
+      "file": "vendor/opencv.js",
+      "url": "https://docs.opencv.org/4.13.0/opencv.js",
+      "bytes": 10964323,
+      "sha256": "63366510248adf3a7eddf3e793dd825404efb7df3749f4d6f8557c7fa4ca8aa0"
+    },
+    {
+      "file": "vendor/MEDIAPIPE-LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/google-ai-edge/mediapipe/v0.10.14/LICENSE",
+      "bytes": 12331,
+      "sha256": "8707eef0533987efc5b155d64761eeb6e20793f50b9bd1a68dad1cf4719d0ed8"
+    },
+    {
+      "file": "vendor/OPENCV-LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/opencv/opencv/4.13.0/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "file": "assets/samples/piano/A2.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/piano/A2.mp3",
+      "bytes": 230400,
+      "sha256": "557d453048c86cec76a5f674963aa52119507f6b886b41e5b60d050526447ce8"
+    },
+    {
+      "file": "assets/samples/piano/C3.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/piano/C3.mp3",
+      "bytes": 262326,
+      "sha256": "277149247cbd666ce256689369e5f501bafdb68d027d866178b7944820f8ebc6"
+    },
+    {
+      "file": "assets/samples/piano/F3.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/piano/F3.mp3",
+      "bytes": 175938,
+      "sha256": "dd80c7cdeb3568f79061e2d8e24f02507a618815b6ff11368b2ff1cbc4e04da3"
+    },
+    {
+      "file": "assets/samples/piano/C4.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/piano/C4.mp3",
+      "bytes": 239164,
+      "sha256": "a265c8cfd4140cf27b55054b4953b6c691fce3523530ca8ae0faed5e4cd39063"
+    },
+    {
+      "file": "assets/samples/piano/F4.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/piano/F4.mp3",
+      "bytes": 193466,
+      "sha256": "9b705bc7498780be5a509e94e4ef4cdd0911fe970d60f0781636ebe95d655e0b"
+    },
+    {
+      "file": "assets/samples/piano/C5.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/piano/C5.mp3",
+      "bytes": 177190,
+      "sha256": "54a9304d2c609328580c0e06a394670559fe5f594f643d5d12c6dae158051b4a"
+    },
+    {
+      "file": "assets/samples/piano/F5.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/piano/F5.mp3",
+      "bytes": 158410,
+      "sha256": "df514d683645777d5cd74c81f62b509db48d065ad67cd5ccc3e83353208353af"
+    },
+    {
+      "file": "assets/samples/strings/G3.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/violin/G3.mp3",
+      "bytes": 400672,
+      "sha256": "4425d83aa3e497c3a38aba0d81821fa253b4d7ba5bc99ee51932f3af7587406b"
+    },
+    {
+      "file": "assets/samples/strings/C4.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/violin/C4.mp3",
+      "bytes": 318666,
+      "sha256": "47a86f01f5a9f978e3328d72ecc3d12ad72cc18852676f655090e68c34b87d8c"
+    },
+    {
+      "file": "assets/samples/strings/G4.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/violin/G4.mp3",
+      "bytes": 323048,
+      "sha256": "37ea8621e0217d18c832864913a5a4615208733b38c7c5fcfcb347e40c16fe67"
+    },
+    {
+      "file": "assets/samples/strings/C5.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/violin/C5.mp3",
+      "bytes": 341202,
+      "sha256": "51315c5bce2c5186d0ac5bd69b72d632bc6188c9401a19212998fcd11ba2934a"
+    },
+    {
+      "file": "assets/samples/strings/G5.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/violin/G5.mp3",
+      "bytes": 303642,
+      "sha256": "9de7664fafe3f81d2db6007d1ff19b0223afbfe3fe6c6dac8ad74be00105d1ec"
+    },
+    {
+      "file": "assets/samples/horns/G2.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/french-horn/G2.mp3",
+      "bytes": 278602,
+      "sha256": "288a5db7a3c407279f5c63d5ff95562421a2f7db1ada0e682cce6ae7655f61a0"
+    },
+    {
+      "file": "assets/samples/horns/D3.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/french-horn/D3.mp3",
+      "bytes": 341202,
+      "sha256": "6a583ba97a6face8bc5fb4b515033689d646dfaed449871ac1bdc0b5f6d2cf26"
+    },
+    {
+      "file": "assets/samples/horns/F3.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/french-horn/F3.mp3",
+      "bytes": 295504,
+      "sha256": "e7947cbda3a029d0766a09214caa35a1e1693cb7daf317567cfaa618b848ce3f"
+    },
+    {
+      "file": "assets/samples/horns/C4.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/french-horn/C4.mp3",
+      "bytes": 343706,
+      "sha256": "6df03aef074349a2fc6f934416f6d3917c859fb8d8f96826a9dbcc50db80b7dd"
+    },
+    {
+      "file": "assets/samples/horns/D5.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/french-horn/D5.mp3",
+      "bytes": 197848,
+      "sha256": "592f9bdfa02afa49bd53346f7641366d6e73181498b976d7f9bd06543e615490"
+    },
+    {
+      "file": "assets/samples/horns/F5.mp3",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/samples/french-horn/F5.mp3",
+      "bytes": 202230,
+      "sha256": "3cd734b836914c88829c9ef73099ad26b87b7f12783d37f157a750a63d11f11d"
+    },
+    {
+      "file": "assets/SAMPLE-LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/LICENSE.md",
+      "bytes": 1161,
+      "sha256": "a98934bef76e4832a20a3dd8e3928cbd6175eba3a651b43256b5f23ce5cfd501"
+    },
+    {
+      "file": "assets/SAMPLE-SOURCES.txt",
+      "url": "https://raw.githubusercontent.com/nbrosowsky/tonejs-instruments/622c2f1c32c8cfce4158ddc3eb26e518ddef37e5/sample-source-info.txt",
+      "bytes": 699,
+      "sha256": "6c098693e0699ed206b23c17097abe4db18241369e7ced8e7e7c800ce1e86578"
+    }
+  ]
+}
