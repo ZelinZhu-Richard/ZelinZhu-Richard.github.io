@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {chordNotes,StableGesture} from '../music.js';
+import {chordNotes,chordLabel,easyChord,StableGesture} from '../music.js';
 import {gestureFromHands,HandTracker} from '../hands.js';
 import {homography,inverse,project,keyAt,validateLayout,videoRect} from '../geometry.js';
 import {TapDetector,calibrateFinger,contactScore} from '../paper.js';
@@ -87,4 +87,23 @@ test('hand identities survive result reordering and uncertain observations stay 
   assert.equal(reordered.find(h=>h.label==='Left').id,ids.Left);assert.equal(reordered.find(h=>h.label==='Right').id,ids.Right);
   assert.equal(tracker.update(result(['Left'],[.22],[.3]),66).length,0);
   assert.equal(tracker.update(result(['Unknown'],[.22]),99).length,0);
+});
+
+test('Easy chords stay inside the selected major scale for all seven degrees',()=>{
+  for(let key=0;key<12;key++)for(let degree=1;degree<=7;degree++){
+    const chord=easyChord(degree),scale=new Set([0,2,4,5,7,9,11].map(n=>(n+key)%12));
+    assert.ok(chordNotes(chord,key).every(n=>scale.has(n%12)));
+    assert.equal(chord.quality,degree===7?5:1);
+  }
+  assert.equal(chordLabel(easyChord(6),0),'Am');assert.equal(chordLabel(easyChord(7),0),'B°');
+  assert.equal(easyChord(0),null);assert.equal(easyChord(8),null);
+});
+test('Easy accepts either hand, fixes expression, and silences a closed hand',()=>{
+  const right=hand('Right',[false,true,true,false,false]);right.major=true;right.volume=0;right.tilt=-1;
+  assert.deepEqual(gestureFromHands([right],{easy:true}),easyChord(2));
+  assert.equal(gestureFromHands([right]),null);
+  right.extended=[false,true,false,false,true];assert.deepEqual(gestureFromHands([right],{easy:true}),easyChord(6));
+  right.extended=[true,true,false,false,true];assert.deepEqual(gestureFromHands([right],{easy:true}),easyChord(7));
+  right.extended.fill(false);assert.equal(gestureFromHands([right],{easy:true}),null);
+  assert.equal(gestureFromHands([],{easy:true}),null);
 });

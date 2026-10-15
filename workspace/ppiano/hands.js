@@ -1,5 +1,5 @@
 import { angle, distance } from './geometry.js';
-import { clamp } from './music.js';
+import { clamp, easyChord } from './music.js';
 export const FINGERS = ['thumb','index','middle','ring','pinky'];
 export const JOINTS = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]];
 export const CONNECTIONS = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
@@ -32,12 +32,13 @@ export class HandTracker {
     return this.tracks;
   }
 }
-export function gestureFromHands(hands, {oneHand=false,raise=false,lower=false,swap=false}={}) {
-  const left=hands.find(h=>h.label===(swap?'Right':'Left')), right=hands.find(h=>h.label===(swap?'Left':'Right'));
-  if(!left||(!oneHand&&!right))return null;
+export function gestureFromHands(hands, {easy=false,oneHand=false,raise=false,lower=false,swap=false}={}) {
+  const left=hands.find(h=>h.label===(swap?'Right':'Left')) || (easy?hands[0]:null), right=hands.find(h=>h.label===(swap?'Left':'Right'));
+  if(!left||(!easy&&!oneHand&&!right))return null;
   const [thumb,index,middle,ring,pinky]=left.extended;
   const count=left.extended.filter(Boolean).length;
   const degree=index&&pinky&&!middle&&!ring?(thumb?7:6):count;
+  if(easy)return easyChord(degree);
   const quality=oneHand?1:right.extended.slice(1).filter(Boolean).length;
   if(!degree||!quality)return null;
   const bottom=Math.max(...left.points.map(p=>p.y));

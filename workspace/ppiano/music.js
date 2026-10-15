@@ -2,6 +2,11 @@ export const NOTE_NAMES = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A�
 export const DEGREES = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
 export const WHITE_NOTES = [60, 62, 64, 65, 67, 69, 71, 72];
 export const BLACK_NOTES = [61, 63, 66, 68, 70];
+export const CHORD_COLORS = ['#f4b354','#e364a3','#c88ce6','#f5df67','#ff9a58','#f57878','#8dd9ef'];
+export function easyChord(degree) {
+  if (!Number.isInteger(degree) || degree < 1 || degree > 7) return null;
+  return {degree, major:[1,4,5].includes(degree), quality:degree===7?5:1, low:false, shift:0, volume:.7, filter:.3};
+}
 export const clamp = (n, min = 0, max = 1) => Math.max(min, Math.min(max, n));
 export const frequency = midi => 440 * 2 ** ((midi - 69) / 12);
 export const noteName = midi => `${NOTE_NAMES[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
@@ -11,7 +16,7 @@ export function chordNotes({ degree, major, quality, low = false, shift = 0 }, k
   const tonic = key >= 6 ? 48 + key : 60 + key;
   const root = tonic + [0, 2, 4, 5, 7, 9, -1][degree - 1] + shift - (low ? 12 : 0);
   const third = major ? 4 : 3;
-  const intervals = quality === 2 ? [third, 7, 12, third + 12]
+  const intervals = quality === 5 ? [0, 3, 6, 12] : quality === 2 ? [third, 7, 12, third + 12]
     : quality === 3 ? [0, third, 7, major ? 11 : 10]
       : quality === 4 ? (major ? [0, 4, 7, 10] : [0, 3, 6, 9]) : [0, 7, 12, third + 12];
   return intervals.map(n => root + n);
@@ -21,7 +26,7 @@ export function chordLabel(state, key) {
   if (!notes.length) return 'Ready when you are';
   const tonic = key >= 6 ? 48 + key : 60 + key;
   const root = tonic + [0, 2, 4, 5, 7, 9, -1][state.degree - 1] + state.shift;
-  const suffix = state.quality === 4 ? (state.major ? '7' : '°7')
+  const suffix = state.quality === 5 ? '°' : state.quality === 4 ? (state.major ? '7' : '°7')
     : state.quality === 3 ? (state.major ? 'maj7' : 'm7') : state.major ? '' : 'm';
   return `${NOTE_NAMES[(root + 120) % 12]}${suffix}${state.quality === 2 ? ' / 1st' : ''}`;
 }

@@ -8,6 +8,14 @@ From the repository root: `npm run dev`, then open `/ppiano/`. `npm test` includ
 
 All first-party source, dependency artifacts, samples, tests, and project documentation live in this directory. The app uses the existing portfolio fonts. It does not load the captured homepage runtime.
 
+## Start playing
+
+Gesture Synth starts in **Easy** with F♯/G♭ and Retro Synth. Show one palm, using either hand. One to five raised fingers select the first five chords. Index + pinky selects the sixth; adding the thumb selects the seventh. Easy chooses major chords for I, IV, V, minor chords for ii, iii, vi, and a diminished triad for vii; volume and filter stay steady. Close your hand to stop. Try **1 → 4 → 5 → 1**, holding each for four beats. This is a starting progression, not a transcription of the reference song.
+
+The visible Hand guide shows finger diagrams, actual chord names for the selected key, and the active chord. Hear a chord previews the first chord without a camera. **Original** restores the reference's manual major/minor tilt and right-hand voicing, octave, volume, and filter controls. Original also retains Left only. Start with both index fingers extended and the right thumb tucked.
+
+Starting Gesture Synth opens **Performance view**: the camera fills the available stage, white hand markers and a chord-colored waveform surround the chord label, and settings can be revealed. Exit performance or Escape returns to the regular layout; Stop shuts down the camera. The hand guide initially collapses in phone-sized performance views so it does not obscure the Start control. Paper mode keeps its calibration layout.
+
 ## Architecture
 
 - `music.js`, `hands.js`: chord construction, rotation-aware finger extension, stable hand matching, gesture stabilization.
