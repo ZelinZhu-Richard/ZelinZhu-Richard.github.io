@@ -3,12 +3,29 @@ import {VisionClient} from './vision.js';
 import {FrameTracker, DomainState, applyTrackingResult} from './geometry.js';
 import {Renderer} from './render.js';
 import {FireballState} from './fireball.js';
+import {DustState} from './dust.js';
 
 const $ = id => document.getElementById(id);
 const video = $('camera'), arena = $('arena'), status = $('status'), error = $('error');
 const startButtons = [...document.querySelectorAll('.start-trigger')];
 const camera = new CameraSession(video), tracker = new FrameTracker(), domain = new DomainState(), renderer = new Renderer($('view'));
 const fireball = new FireballState();
+const dust = new DustState();
+const effects = {
+  domain: {state: domain, guide: 'domain', label: 'FRAME / TRANSFORM', active: 'DOMAIN EXPANDED', prompt: 'Show both hands',
+    title: 'Your hands draw the boundary. The world inside becomes pixels.', lead: 'Make room for', emphasis: 'another reality.',
+    instruction: 'Show both hands, then spread your thumbs and index fingers. The finger outlines help you frame a window.',
+    below: 'Frame with both hands. Move to reshape. Lower a hand to release.', aria: 'Mirrored webcam with a pixelated window between your thumbs and index fingers'},
+  fireball: {state: fireball, guide: 'fire', label: 'PALM / CAST', active: 'FIREBALL CAST', prompt: 'Show an open palm',
+    title: 'An open palm starts the fire. Cast a fireball toward the camera.', lead: 'Fire at', emphasis: 'your fingertips.',
+    instruction: 'Show an open palm to cast. Close and reopen your hand to cast again.',
+    below: 'One open palm. One fireball. Close, reopen, and cast again.', aria: 'Mirrored webcam with fireballs launched from your open palms'},
+  dust: {state: dust, guide: 'dust', label: 'SEAL / RELEASE', active: '尘遁 · DUST RELEASE', prompt: 'Show both palms toward the camera',
+    title: 'Bring your fingertips close. Release a cube of light into dust.', lead: 'A world within', emphasis: 'your hands.',
+    instruction: 'Palms toward the camera. Bring thumb to thumb and index to index, leaving a small gap. Hold to release.',
+    below: 'Two palms. Four fingertips. Hold to release 尘遁, then separate to cast again.', aria: 'Mirrored webcam with a luminous Dust Release cube between both hands'},
+};
+const resetEffects = () => { tracker.reset(); Object.values(effects).forEach(({state}) => state.reset()); };
 let effect = 'domain', effectRevision = 0;
 let vision = null, generation = 0, animation = 0, running = false, busy = false, lastInference = -Infinity, lastVideoTime = -1;
 
@@ -17,11 +34,11 @@ function controls(active) { startButtons.forEach(button => button.disabled = act
 
 function stop(message = 'Camera off. Ready when you are.') {
   generation++; running = false; busy = false; cancelAnimationFrame(animation);
-  camera.stop(); vision?.stop(); vision = null; tracker.reset(); domain.reset(); fireball.reset();
+  camera.stop(); vision?.stop(); vision = null; resetEffects();
   lastInference = -Infinity; lastVideoTime = -1;
   arena.dataset.state = 'idle'; arena.dataset.active = 'false';
   $('intro').hidden = false; $('loading').hidden = true; $('camera-label').textContent = 'CAMERA OFF';
-  $('domain-label').textContent = effect === 'fireball' ? 'PALM / CAST' : 'FRAME / TRANSFORM';
+  $('domain-label').textContent = effects[effect].label;
   controls(false); say(message);
 }
 
@@ -35,16 +52,16 @@ function fail(problem, token) {
 function loop(time) {
   if (!running) return;
   const token = generation, revision = effectRevision, client = vision;
-  const state = (effect === 'fireball' ? fireball : domain).snapshot(time);
+  const state = effects[effect].state.snapshot(time);
   renderer.draw(video, state, time, Number($('pixel-size').value));
   say(state.reason); arena.dataset.active = String(state.active);
-  $('domain-label').textContent = effect === 'fireball' ? (state.active ? 'FIREBALL CAST' : `${state.hands.length} HANDS TRACKED`) : state.active ? 'DOMAIN EXPANDED' : `${state.hands.length} / 2 HANDS TRACKED`;
+  $('domain-label').textContent = state.active ? effects[effect].active : `${state.hands.length}${effect === 'fireball' ? '' : ' / 2'} HANDS TRACKED`;
   const interval = client.mode === 'worker' ? 45 : 100;
   if (!busy && video.readyState >= 2 && video.videoWidth && video.currentTime !== lastVideoTime && time - lastInference >= interval) {
     busy = true; lastInference = time; lastVideoTime = video.currentTime;
     client.track(video, time).then(result => {
       if (generation !== token || revision !== effectRevision || !running || !result) return;
-      applyTrackingResult(tracker, effect === 'fireball' ? fireball : domain, result, time, performance.now());
+      applyTrackingResult(tracker, effects[effect].state, result, time, performance.now());
     }).catch(problem => fail(problem, token)).finally(() => { if (generation === token) busy = false; });
   }
   animation = requestAnimationFrame(loop);
@@ -69,26 +86,26 @@ async function start() {
     if (document.hidden) { stop('Camera paused while this tab is hidden'); return; }
     running = true; $('loading').hidden = true; arena.dataset.state = 'live';
     $('camera-label').textContent = 'CAMERA ON · LOCAL ONLY';
-    say(effect === 'fireball' ? 'Show an open palm' : 'Show both hands'); animation = requestAnimationFrame(loop);
+    say(effects[effect].prompt); animation = requestAnimationFrame(loop);
   } catch (problem) { fail(problem, token); }
 }
 
 document.querySelectorAll('input[name="effect"]').forEach(input => input.addEventListener('change', () => {
   if (!input.checked) return;
   effect = input.value; effectRevision++;
-  tracker.reset(); domain.reset(); fireball.reset();
-  const isFire = effect === 'fireball';
+  resetEffects();
+  const config = effects[effect];
   arena.dataset.effect = effect; arena.dataset.active = 'false';
-  $('domain-guide').hidden = isFire; $('fire-guide').hidden = !isFire;
-  $('fire-help').hidden = !isFire; $('domain-help').hidden = isFire; $('pixel-control').hidden = isFire;
-  $('title-copy').textContent = isFire ? 'An open palm starts the fire. Cast a fireball toward the camera.' : 'Your hands draw the boundary. The world inside becomes pixels.';
-  $('intro-lead').textContent = isFire ? 'Fire at' : 'Make room for';
-  $('intro-emphasis').textContent = isFire ? 'your fingertips.' : 'another reality.';
-  $('intro-instruction').textContent = isFire ? 'Show an open palm to cast. Close and reopen your hand to cast again.' : 'Show both hands, then spread your thumbs and index fingers. The finger outlines help you frame a window.';
-  $('effect-instruction').textContent = isFire ? 'One open palm. One fireball. Close, reopen, and cast again.' : 'Frame with both hands. Move to reshape. Lower a hand to release.';
-  $('view').setAttribute('aria-label', isFire ? 'Mirrored webcam with fireballs launched from your open palms' : 'Mirrored webcam with a pixelated window between your thumbs and index fingers');
-  $('domain-label').textContent = isFire ? 'PALM / CAST' : 'FRAME / TRANSFORM';
-  if (running) say(isFire ? 'Show an open palm' : 'Show both hands');
+  Object.values(effects).forEach(({guide}) => { $(`${guide}-guide`).hidden = guide !== config.guide; $(`${guide}-help`).hidden = guide !== config.guide; });
+  $('pixel-control').hidden = effect !== 'domain';
+  $('title-copy').textContent = config.title;
+  $('intro-lead').textContent = config.lead;
+  $('intro-emphasis').textContent = config.emphasis;
+  $('intro-instruction').textContent = config.instruction;
+  $('effect-instruction').textContent = config.below;
+  $('view').setAttribute('aria-label', config.aria);
+  $('domain-label').textContent = config.label;
+  if (running) say(config.prompt);
   else if (arena.dataset.state !== 'starting') say('Ready when you are');
 }));
 

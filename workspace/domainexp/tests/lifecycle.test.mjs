@@ -71,7 +71,7 @@ test('worker failure rejects tracking, and a fresh start can recover', async () 
 test('failed worker initialization falls back and model failures remain visible', async () => {
   const model = {close() {}, detectForVideo: () => ({landmarks: []})};
   const client = new VisionClient({workerFactory: () => {throw new Error('unsupported');}, modelFactory: async () => model});
-  assert.equal(await client.start(), 'compatibility'); assert.deepEqual(await client.track(video(), 1), {landmarks: []}); client.stop();
+  assert.equal(await client.start(), 'compatibility'); assert.deepEqual(await client.track(video(), 1), {landmarks: [], aspectRatio: 16 / 9}); client.stop();
   const broken = new VisionClient({workerFactory: () => {throw new Error('unsupported');}, modelFactory: async () => {throw new Error('Model unavailable');}});
   await assert.rejects(broken.start(), /Model unavailable/);
 });
@@ -84,7 +84,7 @@ test('browsers with workers but no bitmap transfer use the compatibility path', 
   const client = new VisionClient({modelFactory: async () => model});
   try {
     assert.equal(await client.start(), 'compatibility');
-    assert.deepEqual(await client.track(video(), 1), {landmarks: []});
+    assert.deepEqual(await client.track(video(), 1), {landmarks: [], aspectRatio: 16 / 9});
   } finally {
     client.stop();
     if (previousWorker === undefined) delete globalThis.Worker; else globalThis.Worker = previousWorker;

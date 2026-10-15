@@ -5,7 +5,7 @@ import {join} from 'node:path';
 import {pages} from '../../site/pages.mjs';
 const source = fileURLToPath(new URL('.', import.meta.url));
 const shared = fileURLToPath(new URL('../ppiano/', import.meta.url));
-const runtime = ['style.css', 'app.js', 'camera.js', 'geometry.js', 'render.js', 'fireball.js', 'vision.js', 'vision-worker.js'];
+const runtime = ['style.css', 'app.js', 'camera.js', 'geometry.js', 'render.js', 'fireball.js', 'dust.js', 'vision.js', 'vision-worker.js'];
 
 export async function buildDomainExpansion(output) {
   const target = join(output, 'domainexp');

@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Domain Expansion — Richard Zhu</title>
-  <meta name="description" content="Pixelate a window between your hands or cast a fireball from an open palm. Browser-local camera effects by Richard Zhu.">
+  <meta name="description" content="Frame a pixelated domain, cast a fireball, or release 尘遁 with your hands. Browser-local camera effects by Richard Zhu.">
   <link rel="canonical" href="https://zelinzhu-richard.github.io/domainexp/">
   <meta property="og:title" content="Domain Expansion — Richard Zhu">
-  <meta property="og:description" content="Frame a pixelated domain or cast a fireball from your open palm.">
+  <meta property="og:description" content="Three hand-tracked camera effects: Domain Expansion, Fireball, and Dust Release / 尘遁.">
   <meta property="og:url" content="https://zelinzhu-richard.github.io/domainexp/">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
@@ -30,6 +30,7 @@
       <div class="effect-picker"><span id="effect-label">Effect</span><div role="radiogroup" aria-labelledby="effect-label">
         <label class="effect-option"><input type="radio" name="effect" value="domain" checked><span>Domain Expansion</span></label>
         <label class="effect-option"><input type="radio" name="effect" value="fireball"><span>Fireball <span lang="zh-Hans">火球</span></span></label>
+        <label class="effect-option"><input type="radio" name="effect" value="dust"><span>Dust Release <span lang="zh-Hans">尘遁</span></span></label>
       </div></div>
       <div class="arena" id="arena" data-state="idle">
         <video id="camera" muted playsinline aria-hidden="true"></video>
@@ -61,6 +62,19 @@
               <path d="M303 143l57-31m-13-5 13 5-4 13" stroke="#ffd390" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
+          <div class="frame-guide dust-guide" id="dust-guide" aria-hidden="true" hidden>
+            <svg viewBox="0 0 560 240" fill="none">
+              <defs><radialGradient id="dust-guide-light"><stop stop-color="#ffffff"/><stop offset=".35" stop-color="#d9ffed99"/><stop offset="1" stop-color="#d9ffed00"/></radialGradient></defs>
+              <g stroke="#c5a3e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M132 213l31-43 39-25 57 25m-127 43 42-76 37-53 47-20m-126 149-13-73 7-56 14-36m-8 165-36-66-5-51 3-35m38 152-55-48-19-39-6-30M119 140l44 30 11-33"/>
+                <path d="M428 213l-31-43-39-25-57 25m127 43-42-76-37-53-47-20m126 149 13-73-7-56-14-36m8 165 36-66 5-51-3-35m-38 152 55-48 19-39 6-30M441 140l-44 30-11-33"/>
+              </g>
+              <g stroke="#dbfff0" stroke-width="1.5"><path d="M250 98h55v56h-55zM265 83h55v56h-55zM250 98l15-15m40 15 15-15m-15 71 15-15m-70 15 15-15"/></g>
+              <circle cx="284" cy="119" r="46" fill="url(#dust-guide-light)"/>
+              <g fill="#eafff5"><circle cx="258" cy="64" r="4"/><circle cx="302" cy="64" r="4"/><circle cx="259" cy="170" r="4"/><circle cx="301" cy="170" r="4"/></g>
+              <path d="M267 64h26m-26 106h26" stroke="#d9ffed" stroke-dasharray="3 4" stroke-width="1.5"/>
+            </svg>
+          </div>
           <h2><span id="intro-lead">Make room for</span><br><em id="intro-emphasis">another reality.</em></h2>
           <p id="intro-instruction">Show both hands, then spread your thumbs and index fingers.<br>The finger outlines help you frame a window.</p>
           <button class="primary start-trigger" id="intro-start" type="button">Start camera <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
@@ -77,6 +91,7 @@
       <p class="error" id="error" role="alert" hidden></p>
     </section>
     <div class="below-stage"><p id="effect-instruction">Frame with both hands. Move to reshape. Lower a hand to release.</p><span>Made to be played with.</span></div>
+    <details class="help" id="dust-help" hidden><summary>Releasing 尘遁</summary><div><p>Face both open palms toward the camera. Bring your left and right thumb tips close together, and do the same with your index fingertips. Leave a window between the thumb pair and index pair. A small gap is fine; touching is not required.</p><p>Hold the seal briefly. A white cube charges between your fingers and releases forward into dust. Separate your hands, then form the seal again to recast. The gap tolerance follows your hand size on screen, so an exact 2 cm distance is not measured.</p><p>Keep both palms at a similar distance from the camera and all four fingertips visible. If the seal is not recognized, follow the prompt along the bottom of the camera view. Reduced motion keeps a stationary cube that fades gently, with no flight or scattering particles.</p><p>Everything stays in this browser. No recording, uploads, microphone, or sound. Switching effects shares the same camera; Stop or leaving the tab ends it.</p></div></details>
     <details class="help" id="fire-help" hidden><summary>Casting a fireball</summary><div><p>Show one open palm toward the camera and keep it visible for a moment. A fireball launches from your palm toward you. Close your hand briefly, then reopen it to cast again. Both hands can cast independently.</p><p>Keep your fingers visible and use even lighting. A brief cooldown separates casts. With reduced motion enabled, the fireball becomes a soft, stationary glow without flying embers.</p><p>Camera images stay in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs stops the camera; press Start camera to resume. Tracking uses the same local MediaPipe model as Domain Expansion.</p></div></details>
     <details class="help" id="domain-help"><summary>A little help opening your domain</summary><div><p>Show your palms and look for the violet finger outlines. Gold dots mark your thumbs and index fingers. Spread those four fingertips into a window; your fingers can stay relaxed. Turn one hand upside down for a wider frame.</p><p>If only one outline appears, bring the other hand fully into view. Bright, even lighting helps. Crossed or overlapping hands can hide fingertips; separate them to restore your domain. No outlines? Move your hands closer to the camera, or Stop and start again.</p><p>Camera images are processed in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs turns the camera off; press Start camera to resume.</p><p>Hand tracking uses <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker" target="_blank" rel="noopener noreferrer">MediaPipe</a> · <a href="./vendor/MEDIAPIPE-LICENSE.txt">Apache 2.0 license</a>.</p></div></details>
     <footer class="domain-footer"><a href="/work/">More experiments by Richard Zhu</a><a href="https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/domainexp" target="_blank" rel="noopener noreferrer">View source</a></footer>

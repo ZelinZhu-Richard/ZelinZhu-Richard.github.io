@@ -64,11 +64,11 @@ export class VisionClient {
       if (this.worker) {
         const image = await this.bitmapFactory(video, {resizeWidth: 640, resizeHeight: Math.round(640 * video.videoHeight / video.videoWidth)});
         if (generation !== this.generation) { image.close(); throw new DOMException('Tracking cancelled.', 'AbortError'); }
-        try { return await this.request('track', {image, time}, [image]); }
+        try { return {...await this.request('track', {image, time}, [image]), aspectRatio: video.videoWidth / video.videoHeight}; }
         finally { image.close(); }
       }
       if (!this.model) throw new Error('Hand tracking is not ready. Restart the camera.');
-      return this.model.detectForVideo(video, time);
+      return {...this.model.detectForVideo(video, time), aspectRatio: video.videoWidth / video.videoHeight};
     } finally { if (generation === this.generation) this.inFlight = false; }
   }
   rejectPending(error) {

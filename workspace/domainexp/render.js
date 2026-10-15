@@ -1,5 +1,6 @@
 import {containRect, projectPoint} from './geometry.js';
 import {fireballPose} from './fireball.js';
+import {dustPose} from './dust.js';
 
 const CONNECTIONS = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
 
@@ -98,6 +99,50 @@ export function drawFireballs(ctx, state, rect, time, scale, reducedMotion) {
   ctx.restore();
 }
 
+function dustCube(ctx, center, radius, rotation, alpha, scale) {
+  const c = Math.cos(rotation), s = Math.sin(rotation);
+  const vertices = [-1, 1].flatMap(z => [-1, 1].flatMap(y => [-1, 1].map(x => {
+    const rx = x * c + z * s, rz = z * c - x * s;
+    return {x: center.x + (rx + rz * .32) * radius, y: center.y + (y - rz * .28) * radius};
+  })));
+  const path = indices => { ctx.beginPath(); indices.forEach((index, i) => { const p = vertices[index]; i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.closePath(); };
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = '#e6fff919';
+  for (const face of [[0,1,3,2], [4,5,7,6], [0,1,5,4], [2,3,7,6]]) { path(face); ctx.fill(); }
+  ctx.shadowColor = '#cefff1'; ctx.shadowBlur = 16 * scale;
+  ctx.strokeStyle = '#ecfff9'; ctx.lineWidth = 2 * scale;
+  for (const face of [[0,1,3,2], [4,5,7,6]]) { path(face); ctx.stroke(); }
+  ctx.beginPath(); for (let i = 0; i < 4; i++) { ctx.moveTo(vertices[i].x, vertices[i].y); ctx.lineTo(vertices[i+4].x, vertices[i+4].y); } ctx.stroke();
+  ctx.shadowBlur = 0;
+  const light = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, radius * 1.45);
+  light.addColorStop(0, '#ffffffed'); light.addColorStop(.18, '#f1fffbd9'); light.addColorStop(.5, '#baffdf4d'); light.addColorStop(1, '#baffdf00');
+  ctx.fillStyle = light; ctx.beginPath(); ctx.arc(center.x, center.y, radius * 1.45, 0, Math.PI * 2); ctx.fill();
+}
+
+export function drawDust(ctx, state, rect, time, scale, reducedMotion) {
+  ctx.save(); ctx.beginPath(); ctx.rect(rect.x, rect.y, rect.width, rect.height); ctx.clip();
+  if (state.charging) {
+    const charge = state.charging, center = projectPoint(charge.center, rect);
+    dustCube(ctx, center, charge.size * rect.width * (reducedMotion ? .8 : .4 + .6 * charge.progress), .2, .3 + .5 * charge.progress, scale);
+  }
+  for (const shot of state.shots) {
+    const pose = dustPose(shot, time, reducedMotion), center = projectPoint(pose, rect), radius = pose.radius * rect.width;
+    dustCube(ctx, center, radius, pose.rotation, pose.alpha, scale);
+    if (!reducedMotion) {
+      const scatter = Math.max(0, (pose.progress - .35) / .65);
+      for (let i = 0; i < 80; i++) {
+        const angle = i * 2.39996, seed = (i * .618034) % 1;
+        const reach = radius * (.35 + seed + scatter * 1.5);
+        const x = center.x + Math.cos(angle) * reach, y = center.y + Math.sin(angle) * reach * .8;
+        const size = (1 + seed * 3) * scale;
+        ctx.globalAlpha = pose.alpha * (.25 + scatter * .6);
+        ctx.fillStyle = i % 4 ? '#ebfff8' : '#a8eccc'; ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      }
+    }
+  }
+  ctx.restore();
+}
+
 export class Renderer {
   constructor(canvas) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d', {alpha: false});
@@ -114,6 +159,11 @@ export class Renderer {
     if (!video.videoWidth || video.readyState < 2) return;
     const rect = containRect(video.videoWidth, video.videoHeight, width, height);
     drawCamera(ctx, video, rect);
+    if (state.mode === 'dust') {
+      drawHands(ctx, state.hands, rect, scale);
+      drawDust(ctx, state, rect, time, scale, this.motion.matches);
+      return;
+    }
     if (state.mode === 'fireball') {
       drawHands(ctx, state.hands, rect, scale);
       drawFireballs(ctx, state, rect, time, scale, this.motion.matches);

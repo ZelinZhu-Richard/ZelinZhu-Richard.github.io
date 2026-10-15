@@ -1,5 +1,15 @@
 # Validation — October 15, 2026
 
+## Dust Release addition
+
+- The full repository suite passes **95 tests**. Eight new Dust Release tests cover small gaps and touching fingertips; both thumb/index pairs; front-facing palms versus backs, fists, edge-on or missing hands; rotation, scale and camera aspect ratio; reordered detections and raw/smoothed metadata alignment; charge timing, held-seal suppression, separation/rearm and cooldown; stale/slow results and reset; mirrored origins, perspective, expiration and reduced-motion particle suppression.
+- The production build verifies **177 files**, including `domainexp/dust.js`. The pinned model/runtime is unchanged. Camera results now retain the source aspect ratio, handedness and world landmarks for palm orientation; Domain and Fireball retain their existing recognition rules.
+- The actual worker/model was run on the same official MediaPipe sample photograph. Both visible front-facing palms pass the new orientation check, and the separated photo hands correctly request closer thumbs. This is a photograph check of model output, not live physical seal recognition.
+- A full app browser harness with a labeled simulated camera and 240 ms delayed synthetic landmarks passed charge/release, single release while held, expiration, missing-hand suppression, deliberate separation/recast, rejection of backward-facing palms, switching among all three modes with one camera stream, 375 px layout without overflow, Stop cleanup, and repeated restart cleanup.
+- The interface was inspected at 1280 px, 375 px, and the user's 652 px browser width. Active visual fixtures freeze a synthetic seal's release at 500 ms. The final cube sizing was checked again at desktop/mobile widths, and the targeted Dust tests passed after that adjustment. These screenshots establish visible rendering, not motion timing or physical-camera accuracy.
+- Reduced motion is tested at the state/render level: fixed position, size and rotation with a gentle fade, no scattering particles. Physical cameras, real hand movement, and mobile hardware remain untested. The gap is hand-relative, not an exact centimetre measurement.
+- A fresh scoped finish review returned **ship** with no material fixes across all five captures. It used the fallback reviewer instructions. The one mechanical detector run used degraded regex parsing and returned 39 advisory design-record findings; it did not evaluate computed contrast or constitute a full accessibility audit.
+
 ## Fireball addition
 
 - The full repository suite passes **87 tests**. Eight new Fireball tests cover open palms versus fists, either hand and rotation, single casting after the 160 ms hold, deliberate close/reopen rearming, cooldown, independent hands and reordered detections, brief tracking loss, stale/slow results, reset/cleanup, forward perspective, expiration, mirrored origins, and reduced-motion rendering.

@@ -35,8 +35,11 @@ export class FrameTracker {
   reset() { this.previous = []; this.lastTime = null; }
   update(result, time) {
     // Handedness confidence describes left/right classification, not hand visibility.
-    const rawHands = (result?.landmarks || []).filter(points => points.length === 21
+    const entries = (result?.landmarks || []).map((points, i) => ({points, i})).filter(({points}) => points.length === 21
       && points.every(p => Number.isFinite(p.x) && Number.isFinite(p.y))).slice(0, 2);
+    const rawHands = entries.map(({points}) => points);
+    const handInfo = entries.map(({i}) => ({handedness: result.handedness?.[i]?.[0], world: result.worldLandmarks?.[i]}));
+    const aspectRatio = result?.aspectRatio || 1;
     let hands = rawHands;
     if (this.previous.length && time - this.lastTime < 400) {
       const pairs = rawHands.flatMap((hand, i) => this.previous.map((previous, j) => ({i, j, distance: distance(hand[0], previous[0])}))).sort((a, b) => a.distance - b.distance);
@@ -47,12 +50,12 @@ export class FrameTracker {
       const alpha = 1 - Math.exp(-Math.max(1, time - this.lastTime) / 35);
       hands = rawHands.map((points, i) => {
         const previous = this.previous[matches.get(i)];
-        return previous ? points.map((p, j) => ({x: previous[j].x + alpha * (p.x - previous[j].x), y: previous[j].y + alpha * (p.y - previous[j].y)})) : points;
+        return previous ? points.map((p, j) => ({...p, x: previous[j].x + alpha * (p.x - previous[j].x), y: previous[j].y + alpha * (p.y - previous[j].y)})) : points;
       });
     }
     this.previous = hands;
     this.lastTime = time;
-    const invalid = reason => ({valid: false, hands, reason});
+    const invalid = reason => ({valid: false, hands, rawHands, handInfo, aspectRatio, reason});
     if (hands.length < 2) return invalid(hands.length ? 'One hand tracked · Show your other hand' : 'Show both hands');
     if (!rawHands.every(isFraming)) return invalid('Open your thumbs and index fingers');
     const boundary = points => convexHull(points.flatMap(hand => [hand[4], hand[8]]));
@@ -60,7 +63,7 @@ export class FrameTracker {
       && corners.every(p => p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1);
     const corners = boundary(hands);
     if (distance(rawHands[0][0], rawHands[1][0]) < .04 || !usable(boundary(rawHands)) || !usable(corners)) return invalid('Spread your hands to make a window');
-    return {valid: true, corners, hands, reason: 'Hold your frame'};
+    return {valid: true, corners, hands, rawHands, handInfo, aspectRatio, reason: 'Hold your frame'};
   }
 }
 
