@@ -1,24 +1,33 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T15:28:36.443828+00:00",
+  "generatedAt": "2026-10-15T19:44:28.079719+00:00",
   "title": "Design System: Domain Expansion",
   "extensions": {
     "typographyMeta": {
       "emphasis": {
         "displayName": "Seasons italic",
         "purpose": "Title emphasis, invitation, wordmark, and closing aside."
+      },
+      "effect": {
+        "displayName": "Effect option",
+        "purpose": "Native mode-selector labels; 12px at the 700px phone breakpoint."
       }
     },
     "shadows": [
       {
         "name": "active-status",
         "value": "0 0 12px #c384ff",
-        "purpose": "Halo for the active status point."
+        "purpose": "Halo for the active Domain status point."
       },
       {
         "name": "canvas-boundary",
         "value": "shadowColor: #964cff; shadowBlur: 22 * renderScale",
         "purpose": "Canvas glow around the active polygon; not a CSS shadow."
+      },
+      {
+        "name": "fireball-active-status",
+        "value": "0 0 12px #ff883e",
+        "purpose": "Warm halo for the gold active Fireball status point."
       }
     ],
     "motion": [
@@ -30,7 +39,7 @@
       {
         "name": "activation-pulse",
         "value": "650ms; scale 1 to 1.12; opacity .6 to 0",
-        "purpose": "One outward pulse at activation."
+        "purpose": "One outward pulse at Domain activation."
       },
       {
         "name": "perimeter-particles",
@@ -45,7 +54,17 @@
       {
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
-        "purpose": "Remove CSS animations/transitions and canvas pulse/particles; preserve boundary and fingertip points."
+        "purpose": "Remove CSS animations/transitions and Domain pulse/particles; preserve Domain boundary and fingertip points. Fireball keeps a stationary, fixed-size fading glow at the palm origin with no flight, trail, embers, or flicker."
+      },
+      {
+        "name": "fireball-cast",
+        "value": "160ms open-palm hold; 180ms closed-hand rearm; 900ms per-hand cooldown",
+        "purpose": "Cast once per palm opening; each hand casts independently."
+      },
+      {
+        "name": "fireball-flight",
+        "value": "950ms; radius grows from 1 to 5 times its initial size; upward travel with perspective growth",
+        "purpose": "Fireball travels from the palm toward the viewer with a flame trail, flickering edge, and 24 embers. Reduced motion keeps a fixed-size glow at the origin that fades over the same lifetime."
       }
     ],
     "breakpoints": [
@@ -61,7 +80,29 @@
         "name": "short-desktop",
         "value": "max-height: 600px and min-width: 701px"
       }
-    ]
+    ],
+    "colorMeta": {
+      "fire-selection": {
+        "role": "secondary",
+        "displayName": "Fireball gold"
+      },
+      "fire-ink": {
+        "role": "neutral",
+        "displayName": "Fireball selected ink"
+      },
+      "fire-core": {
+        "role": "secondary",
+        "displayName": "Fireball pale core"
+      },
+      "fire-orange": {
+        "role": "secondary",
+        "displayName": "Fireball orange"
+      },
+      "fire-red": {
+        "role": "secondary",
+        "displayName": "Fireball red"
+      }
+    }
   },
   "components": [
     {
@@ -83,7 +124,7 @@
     {
       "name": "Pixel size",
       "kind": "input",
-      "description": "Native keyboard-operable range with initial numeric output.",
+      "description": "Native keyboard-operable range with initial numeric output; visible only in Domain mode and hidden in Fireball mode.",
       "html": "<div class=\"ds-pixel\"><label for=\"ds-pixel-size\">Pixel size <output for=\"ds-pixel-size\">16</output></label><input id=\"ds-pixel-size\" type=\"range\" min=\"6\" max=\"40\" step=\"1\" value=\"16\"></div>",
       "css": ".ds-pixel{display:flex;align-items:center;gap:22px;font-family:Neoris,Arial,sans-serif}.ds-pixel label{font-size:13px;color:#d5c6e4;white-space:nowrap}.ds-pixel output{display:inline-block;min-width:26px;margin-left:8px;color:var(--ink,#f8f0fc);font-variant-numeric:tabular-nums}.ds-pixel input{width:140px;min-height:44px;margin:0;accent-color:#d9b7f8;cursor:pointer}.ds-pixel input:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}"
     },
@@ -91,7 +132,7 @@
       "name": "Active status",
       "kind": "custom",
       "refersTo": "live-status",
-      "description": "Stable text backing and halo over live camera footage.",
+      "description": "Stable text backing and violet halo over live camera footage in Domain mode.",
       "html": "<div class=\"ds-status\"><span class=\"ds-dot\" aria-hidden=\"true\"></span><span role=\"status\">Domain active</span></div>",
       "css": ".ds-status{display:inline-flex;gap:10px;align-items:center;background:#090713e6;color:#f2e7ff;padding:6px 10px;font:13px/1.4 Neoris,Arial,sans-serif}.ds-dot{width:6px;height:6px;flex-shrink:0;border-radius:50%;background:#e2c3ff;box-shadow:0 0 12px #c384ff}"
     },
@@ -105,18 +146,41 @@
     {
       "name": "Help disclosure",
       "kind": "custom",
-      "description": "Native expandable help below the experience.",
+      "description": "Native expandable two-hand framing help below the experience, shown only in Domain mode.",
       "html": "<details class=\"ds-help\"><summary>A little help opening your domain</summary><div><p>Keep both hands fully visible, with your palms facing the camera.</p></div></details>",
+      "css": ".ds-help{border:0;border-top:1px solid #baa2d53d;padding:16px 0;color:var(--muted,#c2bad0);font:14px/1.65 Neoris,Arial,sans-serif}.ds-help summary{color:#e4d6ef;cursor:pointer;padding:6px 0;width:fit-content;min-height:44px}.ds-help summary:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}.ds-help>div{max-width:70ch;padding:0 0 5px;line-height:1.75}"
+    },
+    {
+      "name": "Effect selector",
+      "kind": "input",
+      "refersTo": "effect-fireball-selected",
+      "description": "Native radios switch Domain Expansion and Fireball before startup or during a shared camera session. Fireball uses gold selection, one-palm guidance and its own help, and hides Pixel size. Switching clears the previous effect and preserves the running camera stream.",
+      "html": "<div class=\"ds-effect-picker\"><span id=\"ds-effect-label\">Effect</span><div role=\"radiogroup\" aria-labelledby=\"ds-effect-label\"><label class=\"ds-effect-option\"><input type=\"radio\" name=\"ds-effect\" value=\"domain\" checked><span>Domain Expansion</span></label><label class=\"ds-effect-option\"><input type=\"radio\" name=\"ds-effect\" value=\"fireball\"><span>Fireball <span lang=\"zh-Hans\">火球</span></span></label></div></div>",
+      "css": ".ds-effect-picker{display:flex;align-items:center;gap:20px;padding:0 0 16px;color:#d5c6e4;font-family:Neoris,Arial,sans-serif;font-size:13px}.ds-effect-picker [role=\"radiogroup\"]{display:flex;gap:8px;flex-wrap:wrap}.ds-effect-option{position:relative;cursor:pointer}.ds-effect-option input{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden}.ds-effect-option>span{display:flex;align-items:center;gap:10px;min-height:44px;padding:10px 18px;border:1px solid #baa2d557;border-radius:3px;line-height:1.3}.ds-effect-option input:checked+span{background:#dfc4fa;color:#231333;border-color:#dfc4fa}.ds-effect-option input[value=\"fireball\"]:checked+span{background:#ffd39a;color:#35180e;border-color:#ffd39a}.ds-effect-option input:focus-visible+span{outline:2px solid #e0c6fa;outline-offset:4px}.ds-effect-option:hover>span{border-color:#dfc4fa}.ds-effect-option [lang]{font-size:11px}@media(max-width:700px){.ds-effect-picker{display:block}.ds-effect-picker>span{display:block;margin-bottom:10px}.ds-effect-option>span{padding:10px 14px}.ds-effect-option{font-size:12px}}"
+    },
+    {
+      "name": "Fireball active status",
+      "kind": "custom",
+      "refersTo": "live-status",
+      "description": "The same readable live-status backing with a gold point and warm halo while a fireball is active; text distinguishes charging, casting, and recharging.",
+      "html": "<div class=\"ds-fire-status\"><span class=\"ds-fire-dot\" aria-hidden=\"true\"></span><span role=\"status\">Fireball cast · Close your hand to cast again</span></div>",
+      "css": ".ds-fire-status{display:inline-flex;gap:10px;align-items:center;background:#090713e6;color:#f2e7ff;padding:6px 10px;font:13px/1.4 Neoris,Arial,sans-serif}.ds-fire-dot{width:6px;height:6px;flex-shrink:0;border-radius:50%;background:#ffd39a;box-shadow:0 0 12px #ff883e}"
+    },
+    {
+      "name": "Fireball help disclosure",
+      "kind": "custom",
+      "description": "Native expandable one-palm casting help, shown only in Fireball mode; explains closing/reopening, independent hands, and the stationary reduced-motion glow.",
+      "html": "<details class=\"ds-help\"><summary>Casting a fireball</summary><div><p>Show one open palm toward the camera and keep it visible for a moment. A fireball launches from your palm toward you. Close your hand briefly, then reopen it to cast again. Both hands can cast independently.</p><p>Keep your fingers visible and use even lighting. A brief cooldown separates casts. With reduced motion enabled, the fireball becomes a soft, stationary glow without flying embers.</p></div></details>",
       "css": ".ds-help{border:0;border-top:1px solid #baa2d53d;padding:16px 0;color:var(--muted,#c2bad0);font:14px/1.65 Neoris,Arial,sans-serif}.ds-help summary{color:#e4d6ef;cursor:pointer;padding:6px 0;width:fit-content;min-height:44px}.ds-help summary:focus-visible{outline:2px solid #e0c6fa;outline-offset:5px}.ds-help>div{max-width:70ch;padding:0 0 5px;line-height:1.75}"
     }
   ],
   "narrative": {
     "northStar": "The webcam is the work",
-    "overview": "An Experience surface: the live webcam is the work. The portfolio’s deep purple ground, Neoris text, Seasons italics, pale lavender ink, and thin rules remain the visual authority. The title is compact so the camera occupies most of the first view. This document records the implemented Domain Expansion surface, not new rules for the whole portfolio.\n\nBefore camera permission, an authored two-hand diagram explains the frame. Start camera is the primary action. During startup, Stop remains outside the loading overlay. During play, controls remain below the camera rather than obscuring the domain. The same controls and reading order persist on phones; the pixel slider becomes a second row.",
+    "overview": "An Experience surface: the live webcam is the work. The portfolio’s deep purple ground, Neoris text, Seasons italics, pale lavender ink, and thin rules remain the visual authority. The title is compact so the camera occupies most of the first view. This document records the implemented Domain Expansion surface and its Fireball mode, not new rules for the whole portfolio.\n\nBefore camera permission, an authored two-hand diagram explains the Domain frame; Fireball replaces it with a single open palm, a warm glow, and a directional arrow. A two-mode selector above the stage changes the guidance and effect. Start camera is the primary action. During startup, Stop remains outside the loading overlay. During play, controls remain below the camera rather than obscuring the effect. The same controls and reading order persist on phones; the Domain pixel slider becomes a second row and hides in Fireball mode.",
     "keyCharacteristics": [
       "A large, square-cornered camera stage with a restrained editorial frame.",
       "Neoris interface text paired with Seasons italic emphasis.",
-      "Pale lavender controls and an anime-inspired violet domain boundary.",
+      "Pale lavender controls and an anime-inspired violet Domain boundary, with gold-orange selection and fire in Fireball mode.",
       "Explicit camera states and readable text over changing footage."
     ],
     "rules": [
@@ -130,12 +194,14 @@
       "**Do** preserve Neoris and Seasons, the purple ground, pale lavender ink, and thin rules.",
       "**Do** keep Start camera prominent and Stop reachable during loading.",
       "**Do** keep live labels on their dark backings and retain visible keyboard focus.",
-      "**Do** preserve the mobile control order and native labeled slider.",
-      "**Do** retain the boundary and fingertip points under reduced motion."
+      "**Do** preserve the mobile control order and native labeled slider in Domain mode; hide the slider in Fireball mode.",
+      "**Do** retain the Domain boundary and fingertip points under reduced motion, and use a stationary fading glow for Fireball.",
+      "**Do** use the local gold-orange accent, one-palm guide, and mode-specific help for Fireball while preserving the shared purple frame.",
+      "**Do** preserve native radio selection and visible focus when switching effects."
     ],
     "donts": [
-      "**Don't** move controls over the live domain.",
-      "**Don't** apply pixelation outside the fingertip-defined window; finger outlines and the boundary glow may extend outside it.",
+      "**Don't** move controls over the live effect.",
+      "**Don't** apply Domain pixelation outside the fingertip-defined window; finger outlines and the boundary glow may extend outside it.",
       "**Don't** restore the decorative stage label or lose sentence spacing on mobile.",
       "**Don't** treat synthetic captures as evidence of physical hand-tracking accuracy."
     ]

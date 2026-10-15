@@ -1,5 +1,15 @@
 # Validation — October 15, 2026
 
+## Fireball addition
+
+- The full repository suite passes **87 tests**. Eight new Fireball tests cover open palms versus fists, either hand and rotation, single casting after the 160 ms hold, deliberate close/reopen rearming, cooldown, independent hands and reordered detections, brief tracking loss, stale/slow results, reset/cleanup, forward perspective, expiration, mirrored origins, and reduced-motion rendering.
+- The build verifies **176 production files**, including the newly required `domainexp/fireball.js`. The original model/runtime dependencies are unchanged.
+- The actual worker and pinned model recognized both open palms in the same official MediaPipe photo and produced **two fireballs**. This validates the real model-to-gesture path on a photo; it is not live-camera accuracy testing.
+- A full-page browser harness with 240 ms delayed synthetic landmarks verified one cast per opening, no repeated shots while holding open, close/reopen recasting, switching modes without a second camera request, stale-effect cleanup on switching, a 375 px mobile layout with no horizontal overflow, and stream/projectile cleanup on Stop.
+- Keyboard ArrowRight selects Fireball through the native radio group. The Pixel size control hides in Fireball and returns in Domain Expansion. The final page was visually inspected at 1280 px and 375 px. Active visual fixtures freeze a real detected photo-hand cast at 450 ms for inspection; motion behavior is covered separately by timing tests.
+- Reduced motion is tested at the state/rendering level: position and size stay stationary while alpha fades, with no trail or embers. No physical webcam, live hand movement, or mobile hardware was used.
+- A fresh finish review found no material visual repairs at desktop or mobile widths and requested updated design records for Fireball. Those records were updated and the scoped documentation fix received a ship disposition. The mechanical detector ran once in degraded regex mode with advisory findings; this was not a full accessibility audit.
+
 ## Finger-tracking correction
 
 The first release discarded every inference taking 200 ms or more, required nearly straight index fingers, and treated handedness classification confidence as detection confidence. It also showed no finger outlines until the effect activated. These gates could make working recognition appear unresponsive.

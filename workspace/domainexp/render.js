@@ -1,4 +1,5 @@
 import {containRect, projectPoint} from './geometry.js';
+import {fireballPose} from './fireball.js';
 
 const CONNECTIONS = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
 
@@ -49,6 +50,54 @@ export function drawPixelated(ctx, source, rect, corners, blockSize, buffer) {
   ctx.restore();
 }
 
+export function drawFireballs(ctx, state, rect, time, scale, reducedMotion) {
+  ctx.save();
+  ctx.beginPath(); ctx.rect(rect.x, rect.y, rect.width, rect.height); ctx.clip();
+  for (const palm of state.charging) {
+    const center = projectPoint(palm.center, rect), radius = palm.size * rect.width;
+    ctx.beginPath(); ctx.arc(center.x, center.y, radius * 1.4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * palm.progress);
+    ctx.strokeStyle = '#ffd999'; ctx.lineWidth = 2 * scale; ctx.stroke();
+  }
+  ctx.globalCompositeOperation = 'screen';
+  for (const shot of state.shots) {
+    const pose = fireballPose(shot, time, reducedMotion), center = projectPoint(pose, rect);
+    const radius = pose.radius * rect.width;
+    ctx.globalAlpha = pose.alpha;
+    if (!reducedMotion) {
+      const origin = projectPoint(shot.origin, rect);
+      const trail = ctx.createLinearGradient(origin.x, origin.y, center.x, center.y);
+      trail.addColorStop(0, '#ec381000'); trail.addColorStop(.65, '#ff581080'); trail.addColorStop(1, '#ffc05ddd');
+      ctx.beginPath(); ctx.moveTo(origin.x, origin.y);
+      ctx.quadraticCurveTo(center.x - radius * .8, origin.y, center.x - radius * .65, center.y);
+      ctx.lineTo(center.x + radius * .65, center.y);
+      ctx.quadraticCurveTo(center.x + radius * .8, origin.y, origin.x, origin.y);
+      ctx.fillStyle = trail; ctx.fill();
+    }
+    const halo = ctx.createRadialGradient(center.x, center.y, radius * .15, center.x, center.y, radius * 2.3);
+    halo.addColorStop(0, '#ffe4abcc'); halo.addColorStop(.35, '#ff8a3770'); halo.addColorStop(1, '#ff3b1000');
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(center.x, center.y, radius * 2.3, 0, Math.PI * 2); ctx.fill();
+    const core = ctx.createRadialGradient(center.x - radius * .15, center.y - radius * .2, 0, center.x, center.y, radius * 1.25);
+    core.addColorStop(0, '#fffceb'); core.addColorStop(.24, '#ffe397'); core.addColorStop(.55, '#ff9c2c'); core.addColorStop(.8, '#f94612'); core.addColorStop(1, '#b61b0400');
+    ctx.beginPath();
+    for (let i = 0; i <= 48; i++) {
+      const angle = i / 48 * Math.PI * 2;
+      const flicker = reducedMotion ? 0 : Math.sin(angle * 7 + time / 85) * .1 + Math.cos(angle * 11 - time / 130) * .06;
+      const r = radius * (1 + flicker), x = center.x + Math.cos(angle) * r, y = center.y + Math.sin(angle) * r;
+      i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+    }
+    ctx.closePath(); ctx.globalCompositeOperation = 'source-over'; ctx.fillStyle = core; ctx.fill();
+    ctx.globalCompositeOperation = 'screen';
+    if (!reducedMotion) for (let i = 0; i < 24; i++) {
+      const phase = (pose.progress * 1.8 + i * .618) % 1, angle = i * 2.4 + shot.id;
+      const spread = radius * (1 + phase * 1.3);
+      ctx.globalAlpha = pose.alpha * (1 - phase) * .75;
+      ctx.fillStyle = i % 3 ? '#ffbb61' : '#fff2bd';
+      ctx.beginPath(); ctx.arc(center.x + Math.cos(angle) * spread, center.y + Math.sin(angle) * spread + phase * radius, (1 + (1 - phase) * 2) * scale, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
 export class Renderer {
   constructor(canvas) {
     this.canvas = canvas; this.ctx = canvas.getContext('2d', {alpha: false});
@@ -65,6 +114,11 @@ export class Renderer {
     if (!video.videoWidth || video.readyState < 2) return;
     const rect = containRect(video.videoWidth, video.videoHeight, width, height);
     drawCamera(ctx, video, rect);
+    if (state.mode === 'fireball') {
+      drawHands(ctx, state.hands, rect, scale);
+      drawFireballs(ctx, state, rect, time, scale, this.motion.matches);
+      return;
+    }
     if (!state.active || !state.frame) { drawHands(ctx, state.hands || [], rect, scale); return; }
     drawPixelated(ctx, video, rect, state.frame.corners, blockSize * scale, this.buffer);
     drawHands(ctx, state.hands || [], rect, scale);

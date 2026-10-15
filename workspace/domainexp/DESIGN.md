@@ -1,6 +1,6 @@
 ---
 name: Domain Expansion
-description: A camera-first hand-framed pixel window in Richard Zhu’s purple portfolio.
+description: Camera-first hand-framed pixel windows and open-palm fireballs in Richard Zhu’s purple portfolio.
 colors:
   page: "#111022"
   surface: "#0c0915"
@@ -14,6 +14,11 @@ colors:
   primary-hover: "#f0ddff"
   live-backing: "#090713e6"
   live-ink: "#f2e7ff"
+  fire-selection: "#ffd39a"
+  fire-ink: "#35180e"
+  fire-core: "#fffceb"
+  fire-orange: "#ff9c2c"
+  fire-red: "#f94612"
 typography:
   display:
     fontFamily: "Neoris, Arial, sans-serif"
@@ -37,6 +42,10 @@ typography:
   button:
     fontFamily: "Neoris, Arial, sans-serif"
     fontSize: "14px"
+    lineHeight: 1.3
+  effect:
+    fontFamily: "Neoris, Arial, sans-serif"
+    fontSize: "13px"
     lineHeight: 1.3
 rounded:
   control: "3px"
@@ -64,6 +73,18 @@ components:
     backgroundColor: "{colors.live-backing}"
     textColor: "{colors.live-ink}"
     padding: "6px 10px"
+  effect-domain-selected:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.primary-ink}"
+    typography: "{typography.effect}"
+    rounded: "{rounded.control}"
+    padding: "10px 18px"
+  effect-fireball-selected:
+    backgroundColor: "{colors.fire-selection}"
+    textColor: "{colors.fire-ink}"
+    typography: "{typography.effect}"
+    rounded: "{rounded.control}"
+    padding: "10px 18px"
 ---
 
 # Design System: Domain Expansion
@@ -72,21 +93,21 @@ components:
 
 **Creative North Star: "The webcam is the work"**
 
-An Experience surface: the live webcam is the work. The portfolio’s deep purple ground, Neoris text, Seasons italics, pale lavender ink, and thin rules remain the visual authority. The title is compact so the camera occupies most of the first view. This document records the implemented Domain Expansion surface, not new rules for the whole portfolio.
+An Experience surface: the live webcam is the work. The portfolio’s deep purple ground, Neoris text, Seasons italics, pale lavender ink, and thin rules remain the visual authority. The title is compact so the camera occupies most of the first view. This document records the implemented Domain Expansion surface and its Fireball mode, not new rules for the whole portfolio.
 
-Before camera permission, an authored two-hand diagram explains the frame. Start camera is the primary action. During startup, Stop remains outside the loading overlay. During play, controls remain below the camera rather than obscuring the domain. The same controls and reading order persist on phones; the pixel slider becomes a second row.
+Before camera permission, an authored two-hand diagram explains the Domain frame; Fireball replaces it with a single open palm, a warm glow, and a directional arrow. A two-mode selector above the stage changes the guidance and effect. Start camera is the primary action. During startup, Stop remains outside the loading overlay. During play, controls remain below the camera rather than obscuring the effect. The same controls and reading order persist on phones; the Domain pixel slider becomes a second row and hides in Fireball mode.
 
 **Key Characteristics:**
 - A large, square-cornered camera stage with a restrained editorial frame.
 - Neoris interface text paired with Seasons italic emphasis.
-- Pale lavender controls and an anime-inspired violet domain boundary.
+- Pale lavender controls and an anime-inspired violet Domain boundary, with gold-orange selection and fire in Fireball mode.
 - Explicit camera states and readable text over changing footage.
 
-Recorded from final source and desktop, mobile, and synthetic-active captures on October 15, 2026. The finish reviewer’s ship disposition covers the four requested corrections only. The mechanical detector used degraded regex mode with no findings; this is not a full accessibility audit. Physical hand tracking and mobile hardware remain unverified. See [VALIDATION.md](VALIDATION.md).
+The original Domain-mode record comes from final source and desktop, mobile, and synthetic-active captures on October 15, 2026. Its finish reviewer’s ship disposition covers the four requested corrections only. Its mechanical detector used degraded regex mode with no findings; this is not a full accessibility audit. The Fireball addition is recorded from the implemented source and the [scoped Fireball review](.qa/fireball-review/review.md), whose desktop, active-desktop, and mobile captures support the visible extension. The frozen active fixture is visual evidence, not motion or physical-hand evidence. Physical hand tracking and mobile hardware remain unverified. See [VALIDATION.md](VALIDATION.md).
 
 ## Colors
 
-The palette stays within the inherited purple family. **Primary:** pale lavender identifies Start camera; lavender emphasis colors the italic headings and keyboard focus; domain violet supplies selection and quiet hover/link accents. **Neutral:** deep purple surrounds the darker stage, pale lavender ink carries primary text, muted lavender supports instructions, and translucent rules separate regions. Bright live text sits on a near-black backing.
+The shared frame and Domain effect stay within the inherited purple family; Fireball adds a local warm accent. **Primary:** pale lavender identifies Start camera and the selected Domain option; lavender emphasis colors the page heading and keyboard focus; domain violet supplies text selection and quiet hover/link accents. **Secondary:** Fireball gold marks its selected option, introductory italic emphasis, and active status point. Its fire-ink token supplies dark selected text. The luminous fire moves from a pale core through orange and red, with a warm halo and embers. **Neutral:** deep purple surrounds the darker stage, pale lavender ink carries primary text, muted lavender supports instructions, and translucent rules separate regions. Bright live text sits on a near-black backing.
 
 **The Live Text Rule.** Live camera labels and status text keep their individual dark backings as well as the stage-edge gradients. Footage must not become their only background.
 
@@ -100,29 +121,33 @@ The display token belongs to the centered introductory headline, and the title t
 
 The main container occupies 92% of the viewport, capped at 1440px. Desktop title and introductory sentence share a row. The stage, controls, brief gesture guidance, expandable help, and footer follow in reading order. The stage uses `min(64vw, 630px)` height, a 480px minimum, and a 75svh cap. At 1000px and below its height becomes 570px. At 700px and below it becomes 540px high with a 440px minimum and no viewport-height cap. Short desktop viewports also remove that cap.
 
-At 700px and below, the title stacks, the introductory sentence’s line break hides while retaining its separating space, and the controls form two rows: Start/Stop and icon-only fullscreen above the full-width pixel-size row. Fullscreen text remains available to assistive technology. Buttons retain a 46px minimum height and the slider a 44px interaction height. The portfolio navigation becomes a Menu control at narrow and intermediate widths. Fullscreen keeps the controls below the flexible camera stage.
+At 700px and below, the title stacks, the introductory sentence’s line break hides while retaining its separating space, and Domain controls form two rows: Start/Stop and icon-only fullscreen above the full-width pixel-size row. Fireball hides the pixel-size row and keeps fullscreen aligned to the right. The effect selector remains above the stage; its label stacks over wrapping options on phones. Fullscreen text remains available to assistive technology. Buttons retain a 46px minimum height and the slider a 44px interaction height. The portfolio navigation becomes a Menu control at narrow and intermediate widths. Fullscreen keeps the controls below the flexible camera stage.
 
 ## Elevation & Depth
 
-The interface uses tonal layering and thin borders rather than raised cards. A restrained radial violet wash sits behind the idle illustration. Live mode adds top and bottom gradients and individual text backings. The active status point has a small halo (`0 0 12px #c384ff`). The canvas domain combines a violet outer stroke (`#ad7cff`) with a glow (`#964cff`, blur 22 multiplied by render scale) and a pale inner stroke (`#f1e4ff`). Buttons and panels do not receive elevation shadows.
+The interface uses tonal layering and thin borders rather than raised cards. A restrained radial violet wash sits behind the idle illustration. Live mode adds top and bottom gradients and individual text backings. The active Domain status point has a small halo (`0 0 12px #c384ff`); Fireball uses a warm halo (`0 0 12px #ff883e`). The canvas domain combines a violet outer stroke (`#ad7cff`) with a glow (`#964cff`, blur 22 multiplied by render scale) and a pale inner stroke (`#f1e4ff`). Fireball uses radial core/halo gradients and perspective growth to read as travel toward the viewer, with a trailing flame and scattered embers. Buttons and panels do not receive elevation shadows.
 
 ## Shapes
 
-The stage and dividers have straight edges. Buttons use the control-radius token. Status dots and fingertip centers are circular. Four fingertips define the changing polygon, and pixelation is clipped to its interior. The authored two-hand drawing introduces that geometry before permission.
+The stage and dividers have straight edges. Buttons and effect options use the control-radius token. Status dots and fingertip centers are circular. In Domain mode, four fingertips define the changing polygon, and pixelation is clipped to its interior. The authored two-hand drawing introduces that geometry before permission. Fireball uses an open-palm line drawing with a circular glow and arrow before permission; live fire has a circular, flickering outline that becomes stable under reduced motion.
 
 ## Components
 
 **Buttons.** Start camera uses the filled primary variant; Stop, fullscreen, and Menu use outlined treatments. The introductory button adds an arrow, a 24px content gap, and 12px by 22px padding. Hover brightens the primary fill or adds a translucent violet fill and brighter border to secondary controls. Transitions last 180ms with ease timing. Disabled buttons use .38 opacity. Active buttons use a pressed lavender fill without scaling. Buttons, links, the slider, and help summary have a two-pixel lavender focus outline with five-pixel offset.
 
-**Camera stage.** The active domain uses a violet luminous boundary, four bright fingertip points with rings, a single outward activation pulse lasting 650ms, and twelve slow particles confined to its perimeter. Reduced motion keeps the boundary and points but removes the pulse and particles. Violet outlines and joint dots show each detected hand before activation, with gold thumb/index tips. A hand counter distinguishes recognition from framing. The webcam is mirrored and contained; the image outside the boundary remains unchanged apart from these tracking guides. There is no decorative top-left stage label. Camera metadata remains top right, status bottom left, and the secondary domain label hides on phones.
+**Effect selector.** Native radios select Domain Expansion or Fireball / 火球 before startup or during a live session. The selected Domain option uses the primary lavender fill; selected Fireball uses gold with dark fire ink. Options have thin borders, a 44px minimum height, 10px by 18px padding, and an 8px gap. Hover lightens the border. Keyboard focus draws a two-pixel lavender outline around the visible label with four-pixel offset. At 700px and below, option text becomes 12px and horizontal padding becomes 14px. Preserve native radio keyboard behavior. Switching updates the illustration, instructions, canvas accessible label, status, and help, hides the pixel control in Fireball, and clears the previous effect while sharing the running camera stream.
 
-**Pixel size.** The native labeled range runs from 6 to 40, initially 16. Its lavender accent and numeric output stay visible. Width is 140px on desktop, 115px at the intermediate breakpoint, and 60% of its row on phones. Preserve native keyboard interaction.
+**Camera stage.** The active Domain effect uses a violet luminous boundary, four bright fingertip points with rings, a single outward activation pulse lasting 650ms, and twelve slow particles confined to its perimeter. Reduced motion keeps the boundary and points but removes the pulse and particles. In both modes, violet outlines and joint dots show each detected hand, with gold thumb/index tips. In Domain mode, a hand counter distinguishes recognition from framing. The webcam is mirrored and contained; the image outside the Domain boundary remains unchanged apart from these tracking guides. There is no decorative top-left stage label. Camera metadata remains top right, status bottom left, and the secondary effect label hides on phones.
+
+**Fireball guidance and effect.** One open palm is enough. The idle palm guide replaces the two-hand frame, and its warm glow matches the gold introductory emphasis. Live text distinguishes finding a palm, holding to cast, casting, and recharging. An open palm held for 160ms automatically casts once. Closing for 180ms rearms that hand; a 900ms per-hand cooldown separates casts, and both hands can cast independently. The projectile grows in perspective and travels upward from its palm origin over 950ms, with a flame trail, flickering edge, and embers. Reduced motion keeps a stationary, fixed-size fading glow at the palm origin and removes flight, trail, embers, and flicker. The violet tracking guides and readable status backings remain.
+
+**Pixel size.** Shown only in Domain mode, the native labeled range runs from 6 to 40, initially 16. Its lavender accent and numeric output stay visible in that mode. Width is 140px on desktop, 115px at the intermediate breakpoint, and 60% of its row on phones. Preserve native keyboard interaction.
 
 **Loading, status, and errors.** Empty, loading, tracking, active, stopped, denied, and model-failure states have distinct text. Loading covers only the stage with a dark translucent panel and a small outlined diamond rotating on a 1.6s cycle. Stop remains reachable below it. Status changes are announced only when the text changes. Errors appear below controls in a bordered plum notice with pale rose text. Reduced motion removes CSS animations and transitions.
 
-**Navigation and help.** The portfolio wordmark uses Seasons italic; the current destination is underlined. Menu exposes its expanded state. The native help disclosure has a thin upper rule and readable paragraph measure. Help and footer links use underlined, offset decoration. A skip link leads to the experience.
+**Navigation and help.** The portfolio wordmark uses Seasons italic; the current destination is underlined. Menu exposes its expanded state. The native help disclosure has a thin upper rule and readable paragraph measure. Only the selected mode’s help is visible: Domain explains the two-hand frame; “Casting a fireball” explains open-palm casting, close/reopen rearming, independent hands, and reduced motion. Help and footer links use underlined, offset decoration. A skip link leads to the experience.
 
-Camera processing is local; the initial view clearly states this. Native buttons, a labeled range input, accessible fullscreen state, and visible focus preserve non-gesture access to every control.
+Camera processing is local; the initial view clearly states this. Both effects share the same permission and local hand model. Native buttons and radios, a labeled range input, accessible fullscreen state, and visible focus preserve non-gesture access to every control.
 
 ## Do's and Don'ts
 
@@ -130,11 +155,13 @@ Camera processing is local; the initial view clearly states this. Native buttons
 - **Do** preserve Neoris and Seasons, the purple ground, pale lavender ink, and thin rules.
 - **Do** keep Start camera prominent and Stop reachable during loading.
 - **Do** keep live labels on their dark backings and retain visible keyboard focus.
-- **Do** preserve the mobile control order and native labeled slider.
-- **Do** retain the boundary and fingertip points under reduced motion.
+- **Do** preserve the mobile control order and native labeled slider in Domain mode; hide the slider in Fireball mode.
+- **Do** retain the Domain boundary and fingertip points under reduced motion, and use a stationary fading glow for Fireball.
+- **Do** use the local gold-orange accent, one-palm guide, and mode-specific help for Fireball while preserving the shared purple frame.
+- **Do** preserve native radio selection and visible focus when switching effects.
 
 ### Don't:
-- **Don't** move controls over the live domain.
-- **Don't** apply pixelation outside the fingertip-defined window; finger outlines and the boundary glow may extend outside it.
+- **Don't** move controls over the live effect.
+- **Don't** apply Domain pixelation outside the fingertip-defined window; finger outlines and the boundary glow may extend outside it.
 - **Don't** restore the decorative stage label or lose sentence spacing on mobile.
 - **Don't** treat synthetic captures as evidence of physical hand-tracking accuracy.

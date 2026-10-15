@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Domain Expansion — Richard Zhu</title>
-  <meta name="description" content="Frame a window with your hands. Turn the world inside it into pixels. A browser-local camera experiment by Richard Zhu.">
+  <meta name="description" content="Pixelate a window between your hands or cast a fireball from an open palm. Browser-local camera effects by Richard Zhu.">
   <link rel="canonical" href="https://zelinzhu-richard.github.io/domainexp/">
   <meta property="og:title" content="Domain Expansion — Richard Zhu">
-  <meta property="og:description" content="Your hands draw the boundary. Reality becomes pixels.">
+  <meta property="og:description" content="Frame a pixelated domain or cast a fireball from your open palm.">
   <meta property="og:url" content="https://zelinzhu-richard.github.io/domainexp/">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
@@ -24,15 +24,19 @@
   <main id="main" class="domain-main">
     <div class="title-row">
       <h1>Domain <em>Expansion.</em><span lang="zh-Hans">领域展开</span></h1>
-      <p>Your hands draw the boundary.<br> The world inside becomes pixels.</p>
+      <p id="title-copy">Your hands draw the boundary.<br> The world inside becomes pixels.</p>
     </div>
     <section class="experience" aria-label="Domain Expansion camera experience">
+      <div class="effect-picker"><span id="effect-label">Effect</span><div role="radiogroup" aria-labelledby="effect-label">
+        <label class="effect-option"><input type="radio" name="effect" value="domain" checked><span>Domain Expansion</span></label>
+        <label class="effect-option"><input type="radio" name="effect" value="fireball"><span>Fireball <span lang="zh-Hans">火球</span></span></label>
+      </div></div>
       <div class="arena" id="arena" data-state="idle">
         <video id="camera" muted playsinline aria-hidden="true"></video>
         <canvas id="view" aria-label="Mirrored webcam with a pixelated window between your thumbs and index fingers"></canvas>
         <div class="arena-top" aria-hidden="true"><span id="camera-label">CAMERA OFF</span></div>
         <div class="intro" id="intro">
-          <div class="frame-guide" aria-hidden="true">
+          <div class="frame-guide" id="domain-guide" aria-hidden="true">
             <svg viewBox="0 0 560 240" fill="none">
               <defs>
                 <pattern id="pixels" width="24" height="24" patternUnits="userSpaceOnUse"><path fill="#7c4dbb" fill-opacity=".15" d="M0 0h24v24H0z"/><path fill="#b18adf" fill-opacity=".18" d="M0 0h12v12H0zM12 12h12v12H12z"/></pattern>
@@ -46,8 +50,19 @@
               <g fill="#f1e6ff"><circle cx="183" cy="55" r="4"/><circle cx="377" cy="55" r="4"/><circle cx="183" cy="185" r="4"/><circle cx="377" cy="185" r="4"/></g>
             </svg>
           </div>
-          <h2>Make room for<br><em>another reality.</em></h2>
-          <p>Show both hands, then spread your thumbs and index fingers.<br>The finger outlines help you frame a window.</p>
+          <div class="frame-guide fire-guide" id="fire-guide" aria-hidden="true" hidden>
+            <svg viewBox="0 0 560 240" fill="none">
+              <defs><radialGradient id="fire-guide-light"><stop stop-color="#fff0b4"/><stop offset=".45" stop-color="#ff9b42"/><stop offset="1" stop-color="#ff5c2100"/></radialGradient></defs>
+              <g stroke="#c5a3e5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M250 212l-48-52-37-36m85 88-26-79-10-54-6-38m42 171 7-85 0-65-1-37m-6 187 35-77 13-54 5-39m-53 170 61-56 24-39 16-33M202 160l22-27 33-6 28 8 26 21"/>
+              </g>
+              <g fill="#eadbfa"><circle cx="165" cy="124" r="4"/><circle cx="208" cy="41" r="4"/><circle cx="256" cy="25" r="4"/><circle cx="303" cy="42" r="4"/><circle cx="351" cy="84" r="4"/></g>
+              <circle cx="258" cy="155" r="51" fill="url(#fire-guide-light)"/>
+              <path d="M303 143l57-31m-13-5 13 5-4 13" stroke="#ffd390" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2><span id="intro-lead">Make room for</span><br><em id="intro-emphasis">another reality.</em></h2>
+          <p id="intro-instruction">Show both hands, then spread your thumbs and index fingers.<br>The finger outlines help you frame a window.</p>
           <button class="primary start-trigger" id="intro-start" type="button">Start camera <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
           <span class="local-note">Your camera stays on your device.</span>
         </div>
@@ -56,13 +71,14 @@
       </div>
       <div class="control-bar">
         <div class="camera-controls"><button type="button" id="start" class="primary start-trigger">Start camera</button><button type="button" id="stop" disabled>Stop</button></div>
-        <div class="pixel-control"><label for="pixel-size">Pixel size <output id="pixel-value" for="pixel-size">16</output></label><input type="range" id="pixel-size" min="6" max="40" step="1" value="16"></div>
+        <div class="pixel-control" id="pixel-control"><label for="pixel-size">Pixel size <output id="pixel-value" for="pixel-size">16</output></label><input type="range" id="pixel-size" min="6" max="40" step="1" value="16"></div>
         <button type="button" id="fullscreen" class="fullscreen"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg><span>Fullscreen</span></button>
       </div>
       <p class="error" id="error" role="alert" hidden></p>
     </section>
-    <div class="below-stage"><p>Frame with both hands. Move to reshape. Lower a hand to release.</p><span>Made to be played with.</span></div>
-    <details class="help"><summary>A little help opening your domain</summary><div><p>Show your palms and look for the violet finger outlines. Gold dots mark your thumbs and index fingers. Spread those four fingertips into a window; your fingers can stay relaxed. Turn one hand upside down for a wider frame.</p><p>If only one outline appears, bring the other hand fully into view. Bright, even lighting helps. Crossed or overlapping hands can hide fingertips; separate them to restore your domain. No outlines? Move your hands closer to the camera, or Stop and start again.</p><p>Camera images are processed in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs turns the camera off; press Start camera to resume.</p><p>Hand tracking uses <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker" target="_blank" rel="noopener noreferrer">MediaPipe</a> · <a href="./vendor/MEDIAPIPE-LICENSE.txt">Apache 2.0 license</a>.</p></div></details>
+    <div class="below-stage"><p id="effect-instruction">Frame with both hands. Move to reshape. Lower a hand to release.</p><span>Made to be played with.</span></div>
+    <details class="help" id="fire-help" hidden><summary>Casting a fireball</summary><div><p>Show one open palm toward the camera and keep it visible for a moment. A fireball launches from your palm toward you. Close your hand briefly, then reopen it to cast again. Both hands can cast independently.</p><p>Keep your fingers visible and use even lighting. A brief cooldown separates casts. With reduced motion enabled, the fireball becomes a soft, stationary glow without flying embers.</p><p>Camera images stay in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs stops the camera; press Start camera to resume. Tracking uses the same local MediaPipe model as Domain Expansion.</p></div></details>
+    <details class="help" id="domain-help"><summary>A little help opening your domain</summary><div><p>Show your palms and look for the violet finger outlines. Gold dots mark your thumbs and index fingers. Spread those four fingertips into a window; your fingers can stay relaxed. Turn one hand upside down for a wider frame.</p><p>If only one outline appears, bring the other hand fully into view. Bright, even lighting helps. Crossed or overlapping hands can hide fingertips; separate them to restore your domain. No outlines? Move your hands closer to the camera, or Stop and start again.</p><p>Camera images are processed in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs turns the camera off; press Start camera to resume.</p><p>Hand tracking uses <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker" target="_blank" rel="noopener noreferrer">MediaPipe</a> · <a href="./vendor/MEDIAPIPE-LICENSE.txt">Apache 2.0 license</a>.</p></div></details>
     <footer class="domain-footer"><a href="/work/">More experiments by Richard Zhu</a><a href="https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/domainexp" target="_blank" rel="noopener noreferrer">View source</a></footer>
   </main>
 </body>
