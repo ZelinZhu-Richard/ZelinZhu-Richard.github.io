@@ -1,5 +1,5 @@
 import { angle, distance } from './geometry.js';
-import { clamp, easyChord } from './music.js';
+import { clamp, easyChord, countingChord } from './music.js';
 export const FINGERS = ['thumb','index','middle','ring','pinky'];
 export const JOINTS = [[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16],[17,18,19,20]];
 export const CONNECTIONS = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
@@ -32,7 +32,12 @@ export class HandTracker {
     return this.tracks;
   }
 }
-export function gestureFromHands(hands, {easy=false,oneHand=false,raise=false,lower=false,swap=false}={}) {
+export function gestureFromHands(hands, {easy=false,counting=false,capo=0,oneHand=false,raise=false,lower=false,swap=false}={}) {
+  if (counting) {
+    // Both hands must stay visible: losing one must not select a lower-count chord.
+    if (hands.length !== 2 || !hands.some(h=>h.label==='Left') || !hands.some(h=>h.label==='Right')) return null;
+    return countingChord(hands.reduce((sum,h)=>sum+h.extended.filter(Boolean).length,0),capo);
+  }
   const left=hands.find(h=>h.label===(swap?'Right':'Left')) || (easy?hands[0]:null), right=hands.find(h=>h.label===(swap?'Left':'Right'));
   if(!left||(!easy&&!oneHand&&!right))return null;
   const [thumb,index,middle,ring,pinky]=left.extended;

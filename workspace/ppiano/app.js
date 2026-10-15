@@ -1,14 +1,14 @@
 import { InstrumentAudio } from './audio.js';
 import { CameraSession,VisionClient } from './camera.js';
 import { HandTracker,gestureFromHands,FINGERS,JOINTS } from './hands.js';
-import { StableGesture,chordNotes,chordLabel,easyChord,CHORD_COLORS,DEGREES,WHITE_NOTES,BLACK_NOTES,noteName,clamp } from './music.js';
+import { StableGesture,chordNotes,chordLabel,easyChord,countingChord,CHORD_COLORS,DEGREES,WHITE_NOTES,BLACK_NOTES,noteName,clamp } from './music.js';
 import { homography,project,validateLayout } from './geometry.js';
 import { calibrateFinger,fingerFeatures,contactScore,TapDetector,paperObservations } from './paper.js';
 import { captureAnchors,anchorDrift } from './detection.js';
 import { StageRenderer } from './renderer.js';
 const $=id=>document.getElementById(id);
 const audio=new InstrumentAudio(),camera=new CameraSession($('camera')),vision=new VisionClient(),tracker=new HandTracker(),stable=new StableGesture(),taps=new TapDetector(),renderer=new StageRenderer($('overlay'),$('camera'));
-const state={mode:'gesture',easy:true,performance:false,guide:true,running:false,starting:false,generation:0,oneHand:false,hands:[],layout:null,editing:false,profiles:{},ready:false,anchors:null,drift:0,missingAnchors:0,facing:'user',compat:false,scan:false,gesture:null,calibration:null,capture:null};
+const state={mode:'gesture',easy:true,counting:false,performance:false,guide:true,running:false,starting:false,generation:0,oneHand:false,hands:[],layout:null,editing:false,profiles:{},ready:false,anchors:null,drift:0,missingAnchors:0,facing:'user',compat:false,scan:false,gesture:null,calibration:null,capture:null};
 let timer=null,animation=null,watchdog=null,lastTrack=0,lastResult=0,lastFrame=0,lastDrift=0,frameCount=0,fpsStart=0,bankPromise=null,coachSignature='';
 const held=new Map(),keyButtons=new Map(),keys=['a','w','s','e','d','f','t','g','y','h','u','j','k'];
 function message(text,error=false){$('message').textContent=text;$('message').hidden=!text;$('message').classList.toggle('error',error);}
@@ -29,55 +29,65 @@ function setPerformance(on){
   updateCoach(state.gesture);updatePreset();
 }
 function updatePreset(){
-  document.querySelector('.local-label').textContent=state.performance?`${$('key').selectedOptions[0].textContent} · ${$('sound').selectedOptions[0].textContent} · ${state.easy?'Easy':'Original'}`:'ON YOUR DEVICE';
+  const key=state.counting?`${chordLabel(countingChord(1,Number($('capo').value)))} · capo ${$('capo').value}`:$('key').selectedOptions[0].textContent;
+  document.querySelector('.local-label').textContent=state.performance?`${key} · ${$('sound').selectedOptions[0].textContent} · ${state.counting?'Just count':state.easy?'Easy':'Original'}`:'ON YOUR DEVICE';
 }
-function handDrawing(degree){
-  const fingers=degree===6?[false,true,false,false,true]:degree===7?[true,true,false,false,true]:[degree===5,degree>=1,degree>=2,degree>=3,degree>=4];
+function handDrawing(degree,special=true){
+  const fingers=special&&degree===6?[false,true,false,false,true]:special&&degree===7?[true,true,false,false,true]:[degree===5,degree>=1,degree>=2,degree>=3,degree>=4];
   const digits=[1,2,3,4].map((f,i)=>{const top=fingers[f]?[17,9,16,27][i]:42;return `<rect x="${22+i*10}" y="${top}" width="8" height="${57-top}" rx="4"/>`;}).join('');
   const thumb=fingers[0]?'M23 61 9 42Q4 36 2 42Q0 45 5 51L22 76':'M24 62 17 56Q12 54 12 60L23 76';
   return `<svg viewBox="0 0 68 88" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${digits}<path d="M22 54V73Q22 83 35 83H48Q62 83 62 69V54"/><path d="${thumb}"/></g></svg>`;
 }
 function buildCoach(){
-  for(let degree=1;degree<=7;degree++){
+  $('gesture-shapes').replaceChildren();coachSignature='';
+  $('gesture-shapes').classList.toggle('count-shapes',state.counting);
+  $('gesture-coach').classList.toggle('counting-coach',state.counting);
+  for(let degree=1;degree<=(state.counting?8:7);degree++){
     const item=document.createElement('li');item.dataset.degree=degree;
-    item.innerHTML=`${handDrawing(degree)}<span class="shape-number">${degree<=5?degree:degree===6?'6 · horns':'7 · +thumb'}</span><strong></strong><small>${DEGREES[degree-1]}</small>`;
+    const a=Math.min(degree,5),b=Math.max(0,degree-5);
+    const drawing=state.counting?`<span class="hand-pair">${handDrawing(a,false)}${handDrawing(b,false)}</span>`:handDrawing(degree);
+    item.innerHTML=`${drawing}<span class="shape-number">${state.counting?degree:degree<=5?degree:degree===6?'6 · horns':'7 · +thumb'}</span><strong></strong><small>${state.counting?`${a} + ${b} fingers`:DEGREES[degree-1]}</small>`;
     $('gesture-shapes').append(item);
   }
   updateCoach(null);
 }
 function updateCoach(current){
   $('gesture-coach').hidden=state.mode!=='gesture'||!state.guide;
-  $('coach-kicker').textContent=state.easy?'EASY · EITHER HAND':'ORIGINAL · LEFT HAND';
-  $('original-tip').hidden=state.easy;
-  const signature=[state.easy,$('key').value,current?.degree,current?.major,current?.quality,current?.shift].join(':');
+  $('coach-kicker').textContent=state.counting?'JUST COUNT · BOTH HANDS':state.easy?'EASY · EITHER HAND':'ORIGINAL · LEFT HAND';
+  $('coach-title').textContent=state.counting?'Count fingers. Make chords.':'One shape. A whole chord.';
+  $('original-tip').hidden=state.easy||state.counting;
+  $('pattern-help').textContent=state.counting?'Thumbs count too. Any combination adds up. Keep both hands visible; close both for silence. 9–10 fingers stay silent.':'Close your hand to stop. For 6, use index + pinky; for 7, add your thumb.';
+  const signature=[state.easy,state.counting,$('capo').value,$('key').value,current?.degree,current?.major,current?.quality,current?.shift].join(':');
   if(signature!==coachSignature){
     coachSignature=signature;
     for(const item of $('gesture-shapes').children){
-      const degree=Number(item.dataset.degree),chord=state.easy?easyChord(degree):{degree,major:current?.major??true,quality:current?.quality||1,shift:current?.shift||0};
+      const degree=Number(item.dataset.degree),chord=state.counting?countingChord(degree,Number($('capo').value)):state.easy?easyChord(degree):{degree,major:current?.major??true,quality:current?.quality||1,shift:current?.shift||0};
       item.querySelector('strong').textContent=chordLabel(chord,Number($('key').value));
       item.classList.toggle('active',current?.degree===degree);item.style.setProperty('--chord-color',CHORD_COLORS[degree-1]);
       if(current?.degree===degree)item.setAttribute('aria-current','true');else item.removeAttribute('aria-current');
     }
   }
-  const names=[1,4,5,1].map(d=>chordLabel(easyChord(d),Number($('key').value))).join(' → ');
+  const names=[1,4,5,1].map(d=>chordLabel(state.counting?countingChord(d,Number($('capo').value)):easyChord(d),Number($('key').value))).join(' → ');
   $('pattern-notes').textContent=`${names} · Hold each shape for four beats.`;
-  let tip=state.easy?'Show one palm. Raise just your index finger; curl the others.':'Show both palms. Raise your left and right index fingers.';
-  if(!state.easy&&state.oneHand)tip='Show your left palm and raise your index finger. Tilt to choose major or minor.';
+  let tip=state.counting?'Show both hands. Raise one index finger and keep your other hand closed.':state.easy?'Show one palm. Raise just your index finger; curl the others.':'Show both palms. Raise your left and right index fingers.';
+  if(!state.easy&&!state.counting&&state.oneHand)tip='Show your left palm and raise your index finger. Tilt to choose major or minor.';
   if(state.running&&state.hands.length&&!current){
-    if(state.easy)tip='Keep one hand visible. Open one or more fingers; a closed hand stays silent.';
+    if(state.counting)tip=state.hands.length<2?'Show both hands so the total stays correct. Keep unused fingers curled.':'Raise 1–8 fingers in total. For 6, try an open hand plus one index finger. Close both hands to stop.';
+    else if(state.easy)tip='Keep one hand visible. Open one or more fingers; a closed hand stays silent.';
     else if(!state.oneHand&&state.hands.length===1)tip='One hand is visible. Show both palms, with your right index raised.';
     else tip=state.oneHand?'Raise your left index for chord I. Keep your palm visible.':'Raise your left index for chord I. Keep at least one right finger raised, or choose Left only.';
   }
-  if(current)tip=`Playing ${chordLabel(current,Number($('key').value))}. ${state.easy?'Change your finger shape to change chords. Close your hand for silence.':'Left: chord and major/minor. Right: voicing, volume, and tone.'}`;
+  if(current)tip=`Playing ${chordLabel(current,Number($('key').value))}. ${state.counting?`${current.degree} ${current.degree===1?'finger':'fingers'} in total. Keep both hands visible; close both for silence.`:state.easy?'Change your finger shape to change chords. Close your hand for silence.':'Left: chord and major/minor. Right: voicing, volume, and tone.'}`;
   if($('gesture-tip').textContent!==tip)$('gesture-tip').textContent=tip;
 }
-function setDifficulty(easy){
-  releaseAll();state.easy=easy;
-  $('easy-mode').setAttribute('aria-pressed',String(easy));$('original-mode').setAttribute('aria-pressed',String(!easy));
-  $('original-controls').hidden=easy;
-  $('difficulty-copy').textContent=easy?'Use either hand. Matching major/minor chords and a steady volume are chosen for you.':'The recording’s controls. Left hand chooses the chord; right hand shapes the sound.';
-  $('idle-copy').innerHTML=easy?'One hand. A whole chord.<br>Raise a finger to begin.':'Your left hand finds the chord.<br>Your right hand brings it to life.';
-  updateCoach(null);updatePreset();
+function gestureIdleCopy(){return state.counting?'Count 1–8 fingers. Hear a chord.<br>Keep both hands in view.':state.easy?'One hand. A whole chord.<br>Raise a finger to begin.':'Your left hand finds the chord.<br>Your right hand brings it to life.';}
+function setDifficulty(mode){
+  releaseAll();state.easy=mode==='easy';state.counting=mode==='count';
+  for(const [id,name] of [['count-mode','count'],['easy-mode','easy'],['original-mode','original']])$(id).setAttribute('aria-pressed',String(mode===name));
+  $('original-controls').hidden=mode!=='original';$('count-controls').hidden=!state.counting;$('key-field').hidden=state.counting;
+  $('difficulty-copy').textContent=state.counting?'Count every raised finger across both hands. For 6–8, try five on one hand plus one, two, or three on the other.':state.easy?'Use either hand. Matching major/minor chords and a steady volume are chosen for you.':'The recording’s controls. Left hand chooses the chord; right hand shapes the sound.';
+  $('idle-copy').innerHTML=gestureIdleCopy();
+  buildCoach();updatePreset();
 }
 function releaseAll(){held.clear();audio.allOff();taps.reset();stable.reset();state.gesture=null;highlight();if($('gesture-shapes').children.length)updateCoach(null);}
 function highlight(){const notes=new Set([...audio.voices.values()].map(v=>v.midi));for(const[midi,b]of keyButtons){const on=notes.has(midi+Number($('octave').value)*12);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));}}
@@ -136,15 +146,15 @@ async function tick(generation){
   timer=setTimeout(()=>tick(generation),0);
 }
 function playGesture(now){
-  const raw=gestureFromHands(state.hands,{easy:state.easy,oneHand:state.oneHand,raise:$('raise').checked,lower:$('lower').checked,swap:$('swap').checked});
+  const raw=gestureFromHands(state.hands,{easy:state.easy,counting:state.counting,capo:Number($('capo').value),oneHand:state.oneHand,raise:$('raise').checked,lower:$('lower').checked,swap:$('swap').checked});
   const current=stable.update(raw,now);state.gesture=current;
   audio.setChord(current?chordNotes(current,Number($('key').value)):[]);
   const keyboardPlaying=[...audio.voices.keys()].some(id=>!id.startsWith('gesture:'));
   audio.expression(keyboardPlaying?1:raw?.volume||0,keyboardPlaying?1:raw?.filter||0);
   $('note-label').textContent=current?chordLabel(current,Number($('key').value)):'—';
   $('note-label').style.color=current?CHORD_COLORS[current.degree-1]:'';
-  $('note-eyebrow').textContent=state.easy?'EASY · ONE HAND':'ORIGINAL · GESTURE SYNTH';
-  $('note-detail').textContent=current?`${DEGREES[current.degree-1]} · ${current.quality===5?'diminished':current.major?'major':'minor'}${current.low?' · lower octave':''}`:state.easy?'Raise one finger to begin':state.oneHand?'Show your left palm and raise a finger':'Show both palms · keep your right index raised';
+  $('note-eyebrow').textContent=state.counting?'JUST COUNT · 1–8':state.easy?'EASY · ONE HAND':'ORIGINAL · GESTURE SYNTH';
+  $('note-detail').textContent=current?`${state.counting?`${current.degree} ${current.degree===1?'finger':'fingers'} · `:''}${DEGREES[current.degree-1]} · ${current.quality===5?'diminished':current.major?'major':'minor'}${current.low?' · lower octave':''}`:state.counting?'Show both hands · raise 1–8 fingers in total':state.easy?'Raise one finger to begin':state.oneHand?'Show your left palm and raise a finger':'Show both palms · keep your right index raised';
   updateCoach(current);
 }
 function playPaper(now){
@@ -232,13 +242,13 @@ function setMode(mode){
   $('sound').value=mode==='paper'?'piano':'retro';audio.bank=$('sound').value;bankPromise=null;$('sustain').checked=false;audio.setSustain(false);
   $('idle-label').textContent=mode==='paper'?'A PIECE OF PAPER. A WORLD OF POSSIBILITIES.':'NO KEYS. NO STRINGS. JUST YOU.';
   $('idle-title').innerHTML=mode==='paper'?'Bring paper to <em>life.</em>':'A show of <em>hands.</em>';
-  $('idle-copy').innerHTML=mode==='paper'?'Draw a keyboard. Find your angle.<br>Make something worth listening to.':state.easy?'One hand. A whole chord.<br>Raise a finger to begin.':'Your left hand finds the chord.<br>Your right hand brings it to life.';
+  $('idle-copy').innerHTML=mode==='paper'?'Draw a keyboard. Find your angle.<br>Make something worth listening to.':gestureIdleCopy();
   $('performance').hidden=mode==='paper';$('guide-toggle').hidden=mode==='paper';$('note-label').style.color='';updateCoach(null);$('note-eyebrow').textContent=mode==='paper'?'PAPER PIANO · EXPERIMENTAL':'GESTURE SYNTH';$('flip').textContent=state.facing==='user'?'Use rear camera ↻':'Use front camera ↻';$('tracking-label').textContent=mode==='paper'?'Draw a keyboard, then bring it into view.':'Your next instrument is already in your hands.';message('');
 }
 $('start').addEventListener('click',startCamera);$('stop').addEventListener('click',()=>stopCamera('Camera stopped. You can still play the keys below.'));
 document.querySelectorAll('[data-mode]').forEach(b=>{b.addEventListener('click',()=>setMode(b.dataset.mode));b.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const mode=e.key==='Home'?'gesture':e.key==='End'?'paper':state.mode==='gesture'?'paper':'gesture';setMode(mode);$(mode==='gesture'?'gesture-tab':'paper-tab').focus();}});});
 for(const[id,one]of [['one-hand',true],['two-hands',false]])$(id).addEventListener('click',()=>{state.oneHand=one;$('one-hand').setAttribute('aria-pressed',String(one));$('two-hands').setAttribute('aria-pressed',String(!one));releaseAll();});
-for(const id of ['key','raise','lower','swap','octave'])$(id).addEventListener('change',()=>{releaseAll();updatePreset();});
+for(const id of ['key','capo','raise','lower','swap','octave'])$(id).addEventListener('change',()=>{releaseAll();updatePreset();});
 $('sound').addEventListener('change',async()=>{releaseAll();bankPromise=null;message('Loading your sound…');try{await prepareSound();message('Sound ready.');updatePreset();}catch(e){message(e.message,true);}});
 $('volume').addEventListener('input',()=>{audio.volume=Number($('volume').value)/100;$('volume-value').value=`${$('volume').value}%`;audio.expression(state.mode==='gesture'&&state.running?(state.gesture?.volume||0):1,1);});
 $('sustain').addEventListener('change',()=>{audio.setSustain($('sustain').checked);highlight();});
@@ -261,14 +271,15 @@ document.addEventListener('keydown',e=>{if(e.repeat||e.ctrlKey||e.metaKey||e.alt
 document.addEventListener('keyup',e=>liftKey(`key:${e.key.toLowerCase()}`));
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopCamera();audio.context?.suspend();}});window.addEventListener('pagehide',()=>stopCamera());window.addEventListener('blur',()=>releaseAll());
 window.addEventListener('orientationchange',()=>{if(state.mode==='paper'&&state.layout)invalidatePaper('Orientation changed. Recognize and calibrate the keyboard again.');});
-$('easy-mode').addEventListener('click',()=>setDifficulty(true));
-$('original-mode').addEventListener('click',()=>setDifficulty(false));
+$('count-mode').addEventListener('click',()=>setDifficulty('count'));
+$('easy-mode').addEventListener('click',()=>setDifficulty('easy'));
+$('original-mode').addEventListener('click',()=>setDifficulty('original'));
 $('performance').addEventListener('click',()=>setPerformance(!state.performance));
 $('settings-toggle').addEventListener('click',()=>{const open=document.body.classList.toggle('show-settings');$('settings-toggle').setAttribute('aria-expanded',String(open));});
 $('guide-toggle').addEventListener('click',()=>{state.guide=!state.guide;$('guide-toggle').setAttribute('aria-expanded',String(state.guide));updateCoach(state.gesture);});
 $('hear-chord').addEventListener('click',async()=>{
   const id='hear-chord';held.set(id,60);$('hear-chord').disabled=true;
-  try{await prepareSound();if(!held.has(id))return;audio.expression(.7,.3);chordNotes(easyChord(1),Number($('key').value)).forEach((n,i)=>audio.noteOn(`${id}:${i}`,n));highlight();
+  try{await prepareSound();if(!held.has(id))return;audio.expression(.7,.3);chordNotes(state.counting?countingChord(1,Number($('capo').value)):easyChord(1),Number($('key').value)).forEach((n,i)=>audio.noteOn(`${id}:${i}`,n));highlight();
     await new Promise(resolve=>setTimeout(resolve,900));for(let i=0;i<4;i++)audio.release(`${id}:${i}`,true);held.delete(id);highlight();
   }catch(e){message(e.message,true);}finally{$('hear-chord').disabled=false;}
 });

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {chordNotes,chordLabel,easyChord,StableGesture} from '../music.js';
+import {chordNotes,chordLabel,easyChord,countingChord,StableGesture} from '../music.js';
 import {gestureFromHands,HandTracker} from '../hands.js';
 import {homography,inverse,project,keyAt,validateLayout,videoRect} from '../geometry.js';
 import {TapDetector,calibrateFinger,contactScore} from '../paper.js';
@@ -106,4 +106,44 @@ test('Easy accepts either hand, fixes expression, and silences a closed hand',()
   right.extended=[true,true,false,false,true];assert.deepEqual(gestureFromHands([right],{easy:true}),easyChord(7));
   right.extended.fill(false);assert.equal(gestureFromHands([right],{easy:true}),null);
   assert.equal(gestureFromHands([],{easy:true}),null);
+});
+
+test('Just count plays C-major chords in ascending order with an octave-high eighth',()=>{
+  const labels=['C','Dm','Em','F','G','Am','B°','C ↑'],roots=[60,62,64,65,67,69,71,72];
+  for(let count=1;count<=8;count++){
+    const chord=countingChord(count),notes=chordNotes(chord,6);
+    assert.equal(chordLabel(chord),labels[count-1]);assert.equal(Math.min(...notes),roots[count-1]);
+    assert.ok(notes.every(n=>[0,2,4,5,7,9,11].includes(n%12)));
+  }
+  assert.deepEqual(chordNotes(countingChord(7)),[71,74,77,83]);
+  assert.deepEqual(chordNotes(countingChord(8)),chordNotes(countingChord(1)).map(n=>n+12));
+  for(const invalid of [-1,0,9,10,1.5,NaN])assert.equal(countingChord(invalid),null);
+});
+test('each capo step transposes every counting chord by exactly one semitone',()=>{
+  for(let capo=0;capo<=11;capo++)for(let count=1;count<=8;count++){
+    assert.deepEqual(chordNotes(countingChord(count,capo)),chordNotes(countingChord(count)).map(n=>n+capo));
+  }
+  assert.deepEqual([1,4,5,1].map(n=>chordLabel(countingChord(n,2))),['D','G','A','D']);
+  assert.equal(chordLabel(countingChord(3,2)),'F♯m');assert.equal(chordLabel(countingChord(7,2)),'C♯°');
+  for(const capo of [-1,12,1.5,NaN])assert.equal(countingChord(1,capo),null);
+});
+test('Just count totals every finger combination, including thumbs, without special signs',()=>{
+  for(let mask=0;mask<1024;mask++){
+    const fingers=Array.from({length:10},(_,i)=>Boolean(mask&(1<<i)));
+    const hands=[hand('Left',fingers.slice(0,5)),hand('Right',fingers.slice(5))];
+    const expected=countingChord(fingers.filter(Boolean).length,2);
+    assert.deepEqual(gestureFromHands(hands,{counting:true,capo:2,swap:true,raise:true,lower:true}),expected);
+    assert.deepEqual(gestureFromHands(hands.reverse(),{counting:true,capo:2}),expected);
+  }
+});
+test('Just count releases on hand loss instead of dropping to the remaining hand count',()=>{
+  const hands=[hand('Left',Array(5).fill(true)),hand('Right',[false,true,true,false,false])];
+  const stable=new StableGesture(),value=gestureFromHands(hands,{counting:true});
+  stable.update(value,0);assert.equal(stable.update(value,110).degree,7);
+  assert.equal(gestureFromHands(hands.slice(0,1),{counting:true}),null);
+  assert.equal(stable.update(gestureFromHands(hands.slice(0,1),{counting:true}),200),null);
+  assert.equal(gestureFromHands([],{counting:true}),null);
+  assert.equal(gestureFromHands([hands[0],hands[0]],{counting:true}),null);
+  assert.equal(stable.update(gestureFromHands(hands,{counting:true}),210),null);
+  assert.equal(stable.update(gestureFromHands(hands,{counting:true}),320).degree,7);
 });
