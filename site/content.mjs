@@ -90,6 +90,17 @@ export const PROJECTS = [
     live: '/ppiano/',
     repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/ppiano',
   },
+  {
+    id: 'gym',
+    name: 'Gym',
+    context: 'Personal · Interactive Experiment',
+    year: '2026',
+    oneLiner: 'Your body is the controller.',
+    desc: 'Count push-ups, keep a daily streak, and guide a bird through obstacles with your body. Camera processing stays on your device, with calibrated, experimental movement tracking.',
+    tags: ['Computer Vision', 'Browser Game', 'Creative Coding'],
+    live: '/gym/',
+    repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/gym',
+  },
 ];
 
 export const SKILLS = {

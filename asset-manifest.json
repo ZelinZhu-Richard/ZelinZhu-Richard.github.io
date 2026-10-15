@@ -8,8 +8,8 @@
     },
     {
       "file": "_nuxt/CbdjwYMp.js",
-      "bytes": 1608150,
-      "sha256": "b2f5a191cc6927a62ff5d337268b91a5f0f2b61a89f0c6438af244b46afd4046"
+      "bytes": 1608556,
+      "sha256": "1baf5cf9cf1fa6e607ea3caa1a9312bd8e58b9d6d4939f34fc75103a593fd5d5"
     },
     {
       "file": "_nuxt/CoNJmAYZ.js",
@@ -93,8 +93,8 @@
     },
     {
       "file": "contacts/index.html",
-      "bytes": 7794,
-      "sha256": "3e306a075bec98b86b96a6c1317e23689cbeecd41bc1ca4c78ccdf827fb3c949"
+      "bytes": 7822,
+      "sha256": "f8defe3b972817b59fb2ea3503497124387e7ab32b693dfc2fb0666d636a9267"
     },
     {
       "file": "favicon.svg",
@@ -193,8 +193,8 @@
     },
     {
       "file": "index.html",
-      "bytes": 10958,
-      "sha256": "531673cd8a1e47989a90fac48030ccef5f3cbade8f2c736c4c13e53ccec19c63"
+      "bytes": 10986,
+      "sha256": "51267074bca168b742f67a5ffb5b4cef5ce38e16d31b855646534b81967a5b4d"
     },
     {
       "file": "libs/draco/draco_decoder.js",
