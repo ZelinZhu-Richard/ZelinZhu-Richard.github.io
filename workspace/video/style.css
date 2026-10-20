@@ -1,0 +1,76 @@
+.film-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  padding: 64px 0 48px;
+}
+.film-intro .eyebrow { margin-bottom: 24px; }
+.film-intro h1 { margin-bottom: 0; }
+.film-deck {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 23px;
+  line-height: 1.5;
+}
+.film-player { margin: 0; }
+.film-player video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: #080914;
+  border: 1px solid var(--line);
+}
+.film-player video:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+}
+.film-player figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.film-player figcaption span:last-child { white-space: nowrap; }
+.film-specs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 32px 0;
+  margin: 40px 0 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.film-specs dt {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.film-specs dd { margin: 0; font-size: 18px; }
+.film-story {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 9%;
+  padding: 80px 0;
+}
+.film-copy > p:not(.project-lede) { color: var(--muted); }
+.film-copy .project-lede em { font-family: inherit; color: inherit; }
+.film-download-size { color: var(--muted); font-size: 13px; }
+.film-copy .actions a { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.film-copy .actions a span { margin-left: 0; }
+@media (max-width: 700px) {
+  .film-intro { display: block; padding: 36px 0 30px; }
+  .film-intro .eyebrow { font-size: 11px; }
+  .film-intro h1 { font-size: clamp(58px, 15vw, 96px); }
+  .film-deck { margin-top: 22px; font-size: 19px; }
+  .film-deck br { display: none; }
+  .film-player figcaption { flex-direction: column; gap: 6px; font-size: 13px; }
+  .film-specs { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; margin-top: 28px; padding: 24px 0; }
+  .film-specs dd { font-size: 16px; }
+  .film-story { grid-template-columns: 1fr; gap: 16px; padding: 48px 0; }
+}

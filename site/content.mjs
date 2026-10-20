@@ -112,6 +112,17 @@ export const PROJECTS = [
     live: '/domainexp/',
     repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/domainexp',
   },
+  {
+    id: 'neon-rain',
+    name: 'Neon Rain',
+    context: 'Personal · AI Film Experiment',
+    year: '2026',
+    oneLiner: 'A little world, ten seconds long.',
+    desc: 'A short film experiment made with OpenAI’s GPT Image model: a lone figure, a neon-lit city, and rain. Exploring how AI-generated imagery can become a moving scene.',
+    tags: ['GPT Image', 'AI Filmmaking', 'Creative Experiment'],
+    live: '/video/',
+    repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/video',
+  },
 ];
 
 export const SKILLS = {

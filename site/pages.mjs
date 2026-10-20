@@ -1,9 +1,10 @@
 import { LINKS, ABOUT, EXPERIENCE, PROJECTS, SKILLS } from './content.mjs';
+import { videoPage } from '../workspace/video/page.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
-const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],[LINKS.resume,'CV'],['/contacts/','Contact']];
-const frame = (path, title, description, body) => `<!doctype html>
+const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],[LINKS.resume,'CV'],['/contacts/','Contact']];
+const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet } = {}) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -13,12 +14,13 @@ const frame = (path, title, description, body) => `<!doctype html>
 <link rel="canonical" href="https://zelinzhu-richard.github.io${path}">
 <meta property="og:title" content="${escape(title)} — Richard Zhu">
 <meta property="og:description" content="${escape(description)}">
-<meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
+<meta property="og:image" content="https://zelinzhu-richard.github.io${escape(image)}">
 <meta property="og:url" content="https://zelinzhu-richard.github.io${path}">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/portfolio.css">
+${stylesheet ? `<link rel="stylesheet" href="${escape(stylesheet)}">` : ''}
 <script src="/portfolio.js" defer>
 </script>
 </head>
@@ -101,7 +103,8 @@ export function pages() {
 <div class="actions">${link('/work/','Explore the projects')}${link(LINKS.github,'GitHub')}</div>
 </section>`;
   return new Map([
-    ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, Gym, and Domain Expansion.',work)],
+    ['video/index.html',frame('/video/','Neon Rain — Video','Neon Rain: a 10-second film experiment by Richard Zhu, made with OpenAI’s GPT Image model. Watch the film and read the story behind it.',videoPage,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: '/video/style.css' })],
+    ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, Gym, Domain Expansion, and Neon Rain.',work)],
     ['about/index.html',frame('/about/','About','About Richard Zhu, a computer science and economics student at UNC Chapel Hill.',about)],
     ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES and related projects.',research)],
     ['404.html',frame('/404.html','Page not found','This page could not be found.',intro('404','A different<br><em>path.</em>','This page does not exist. Return to the homepage or explore the work.')+`<div class="actions">${link('/','Home')}${link('/work/','Selected work')}</div>`)],
