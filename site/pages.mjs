@@ -103,7 +103,7 @@ export function pages() {
 <div class="actions">${link('/work/','Explore the projects')}${link(LINKS.github,'GitHub')}</div>
 </section>`;
   return new Map([
-    ['video/index.html',frame('/video/','Neon Rain — Video','Neon Rain: a 10-second film experiment by Richard Zhu, made with OpenAI’s GPT Image model. Watch the film and read the story behind it.',videoPage,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: '/video/style.css' })],
+    ['video/index.html',frame('/video/','Neon Rain — Video','Neon Rain: an agentic AI filmmaking experiment by Richard Zhu, combining GPT Image, computer graphics, and temporal validation into a 10-second sci-fi noir film.',videoPage,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: '/video/style.css' })],
     ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, Gym, Domain Expansion, and Neon Rain.',work)],
     ['about/index.html',frame('/about/','About','About Richard Zhu, a computer science and economics student at UNC Chapel Hill.',about)],
     ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES and related projects.',research)],

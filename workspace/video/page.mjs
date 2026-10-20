@@ -1,7 +1,7 @@
 export const videoPage = `<article class="film-page">
 <header class="film-intro">
 <div>
-<p class="eyebrow">Video · AI film experiment · 2026</p>
+<p class="eyebrow">Agentic AI filmmaking · 2026</p>
 <h1>Neon <em>rain.</em></h1>
 </div>
 <p class="film-deck">A little world,<br> ten seconds long.</p>
@@ -28,13 +28,30 @@ Your browser does not support embedded video. <a href="/video/assets/neon-rain.m
 <h2 id="making-heading">Made with<br><em>GPT Image.</em></h2>
 </div>
 <div class="film-copy">
-<p class="project-lede">I made <em>Neon Rain</em> using OpenAI’s GPT Image model, exploring how AI-generated imagery can become a short film.</p>
-<p>The scene is simple: a lone figure, an umbrella, and a city glowing in the rain. Blue and violet light spills across the wet street, turning a quiet walk into a small cinematic moment.</p>
-<p>What I find so cool is seeing an image model become part of a filmmaking process. Ten seconds is enough to suggest a whole world. This is an early experiment, and it makes me want to keep exploring.</p>
+<p class="project-lede">Exploring agentic AI filmmaking: orchestrating generative image models, computer graphics, and temporal validation to create cinematic video without relying on a conventional text-to-video generation pipeline.</p>
+<p><em>NEON RAIN</em> is a 10-second cinematic sci-fi noir film created through an experimental, AI-orchestrated filmmaking pipeline. I used GPT Image for character and environment artwork, with GPT-6 Astra Pro and Codex as AI production partners to coordinate image generation, animation, rendering, and visual validation.</p>
+<p>The workflow combined AI-generated artwork, 3D-guided motion, layered character rendering, depth-aware compositing, procedural rainfall, neon reflections, and frame-by-frame continuity validation. The aim was to turn individually designed visual assets into a coherent film.</p>
 <div class="actions">
 <a href="/video/assets/neon-rain.mp4" download="neon-rain.mp4">Download the film <span class="film-download-size">MP4 · 16.8 MB</span><span aria-hidden="true">↓</span></a>
 </div>
 </div>
 </section>
+<section class="film-story film-continuity" aria-labelledby="continuity-heading">
+<div>
+<p class="eyebrow">The engineering challenge</p>
+<h2 id="continuity-heading">One world.<br><em>240 frames.</em></h2>
+</div>
+<div class="film-copy">
+<p class="project-lede">The central challenge was maintaining a persistent visual world while the character moved.</p>
+<p>The protagonist’s silver-white hair and intricate clothing, the camera perspective, the lighting, and the wet pavement all needed to stay consistent across hundreds of frames.</p>
+<p>The pipeline produced a 240-frame sequence at 1920 × 1080 and 24 fps, with encoding verification, automated motion checks, and reproducible production checkpoints.</p>
+<p>The current result is an experimental prototype. Facial-detail preservation and natural-motion quality remain challenges for the next iteration.</p>
+<p class="film-question">Can AI agents move beyond generating individual images and become coordinated production systems capable of creating entire cinematic experiences?</p>
+</div>
+</section>
+<dl class="film-credits">
+<div><dt>My role</dt><dd>Concept development, creative direction, character and environment specifications, agentic workflow design, iterative evaluation, and production oversight.</dd></div>
+<div><dt>Technologies</dt><dd>GPT Image, GPT-6 Astra Pro, Codex, generative image models, Python, ModernGL, FFmpeg, procedural animation, depth-aware compositing, and automated quality assurance.</dd></div>
+</dl>
 <aside class="related"><p>More things I’ve made</p><a href="/work/">Selected work <span aria-hidden="true">↗</span></a><a href="/contacts/">Let’s talk <span aria-hidden="true">↗</span></a></aside>
 </article>`;
