@@ -101,6 +101,7 @@ ${pager(slug)}
 <footer class="pb-footer">
 <p>Personal study notes by Richard Zhu for one job: Research Engineer, Polaris, at Google DeepMind. Not affiliated with Google or Google DeepMind.</p>
 <p>Every important claim carries a label: <span class="badge badge-confirmed">Confirmed</span> (primary source read), <span class="badge badge-reported">Reported</span> (secondary source) or <span class="badge badge-inference">Inference</span> (our reasoning). Facts were checked on the dates shown; tools and hiring processes change, so check again before you act.</p>
+<p>This playbook is public. Anyone with the link can read it, and search engines may list it. It is not linked from the site's main navigation.</p>
 <p>Progress is saved only in this browser. Built ${escapeHtml(built)}.</p>
 </footer>
 ${dataTag}

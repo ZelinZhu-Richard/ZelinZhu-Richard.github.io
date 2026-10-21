@@ -29,6 +29,136 @@ This page keeps your hours on the three signals, keeps your own time apart from 
 - At the bottom, the page lists every drill from every chapter. Ticking a drill there also ticks it on its chapter page.
 - Under that list are the backup buttons. Export your progress at every weekly review.
 
+## Portfolio projects: the end product {#portfolio-projects}
+
+Polaris engineers build tasks that measure Gemini on long-horizon software engineering, and they look for the weaknesses of the latest models ^[confirmed](https://www.google.com/about/careers/applications/jobs/results/114077679900074694-research-engineer-polaris-deepmind "2026-10-19").
+So the playbook ends in three finished projects, each closing a gap you named.
+They fit inside the sprint gate items and the seven [final-project days](#final-project), with no new hours ([two clocks](#two-clocks)).
+
+| Your gap | Taught in | Missing until now | Project |
+|---|---|---|---|
+| No software-engineering tasks | [[task-design]], [[grader-validity]], [[capstone#ownership-gate\|the gate]] | A task from your own repo | [P1](#p1-two-tasks) |
+| No write-up of agent failures | [[change#milestone-audit\|milestone audits]], [[S14]], [[runs-and-weaknesses#first-wrong-turn\|first wrong turn]] | Real long-task attempts, counted and written up | [P2](#p2-failures) |
+| No finished weakness results | [[runs-and-weaknesses]], [[gpu-practice#g2\|G2]] | A frozen configuration and a finished report | [P3](#p3-weakness-study) |
+
+### Rules for all three {#portfolio-rules}
+
+- **Honest use.** AI may help. Each project has an **ownership check** that you pass alone, without AI. Log its date in `~/polaris-notes/gate-log.md`. Each write-up ends with an "AI use" paragraph: what agents did, and what you did alone.
+- **Sandbox.** Each **counted attempt** (one that enters your results) runs in a fresh container that sees only its workspace. Keep model credentials out of its reach, or state the limit. First, a probe inside one attempt must fail to read a dummy secret, your private folder, another attempt and a grade record. You run the probe yourself.
+- **The pilot never counts.** The 8 Claude pilot attempts ran without a sandbox, on an older ticket.
+- **Frames and privacy.** Every number has its [[runs-and-weaknesses#run-frame|frame]]. Hidden checks, references, wrong solutions and grade logs stay private ([[capstone#public-private|the table]]). Run the [Day 7 leak check](#final-project) before every push.
+- **Recruiters.** Send links only after a recruiter contacts you: one line per project, like [[capstone#recruiter|the recruiter note]].
+
+### Day map {#portfolio-days}
+
+| Day | P1 | P2 | P3 |
+|---|---|---|---|
+| Sprint | Gate items 1–4 | | |
+| 1 | Close open gate items; freeze Chronos v1 | | Pre-register and freeze (30 min) |
+| 2 | | Chronos attempts (machine time) | Run the arms |
+| 3 | | Label the Chronos attempts | |
+| 4 | Task 2: ticket and grader | | |
+| 5 | Task 2: validate and pilot | Task-2 attempts (machine time) | |
+| 6 | | Label task 2; write `FAILURES.md` | Write `STUDY.md` |
+| 7 | Gate item 4 again; publish | Publish | Publish |
+
+If a day overflows, cut P3's third arm, then task 2's second milestone. Never cut an ownership check, the probe, the pre-registration or a leak check.
+
+### P1 · Two software-engineering eval tasks {#p1-two-tasks}
+
+**Gap it closes.** qbench, the 31 Auto Research Lab cases and Market Workbench's graded spec show strong task design. None is a software-engineering task.
+
+**Inputs.** Chronos v0, `gvt`, the harness, your graded cases, and Market Workbench (or the agent graphs).
+
+**Steps.**
+
+1. Pass gate items 1–4 ([[capstone#ownership-gate|the ownership gate]]).
+2. Freeze **Chronos v1**: v0 plus your gate item 3 check and the sandboxed run path, hashed in `manifest.json` ([commands](#p3-weakness-study)).
+3. Pick task 2 with [[task-design#worksheet|the worksheet]] (score 7 or more): a feature request a Market Workbench user would file.
+4. Convert it with [the checklist](#case-to-swe). Give it two milestones, the second built on the first ([[task-design#long-not-horizon|the shuffle test]]), so P2 has a long task.
+5. Validate with `gvt`: do-nothing scores 0; 3 references score 1, one written by you; 10 or more wrong solutions and 2 cheats score 0; 3 repeats. In a non-Python repo, write mutants by hand and say so on the card.
+6. Run the [[task-design#preflight|pre-flight checklist]] on both tasks. Pilot task 2 with 3 sandboxed attempts, and [[task-design#triage|triage]] each failure.
+
+**Deliverables.** Two Harbor task folders, `manifest.json`, two [[grader-validity#validity-card|Grader Validity Cards]], and a one-page card per task: ticket, milestones, numbers with frames, pilot, AI use.
+
+**Done when:** Chronos v1 is frozen with a manifest and gate items 1–4 are passed; task 2 has a hidden behavioral grader and a Grader Validity Card with frames (do-nothing 0, 3 of 3 references accepted, every wrong solution and cheat rejected, 3 repeats); and you passed the task-2 ownership check.
+
+**Ownership check.** Chronos: gate items 1–4. Task 2: write its rules, its rule-to-check table and one reference yourself. Then pick 5 checks at random. For each, say aloud its rule and a wrong solution it catches.
+
+**Time.** The sprint gate items, Day 1, and Days 4–5. Task 2 is smaller than [[task-design#one-week|a one-week task]]. Its README says so.
+
+**Show a recruiter.** The two task cards. Offer to walk through one hidden grader live; [[interview#mocks|Mock 4]] rehearses it.
+
+#### From a graded case to an SWE task {#case-to-swe}
+
+- [ ] **Keep the grading idea.** Write it as numbered behavior rules with exact boundaries.
+- [ ] **Move it into a real repo.** Pin a commit and ship it without history ([[task-design#harbor|Harbor layout]]).
+- [ ] **Make the prompt a ticket.** User terms, interface, rules, "left open", no file names ([[task-design#instruction-template|the template]]).
+- [ ] **Hide the grader.** Tests use only the public interface and arrive after the agent ([[task-design#who-touches-what|who touches what]]).
+- [ ] **Gate on regressions.** The repo's own tests must still pass, so do-nothing scores 0.
+- [ ] **Accept every correct design.** Use an oracle or properties, never a match with your answer ([[task-design#outcomes|outcomes]]).
+- [ ] **Validate, then pilot.** Adjudicate every pilot failure.
+
+### P2 · Where agents failed: a long-horizon write-up {#p2-failures}
+
+**Gap it closes.** Market Workbench and the agent graphs show long-horizon work. Nothing says where agents failed.
+
+**Inputs.** Chronos v1 attempts from Day 2 (shared with P3), task-2 attempts, [[runs-and-weaknesses#label-schema|the label schema]] and `labels.py`.
+
+**Steps.**
+
+1. Collect 20 or more counted, sandboxed attempts, with 8 or more on task 2.
+2. Run the [[change#milestone-audit|milestone audit]] over each failed attempt's commits. Which commit broke which milestone? Did later work break earlier work?
+3. Label every attempt, passes too: adjudication, first wrong turn ([[S14]], [[runs-and-weaknesses#fwt-procedure|the procedure]]), phase, categories and mistake-card row. `labels.py` must report 0 problems.
+4. Count primary categories by phase in a [[runs-and-weaknesses#taxonomy|taxonomy]] table, one column per task. Head each column with its frame: "N attempts, configuration X, task Y". These are counts, not rates.
+5. Write 3 case studies. Each quotes at most 10 transcript lines around the first wrong turn, labeled with model, configuration and date, cuts marked `...`. Then the evidence the agent had, the missed chances, and what you changed.
+6. Add one [[runs-and-weaknesses#weakness-statement|weakness statement]] per task, as a hypothesis.
+
+**Deliverables.** Private: `labels.jsonl` and audit notes. Public: `FAILURES.md` with the table, case studies, weakness statements, limits and AI use.
+
+**Done when:** at least 20 counted sandboxed attempts across both tasks are labeled and pass `labels.py`; `FAILURES.md` has the taxonomy table with counts and frames, 3 case studies with excerpts, and limits; the leak check finds no hidden-test detail in it; and you passed the P2 ownership check.
+
+**Ownership check.** Without AI, label 5 attempts again a week later. Run `labels.py first.jsonl second.jsonl` and explain each disagreement. Tell one case study aloud in 2 minutes.
+
+**Time.** Day 3 for the Chronos labels. Day 6 for the task-2 labels and `FAILURES.md`. The attempts are machine time.
+
+**Show a recruiter.** The `FAILURES.md` link. In a call, tell one case study: the step, the ignored evidence, the task change.
+
+### P3 · A finished model-weakness study {#p3-weakness-study}
+
+**Gap it closes.** The Regret audit is ongoing, with no finished results. "Finished" means the results table, the limits section and the frozen manifest exist.
+
+**Inputs.** Pick on Day 1. **A:** the Regret audit. **B:** Chronos v1 with three **arms** (the configurations you compare): Gemini through the harness, an open model through [[gpu-practice#g2-chronos|G2's Chronos option]], and Claude through the tested `shell` adapter (not run by us). B is the default: it reuses Day 2's runs. Pick A only if you can freeze it on Day 1.
+
+**Steps.**
+
+1. **Pre-register.** Before any counted attempt, write `PREREG.md`: the question, arms, primary metric (full-reward rate), secondary metrics (milestones, mean reward), n per arm, retry and exclusion rules, and analysis. A **pre-registration** fixes these before you see results.
+2. **Freeze.** `manifest.json` holds hashes of the task, grader, prompt, environment, harness and dependency lock, plus each arm's model id, settings and budget. Commit both files; the commit time proves the order. For A, freeze its prompts, scoring code and models the same way. Each line ran in zsh on 2026-10-21, on test inputs:
+
+   ```zsh
+   git status --short           # must print nothing
+   git rev-parse HEAD           # ticket, environment, harness, prompt
+   tree_sha() { (cd "$1" && find . -type f ! -name .DS_Store ! -path '*__pycache__*' -print0 | LC_ALL=C sort -z | xargs -0 shasum -a 256) | shasum -a 256 | cut -c1-64; }
+   tree_sha "$PRIV/grader"      # the private grader
+   uv pip freeze --python .venv/bin/python | shasum -a 256
+   docker image inspect --format '{{.Id}}' YOUR-SANDBOX-IMAGE
+   ```
+
+3. **Run.** Interleave the arms over the same days ([[runs-and-weaknesses#threats|threats]]). A grader change after the freeze, such as Day 3's gate item 3, makes v1.1. Keep the primary results on v1.
+4. **Keep raw outcomes.** `outcomes.csv` holds every attempt, exclusions too, with raw and adjudicated rewards side by side.
+5. **Report.** Per arm: k of n, Wilson 95% and pass^k from `python -m harness stats`, with the [[runs-and-weaknesses#run-frame|frame sentence]]. Each arm is a model plus its harness, so say "configuration". [[runs-and-weaknesses#sample-size|Table B]] needs 32–42 attempts per arm to detect a 30-point gap with 80% power ^[inference](- "2026-10-21"). At 20 per arm, such a gap shows up only about half the time (our normal-approximation estimate, same assumptions) ^[inference](- "2026-10-21"). When you find no difference, write "no detectable difference", not "no difference".
+6. **Limits.** One task, different harnesses, a small open model, one labeler, possible model rerouting, and every change after pre-registration.
+
+**Deliverables.** `PREREG.md`, `manifest.json`, `outcomes.csv`, and a 2-page `STUDY.md`: question, setup, results table, failure modes from P2, limits, what would change the conclusion, AI use.
+
+**Done when:** `PREREG.md` and `manifest.json` were committed before the first counted attempt; `STUDY.md` has a results table with raw outcomes, Wilson intervals with frames for every arm, and a limits section; and you passed the P3 ownership check.
+
+**Ownership check.** Without AI, recompute one arm's Wilson interval by hand. Then answer [[defend-it#q17|Q17]] and [[defend-it#q43|Q43]] aloud about your own study.
+
+**Time.** 30 minutes on Day 1, Day 2 for the runs, Day 6 for `STUDY.md` (for B, the short form of `REPORT.md` v1). The open-model arm uses the [[gpu-practice]] hours already in [the queue](#after-applying).
+
+**Show a recruiter.** The report. Lead with one frame sentence and one limit. Add one résumé line with only your own numbers ([[capstone#resume|the rules]]).
+
 ## Sprint: Oct 20 – Nov 2 {#sprint}
 
 About 30 focused hours over 12 days, then two protected days ^[inference](- "2026-10-20").
@@ -317,12 +447,13 @@ The capstone, [[capstone]], ends with the ownership gate. The extension makes Ch
 - **Full-day mode:** 1 to 7 full days. You can stop after any day. Each day leaves a result you can show.
 
 Do Day 1 first. Day 2 needs Gemini quota, so check `/usage` first (checked against docs on 2026-10-20, not run).
+The [day map](#portfolio-days) shows which day feeds which [portfolio project](#portfolio-projects).
 
 - [ ] **Day 1 · Own it.** Ownership-gate items 1–2, without AI: reproduce one grader-detected failure, then diagnose it with file:line and the time rule it broke. If you passed them in the sprint, tick this and go on.
 - [ ] **Day 2 · Gemini runs.** At least 20 attempts per configuration, through the capstone harness, with the baselines first. If you get fewer, report what you have with intervals. Report raw outcomes first, with the frame "N attempts, one configuration, one task". For scale: 10 successes out of 20 gives a Wilson 95% interval of about 30%–70% ^[inference](- "2026-10-20"). Same assumption as before: independent attempts with one fixed success chance.
 - [ ] **Day 3 · Learn from the failures.** Label every attempt as in [block 3](#block-3): adjudication first, then first wrong turn, phase and mistake-card row. Turn real Gemini failures into new wrong solutions in the private corpus. Gate item 3 (again, if you did it in the sprint): add a check that catches one of them and re-run the Grader Validity Card.
-- [ ] **Day 4 · Task 2.** Build a second task in another stack, for example TypeScript. Validate it with `gvt`, the Grader Validity Toolkit.
-- [ ] **Day 5 · Audit public graders.** Apply a defined mutant space to a sample of public Harbor-format tasks. State the frame: which task list, how you sampled it (seed), and which mutation operators. A hand-picked sample gives counts, not rates.
+- [ ] **Day 4 · Task 2.** Build a second task from your own repo ([P1](#p1-two-tasks)), in another stack if you can, for example TypeScript. Validate it with `gvt`, the Grader Validity Toolkit.
+- [ ] **Day 5 · Audit public graders.** Until all three portfolio projects are done, Day 5 validates and pilots task 2 instead ([day map](#portfolio-days)). Then apply a defined mutant space to a sample of public Harbor-format tasks. State the frame: which task list, how you sampled it (seed), and which mutation operators. A hand-picked sample gives counts, not rates.
 - [ ] **Day 6 · Tech report v1.** Update `REPORT.md`: motivation, time model, grader design, validity results with frames, pilot and Gemini results, threats to validity, and unresolved limitations.
 - [ ] **Day 7 · Defend and publish.** Gate item 4 again with new questions. Polish. Choose what to publish: the public part only. Then run the leak check in the capstone repo. Every private file carries a canary GUID line ([[task-design#canary-strings|canary strings]]). Put yours in place of the capital-letter placeholder:
 
@@ -367,4 +498,5 @@ Hidden tests, the oracle, reference solutions, wrong solutions and adjudication 
 - Your `prep-log.csv` holds this week's sessions and no agent or machine time.
 - You did the tool recheck this week and wrote the changes in `agy-notes.md`.
 - You exported your progress at your last review.
+- You can name the three portfolio projects and say the "Done when" line of each.
 :::

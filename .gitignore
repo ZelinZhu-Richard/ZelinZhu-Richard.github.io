@@ -14,3 +14,7 @@ artifacts/
 *.tmp
 .vscode/
 .idea/
+
+# Private, local-only folders (never publish; see workspace/repolarisdm/tests/publication.test.mjs)
+/holdout/
+/workspace/polaris-capstone/

@@ -255,6 +255,7 @@ Chronos v0 is built by AI agents that you direct. That is allowed and normal for
 - The pilot attempts are Claude agents, not Gemini. Label them that way. Never present a synthetic transcript as real model output.
 - Solver agents must not see hidden tests, reference solutions or revealing git history. The capstone must report how this was checked. If it does not, treat its pilot numbers as invalid.
 - The public playbook and the private benchmark files stay separate. Hidden tests, the oracle and reference solutions never go into this site or any public repo. Nothing is pushed until you approve the staged diff.
+- This playbook is public. Anyone with the link can read it, and search engines may list it. It is not linked from the site's main navigation, but that does not make it private.
 
 Why this matters: GDM's default is no AI in interviews. There, only what you understand counts. The gate makes sure you understand all of it. Details are in [[capstone]].
 

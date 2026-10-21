@@ -21,6 +21,10 @@ Finishing chapters is not the goal. Polishing this website is not the goal. If a
 | 2. Diagnosed agent failures | [[agent-patch-audit]], [[prove]], [[debug]] | A mistake log: each catch with its type, the step that caught it, and the minutes it took |
 | 3. Unaided interviews | [[interview]], [[defend-it]] | Timed mock scores and a list of weak answers you fixed |
 
+**The end product** is three finished portfolio projects: two software-engineering eval tasks, a write-up of where agents failed on long tasks, and one finished model-weakness study.
+Each has a "Done when" line and fits inside the sprint and the final-project days.
+Steps: [[tracker#portfolio-projects|Portfolio projects]]. Checklist: [[cards#card-portfolio|the portfolio card]].
+
 ## Two pillars, one loop {#pillars}
 
 - **Catch** is the main skill. You analyze an unfamiliar repo, find the bug, and catch the agent's own mistakes. Chapters 2–6.
@@ -64,5 +68,6 @@ The full facts table, with what to do about each fact, is in [[start-here#facts|
 - **`agy` commands** were checked against docs on 2026-10-20, not run. Confirm them on your machine on day 1.
 - **Hours** are your personal preparation time. The time AI agents spent building this site and Chronos v0 is tracked separately and never counts as your prep.
 - **Honesty.** Chronos v0 is agent-built. It becomes your project when you pass the ownership gate. Say so in every interview.
+- **This site is public.** Anyone with the link can read it, and search engines may list it. It is not linked from the site's main navigation. Keep private details out of it.
 - **Progress** is saved only in this browser. Keep the [[cards]] open or printed while you practice.
 - **Protected days.** Nov 1–2 have no prep. The sprint plan in [[tracker#sprint|the tracker]] is built around that.

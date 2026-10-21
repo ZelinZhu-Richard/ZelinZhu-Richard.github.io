@@ -10,6 +10,8 @@ summary: Know what Chronos is, what its validation and pilot numbers say and do 
 - The grader rejected 20 of 20 hand-written wrong solutions. What is its false-accept rate? || You cannot say. The corpus is hand-picked, so it gives a count, not a rate. Say "rejected 20 of 20 hand-written wrong solutions (hand-picked; counts only)".
 - The mutant result is "264 of 264 killed". Why is there no confidence interval, and what does it not say? || It is a census: every applicable site of one fixed operator set in the three references' added lines. Nothing was sampled, so there is no sampling interval. 57 survivors were adjudicated and left the denominator (45 equivalent, 12 out of scope). It says nothing about bugs outside that operator set.
 - 6 of 8 pilot attempts got full reward. Give the Wilson 95% interval and the full frame. || 0.41 to 0.93. Frame: 8 attempts by one agent configuration (Claude subagents in a Claude Code workflow, not Gemini) on one task. The interval assumes independent attempts with one fixed success chance.
+- What does pilot 1's transcript scan show, word for word? || "No matches were found in the inspected tool-call inputs for the listed indicators. Technical isolation was not enforced during pilot 1, and the scan does not establish absence of private-data access." Never say "0 breaches" or "all attempts valid".
+- Can you compare a Gemini run on v1 with pilot 1? || No. Pilot 1 is exploratory: it ran on the ticket before the J6 fix, without a sandbox, through a Claude Code workflow. Model comparisons run against the v1 freeze manifest.
 - When does the Chronos link go to the recruiter? || Not with the Oct 23 application. Send the public part after you pass the ownership gate and the Day 7 leak check, once a recruiter is in contact.
 :::
 
@@ -69,17 +71,19 @@ Each milestone term is 1 only if every check of that milestone passes. The **gat
 
 ## Where it lives on your machine {#where}
 
-**Public part:** `workspace/polaris-capstone/`. It is kept out of the portfolio repo's git only by that repo's local `.git/info/exclude` file, not by `.gitignore`. A fresh clone of the portfolio would not exclude it.
+**Public part:** `workspace/polaris-capstone/`. It is its own local git repo, with no remote. The portfolio repo's committed `.gitignore` excludes it and the private folder, and the playbook's publication tests check that no tracked file and no built page holds a private path or the canary. Ignore rules are not access control. They keep files out of a commit; they do not hide anything, and they do not remove a file that was tracked before.
 
 | Path (inside the capstone folder) | What it is |
 |---|---|
 | `tasks/chronos-pit/instruction.md` | the ticket the agent reads |
 | `tasks/chronos-pit/task.toml` | Harbor metadata: milestones, weights, limits (2 CPUs, 4 GB memory, no network) |
-| `tasks/chronos-pit/gvt.toml` | the config that gvt and the harness read; validation used it. (`gvt/configs/chronos-pit.toml` is an older config with a different private layout. Do not use it.) |
+| `tasks/chronos-pit/gvt.toml` | the only config: gvt, the harness and every validation run read it. (An older duplicate in `gvt/configs/` was removed on 2026-10-21 after a sandboxed grade showed it lacked the grader's `--bundle` argument.) |
 | `tasks/chronos-pit/environment/` | `repo/` (the base snapshot), `history.bundle` (its git history), `BASE_COMMIT`, `Dockerfile` |
 | `tasks/chronos-pit/tests/test.sh` | the Harbor verifier entry: it calls the private grader and writes the reward |
 | `gvt/` | the Grader Validity Toolkit: runs a grader on solution sets and writes the Grader Validity Card |
-| `harness/` | the agent runner: isolated workspaces, agent adapters, grading, statistics |
+| `harness/` | the agent runner: a Docker sandbox per attempt and per grade, workspaces, agent adapters, statistics |
+| `harness/SECURITY-EVIDENCE.md` | before/after evidence for the security fixes and the sandbox |
+| `release/` | the v1 freeze manifest, the script that writes it, and the review-bundle script |
 | `results/` | `VALIDATION-SUMMARY.md` and `PILOT-SUMMARY.md` |
 | `_build-notes/` | build log, restart note, plans and workflow scripts from the build |
 | `.envbuild/` | the authoring tree and script that rendered the environment repo and its history |
@@ -110,12 +114,11 @@ cd workspace/polaris-capstone
 source .venv/bin/activate
 export PYTHONDONTWRITEBYTECODE=1
 python --version
-python -m pytest -q -p no:cacheprovider harness/tests
-python -m pytest -q -p no:cacheprovider gvt/tests
+python -m pytest -q -p no:cacheprovider harness/tests gvt/tests
 (cd tasks/chronos-pit/environment/repo && python -m pytest -q -p no:cacheprovider)
 ```
 
-Real output on 2026-10-21: `Python 3.13.9`, then `42 passed in 7.18s` for the harness, `72 passed in 26.87s` for gvt, and `140 passed in 2.09s` for the base repo.
+Real output on 2026-10-21: `Python 3.13.9`. The toolkit run started at 17:58:47 UTC, on capstone commit `c1cbcf1` with the uncommitted sandbox changes in the working tree, and printed `148 passed in 75.35s`. That is 76 harness tests (31 of them test the sandbox and need Docker) and 72 gvt tests. The base repo printed `140 passed in 2.29s`. This page used to show 42 harness tests; that count is from before the security fixes and the sandbox. Quote a test count only with its commit, command and date.
 
 A clean git copy of the base commit, for diffs and experiments. It needs no private files:
 
@@ -137,6 +140,16 @@ CHRONOS_GRADER_TIME_SCALE=2 python -m gvt grade --config tasks/chronos-pit/gvt.t
 ```
 
 `mktemp` makes an empty file, so this grades the **do-nothing baseline**: an attempt that changes nothing. Expect reward 0, because the base passes the gate but no milestone ^[inference](- "2026-10-21"). Validation run 5 did not report this baseline. Run it yourself; it is the first line of your own evidence. `CHRONOS_GRADER_TIME_SCALE=2` only widens time limits, as in run 5. We did not run this command: this page was written without access to the private folder. One grader run took a median of 28 seconds in run 5.
+
+`gvt grade` runs a patch's code on your machine, as you. That is fine for an empty patch, your own patches and the private solution sets. Grade agent patches in the grader sandbox instead ([the sandbox](#sandbox)). The sandboxed Chronos grade is untested, so first check that a reference reaches 1.00 there:
+
+```bash
+CHRONOS_GRADER_TIME_SCALE=2 python -m harness grade-patch --config tasks/chronos-pit/gvt.toml \
+  --private-root "$PRIV" --patch "$PRIV/corpora/reference/ref-a/patch.diff" \
+  --log-dir "$PRIV/runs/check-ref-a" --grader-pass-env CHRONOS_GRADER_TIME_SCALE
+```
+
+Expect `"reward": 1.0` and one private mount, `.../grader -> /private/grader ro`. Adjust the patch path if your layout differs. Not run by us.
 
 The statistics for the pilot:
 
@@ -193,8 +206,9 @@ What you may say, word for word:
 
 - **Hand-picked sets give counts, not rates.** "Rejected 20 of 20 hand-written wrong solutions" does not estimate how often the grader would accept an arbitrary wrong solution ([[grader-validity#frame-hand-picked|frame 1]]).
 - **The mutant result is a census.** After the adjudicated exclusions, 264 of 264 mutants were killed. Nothing was sampled, so there is no sampling interval. It says that this operator set, applied to these three references, produced no non-equivalent mutant the grader accepts. It is not an error rate for wrong solutions in general ([[grader-validity#frame-census|frame 2]]).
+- **Keep the evidence behind the exclusions.** Preserve the 321 mutants and the written reasons for the 45 equivalent and 12 out-of-scope exclusions. Agents wrote those reasons. The next validity step is an independent review of those exclusions, and fresh solution families that were not used to refine the grader. Three agent-written references with different briefs give useful diversity, not proof of independent errors.
 - **Stability:** 0 flaky solutions (at outcome or test level), 0 patch-apply failures, 0 grader errors, 0 runs that hit a time limit. Mutants ran only once, so this says nothing about mutant flakiness. Three clean repeats do not prove determinism either; gvt's own README says so.
-- **Timing:** median 28 seconds per grader run (max 46 seconds), with 8–12 runs in parallel on a 14-core Mac. The task's budget is under 120 seconds. Nobody measured it on the task's 2-CPU target. The Mac was not idle. The build log has the 8 pilot agents running on it from 07:30 to 08:04 EDT, during most of run 5 (07:24–07:42 EDT). So both the grader timings and the pilot's 27–33 minutes were measured under that shared load. `VALIDATION-SUMMARY.md` still says "otherwise idle", which does not fit the build log.
+- **Timing:** median 28 seconds per grader run (max 46 seconds), with 8–12 runs in parallel on a 14-core Mac. The task's budget is under 120 seconds. Nobody measured it on the task's 2-CPU target. The Mac was not idle. The build log has the 8 pilot agents running on it from 07:30 to 08:04 EDT, during most of run 5 (07:24–07:42 EDT). So both the grader timings and the pilot's 27–33 minutes were measured under that shared load. `VALIDATION-SUMMARY.md` now says the same.
 
 ### How the grader changed in five runs {#grader-history}
 
@@ -231,8 +245,12 @@ An early version of `_build-notes/RESTART.md` said two run-2 findings stayed ope
 
 Frame first: **8 attempts by one agent configuration (Claude subagents in a Claude Code workflow, not Gemini) on one task.** Source: `results/PILOT-SUMMARY.md`, pilot 1, 2026-10-21. The solver agents ran on Claude Opus 5.5 (`claude-opus-5-5`, the build session's model) at the session's default effort; say exactly that when an interviewer asks "which Claude?".
 
+:::warn title="Pilot 1 is exploratory"
+It ran on the ticket before the J6 fix, on the host, without a sandbox. It is not an experiment on the corrected task (v1), and it is not comparable with v1 runs. Use it for what it found: one spec–grader gap and one verification gap.
+:::
+
 - **Workspaces:** each attempt got its own workspace from `python -m harness prepare`. It held a fresh clone of the repo history up to the base commit, plus the ticket, which git ignores. The history scan found no solution code, no canary and no private path in the 42 commits.
-- **Prompt:** a plain engineering request. Read the ticket, implement everything, work only inside the workspace, use a given Python environment, do not modify existing tests, commit, and write `NOTES.md`. It did not say that hidden tests would grade the work. A saved copy of the prompt is in `_build-notes/pilot-workflow.js`. That copy tells the agent to read `TASK.md`, but the pilot summary says the workspace held `instruction.md` and the prompt named it. The copy dates from 2026-10-20, before the pilot ran, so it may not be the exact text used. The public records do not settle which file name the pilot used.
+- **Prompt:** a plain engineering request. Read the ticket, implement everything, work only inside the workspace, use a given Python environment, do not modify existing tests, commit, and write `NOTES.md`. It did not say that hidden tests would grade the work. The prompt named `instruction.md`, the file the workspace held. `_build-notes/pilot-workflow.js` is the script that ran.
 - **Time:** no time limit. All 8 ran in parallel. Each took 27–33 minutes and 60–100 tool calls.
 - **Grading:** the run-5 grader, twice per attempt. Both runs gave the same result for every attempt, so 0 of 8 attempts were flaky.
 - **Ticket version:** the pilot ran on the ticket **before** the J6 fix described below.
@@ -263,6 +281,8 @@ The statistics assume the 8 attempts are independent, with one fixed success cha
 2. **a08, one milestone-1 check.** An empty frame must give an empty Series with no warning. Rule Z5 says this explicitly. a08's `zscore` emits a pandas `FutureWarning` on an empty frame, through a base-repo helper that checks sort order. Its transcript shows 32 test runs with warnings as errors and 14 probes of empty inputs, but never this exact input. **Verdict: a true reject, a verification gap.** a01 found and fixed the same helper during its attempt.
 3. **No other failures.** All eight attempts got the core point-in-time logic right: publication-time availability, revisions, purge and embargo. For this configuration the task is moderately hard. Its difficulty sits in edge conditions, not in the main idea.
 
+So the strongest supported story is about **grader specification and verification quality**: one check did not follow from the ticket, and one agent did not test an input the ticket names. It is not a demonstrated temporal-reasoning weakness. All 8 attempts got the core logic right.
+
 The main lesson: **a check must follow from the task text.** Pilots find the places where it does not. Adjudicate every failure against the ticket before you call it a model weakness ([[runs-and-weaknesses#labeling|labeling transcripts]]).
 
 These verdicts are only part of what the plan asks for. The build agents made them; no separate reviewer has checked them. The plan also wants a label per failure: first wrong turn, phase and mistake-card row. The capstone README has that table, under Pilot 1. Two labels follow from the summary: a08's milestone-1 failure is in the verify phase, and the J6 failures are a task bug, not an agent mistake. The first wrong turn needs the private transcripts, so it is still pending.
@@ -272,8 +292,9 @@ The ticket changed after the pilot. So the Claude numbers describe the old ticke
 ### Isolation and overselling {#pilot-isolation}
 
 - **Workspaces:** 0 of 8 contained the private canary prefix or a private path marker.
-- **Transcripts:** every tool call of all 8 agents was scanned. The scan looked for private markers, for other attempts' workspace paths, and for `git log --all`, `git fetch`, `curl`, `wget` and `pip install`. It found 0 hits, so all 8 attempts are valid.
-- **What this does not prove:** the scan checks tool inputs, not every byte a tool printed. The agents had no technical sandbox. Instructions and keeping private files out of the workspaces were the only barriers.
+- **Transcripts:** every tool-call input of all 8 agents was scanned. The scan looked for private markers, for other attempts' workspace paths, and for `git log --all`, `git fetch`, `curl`, `wget` and `pip install`.
+- **The result, in the words to use:** No matches were found in the inspected tool-call inputs for the listed indicators. Technical isolation was not enforced during pilot 1, and the scan does not establish absence of private-data access.
+- **What this means:** the scan did not read tool outputs. Instructions and keeping private files out of the workspaces were the only barriers. This does not show that an attempt cheated. It limits what the evidence supports. Runs after the pilot use [the sandbox](#sandbox).
 - **Overselling** ([[M6]]): all eight final summaries claimed that the full test suites passed, also with warnings as errors. The build's re-run (`pytest -q -W error` in each workspace) confirmed it for all eight, with 219–272 tests each. No attempt claimed hidden-test results. The two failures came from requirements the agents' own tests did not cover, not from false claims.
 
 ## The ownership gate {#ownership-gate}
@@ -301,17 +322,18 @@ mkdir -p "$PRIV/gate"
 :::drill id="capstone-gate-1-reproduce" title="Gate item 1: reproduce a grader-detected failure" time="60 min"
 1. Pick pilot attempt a08. It has both kinds of failure: a true reject in milestone 1 (rule Z5) and a spec–grader gap in milestone 2 (rule J6). a02 has only the gap.
 2. The capstone folder holds no pilot patches. Copy a08's patch from your private pilot records to `$PRIV/gate/a08.patch`, and record its hash with `shasum -a 256`.
-3. Run the grader yourself, twice:
+3. Run the grader yourself, twice, in the grader sandbox. a08's patch is agent-written code, so do not grade it with `gvt grade` on your machine. First check that a reference reaches 1.00 this way (`OWNERSHIP.md`, step 1.0). Each run writes `grade.json` into its own new `--log-dir`:
 
    ```bash
    for k in 1 2; do
-     CHRONOS_GRADER_TIME_SCALE=2 python -m gvt grade --config tasks/chronos-pit/gvt.toml --private-root "$PRIV" \
-       --patch "$PRIV/gate/a08.patch" --log-dir "$PRIV/gate/a08-run$k" > "$PRIV/gate/a08-run$k.json"
+     CHRONOS_GRADER_TIME_SCALE=2 python -m harness grade-patch --config tasks/chronos-pit/gvt.toml \
+       --private-root "$PRIV" --patch "$PRIV/gate/a08.patch" --log-dir "$PRIV/gate/a08-run$k" \
+       --grader-pass-env CHRONOS_GRADER_TIME_SCALE
      echo "run $k exit $?"
    done
    ```
 
-4. List the failing checks with the short script in `OWNERSHIP.md`, step 1.3. Expect reward 0.5 in both runs, one failing check in milestone 1, one in milestone 2, and everything else passing. If you see anything else, stop. The patch, the grader or the environment differs from the pilot.
+4. List the failing checks in each `$PRIV/gate/a08-run$k/grade.json` with the short script in `OWNERSHIP.md`, step 1.3. We tested `harness grade-patch` and that script on the toy task on 2026-10-21, not on Chronos. Expect reward 0.5 in both runs, one failing check in milestone 1, one in milestone 2, and everything else passing. If you see anything else, stop. The patch, the grader or the environment differs from the pilot.
 5. Reproduce it outside the grader. Materialize a08's code with `python -m gvt materialize --config tasks/chronos-pit/gvt.toml --dest "$A08" --patch "$PRIV/gate/a08.patch"`, after `A08="$(mktemp -d)/a08"`. Write the smallest script that shows the failure. Write it from rule Z5 in the ticket, not by copying the hidden check. Run it with `PYTHONPATH=src python -W error`, so the warning becomes an exception.
 
 **Done when:** both runs give 0.50 with the same failing checks as the pilot, and your own script fails the same way on a08's code.
@@ -353,7 +375,7 @@ The new check must follow from the ticket text (put the rule id in its docstring
    The reference patches are under `$PRIV/corpora/reference/`. Put your private canary line at the top of `w21.patch` as a `# ` line, like the other private patches. `git apply` ignores it.
 4. **Grade it with the old grader.** It must still pass the milestone you target. If the old grader already rejects it, the gap was not real: go back to step 2. The census killed 264 of 264, so expect more than one round.
 5. **Add the check** next to the checks of the same rule group. Use their seeds and helpers.
-6. **Grade again.** `w21` must now fail the milestone you target. The three references must still score 1.00 on every run of `--corpus reference --repeats 3`. Also grade the six pilot attempts that scored 1.00. If one of them now fails, the pilot had a false accept. That is a real finding: write it down.
+6. **Grade again.** `w21` must now fail the milestone you target. The three references must still score 1.00 on every run of `--corpus reference --repeats 3`. Also grade the six pilot attempts that scored 1.00, in the sandbox with `harness grade-patch`. If one of them now fails, the pilot had a false accept. That is a real finding: write it down.
 7. **Re-run the full card.** Add `w21` to `$PRIV/corpora/wrong/` with a `meta.json` like the others. Then run README step 6: three `gvt run` groups (3 repeats for references, wrong solutions and the author base; 2 for the references and refactor variants; 1 for the references and mutants) and one card per group. The references must be in every group. The card looks for a parent only in its own results folder; without it, the card falls back to "full reward or not" and prints `absolute rule used`. That fallback gives wrong labels once your check moves a parent below 1.00. So check that the note appears 0 times. This makes 432 grader runs. Run 5 made 423 in about 18 minutes on the 14-core build Mac. Compare with run 5: references 3 of 3 accepted; wrong solutions 21 of 21 rejected; refactor variants 15 of 15 same as parent; 0 flaky solutions and 0 grader errors. If your check kills a mutant that was adjudicated "equivalent", that adjudication was wrong. Change it, with a reason and a history line.
 8. **Update the public summary.** Add a run 6 row to `results/VALIDATION-SUMMARY.md`: the new hidden-check count, "rejected 21 of 21", the new mutant numbers. Name no hidden check and no boundary case.
 9. **Remove your idea from the public files.** The boundary you built is now a hidden check. Delete it from the idea list in `OWNERSHIP.md` (step 3.10), and from this page if it is named here.
@@ -381,54 +403,95 @@ One idea in `OWNERSHIP.md` is the `min_periods=2` default (known limit 3). It is
 
 After item 4, fill the gate record in your private copy of `OWNERSHIP.md`, and tick your [[start-here#honesty|gate list]]. Only then use the "after the gate" wording below.
 
+## The sandbox and the v1 freeze {#sandbox}
+
+The pilot had no technical sandbox. After a security review on 2026-10-21, the harness runs every agent attempt and every grade in Docker. `harness/README.md` describes it, `harness/SECURITY-EVIDENCE.md` holds the before/after evidence, and the capstone README sums it up.
+
+What the code enforces:
+
+- **One fresh container per attempt.** No network, all Linux capabilities dropped, `no-new-privileges`, a read-only root file system, user id 10001, and limits on processes, memory and CPUs. The controller kills the container at the time limit and always removes it, also after an error, a timeout or Ctrl-C.
+- **Only the workspace is mounted**, at `/work`. No home folder, private folder, other attempt, run record or Docker socket. The controller reads the container's settings back with `docker inspect` and refuses to start one that differs.
+- **An allowlisted environment.** The agent sees six fixed variables and the names you pass with `--pass-env`. None of your other variables reach it. The `gemini` adapter keeps the API key and the API calls in the controller; only its tool calls run in the container.
+- **Grading comes after all attempts**, each patch in a fresh grader container with no network. It mounts only the private `grader/` folder, read-only, as `grader_private_mounts` in the task config names it. With no mount named, the harness refuses to grade. It also refuses a mount that holds a solution corpus.
+
+What it does not solve:
+
+- **Graded code runs inside the grader's process.** A patch can read the hidden checks while it is graded, and it can forge its own reward in its own grader container. It cannot change another attempt's record or any file on your machine. So a grade is trustworthy only when the solver does not attack the grader. That fits ordinary model attempts, not adversarial ones.
+- Grader output is saved on your machine and can hold what graded code read. Treat grade records as private.
+- The workspace mount has no disk quota, and the containers share the Docker Desktop VM's kernel.
+- **`agy` is refused in the sandbox.** It needs your sign-in and network access, and putting either into the container would hand them to the agent. `--allow-unsandboxed-agy` runs it on your machine and records `sandbox=false`.
+- **`--no-sandbox`** runs agents and grading on your machine, as you. It prints a warning and records `sandbox=false`. Only the allowlisted environment still applies.
+
+Tested so far: the toy task with dummy secrets, and two runs on Chronos that graded nothing. On 2026-10-21 a do-nothing attempt printed `attempt 1: exit=0 timed_out=False files=0 violations=0 sandbox=on`, and an attempt that ran the visible tests inside its container printed `140 passed in 1.62s`. No Chronos grade and no model run has gone through the sandbox yet.
+
+Check the allowlist with dummy secrets, never with a dump of your real environment:
+
+```bash
+python -m harness build-image
+python -m harness sandbox-check
+```
+
+Real output on 2026-10-21, in part: `allowlist self-check: PASS`, the six seen names (`HOME`, `LANG`, `LC_ALL`, `PATH`, `PYTHONDONTWRITEBYTECODE`, `TERM`) and `"dummy_values_seen": []`. The check sets dummy values, such as a dummy `GEMINI_API_KEY`, in a copy of the controller's environment, and reports only names.
+
+**The v1 freeze.** Model comparisons run against **chronos-pit v1 (frozen 2026-10-21)**. `release/chronos-v1.manifest.json` holds the sha256 of the ticket, `task.toml`, `gvt.toml`, `tests/test.sh`, the task Dockerfile, the history bundle, `BASE_COMMIT`, the requirements files, the environment repo, the `harness/` and `gvt/` trees, the sandbox recipe and the pilot prompt template. It also lists the run-configuration fields to fill in for each configuration. Check it before the first attempt and after the last:
+
+```bash
+python release/freeze_manifest.py --verify release/chronos-v1.manifest.json
+```
+
+Real output on 2026-10-21: `verify: OK`. A mismatch means a new task version, and results from two versions never pool. Pilot 1 is not comparable with any v1 run. Only you add the private grader's digest, with `--private-root`; the public manifest then gets one digest per private folder, never a file name.
+
 ## The Gemini run plan {#gemini-runs}
 
 Gemini has not run on Chronos. This is Day 2 of [[tracker#final-project|the extension]].
 
 **Adapter status** (from `harness/README.md`):
 
-| Adapter | Status | What it runs |
+| Adapter | Status | How it runs |
 |---|---|---|
-| `shell` | tested | any command template, with `{workspace}`, `{instruction}`, `{prompt}` and `{python}` |
-| `agy` | untested | `agy -p "<prompt>" --output-format json` in the workspace; success when the JSON `status` is `SUCCESS`. Written from the Antigravity docs, never run |
-| `gemini` | untested against the live API | a tool loop over the Gemini API; tested offline with a fake transport only |
+| `shell` | tested | any command template, as the container's main process, with `{workspace}`, `{instruction}`, `{prompt}` and `{python}`. There is no network inside |
+| `gemini` | untested against the live API | a tool loop over the Gemini API. The key and the API calls stay in the controller; each tool call runs in the attempt's container. Tested offline with a fake transport only |
+| `agy` | untested | refused in the sandbox. With `--allow-unsandboxed-agy` it runs `agy -p "<prompt>" --output-format json` on your machine and records `sandbox=false` |
 
 Both Gemini adapters are untested. Your first runs test the harness as much as the model. So the plan starts small.
 
-1. **Fix the configuration first.** Write down the model id, thinking level, adapter, prompt, time limit, tools and network setting. One fixed set of these is one configuration. Change any one, and it is a new configuration.
-2. **Baselines through the same path.** The do-nothing patch must score 0. A reference must score 1.00. Then one attempt with a short timeout. Read its `agent_result.json`, `patch.diff` and `grade.json` before you run more. The [Gemini smoke test drill](#drill-capstone-gemini-smoke) has the steps.
+1. **Fix the configuration first.** Copy the fields of `model_run_config_template` from the v1 manifest into `run-plan.md`: model id, thinking level, adapter, prompt sha256, time budget, network, image digest and the rest. One fixed set of these is one configuration. Change any one, and it is a new configuration.
+2. **Baselines through the same path.** Run `sandbox-check`. The do-nothing patch must score 0, and a reference must score 1.00, both through the grader sandbox. Then one attempt with a short timeout. Read its `agent_result.json`, `patch.diff` and `grade.json` before you run more. The [Gemini smoke test drill](#drill-capstone-gemini-smoke) has the steps.
 3. **At least 20 attempts per configuration, or report intervals.** If you get fewer, report what you have, with intervals. 20 attempts are still a rough reading: 10 of 20 gives a Wilson 95% interval of 0.30 to 0.70, and a half-width of 0.10 needs 93 attempts. Both numbers are real `harness stats` and `harness sample-size` output from 2026-10-21. [[runs-and-weaknesses#sample-size|How many runs to buy]] explains the choice.
-4. **Pick the prompt on purpose.** The harness default prompt is not the pilot prompt. To compare with the Claude pilot, pass the pilot text from `_build-notes/pilot-workflow.js` with `--prompt`. Change its paths, and make it name `instruction.md`, which is where the harness puts the ticket. (The saved copy says `TASK.md`; see [the pilot setup](#pilot).) Even then the ticket differs (the J6 fix), so the comparison stays loose.
+4. **Pick the prompt on purpose.** The harness default prompt is not the pilot prompt; the manifest records the sha256 of both. To stay close to the Claude pilot, pass the pilot text from `_build-notes/pilot-workflow.js` with `--prompt` and change its paths: in the sandbox the workspace is `/work` and the ticket is `/work/instruction.md`. Even then it is a new configuration on a new ticket version, so it is not comparable with pilot 1.
 5. **Name the model yourself.** The `gemini` adapter falls back to `gemini-2.5-pro`, an older model. Pass `--model`. Gemini 4 Argon's id is `gemini-4-argon`. It is paid only, and it ignores temperature ^[confirmed](https://ai.google.dev/gemini-api/docs/latest-model "2026-10-20"). Antigravity's default model is Gemini 3.8 Flash, on every plan ^[confirmed](https://antigravity.google/docs/plans "2026-10-20").
-6. **Isolate.** The pilot had no technical sandbox. The `gemini` adapter runs model-written shell commands on your machine; the harness README says to use a container or VM if that matters. The agent also gets a copy of your shell's environment. `harness/agents.py` removes only `GVT_PRIVATE_ROOT` and values that contain a private marker. So `PWD`, `OLDPWD` and an activated venv's `VIRTUAL_ENV` still name the capstone folder, whose public docs describe the pilot failures. Check this in the smoke test. Afterwards, scan the transcripts the way the pilot did.
-7. **Keep run folders private.** Put `--out` inside your private folder, because `grade.json` and the grader logs name hidden checks.
+6. **Use the sandbox.** Run every counted attempt with the sandbox on. Prefer the `gemini` adapter: it keeps the key out of the agent's reach. An `agy` run is unsandboxed, so the agent can read everything you can, your private folder included. If you run one anyway, report it as a separate configuration, with that limit next to every number.
+7. **Keep run folders private.** Put `--out` inside your private folder but outside its `grader/` folder, because `grade.json` and the grader logs name hidden checks. The harness refuses a run folder that overlaps a grader mount.
 8. **Budget.** The 8 Claude pilot attempts used about 2.5 M subagent tokens in all (build log). Gemini will differ, so measure the smoke-test attempt and check `/usage` in `agy` first (checked against docs on 2026-10-20, not run).
 9. **Report raw outcomes first:** reward and milestones per attempt. Then the rate, the Wilson interval and pass^k, with the frame "N attempts by one agent configuration (model, adapter, prompt) on one task". Adjudicate every failure against the ticket, then label the first wrong turn ([[runs-and-weaknesses#first-wrong-turn|first-wrong-turn analysis]]).
 
-The commands (not run by us; both Gemini paths are untested). Use the shell setup from [the gate](#ownership-gate) first:
+The commands (not run by us; the `gemini` path is untested). Use the shell setup from [the gate](#ownership-gate) first:
 
 ```bash
-python -m harness run --config tasks/chronos-pit/gvt.toml --adapter shell \
-  --cmd 'agy -p {prompt} --output-format json --print-timeout 30m' \
-  --attempts 1 --timeout 1800 --out "$PRIV/runs/agy-smoke"
-python -m harness run --config tasks/chronos-pit/gvt.toml --adapter gemini --model gemini-4-argon \
-  --attempts 20 --out "$PRIV/runs/argon-api-20"
+python release/freeze_manifest.py --verify release/chronos-v1.manifest.json
+CHRONOS_GRADER_TIME_SCALE=2 python -m harness run --config tasks/chronos-pit/gvt.toml --adapter gemini \
+  --model gemini-4-argon --attempts 1 --timeout 1800 --out "$PRIV/runs/argon-smoke" \
+  --grade --private-root "$PRIV" --grader-pass-env CHRONOS_GRADER_TIME_SCALE
+CHRONOS_GRADER_TIME_SCALE=2 python -m harness run --config tasks/chronos-pit/gvt.toml --adapter gemini \
+  --model gemini-4-argon --attempts 20 --out "$PRIV/runs/argon-api-20" \
+  --grade --private-root "$PRIV" --grader-pass-env CHRONOS_GRADER_TIME_SCALE
 ```
 
-The first command calls `agy` through the tested `shell` adapter, so you can pass `--print-timeout`. Headless `agy -p` stops waiting after 5 minutes by default (checked against docs on 2026-10-20, not run), and the `agy` adapter passes no timeout flag. The pilot attempts took 27–33 minutes, so a 5-minute cut would end every attempt early. For the 20 real attempts, raise both limits, as in `EXTEND.md` Day 2 (`--print-timeout 4h`, `--timeout 14400`). The harness renders `{prompt}` as one argument, so it needs no quotes. One cost: the `shell` adapter does not read `agy`'s JSON, so it records no `status`. Read `status` yourself in the attempt's `stdout.txt`. It must be `SUCCESS`; a headless run can exit 0 after a tool call was soft-denied (checked against docs on 2026-10-20, not run).
+`--grade` waits until every attempt has finished, then grades each patch in a fresh grader container. So no grade record exists while an agent runs, and no solver container mounts the run folder. `CHRONOS_GRADER_TIME_SCALE` reaches only the grader container. Without `--timeout`, each attempt gets the 4-hour limit from the `[agent]` section of `gvt.toml` (14,400 seconds).
 
-Neither command uses `--grade`. With `--grade`, the harness grades each attempt as soon as it ends and writes `grade.json` into the run folder, which names hidden checks. The next agent then runs while that file exists, with no sandbox around it. So grade only after all attempts are done, with the grading loop in `EXTEND.md` Day 2 (`gvt grade` on each saved `patch.diff`, with `CHRONOS_GRADER_TIME_SCALE=2` set only on that command).
+The `gemini` adapter reads `GEMINI_API_KEY` from your environment. Set it yourself in your terminal. The key stays in the controller: it goes only into the request header, never into the container, and the harness refuses to pass it with `--pass-env`.
 
-The `gemini` adapter reads `GEMINI_API_KEY` from your environment. Set it yourself in your terminal. The harness sends it only in a request header and removes it from transcripts. Without `--timeout`, each attempt gets the 4-hour limit from the `[agent]` section of `gvt.toml` (14,400 seconds). Do not export `CHRONOS_GRADER_TIME_SCALE` for these runs. The harness removes private paths from the agent's environment, but not that variable, and its name tells the agent a grader exists ^[inference](- "2026-10-21").
+For `agy`, see `EXTEND.md` Day 2, Path B. Headless `agy -p` stops waiting after 5 minutes by default (checked against docs on 2026-10-20, not run), and the `agy` adapter passes no timeout flag. The pilot attempts took 27–33 minutes, so a 5-minute cut would end every attempt early. A headless run can also exit 0 after a tool call was soft-denied, so read its `status`: it must be `SUCCESS` (checked against docs on 2026-10-20, not run).
 
 :::drill id="capstone-gemini-smoke" title="Smoke-test the Gemini path before 20 runs" time="60 min"
-1. Write the configuration from step 1 above into `run-plan.md`. Use the [[runs-and-weaknesses#drill-chronos-run-plan|run-plan drill]] for the rest of the plan.
-2. Grade the do-nothing patch and one reference with `gvt grade`. Write down both rewards.
-3. Run one attempt with your adapter and `--timeout 1800`, without `--grade`. When it ends, grade its `patch.diff` with `gvt grade`.
-4. Open the attempt folder. Check that `patch.diff` holds the agent's changes, that the isolation record says valid, and what `agy` reported as its `status` (`adapter_status` in `agent_result.json` for the `agy` adapter; the JSON in `stdout.txt` for `agy` through the `shell` adapter). Find the agent's environment in the transcript, or make its first command `env`. No variable may name the capstone folder or your private folder.
-5. Fix what broke. Repeat step 3 until one attempt goes end to end.
+1. Write the configuration from step 1 above into `run-plan.md`, and run `python release/freeze_manifest.py --verify release/chronos-v1.manifest.json`. Use the [[runs-and-weaknesses#drill-chronos-run-plan|run-plan drill]] for the rest of the plan.
+2. Run `python -m harness sandbox-check`. It must print `allowlist self-check: PASS` and `"dummy_values_seen": []`. It uses dummy secrets only. Never print your real environment to check it.
+3. Grade the do-nothing patch and one reference through the grader sandbox with `harness grade-patch`. Write down both rewards.
+4. Run one attempt with your adapter and `--timeout 1800`, with `--grade`.
+5. Open the attempt folder. Check that `patch.diff` holds the agent's changes and that `agent_result.json` says `valid` with no violations. In its `sandbox` record, check that `network` is `none`, `mounts` lists only `/work`, `env_names` lists only the six allowlisted names, and `removed` is `true`. Copy `image_id` into `run-plan.md` as the image digest. Then read `grade.json`.
+6. Fix what broke. Repeat step 4 until one attempt goes end to end.
 
-**Done when:** do-nothing scored 0, the reference scored 1.00, and one adapter attempt produced a patch, a valid isolation record and a grade, with no capstone path in the agent's environment, all written in `run-plan.md`.
+**Done when:** the self-check passed, do-nothing scored 0, the reference scored 1.00, and one adapter attempt produced a patch, a valid record with the sandbox fields above, and a grade, all written in `run-plan.md`.
 :::
 
 ## The application package {#application}
@@ -474,8 +537,10 @@ Rules for every bullet:
 | Environment repo, `history.bundle`, `Dockerfile`, `instruction.md`, `task.toml`, `gvt.toml` | yes | a solver sees these anyway |
 | `tests/test.sh` | yes | it only calls the private grader |
 | `gvt/` and `harness/` | yes | reusable tools with no task secrets |
+| `release/` (the v1 manifest's public part and its scripts) | yes | hashes and run rules; no private name or content |
+| The review zip in `_review-bundle/` | to the next reviewer only, not in git | a generated copy of public files; its script scans it for private paths and the canary |
 | `results/VALIDATION-SUMMARY.md`, `results/PILOT-SUMMARY.md` | yes | written to name no hidden check |
-| `README.md`, `DEFEND.md`, `OWNERSHIP.md`, `EXTEND.md`, and `REPORT.md` once you write it | yes, after you review them | check that none names a hidden check or a boundary case, and remove the gate item 3 idea you built (`OWNERSHIP.md` step 3.10) |
+| `README.md`, `REPORT.md` (v0), `DEFEND.md`, `OWNERSHIP.md`, `EXTEND.md` | yes, after you review them | check that none names a hidden check or a boundary case, and remove the gate item 3 idea you built (`OWNERSHIP.md` step 3.10) |
 | `_build-notes/` and `.envbuild/` | yes, after you review and scrub them | written for the build, not for readers. `_build-notes/` holds absolute home-folder paths, temp paths, the private folder's location and one private mutant id. Remove them first, or keep the folder private |
 | Hidden grader, oracle, references, wrong solutions, variants, mutants, raw records, full card, adjudications | never | they are the answer key |
 | Attempt patches, transcripts and grade logs (pilot and Gemini) | never | patches are solutions; grade logs name hidden checks |
@@ -489,12 +554,12 @@ Send it only after the gate and the leak check. Fill the brackets with your own 
 
 > I would like to share Chronos, an eval task for long-horizon software engineering. AI agents built v0 under my direction. Then I [reproduced a pilot failure, diagnosed it, added a grader check and re-validated the grader]. Public part: [link]. The report covers the grader validation and an 8-attempt pilot with Claude agents [and N Gemini attempts]. The hidden grader stays private; I am happy to walk through it live.
 
-Keep it to about six sentences. The "AI agents built v0" sentence is not optional. The note mentions "the report", so write `REPORT.md` first (Day 6 of the extension).
+Keep it to about six sentences. The "AI agents built v0" sentence is not optional. The note mentions "the report", so update `REPORT.md` to v1 first (Day 6 of the extension).
 
 :::drill id="capstone-application-package" title="Write the application package" time="45 min"
 1. Copy the bullets into a private file. Fill only the brackets you can fill today. Leave the others empty.
 2. Fill the recruiter note with what is true today. Mark what is still missing.
-3. Make the capstone its own git repo when you are ready to publish. Run `git ls-files` there and compare every file with the public-and-private table.
+3. The capstone is already its own local git repo. Run `git ls-files` there and compare every file with the public-and-private table.
 4. Run the [[tracker#final-project|Day 7 leak check]] once, as practice, even if you will not publish yet.
 
 **Done when:** the bullets and the note exist with no unfilled claim, and your `git ls-files` list matches the "yes" rows of the table and nothing else.
@@ -511,7 +576,7 @@ The full plan is in [[tracker#final-project|the tracker]] and in `workspace/pola
 | 3 | Failure analysis; turn real Gemini failures into new wrong solutions; gate item 3 |
 | 4 | Task 2 in another stack (for example TypeScript), validated with gvt |
 | 5 | An audit of public graders: a defined mutant space over a sample of public Harbor-format tasks, with frames |
-| 6 | Write `REPORT.md`, the tech report |
+| 6 | Update `REPORT.md` from v0 to v1 |
 | 7 | Gate item 4 again, polish, publish the public part only, send the link |
 
 How to make Chronos harder, which the pilot asks for:
@@ -531,6 +596,8 @@ GPU options from [[gpu-practice]]: run a small open model on Chronos ([[gpu-prac
 - Counts a02's failure as a model weakness. || Adjudicates it as a spec–grader gap and fixes the ticket, not the score.
 - Adds a grader check because it "seems important". || Adds a check only when a ticket sentence implies it, and writes the rule id next to it.
 - Starts 20 Gemini runs on an untested adapter. || Runs do-nothing, a reference and one smoke attempt first, and fixes the configuration in writing.
+- Says "the scan found 0 breaches, so all 8 attempts are valid". || Says "No matches were found in the inspected tool-call inputs for the listed indicators. Technical isolation was not enforced during pilot 1, and the scan does not establish absence of private-data access."
+- Compares a new Gemini run with pilot 1. || Treats pilot 1 as exploratory, and compares only runs made against the same frozen manifest.
 - Sends the whole capstone folder to the recruiter. || Sends the public part after the leak check, and keeps the answer key private.
 :::
 
@@ -541,8 +608,10 @@ Local files, inside `workspace/polaris-capstone/`. No public URL, so no badge:
 - `results/VALIDATION-SUMMARY.md`: validation run 5, setup, raw outcomes, change history, limits.
 - `results/PILOT-SUMMARY.md`: pilot 1, raw outcomes, statistics, failure analysis, isolation.
 - `tasks/chronos-pit/instruction.md`, `task.toml`, `gvt.toml`, `tests/test.sh`, `environment/Dockerfile`.
-- `gvt/README.md` and `harness/README.md`: commands, frames, adapter status.
-- `_build-notes/BUILD_LOG.md` (build time) and `_build-notes/pilot-workflow.js` (the pilot prompt).
+- `gvt/README.md` and `harness/README.md`: commands, frames, adapter status, the sandbox.
+- `harness/SECURITY-EVIDENCE.md`: before/after evidence for the security fixes and the sandbox.
+- `release/chronos-v1.manifest.json` and `release/freeze_manifest.py`: the v1 freeze.
+- `_build-notes/BUILD_LOG.md` (build time) and `_build-notes/pilot-workflow.js` (the script that ran pilot 1, with its prompt).
 - `README.md`, `REPORT.md`, `DEFEND.md`, `OWNERSHIP.md`, `EXTEND.md`: the capstone docs.
 
 ## Sources
