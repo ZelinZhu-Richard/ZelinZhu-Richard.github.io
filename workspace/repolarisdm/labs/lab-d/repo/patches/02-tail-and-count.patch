@@ -1,0 +1,134 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Practice Agent <agent@ringlog.invalid>
+Date: Sun, 18 Oct 2026 10:00:00 +0000
+Subject: [PATCH] Add tail(n) and count(level)
+
+Synthetic, written for practice. Not real Gemini output.
+
+tail(n) returns the newest n records, oldest first, for a "last 20 lines"
+view. count(level) counts the stored records with a given level.
+
+size_ - n cannot underflow, because n is clamped to size_ first. The loop
+counts down with an unsigned index (k-- > 0), which stops after k = 0.
+
+Tests: make test passes (11 tests, 0 failed).
+---
+ ringlog.cpp      | 21 +++++++++++++++++++++
+ ringlog.h        |  7 +++++++
+ test_ringlog.cpp | 32 ++++++++++++++++++++++++++++++++
+ 3 files changed, 60 insertions(+)
+
+diff --git a/ringlog.cpp b/ringlog.cpp
+index 213c943..05a7baa 100644
+--- a/ringlog.cpp
++++ b/ringlog.cpp
+@@ -71,6 +71,27 @@ Record RingLog::at(std::size_t i) const {
+   return Record{s.seq, s.level, std::string(s.text, s.len)};
+ }
+ 
++std::vector<Record> RingLog::tail(std::size_t n) const {
++  if (n > size_) {
++    n = size_;
++  }
++  std::vector<Record> out(n);
++  for (std::size_t k = n; k-- > 0;) {
++    out[k] = at(size_ - n + k);
++  }
++  return out;
++}
++
++std::size_t RingLog::count(Level level) const {
++  std::size_t c = 0;
++  for (std::size_t i = 0; i < size_; ++i) {
++    if (slots_[index_of(i)].level == level) {
++      ++c;
++    }
++  }
++  return c;
++}
++
+ std::string RingLog::dump() const {
+   std::string out;
+   char prefix[48];
+diff --git a/ringlog.h b/ringlog.h
+index 6bf478a..0e39fae 100644
+--- a/ringlog.h
++++ b/ringlog.h
+@@ -10,6 +10,7 @@
+ #include <cstddef>
+ #include <cstdint>
+ #include <string>
++#include <vector>
+ 
+ namespace ringlog {
+ 
+@@ -43,6 +44,12 @@ class RingLog {
+   // Throws std::out_of_range if i >= size().
+   Record at(std::size_t i) const;
+ 
++  // The newest n records, oldest first. If n > size(), all records.
++  std::vector<Record> tail(std::size_t n) const;
++
++  // How many stored records have this level.
++  std::size_t count(Level level) const;
++
+   // One line per record, oldest first: "<seq> <LEVEL> <text>\n".
+   std::string dump() const;
+ 
+diff --git a/test_ringlog.cpp b/test_ringlog.cpp
+index 54e7a0a..82d50ed 100644
+--- a/test_ringlog.cpp
++++ b/test_ringlog.cpp
+@@ -2,6 +2,7 @@
+ #include <cstdio>
+ #include <stdexcept>
+ #include <string>
++#include <vector>
+ 
+ #include "ringlog.h"
+ 
+@@ -132,6 +133,35 @@ bool test_many_pushes() {
+   return ok;
+ }
+ 
++bool test_tail_returns_newest() {
++  bool ok = true;
++  RingLog log(3, 8);
++  CHECK(log.tail(2).empty());
++  for (const char* m : {"m1", "m2", "m3", "m4", "m5"}) log.push(Level::kInfo, m);
++  std::vector<ringlog::Record> last = log.tail(2);
++  CHECK(last.size() == 2);
++  CHECK(last[0].text == "m4");
++  CHECK(last[1].text == "m5");
++  CHECK(log.tail(0).empty());
++  CHECK(log.tail(10).size() == 3);
++  CHECK(log.tail(10)[0].text == "m3");
++  return ok;
++}
++
++bool test_count_by_level() {
++  bool ok = true;
++  RingLog log(3, 8);
++  log.push(Level::kWarn, "a");
++  log.push(Level::kError, "b");
++  log.push(Level::kWarn, "c");
++  log.push(Level::kInfo, "d");  // overwrites "a"
++  CHECK(log.count(Level::kWarn) == 1);
++  CHECK(log.count(Level::kError) == 1);
++  CHECK(log.count(Level::kInfo) == 1);
++  CHECK(log.count(Level::kDebug) == 0);
++  return ok;
++}
++
+ struct Test {
+   const char* name;
+   bool (*fn)();
+@@ -147,6 +177,8 @@ const Test kTests[] = {
+     {"at_out_of_range_throws", test_at_out_of_range_throws},
+     {"rejects_zero_sizes", test_rejects_zero_sizes},
+     {"many_pushes", test_many_pushes},
++    {"tail_returns_newest", test_tail_returns_newest},
++    {"count_by_level", test_count_by_level},
+ };
+ 
+ }  // namespace

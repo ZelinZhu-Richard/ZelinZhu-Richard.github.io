@@ -1,0 +1,89 @@
+{
+  "lab": "lab-a",
+  "claims": [
+    {
+      "id": "C01",
+      "claim": "Ingest never writes raw events to the store. Each batch is first folded into base buckets of `resolution_seconds`, and only those buckets are written.",
+      "file": "tallyhub/ingest.py",
+      "line": 89,
+      "expected_text": "buckets = aggregate_events(batch, self.config.resolution_seconds)"
+    },
+    {
+      "id": "C02",
+      "claim": "The `tallyhub` shell command is the console script `tallyhub.cli:main`, declared in pyproject.toml.",
+      "file": "pyproject.toml",
+      "line": 17,
+      "expected_text": "tallyhub = \"tallyhub.cli:main\""
+    },
+    {
+      "id": "C03",
+      "claim": "Window alignment lives in `windows.bucket_for(ts, width)`, which floors a timestamp to the start of its window.",
+      "file": "tallyhub/windows.py",
+      "line": 25,
+      "expected_text": "def bucket_for("
+    },
+    {
+      "id": "C04",
+      "claim": "For counters, the parser divides the value by the sample rate, so `@0.5` doubles it. Gauges and timers keep the raw value.",
+      "file": "tallyhub/parsing.py",
+      "line": 92,
+      "expected_text": "value = value / rate"
+    },
+    {
+      "id": "C05",
+      "claim": "Environment variables named `TALLYHUB_<FIELD>` override values from the TOML config file.",
+      "file": "tallyhub/config.py",
+      "line": 67,
+      "expected_text": "key = ENV_PREFIX + f.name.upper()"
+    },
+    {
+      "id": "C06",
+      "claim": "`tallyhub query` takes a `--tz` option that prints window labels in a chosen time zone.",
+      "file": "tallyhub/cli.py",
+      "line": 40,
+      "expected_text": "query.add_argument(\"--tz\""
+    },
+    {
+      "id": "C07",
+      "claim": "The service layer rejects a query window that is not a whole multiple of `resolution_seconds` with a ValueError.",
+      "file": "tallyhub/api.py",
+      "line": 41,
+      "expected_text": "if width % resolution:"
+    },
+    {
+      "id": "C08",
+      "claim": "The CLI does not parse `--window`. It passes the raw string, such as `\"1d\"`, to `TallyService.query`, and this line turns it into seconds.",
+      "file": "tallyhub/api.py",
+      "line": 39,
+      "expected_text": "width = parse_duration(window) if isinstance(window, str) else int(window)"
+    },
+    {
+      "id": "C09",
+      "claim": "Tag order does not matter: tags are sorted into a tuple, so for the same metric and kind, `#b:2,a:1` and `{\"a\": \"1\", \"b\": \"2\"}` give the same series.",
+      "file": "tallyhub/model.py",
+      "line": 20,
+      "expected_text": "return tuple(sorted("
+    },
+    {
+      "id": "C10",
+      "claim": "Wide windows such as `1d` are built by merging stored base buckets: `rollup` re-aligns each bucket start with `bucket_start(start, width)`.",
+      "file": "tallyhub/aggregate.py",
+      "line": 68,
+      "expected_text": "key = bucket_start(start, width)"
+    },
+    {
+      "id": "C11",
+      "claim": "Re-ingesting a file is safe. The bucket table's primary key is (metric, kind, tags, start), so ingesting the same file again, even in a new run, cannot double-count.",
+      "file": "tallyhub/storage/sqlite.py",
+      "line": 27,
+      "expected_text": "PRIMARY KEY (metric, kind, tags, start)"
+    },
+    {
+      "id": "C12",
+      "claim": "`Event` keeps its time as `ts`, a plain float. `Event` has no time-zone field.",
+      "file": "tallyhub/model.py",
+      "line": 48,
+      "expected_text": "ts: float"
+    }
+  ]
+}

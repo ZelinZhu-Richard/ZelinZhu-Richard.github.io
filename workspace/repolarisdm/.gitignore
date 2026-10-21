@@ -1,0 +1,8 @@
+# Never commit local practice state or answer keys.
+.preview/
+.practice/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+labs/*/_key/
+labs/*/reward.txt

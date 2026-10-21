@@ -1,0 +1,38 @@
+diff --git a/README.md b/README.md
+index 41ee312..895ec94 100644
+--- a/README.md
++++ b/README.md
+@@ -41,7 +41,7 @@ The bundled files live in `pricebook/data/`. They are sample data for tests, not
+ | `rates.csv` | `region,category,rate` | `rate` is a fraction (0.13 = 13 %). A category without a row uses the region's `standard` rate. |
+ | `coupons.csv` | `code,kind,value,currency,min_subtotal,valid_from,valid_until` | `kind` is `percent` or `fixed`. Both dates are included. |
+ 
+-Regions in `rates.csv`: CA-AB, CA-ON, DE, JP, US-OR, US-WA.
++Regions in `rates.csv`: CA-AB, CA-ON, DE, JP, US-NYC, US-OR, US-WA.
+ 
+ ## Command line
+ 
+diff --git a/pricebook/data/rates.csv b/pricebook/data/rates.csv
+index 4f4ea7e..456a3c0 100644
+--- a/pricebook/data/rates.csv
++++ b/pricebook/data/rates.csv
+@@ -10,3 +10,5 @@ JP,food,0.08
+ US-OR,standard,0
+ US-WA,standard,0.065
+ US-WA,food,0
++US-NYC,standard,0.08875
++US-NYC,grocery,0
+diff --git a/tests/test_tax.py b/tests/test_tax.py
+index 04a524b..f07fd46 100644
+--- a/tests/test_tax.py
++++ b/tests/test_tax.py
+@@ -27,6 +27,10 @@ class TaxTableTests(unittest.TestCase):
+     def test_category_falls_back_to_standard(self):
+         self.assertEqual(self.table.rate_for("CA-ON", "digital"), Decimal("0.13"))
+ 
++    def test_new_york_city(self):
++        self.assertEqual(self.table.rate_for("US-NYC", "standard"), Decimal("0.08875"))
++        self.assertEqual(self.table.rate_for("US-NYC", "grocery"), Decimal("0"))
++
+     def test_unknown_region(self):
+         with self.assertRaises(UnknownRegion):
+             self.table.rate_for("XX", "standard")

@@ -1,0 +1,8 @@
+{
+  "id": "lab-f",
+  "title": "Break the Grader",
+  "language": "Python + Harbor layout",
+  "time": "3 h",
+  "trains": ["S10", "S11", "S12"],
+  "covers": ["M3", "M4", "M5"]
+}

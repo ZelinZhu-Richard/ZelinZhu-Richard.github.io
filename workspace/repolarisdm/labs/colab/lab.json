@@ -1,0 +1,8 @@
+{
+  "id": "colab",
+  "title": "GPU practice on Colab",
+  "language": "Python",
+  "time": "8-15 h",
+  "trains": ["S11", "S12", "S14"],
+  "covers": ["M3", "M6"]
+}

@@ -1,0 +1,8 @@
+{
+  "id": "lab-a",
+  "title": "Map Check: judge 12 agent claims about tallyhub",
+  "language": "Python",
+  "time": "60 min",
+  "trains": ["S1", "S2", "S3", "S4", "S5", "S6", "S12"],
+  "covers": ["M1", "M2", "M5", "M8"]
+}

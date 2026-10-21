@@ -1,0 +1,29 @@
+diff --git a/pricebook/discounts.py b/pricebook/discounts.py
+index ad6eec4..4acf2f3 100644
+--- a/pricebook/discounts.py
++++ b/pricebook/discounts.py
+@@ -36,7 +36,7 @@ class Coupon:
+ 
+     def problem(self, subtotal: Money, day: date) -> str | None:
+         """Return why the coupon cannot be used, or None if it can."""
+-        if not self.valid_from <= day < self.valid_until:
++        if not self.valid_from <= day <= self.valid_until:
+             return f"{self.code} is not valid on {day.isoformat()}"
+         if subtotal.amount < self.min_subtotal:
+             return f"{self.code} needs a subtotal of at least {self.min_subtotal}"
+diff --git a/tests/test_discounts.py b/tests/test_discounts.py
+index 2158ea5..067849f 100644
+--- a/tests/test_discounts.py
++++ b/tests/test_discounts.py
+@@ -26,6 +26,11 @@ class CouponTests(unittest.TestCase):
+         self.assertIsNone(spring.problem(Money("60.00", "CAD"), date(2026, 3, 1)))
+         self.assertIsNotNone(spring.problem(Money("60.00", "CAD"), date(2026, 2, 28)))
+ 
++    def test_last_day_is_valid(self):
++        spring = self.coupons["SPRING15"]
++        self.assertIsNone(spring.problem(Money("60.00", "CAD"), date(2026, 3, 31)))
++        self.assertIsNotNone(spring.problem(Money("60.00", "CAD"), date(2026, 4, 1)))
++
+     def test_minimum_subtotal(self):
+         spring = self.coupons["SPRING15"]
+         self.assertIn("at least", spring.problem(Money("49.99", "CAD"), date(2026, 3, 10)))

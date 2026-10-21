@@ -1,0 +1,8 @@
+{
+  "id": "lab-e",
+  "title": "Bisect 200",
+  "language": "Bash + Git (the project under test is Python)",
+  "time": "45 min",
+  "trains": ["S6", "S7"],
+  "covers": ["M2", "M8"]
+}

@@ -1,0 +1,185 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Practice Agent <agent@ringlog.invalid>
+Date: Sun, 18 Oct 2026 11:00:00 +0000
+Subject: [PATCH] Collapse repeated messages into one record
+
+Synthetic, written for practice. Not real Gemini output.
+
+Like syslog's "last message repeated N times": when the same level and
+text arrive twice in a row, push() adds one to a counter on the newest
+record instead of storing a copy. dump() prints "(xN)" after the text.
+
+To keep push() fast, every slot stores a 32-bit fingerprint of its text,
+and push() compares the bytes only when the fingerprints match. The
+fingerprint may wrap around for long messages; that is harmless because
+we compare the bytes anyway.
+
+Tests: make test passes (11 tests, 0 failed).
+---
+ ringlog.cpp      | 28 ++++++++++++++++++++++++++--
+ ringlog.h        | 13 ++++++++++---
+ test_ringlog.cpp | 24 ++++++++++++++++++++++++
+ 3 files changed, 60 insertions(+), 5 deletions(-)
+
+diff --git a/ringlog.cpp b/ringlog.cpp
+index 213c943..e9b07f5 100644
+--- a/ringlog.cpp
++++ b/ringlog.cpp
+@@ -27,7 +27,7 @@ RingLog::RingLog(std::size_t capacity, std::size_t max_text)
+   }
+   slots_ = new Slot[capacity_];
+   for (std::size_t k = 0; k < capacity_; ++k) {
+-    slots_[k] = Slot{0, Level::kInfo, 0, nullptr};
++    slots_[k] = Slot{0, Level::kInfo, 0, nullptr, 0, 0};
+   }
+ }
+ 
+@@ -38,12 +38,30 @@ RingLog::~RingLog() {
+   delete[] slots_;
+ }
+ 
++int RingLog::fingerprint(Level level, const char* text, std::size_t len) {
++  int h = static_cast<int>(level) + 1;
++  for (std::size_t k = 0; k < len; ++k) {
++    h = h * 31 + static_cast<unsigned char>(text[k]);
++  }
++  return h;
++}
++
+ void RingLog::push(Level level, const char* text) {
+   std::size_t len = std::strlen(text);
+   if (len > max_text_) {
+     len = max_text_;
+   }
+ 
++  const int fp = fingerprint(level, text, len);
++  if (size_ > 0) {
++    Slot& newest = slots_[index_of(size_ - 1)];
++    if (newest.fingerprint == fp && newest.level == level && newest.len == len &&
++        std::memcmp(newest.text, text, len) == 0) {
++      ++newest.count;
++      return;
++    }
++  }
++
+   Slot* slot;
+   if (size_ < capacity_) {
+     slot = &slots_[index_of(size_)];
+@@ -61,6 +79,8 @@ void RingLog::push(Level level, const char* text) {
+   slot->len = len;
+   slot->level = level;
+   slot->seq = next_seq_++;
++  slot->fingerprint = fp;
++  slot->count = 1;
+ }
+ 
+ Record RingLog::at(std::size_t i) const {
+@@ -68,7 +88,7 @@ Record RingLog::at(std::size_t i) const {
+     throw std::out_of_range("ringlog: index out of range");
+   }
+   const Slot& s = slots_[index_of(i)];
+-  return Record{s.seq, s.level, std::string(s.text, s.len)};
++  return Record{s.seq, s.level, std::string(s.text, s.len), s.count};
+ }
+ 
+ std::string RingLog::dump() const {
+@@ -80,6 +100,10 @@ std::string RingLog::dump() const {
+                   level_name(s.level));
+     out += prefix;
+     out.append(s.text, s.len);
++    if (s.count > 1) {
++      std::snprintf(prefix, sizeof prefix, " (x%u)", static_cast<unsigned>(s.count));
++      out += prefix;
++    }
+     out += '\n';
+   }
+   return out;
+diff --git a/ringlog.h b/ringlog.h
+index 6bf478a..bebc981 100644
+--- a/ringlog.h
++++ b/ringlog.h
+@@ -2,8 +2,9 @@
+ //
+ // A RingLog holds at most `capacity` records. When it is full, push()
+ // overwrites the oldest record. Each message keeps at most `max_text` bytes;
+-// longer messages are cut. Not thread-safe: use one RingLog per thread or
+-// add your own lock.
++// longer messages are cut. A message that repeats the newest record (same
++// level and text) is not stored again; the newest record's count goes up
++// instead. Not thread-safe: use one RingLog per thread or add your own lock.
+ #ifndef RINGLOG_H
+ #define RINGLOG_H
+ 
+@@ -22,6 +23,7 @@ struct Record {
+   std::uint64_t seq;  // 1 for the first stored record, then +1 per record
+   Level level;
+   std::string text;   // at most max_text bytes
++  std::uint32_t count;  // how many times it arrived in a row (1 = once)
+ };
+ 
+ class RingLog {
+@@ -43,7 +45,8 @@ class RingLog {
+   // Throws std::out_of_range if i >= size().
+   Record at(std::size_t i) const;
+ 
+-  // One line per record, oldest first: "<seq> <LEVEL> <text>\n".
++  // One line per record, oldest first: "<seq> <LEVEL> <text>\n", with " (xN)"
++  // before the newline when the message arrived N > 1 times in a row.
+   std::string dump() const;
+ 
+  private:
+@@ -52,8 +55,12 @@ class RingLog {
+     Level level;
+     std::size_t len;  // bytes of text, without the terminating NUL
+     char* text;       // len bytes followed by a NUL, or nullptr if unused
++    int fingerprint;  // hash of level and text, for a quick repeat check
++    std::uint32_t count;
+   };
+ 
++  static int fingerprint(Level level, const char* text, std::size_t len);
++
+   // Logical index (0 = oldest) to physical slot index.
+   std::size_t index_of(std::size_t i) const { return (start_ + i) % capacity_; }
+ 
+diff --git a/test_ringlog.cpp b/test_ringlog.cpp
+index 54e7a0a..9d4ff91 100644
+--- a/test_ringlog.cpp
++++ b/test_ringlog.cpp
+@@ -132,6 +132,28 @@ bool test_many_pushes() {
+   return ok;
+ }
+ 
++bool test_collapses_repeats() {
++  bool ok = true;
++  RingLog log(4, 32);
++  for (int i = 0; i < 3; ++i) log.push(Level::kWarn, "disk almost full");
++  log.push(Level::kInfo, "disk cleaned");
++  CHECK(log.size() == 2);
++  CHECK(log.at(0).count == 3);
++  CHECK(log.at(1).count == 1);
++  CHECK(log.dump() == "1 WARN disk almost full (x3)\n2 INFO disk cleaned\n");
++  return ok;
++}
++
++bool test_other_level_is_not_a_repeat() {
++  bool ok = true;
++  RingLog log(4, 32);
++  log.push(Level::kWarn, "retrying");
++  log.push(Level::kError, "retrying");
++  CHECK(log.size() == 2);
++  CHECK(log.at(1).seq == 2);
++  return ok;
++}
++
+ struct Test {
+   const char* name;
+   bool (*fn)();
+@@ -147,6 +169,8 @@ const Test kTests[] = {
+     {"at_out_of_range_throws", test_at_out_of_range_throws},
+     {"rejects_zero_sizes", test_rejects_zero_sizes},
+     {"many_pushes", test_many_pushes},
++    {"collapses_repeats", test_collapses_repeats},
++    {"other_level_is_not_a_repeat", test_other_level_is_not_a_repeat},
+ };
+ 
+ }  // namespace

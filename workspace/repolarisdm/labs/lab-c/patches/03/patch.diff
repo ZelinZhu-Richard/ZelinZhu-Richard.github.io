@@ -1,0 +1,62 @@
+diff --git a/pricebook/catalog.py b/pricebook/catalog.py
+index dddf269..ec897e5 100644
+--- a/pricebook/catalog.py
++++ b/pricebook/catalog.py
+@@ -47,7 +47,7 @@ class Catalog:
+ def load_catalog(path: str | Path = DATA_DIR / "catalog.csv") -> Catalog:
+     """Load a catalog CSV with columns sku,name,unit_price,currency,tax_category."""
+     products = []
+-    with open(path, newline="", encoding="utf-8") as handle:
++    with open(path, newline="", encoding="utf-8-sig") as handle:
+         for row in csv.DictReader(handle):
+             products.append(
+                 Product(
+diff --git a/pricebook/orders.py b/pricebook/orders.py
+index 07ca6f6..95ab353 100644
+--- a/pricebook/orders.py
++++ b/pricebook/orders.py
+@@ -25,7 +25,7 @@ class OrderRow(NamedTuple):
+ 
+ def read_order(path: str | Path) -> list[OrderRow]:
+     rows = []
+-    with open(path, newline="", encoding="utf-8") as handle:
++    with open(path, newline="", encoding="utf-8-sig") as handle:
+         reader = csv.DictReader(handle)
+         for row in reader:
+             lineno = reader.line_num
+diff --git a/tests/helpers.py b/tests/helpers.py
+index f722e0e..1b681e0 100644
+--- a/tests/helpers.py
++++ b/tests/helpers.py
+@@ -14,9 +14,9 @@ class TempFiles:
+         self._dir = tempfile.TemporaryDirectory()
+         self.path = Path(self._dir.name)
+ 
+-    def write(self, name, text):
++    def write(self, name, text, encoding="utf-8"):
+         target = self.path / name
+-        target.write_text(text, encoding="utf-8")
++        target.write_text(text, encoding=encoding)
+         return target
+ 
+     def cleanup(self):
+diff --git a/tests/test_catalog.py b/tests/test_catalog.py
+index e494462..e19d535 100644
+--- a/tests/test_catalog.py
++++ b/tests/test_catalog.py
+@@ -41,6 +41,15 @@ class OrderFileTests(unittest.TestCase):
+         rows = read_order(path)
+         self.assertEqual([(r.sku, r.quantity, r.lineno) for r in rows], [("DRILL-18V", 1, 2), ("BITS-20", 2, 3)])
+ 
++    def test_files_saved_by_excel(self):
++        # Excel's "CSV UTF-8" starts the file with a byte-order mark and ends lines with CRLF.
++        order = self.files.write("o.csv", "sku,quantity\r\nDRILL-18V,1\r\n", encoding="utf-8-sig")
++        catalog = self.files.write(
++            "c.csv", "sku,name,unit_price,currency,tax_category\r\nA-1,Thing,1.00,USD,food\r\n", encoding="utf-8-sig"
++        )
++        self.assertEqual([(r.sku, r.lineno) for r in read_order(order)], [("DRILL-18V", 2)])
++        self.assertEqual(load_catalog(catalog).get("A-1").tax_category, "food")
++
+     def test_bad_quantity_names_the_line(self):
+         path = self.files.write("o.csv", "sku,quantity\nDRILL-18V,1\nBITS-20,two\n")
+         with self.assertRaisesRegex(OrderError, "line 3"):

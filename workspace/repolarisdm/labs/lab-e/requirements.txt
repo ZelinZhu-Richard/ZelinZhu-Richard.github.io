@@ -1,0 +1,7 @@
+# Optional. The lab itself needs only git, bash and python3 (standard library).
+# Install this only to run the generated project's own tests. Make the venv in the
+# scratch folder next to the practice repo, never inside the portfolio repository.
+# Inside the practice repo:
+#   python3 -m venv ../.venv && ../.venv/bin/pip install -r /path/to/labs/lab-e/requirements.txt
+#   ../.venv/bin/python -m pytest -q
+pytest==8.4.2

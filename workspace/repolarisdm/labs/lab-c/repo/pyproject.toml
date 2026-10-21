@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pricebook"
+version = "1.4.0"
+description = "Price lists, coupons, sales tax and invoices with exact decimal money."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest==8.4.2"]
+
+[project.scripts]
+pricebook = "pricebook.cli:main"
+
+[tool.setuptools]
+packages = ["pricebook"]
+
+[tool.setuptools.package-data]
+pricebook = ["data/*.csv"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

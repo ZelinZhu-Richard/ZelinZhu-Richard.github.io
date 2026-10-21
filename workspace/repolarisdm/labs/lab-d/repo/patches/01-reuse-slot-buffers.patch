@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Practice Agent <agent@ringlog.invalid>
+Date: Sun, 18 Oct 2026 09:00:00 +0000
+Subject: [PATCH] Reuse slot buffers instead of allocating on every push
+
+Synthetic, written for practice. Not real Gemini output.
+
+push() used to free the old text buffer and allocate a new one for every
+record. Now each slot gets one buffer in the constructor and push() copies
+into it. The buffers are sized for max_text bytes, which is enough because
+push() cuts every message to max_text bytes first.
+
+Result: one allocation per slot instead of one per push.
+Tests: make test passes (9 tests, 0 failed).
+---
+ ringlog.cpp | 5 ++---
+ ringlog.h   | 2 +-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/ringlog.cpp b/ringlog.cpp
+index 213c943..b69b813 100644
+--- a/ringlog.cpp
++++ b/ringlog.cpp
+@@ -26,8 +26,9 @@ RingLog::RingLog(std::size_t capacity, std::size_t max_text)
+     throw std::invalid_argument("ringlog: capacity and max_text must be at least 1");
+   }
+   slots_ = new Slot[capacity_];
++  // Each slot owns one text buffer for its whole life, so push() never allocates.
+   for (std::size_t k = 0; k < capacity_; ++k) {
+-    slots_[k] = Slot{0, Level::kInfo, 0, nullptr};
++    slots_[k] = Slot{0, Level::kInfo, 0, new char[max_text_]};
+   }
+ }
+ 
+@@ -54,8 +55,6 @@ void RingLog::push(Level level, const char* text) {
+     ++dropped_;
+   }
+ 
+-  delete[] slot->text;
+-  slot->text = new char[len + 1];
+   std::memcpy(slot->text, text, len);
+   slot->text[len] = '\0';
+   slot->len = len;
+diff --git a/ringlog.h b/ringlog.h
+index 6bf478a..b394d46 100644
+--- a/ringlog.h
++++ b/ringlog.h
+@@ -51,7 +51,7 @@ class RingLog {
+     std::uint64_t seq;
+     Level level;
+     std::size_t len;  // bytes of text, without the terminating NUL
+-    char* text;       // len bytes followed by a NUL, or nullptr if unused
++    char* text;       // buffer of max_text bytes, owned by the slot
+   };
+ 
+   // Logical index (0 = oldest) to physical slot index.

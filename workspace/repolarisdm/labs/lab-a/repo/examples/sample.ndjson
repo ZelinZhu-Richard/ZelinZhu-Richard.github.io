@@ -1,0 +1,9 @@
+{"metric": "http.requests", "kind": "counter", "value": 1, "ts": "2026-03-02T14:05:00Z", "tags": {"route": "/login"}, "id": "s-1"}
+{"metric": "http.requests", "kind": "counter", "value": 1, "ts": "2026-03-02T14:20:41Z", "tags": {"route": "/login"}, "id": "s-2"}
+{"metric": "http.requests", "kind": "counter", "value": 1, "ts": "2026-03-02T14:20:41Z", "tags": {"route": "/login"}, "id": "s-2"}
+{"metric": "http.requests", "kind": "counter", "value": 1, "ts": "2026-03-02T15:02:13Z", "tags": {"route": "/cart"}, "id": "s-3"}
+{"metric": "db.query", "kind": "timer", "value": 12.5, "ts": "2026-03-02T14:05:01Z", "tags": {"table": "orders"}}
+{"metric": "db.query", "kind": "timer", "value": 48.0, "ts": "2026-03-02T14:31:09Z", "tags": {"table": "orders"}}
+{"metric": "queue.depth", "kind": "gauge", "value": 17, "ts": "2026-03-02T14:59:00Z"}
+http.requests:4|c|@0.5|#route:/cart|T1772463900
+queue.depth:9|g|T1772464000

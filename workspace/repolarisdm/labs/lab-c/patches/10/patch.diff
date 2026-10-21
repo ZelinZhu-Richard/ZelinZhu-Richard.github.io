@@ -1,0 +1,129 @@
+diff --git a/README.md b/README.md
+index 41ee312..bf1bd98 100644
+--- a/README.md
++++ b/README.md
+@@ -47,7 +47,7 @@ Regions in `rates.csv`: CA-AB, CA-ON, DE, JP, US-OR, US-WA.
+ 
+ ```console
+ $ python -m pricebook quote ORDER.csv --region REGION [--coupon CODE] [--date YYYY-MM-DD]
+-                                     [--net-days N] [--format text|csv]
++                                     [--net-days N] [--format text|csv|json]
+                                      [--catalog PATH] [--rates PATH] [--coupons PATH]
+ ```
+ 
+diff --git a/pricebook/cli.py b/pricebook/cli.py
+index b54fbf7..255d889 100644
+--- a/pricebook/cli.py
++++ b/pricebook/cli.py
+@@ -9,7 +9,7 @@ from datetime import date
+ from .catalog import DATA_DIR, load_catalog
+ from .discounts import find_coupon, load_coupons
+ from .orders import build_invoice, read_order
+-from .render import render_csv, render_text
++from .render import render_csv, render_json, render_text
+ from .tax import load_rates
+ 
+ 
+@@ -22,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
+     quote.add_argument("--coupon", help="coupon code")
+     quote.add_argument("--date", type=date.fromisoformat, help="issue date YYYY-MM-DD (default: today)")
+     quote.add_argument("--net-days", type=int, default=30, help="payment terms in days (default: 30)")
+-    quote.add_argument("--format", choices=["text", "csv"], default="text")
++    quote.add_argument("--format", choices=["text", "csv", "json"], default="text")
+     quote.add_argument("--catalog", default=DATA_DIR / "catalog.csv")
+     quote.add_argument("--rates", default=DATA_DIR / "rates.csv")
+     quote.add_argument("--coupons", default=DATA_DIR / "coupons.csv")
+@@ -51,5 +51,6 @@ def main(argv: list[str] | None = None) -> int:
+     except (OSError, ValueError) as exc:
+         print(f"error: {exc}", file=sys.stderr)
+         return 2
+-    sys.stdout.write(render_csv(invoice) if args.format == "csv" else render_text(invoice))
++    renderers = {"text": render_text, "csv": render_csv, "json": render_json}
++    sys.stdout.write(renderers[args.format](invoice))
+     return 0
+diff --git a/pricebook/render.py b/pricebook/render.py
+index b25fa37..e9bac16 100644
+--- a/pricebook/render.py
++++ b/pricebook/render.py
+@@ -4,6 +4,7 @@ from __future__ import annotations
+ 
+ import csv
+ import io
++import json
+ from decimal import Decimal
+ 
+ from .invoice import Invoice
+@@ -69,3 +70,34 @@ def render_csv(invoice: Invoice) -> str:
+             ]
+         )
+     return buffer.getvalue()
++
++
++def render_json(invoice: Invoice) -> str:
++    coupon = None
++    if invoice.coupon is not None:
++        problem = invoice.coupon_problem()
++        coupon = {"code": invoice.coupon.code, "applied": problem is None, "problem": problem}
++    data = {
++        "issue_date": invoice.issue_date.isoformat(),
++        "due_date": invoice.due_date().isoformat(),
++        "region": invoice.region,
++        "currency": invoice.currency,
++        "lines": [
++            {
++                "sku": line.sku,
++                "description": line.description,
++                "quantity": line.quantity,
++                "unit_price": str(line.unit_price.amount),
++                "amount": _amount(line.total()),
++                "net": _amount(net),
++                "tax_category": line.tax_category,
++            }
++            for line, net in zip(invoice.lines, invoice.line_nets())
++        ],
++        "subtotal": _amount(invoice.subtotal()),
++        "coupon": coupon,
++        "discount": _amount(invoice.discount()),
++        "tax": {category: _amount(amount) for category, amount in invoice.tax_by_category().items()},
++        "total": _amount(invoice.total()),
++    }
++    return json.dumps(data, indent=2) + "\n"
+diff --git a/tests/test_cli.py b/tests/test_cli.py
+index cdef907..07e71f7 100644
+--- a/tests/test_cli.py
++++ b/tests/test_cli.py
+@@ -1,5 +1,6 @@
+ import contextlib
+ import io
++import json
+ import unittest
+ 
+ from pricebook.cli import main
+@@ -34,7 +35,26 @@ class CliTests(unittest.TestCase):
+         lines = out.splitlines()
+         self.assertEqual(code, 0)
+         self.assertEqual(lines[0], "sku,description,quantity,unit_price,amount,net,tax_category")
+-        self.assertEqual(len(lines), 5)
++        self.assertEqual(lines[1:], [
++            "DRILL-18V,18V cordless drill,1,129.00,129.00,129.00,standard",
++            "BITS-20,Drill bit set 20 pc,2,24.50,49.00,49.00,standard",
++            "COFFEE-1KG,Coffee beans 1 kg,1,22.00,22.00,22.00,food",
++            "GLOVE-L,Work gloves size L,3,12.00,36.00,36.00,standard",
++        ])
++
++    def test_json_quote(self):
++        code, out, _ = self.quote("--format", "json", "--coupon", "SAVE10")
++        data = json.loads(out)
++        self.assertEqual(code, 0)
++        self.assertEqual((data["subtotal"], data["discount"], data["total"]), ("236.00", "23.60", "237.44"))
++        self.assertEqual(data["coupon"], {"code": "SAVE10", "applied": True, "problem": None})
++        self.assertEqual(data["lines"][0]["quantity"], 1)
++
++    def test_json_rejected_coupon(self):
++        _, out, _ = self.quote("--format", "json", "--coupon", "SPRING15")
++        data = json.loads(out)
++        self.assertFalse(data["coupon"]["applied"])
++        self.assertEqual(data["discount"], "0.00")
+ 
+     def test_bad_quantity_exits_2(self):
+         files = TempFiles()

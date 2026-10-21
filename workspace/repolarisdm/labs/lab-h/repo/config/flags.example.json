@@ -1,0 +1,48 @@
+{
+  "flags": [
+    {
+      "key": "new-onboarding",
+      "description": "Three-step onboarding instead of the long form",
+      "enabled": true,
+      "variants": { "on": true, "off": false },
+      "defaultVariant": "off",
+      "rules": [
+        {
+          "name": "internal",
+          "conditions": [{ "attribute": "email", "op": "ends_with", "value": "@example.test" }],
+          "variant": "on"
+        }
+      ],
+      "rollout": [
+        { "variant": "on", "weight": 20 },
+        { "variant": "off", "weight": 80 }
+      ]
+    },
+    {
+      "key": "price-test",
+      "description": "Annual plan discount experiment",
+      "enabled": true,
+      "variants": { "control": 0, "ten": 10, "fifteen": 15 },
+      "defaultVariant": "control",
+      "salt": "price-test-2026-10",
+      "rules": [
+        {
+          "name": "paid users only",
+          "conditions": [{ "attribute": "plan", "op": "in", "value": ["pro", "team"] }],
+          "rollout": [
+            { "variant": "control", "weight": 33.34 },
+            { "variant": "ten", "weight": 33.33 },
+            { "variant": "fifteen", "weight": 33.33 }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "maintenance-banner",
+      "enabled": false,
+      "variants": { "show": true, "hide": false },
+      "defaultVariant": "show",
+      "offVariant": "hide"
+    }
+  ]
+}

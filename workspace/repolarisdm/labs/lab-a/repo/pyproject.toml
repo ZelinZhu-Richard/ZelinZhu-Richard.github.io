@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tallyhub"
+version = "0.6.1"
+description = "Small event-tally and metrics aggregation service"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "coverage>=7"]
+
+[project.scripts]
+tallyhub = "tallyhub.cli:main"
+
+[tool.setuptools]
+packages = ["tallyhub", "tallyhub.storage"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["tallyhub"]
+branch = true

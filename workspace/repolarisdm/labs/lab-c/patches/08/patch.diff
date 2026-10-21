@@ -1,0 +1,55 @@
+diff --git a/pricebook/orders.py b/pricebook/orders.py
+index 07ca6f6..85d3155 100644
+--- a/pricebook/orders.py
++++ b/pricebook/orders.py
+@@ -3,6 +3,7 @@
+ from __future__ import annotations
+ 
+ import csv
++import warnings
+ from datetime import date
+ from pathlib import Path
+ from typing import NamedTuple
+@@ -68,8 +69,11 @@ def build_invoice(
+         net_days=net_days,
+     )
+     for row in rows:
+-        product = catalog.get(row.sku)
+-        invoice.add_line(
+-            Line(product.sku, product.name, product.unit_price, row.quantity, product.tax_category)
+-        )
++        try:
++            product = catalog.get(row.sku)
++            invoice.add_line(
++                Line(product.sku, product.name, product.unit_price, row.quantity, product.tax_category)
++            )
++        except Exception as exc:  # one bad line should not abort the whole quote
++            warnings.warn(f"line {row.lineno}: skipped {row.sku}: {exc}", stacklevel=2)
+     return invoice
+diff --git a/tests/test_cli.py b/tests/test_cli.py
+index cdef907..7040829 100644
+--- a/tests/test_cli.py
++++ b/tests/test_cli.py
+@@ -44,6 +44,22 @@ class CliTests(unittest.TestCase):
+         self.assertEqual((code, out), (2, ""))
+         self.assertIn("error: line 2", err)
+ 
++    def test_unknown_sku_does_not_crash(self):
++        files = TempFiles()
++        self.addCleanup(files.cleanup)
++        order = files.write("o.csv", "sku,quantity\nDRILL-18V,1\nNOPE-1,1\n")
++        code, out, _ = run_cli("quote", str(order), "--region", "CA-ON", "--date", "2026-05-04")
++        self.assertEqual(code, 0)
++        self.assertIn("DRILL-18V", out)
++        self.assertNotIn("NOPE-1", out)
++
++    def test_unknown_sku_warning_names_the_line(self):
++        files = TempFiles()
++        self.addCleanup(files.cleanup)
++        order = files.write("o.csv", "sku,quantity\nDRILL-18V,1\nNOPE-1,1\n")
++        with self.assertWarnsRegex(UserWarning, "line 3: skipped NOPE-1"):
++            run_cli("quote", str(order), "--region", "CA-ON", "--date", "2026-05-04")
++
+     def test_unknown_region_exits_2(self):
+         code, _, err = run_cli("quote", str(EXAMPLE_ORDER), "--region", "MARS")
+         self.assertEqual(code, 2)

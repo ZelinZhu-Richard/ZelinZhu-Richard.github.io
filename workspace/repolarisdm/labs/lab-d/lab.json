@@ -1,0 +1,8 @@
+{
+  "id": "lab-d",
+  "title": "Memory Ghost",
+  "language": "C++17 (clang++, make, lldb)",
+  "time": "60 min",
+  "trains": ["S7", "S10", "S11", "S12"],
+  "covers": ["M6", "M9"]
+}

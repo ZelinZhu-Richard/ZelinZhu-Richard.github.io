@@ -1,0 +1,3 @@
+# CPU smoke test for G3 (python -m pytest -q -p no:cacheprovider tests/test_g3.py). No torch, no GPU.
+pytest==9.1.1
+nbformat==5.11.1

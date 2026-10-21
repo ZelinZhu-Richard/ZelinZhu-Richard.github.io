@@ -1,0 +1,15 @@
+sku,name,unit_price,currency,tax_category
+BOLT-M4,M4 hex bolt (bulk),0.125,CAD,standard
+WASH-M4,M4 washer (bulk),0.0625,CAD,standard
+DRILL-18V,18V cordless drill,129.00,CAD,standard
+BITS-20,Drill bit set 20 pc,24.50,CAD,standard
+GLOVE-L,Work gloves size L,12.00,CAD,standard
+COFFEE-1KG,Coffee beans 1 kg,22.00,CAD,food
+APPLE-BOX,Apples 5 kg box,14.75,CAD,food
+EBOOK-DIY,Home repair e-book,9.99,CAD,digital
+DRILL-EU,18V cordless drill EU,119.00,EUR,standard
+COFFEE-EU,Coffee beans 1 kg EU,19.90,EUR,food
+KETTLE-JP,Electric kettle,4980,JPY,standard
+TEA-JP,Green tea 100 g,1005,JPY,food
+DRILL-US,18V cordless drill US,99.00,USD,standard
+SNACK-US,Trail mix 500 g,6.49,USD,food

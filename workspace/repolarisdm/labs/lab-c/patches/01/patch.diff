@@ -1,0 +1,49 @@
+diff --git a/pricebook/render.py b/pricebook/render.py
+index b25fa37..5258fc2 100644
+--- a/pricebook/render.py
++++ b/pricebook/render.py
+@@ -9,7 +9,7 @@ from decimal import Decimal
+ from .invoice import Invoice
+ from .money import Money
+ 
+-CSV_COLUMNS = ["sku", "description", "quantity", "unit_price", "amount", "net", "tax_category"]
++CSV_COLUMNS = ["sku", "description", "quantity", "unit_price", "amount", "net", "tax", "tax_category"]
+ 
+ 
+ def _amount(money: Money) -> str:
+@@ -57,6 +57,7 @@ def render_csv(invoice: Invoice) -> str:
+     writer = csv.writer(buffer, lineterminator="\n")
+     writer.writerow(CSV_COLUMNS)
+     for line, net in zip(invoice.lines, invoice.line_nets()):
++        rate = invoice.tax_table.rate_for(invoice.region, line.tax_category)
+         writer.writerow(
+             [
+                 line.sku,
+@@ -65,6 +66,7 @@ def render_csv(invoice: Invoice) -> str:
+                 line.unit_price.amount,
+                 _amount(line.total()),
+                 _amount(net),
++                round(net.amount * rate, 2),
+                 line.tax_category,
+             ]
+         )
+diff --git a/tests/test_cli.py b/tests/test_cli.py
+index cdef907..af0a45f 100644
+--- a/tests/test_cli.py
++++ b/tests/test_cli.py
+@@ -33,9 +33,14 @@ class CliTests(unittest.TestCase):
+         code, out, _ = self.quote("--format", "csv")
+         lines = out.splitlines()
+         self.assertEqual(code, 0)
+-        self.assertEqual(lines[0], "sku,description,quantity,unit_price,amount,net,tax_category")
++        self.assertEqual(lines[0], "sku,description,quantity,unit_price,amount,net,tax,tax_category")
+         self.assertEqual(len(lines), 5)
+ 
++    def test_csv_line_tax(self):
++        _, out, _ = self.quote("--format", "csv", "--coupon", "SAVE10")
++        taxes = [row.split(",")[6] for row in out.splitlines()[1:]]
++        self.assertEqual(taxes, ["15.09", "5.73", "0.00", "4.21"])
++
+     def test_bad_quantity_exits_2(self):
+         files = TempFiles()
+         self.addCleanup(files.cleanup)

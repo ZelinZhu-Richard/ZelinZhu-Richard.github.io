@@ -1,0 +1,58 @@
+{
+  "flags": [
+    {
+      "key": "dark-mode",
+      "description": "Dark theme in the web app",
+      "enabled": true,
+      "variants": { "on": true, "off": false },
+      "defaultVariant": "off",
+      "rules": [
+        {
+          "name": "staff",
+          "conditions": [{ "attribute": "email", "op": "ends_with", "value": "@example.test" }],
+          "variant": "on"
+        }
+      ]
+    },
+    {
+      "key": "checkout-flow",
+      "description": "Which checkout UI to show",
+      "enabled": true,
+      "variants": { "classic": "classic", "one-page": "one-page" },
+      "defaultVariant": "classic",
+      "rules": [
+        {
+          "name": "pinned users",
+          "conditions": [{ "attribute": "targetingKey", "op": "in", "value": ["u-1", "u-2"] }],
+          "variant": "one-page"
+        },
+        {
+          "name": "EU paid beta",
+          "conditions": [
+            { "attribute": "country", "op": "in", "value": ["DE", "FR"] },
+            { "attribute": "plan", "op": "neq", "value": "free" }
+          ],
+          "variant": "one-page"
+        }
+      ]
+    },
+    {
+      "key": "search-ranker",
+      "description": "Ranking model for search results",
+      "enabled": true,
+      "variants": { "bm25": "bm25", "hybrid": "hybrid" },
+      "defaultVariant": "bm25",
+      "rollout": [
+        { "variant": "hybrid", "weight": 50 },
+        { "variant": "bm25", "weight": 50 }
+      ]
+    },
+    {
+      "key": "legacy-banner",
+      "enabled": false,
+      "variants": { "show": true, "hide": false },
+      "defaultVariant": "show",
+      "offVariant": "hide"
+    }
+  ]
+}

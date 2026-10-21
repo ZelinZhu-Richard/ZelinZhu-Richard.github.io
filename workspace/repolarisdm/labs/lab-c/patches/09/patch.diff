@@ -1,0 +1,40 @@
+diff --git a/pricebook/tax.py b/pricebook/tax.py
+index f0c0011..f1f9051 100644
+--- a/pricebook/tax.py
++++ b/pricebook/tax.py
+@@ -24,10 +24,15 @@ class UnknownRegion(KeyError):
+ 
+ 
+ def parse_rate(text: str) -> Decimal:
+-    """Parse a rate such as "0.13". Rates must be at least 0 and below 1."""
++    """Parse a rate such as "0.13" or "13%". Rates must be at least 0 and below 1."""
++    text = text.strip()
+     try:
+-        rate = Decimal(text.strip())
+-    except InvalidOperation:
++        if text.endswith("%"):
++            # "13%" -> 13/100; simple sums such as "5% + 3.875%" work too
++            rate = Decimal(str(eval(text.replace("%", "/100"))))
++        else:
++            rate = Decimal(text)
++    except (InvalidOperation, SyntaxError, NameError):
+         raise ValueError(f"invalid tax rate: {text!r}") from None
+     if not rate.is_finite() or not 0 <= rate < 1:
+         raise ValueError(f"tax rate out of range: {text!r}")
+diff --git a/tests/test_tax.py b/tests/test_tax.py
+index 04a524b..6863709 100644
+--- a/tests/test_tax.py
++++ b/tests/test_tax.py
+@@ -11,6 +11,12 @@ class ParseRateTests(unittest.TestCase):
+         self.assertEqual(parse_rate("0.13"), Decimal("0.13"))
+         self.assertEqual(parse_rate(" 0 "), Decimal("0"))
+ 
++    def test_percent_rates(self):
++        self.assertEqual(parse_rate("13%"), Decimal("0.13"))
++        self.assertEqual(parse_rate("8.875 %"), Decimal("0.08875"))
++        with self.assertRaises(ValueError):
++            parse_rate("120%")
++
+     def test_invalid_rates(self):
+         for text in ["", "abc", "1.5", "-0.01", "NaN"]:
+             with self.subTest(text=text), self.assertRaises(ValueError):

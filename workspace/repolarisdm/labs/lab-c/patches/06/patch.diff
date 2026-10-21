@@ -1,0 +1,42 @@
+diff --git a/pricebook/invoice.py b/pricebook/invoice.py
+index cc19a00..7d10dcf 100644
+--- a/pricebook/invoice.py
++++ b/pricebook/invoice.py
+@@ -15,6 +15,7 @@ from __future__ import annotations
+ from collections import defaultdict
+ from dataclasses import dataclass, field
+ from datetime import date, timedelta
++from decimal import ROUND_HALF_UP, Decimal
+ 
+ from .discounts import Coupon
+ from .money import Money
+@@ -30,7 +31,9 @@ class Line:
+     tax_category: str = "standard"
+ 
+     def total(self) -> Money:
+-        return self.unit_price.rounded() * self.quantity
++        # Bulk unit prices carry a third decimal (e.g. 0.125); keep it and round the line total.
++        unit = self.unit_price.amount.quantize(Decimal("0.001"), rounding=ROUND_HALF_UP)
++        return Money(unit * self.quantity, self.unit_price.currency).rounded()
+ 
+ 
+ @dataclass
+diff --git a/tests/test_invoice.py b/tests/test_invoice.py
+index 3c00839..bb1387b 100644
+--- a/tests/test_invoice.py
++++ b/tests/test_invoice.py
+@@ -53,6 +53,14 @@ class InvoiceTests(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             invoice.add_line(Line("DRILL-EU", "Drill", Money("119.00", "EUR"), 1))
+ 
++    def test_bulk_unit_price(self):
++        line = Line("BOLT-M4", "M4 hex bolt (bulk)", Money("0.125", "CAD"), 1000)
++        self.assertEqual(line.total(), Money("125.00", "CAD"))
++
++    def test_cent_unit_price_is_unchanged(self):
++        line = Line("DRILL-18V", "18V cordless drill", Money("129.00", "CAD"), 2)
++        self.assertEqual(line.total(), Money("258.00", "CAD"))
++
+ 
+ if __name__ == "__main__":
+     unittest.main()

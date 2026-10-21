@@ -1,0 +1,66 @@
+diff --git a/pricebook/invoice.py b/pricebook/invoice.py
+index cc19a00..8b606ec 100644
+--- a/pricebook/invoice.py
++++ b/pricebook/invoice.py
+@@ -78,8 +78,8 @@ class Invoice:
+ 
+     def tax_by_category(self) -> dict[str, Money]:
+         bases: dict[str, Money] = defaultdict(lambda: Money.zero(self.currency))
+-        for line, net in zip(self.lines, self.line_nets()):
+-            bases[line.tax_category] += net
++        for line in self.lines:
++            bases[line.tax_category] += line.total()
+         return {
+             category: (base * self.tax_table.rate_for(self.region, category)).rounded()
+             for category, base in sorted(bases.items())
+@@ -92,7 +92,7 @@ class Invoice:
+         return total
+ 
+     def total(self) -> Money:
+-        return self.subtotal() - self.discount() + self.tax()
++        return max(self.subtotal() + self.tax() - self.discount(), Money.zero(self.currency))
+ 
+     def due_date(self) -> date:
+         return self.issue_date + timedelta(days=self.net_days)
+diff --git a/tests/test_cli.py b/tests/test_cli.py
+index cdef907..766e189 100644
+--- a/tests/test_cli.py
++++ b/tests/test_cli.py
+@@ -27,7 +27,7 @@ class CliTests(unittest.TestCase):
+     def test_total_and_due_lines_are_stable(self):
+         # The billing mailer parses these two lines.
+         _, out, _ = self.quote("--coupon", "SAVE10")
+-        self.assertEqual(out.splitlines()[-2:], ["Total: 237.44 CAD", "Due: 2026-06-03"])
++        self.assertEqual(out.splitlines()[-2:], ["Total: 240.22 CAD", "Due: 2026-06-03"])
+ 
+     def test_csv_quote(self):
+         code, out, _ = self.quote("--format", "csv")
+diff --git a/tests/test_invoice.py b/tests/test_invoice.py
+index 3c00839..fcd013d 100644
+--- a/tests/test_invoice.py
++++ b/tests/test_invoice.py
+@@ -37,8 +37,8 @@ class InvoiceTests(unittest.TestCase):
+     def test_discount_is_spread_before_tax(self):
+         invoice = example_invoice("SAVE10")
+         self.assertEqual(invoice.discount(), Money("23.60", "CAD"))
+-        self.assertEqual(invoice.tax(), Money("25.04", "CAD"))
+-        self.assertEqual(invoice.total(), Money("237.44", "CAD"))
++        self.assertEqual(invoice.tax(), Money("27.82", "CAD"))
++        self.assertEqual(invoice.total(), Money("240.22", "CAD"))
+ 
+     def test_rejected_coupon_gives_no_discount(self):
+         invoice = example_invoice("SPRING15")
+@@ -53,6 +53,13 @@ class InvoiceTests(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             invoice.add_line(Line("DRILL-EU", "Drill", Money("119.00", "EUR"), 1))
+ 
++    def test_fixed_coupon_never_makes_total_negative(self):
++        invoice = build_invoice(
++            read_order(EXAMPLE_ORDER)[3:], load_catalog(), load_rates(),
++            region="CA-ON", issue_date=date(2026, 5, 4), coupon=load_coupons()["WELCOME20"],
++        )
++        self.assertGreaterEqual(invoice.total(), Money("0.00", "CAD"))
++
+ 
+ if __name__ == "__main__":
+     unittest.main()

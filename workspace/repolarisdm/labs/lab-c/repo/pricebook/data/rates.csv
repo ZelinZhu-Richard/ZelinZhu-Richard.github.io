@@ -1,0 +1,12 @@
+region,category,rate
+CA-AB,standard,0.05
+CA-AB,food,0
+CA-ON,standard,0.13
+CA-ON,food,0
+DE,standard,0.19
+DE,food,0.07
+JP,standard,0.10
+JP,food,0.08
+US-OR,standard,0
+US-WA,standard,0.065
+US-WA,food,0

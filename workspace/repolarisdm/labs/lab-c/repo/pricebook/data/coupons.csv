@@ -1,0 +1,6 @@
+code,kind,value,currency,min_subtotal,valid_from,valid_until
+SAVE10,percent,0.10,,0,2026-01-01,2026-12-31
+SPRING15,percent,0.15,,50,2026-03-01,2026-03-31
+WELCOME20,fixed,20.00,CAD,0,2026-01-01,2026-12-31
+BULK5,percent,0.05,,500,2026-01-01,2026-12-31
+EURO5,fixed,5.00,EUR,0,2026-01-01,2026-12-31

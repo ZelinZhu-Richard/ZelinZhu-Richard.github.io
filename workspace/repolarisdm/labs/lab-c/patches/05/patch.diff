@@ -1,0 +1,35 @@
+diff --git a/pricebook/invoice.py b/pricebook/invoice.py
+index cc19a00..8f9563e 100644
+--- a/pricebook/invoice.py
++++ b/pricebook/invoice.py
+@@ -12,6 +12,7 @@ Order of operations (README, "How totals are computed"):
+ 
+ from __future__ import annotations
+ 
++import calendar
+ from collections import defaultdict
+ from dataclasses import dataclass, field
+ from datetime import date, timedelta
+@@ -95,4 +96,7 @@ class Invoice:
+         return self.subtotal() - self.discount() + self.tax()
+ 
+     def due_date(self) -> date:
+-        return self.issue_date + timedelta(days=self.net_days)
++        due = self.issue_date + timedelta(days=self.net_days)
++        if due.weekday() >= calendar.SATURDAY:
++            due = calendar.next_weekday(due, calendar.MONDAY)
++        return due
+diff --git a/tests/test_invoice.py b/tests/test_invoice.py
+index 3c00839..eb24ad3 100644
+--- a/tests/test_invoice.py
++++ b/tests/test_invoice.py
+@@ -53,6 +53,9 @@ class InvoiceTests(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             invoice.add_line(Line("DRILL-EU", "Drill", Money("119.00", "EUR"), 1))
+ 
++    def test_weekday_due_date_is_unchanged(self):
++        self.assertEqual(example_invoice(issue_date=date(2026, 10, 5)).due_date(), date(2026, 11, 4))
++
+ 
+ if __name__ == "__main__":
+     unittest.main()

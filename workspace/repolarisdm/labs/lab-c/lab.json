@@ -1,0 +1,9 @@
+{
+  "id": "lab-c",
+  "title": "Spot the Bad Agent Patch",
+  "language": "Python",
+  "time": "60 min",
+  "trains": ["S4", "S10", "S11", "S12", "S14"],
+  "optional_steps": ["S13"],
+  "covers": ["M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M10"]
+}

@@ -1,0 +1,90 @@
+diff --git a/pricebook/render.py b/pricebook/render.py
+index b25fa37..0afa034 100644
+--- a/pricebook/render.py
++++ b/pricebook/render.py
+@@ -21,33 +21,42 @@ def _percent(rate: Decimal) -> str:
+     return text.rstrip("0").rstrip(".") if "." in text else text
+ 
+ 
++def _grouped(money: Money) -> str:
++    """Money with thousands separators: 1,290,000.00."""
++    return f"{money.rounded().amount:,}"
++
++
+ def render_text(invoice: Invoice) -> str:
+-    out = [
+-        f"INVOICE {invoice.issue_date.isoformat()}",
+-        f"Region: {invoice.region}    Currency: {invoice.currency}",
+-        "",
+-        f"{'SKU':<10} {'Description':<22} {'Qty':>5} {'Unit':>10} {'Amount':>10}",
+-    ]
+-    for line in invoice.lines:
+-        out.append(
+-            f"{line.sku:<10} {line.description[:22]:<22} {line.quantity:>5} "
+-            f"{line.unit_price.amount!s:>10} {_amount(line.total()):>10}"
+-        )
+-    out.append("")
+-    out.append(f"{'Subtotal':<50} {_amount(invoice.subtotal()):>10}")
++    items = [(line, f"{line.unit_price.amount:,}", _grouped(line.total())) for line in invoice.lines]
++    summary: list[tuple[str, str] | str] = [("Subtotal", _grouped(invoice.subtotal()))]
+     if invoice.coupon is not None:
+         problem = invoice.coupon_problem()
+         if problem:
+-            out.append(f"Coupon not applied: {problem}")
++            summary.append(f"Coupon not applied: {problem}")
+         else:
+-            label = f"Discount {invoice.coupon.code}"
+-            out.append(f"{label:<50} {'-' + _amount(invoice.discount()):>10}")
++            summary.append((f"Discount {invoice.coupon.code}", "-" + _grouped(invoice.discount())))
+     for category, amount in invoice.tax_by_category().items():
+         rate = invoice.tax_table.rate_for(invoice.region, category)
+-        label = f"Tax {category} {_percent(rate)}%"
+-        out.append(f"{label:<50} {_amount(amount):>10}")
++        summary.append((f"Tax {category} {_percent(rate)}%", _grouped(amount)))
++
++    unit_w = max([10] + [len(unit) for _, unit, _ in items])
++    amount_w = max([10] + [len(total) for _, _, total in items] + [len(row[1]) for row in summary if isinstance(row, tuple)])
++    label_w = 10 + 1 + 22 + 1 + 5 + 1 + unit_w
++
++    out = [
++        f"INVOICE {invoice.issue_date.isoformat()}",
++        f"Region: {invoice.region}    Currency: {invoice.currency}",
++        "",
++        f"{'SKU':<10} {'Description':<22} {'Qty':>5} {'Unit':>{unit_w}} {'Amount':>{amount_w}}",
++    ]
++    for line, unit, total in items:
++        out.append(f"{line.sku:<10} {line.description[:22]:<22} {line.quantity:>5} {unit:>{unit_w}} {total:>{amount_w}}")
++    out.append("")
++    for row in summary:
++        out.append(row if isinstance(row, str) else f"{row[0]:<{label_w}} {row[1]:>{amount_w}}")
+     # The billing mailer parses the next two lines. Keep their format stable.
+-    out.append(f"Total: {invoice.total().format()}")
++    total = f"{_grouped(invoice.total())} {invoice.currency}"
++    out.append(f"{'Total:':<{label_w}} {total:>{amount_w}}")
+     out.append(f"Due: {invoice.due_date().isoformat()}")
+     return "\n".join(out) + "\n"
+ 
+diff --git a/tests/test_render.py b/tests/test_render.py
+new file mode 100644
+index 0000000..d3a86ad
+--- /dev/null
++++ b/tests/test_render.py
+@@ -0,0 +1,18 @@
++import unittest
++
++from .helpers import TempFiles
++from .test_cli import run_cli
++
++
++class TextLayoutTests(unittest.TestCase):
++    def test_big_amounts_use_separators(self):
++        files = TempFiles()
++        self.addCleanup(files.cleanup)
++        order = files.write("big.csv", "sku,quantity\nDRILL-18V,10000\n")
++        code, out, _ = run_cli("quote", str(order), "--region", "CA-ON", "--date", "2026-05-04")
++        self.assertEqual(code, 0)
++        self.assertIn("1,290,000.00", out)
++
++
++if __name__ == "__main__":
++    unittest.main()

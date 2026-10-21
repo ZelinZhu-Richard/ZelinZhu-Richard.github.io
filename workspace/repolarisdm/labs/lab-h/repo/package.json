@@ -1,0 +1,18 @@
+{
+  "name": "togglebox",
+  "version": "0.4.0",
+  "description": "Small feature-flag evaluation service with an HTTP API",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "start": "node src/main.ts config/flags.example.json",
+    "test": "node --test"
+  }
+}
