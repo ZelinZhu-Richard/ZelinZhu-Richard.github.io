@@ -1,18 +1,18 @@
 export const DEFAULTS = Object.freeze({
   ratio: 'original', width: 292, radius: 28, ticket: true,
-  primary: '#FFC9D8', secondary: '#F3E7BD', accent: '#C9B8EE', angle: 200,
+  primary: '#F6AFCE', secondary: '#A7E4D8', accent: '#C9B7EE', angle: 200,
   texture: 'rosette', scale: 38, opacity: 72, blend: 'normal', emboss: true,
   foil: 100, glare: 100, grain: 100, tilt: 10,
-  title: 'Luminary Club', subtitle: 'Founding Member', cardholder: 'Alex Chen',
-  number: '0042', valid: '2028.09', textColor: '#1B3326', logo: 'star',
+  title: 'Z-stack', subtitle: 'Chief Executive Officer', cardholder: 'Richard Zhu',
+  number: '000', valid: '2029.3', textColor: '#1B3326', logo: 'star',
   aurora: true, image: null,
 });
 export const PRESETS = Object.freeze({
-  Pearl: ['#FFC9D8', '#F3E7BD', '#C9B8EE'],
-  Aurora: ['#F3C4E4', '#B5F4DE', '#A7D7F3'],
-  Rose: ['#F5A4AA', '#FFE0AF', '#E8907D'],
-  Abyss: ['#123F66', '#182D4B', '#302A74'],
-  Graphite: ['#B8B8B8', '#ECEAE5', '#62656D'],
+  Pearl: ['#F6AFCE', '#A7E4D8', '#C9B7EE'],
+  Aurora: ['#6AD8BB', '#BCA3E9', '#D6EC8E'],
+  Rose: ['#F18DB9', '#F4DF88', '#F2A083'],
+  Champagne: ['#F1C36F', '#9CC7E9', '#F3AD8F'],
+  Glacier: ['#82CDEB', '#E6A9D3', '#A5A6E9'],
 });
 export const LIMITS = Object.freeze({
   width: [220, 520], radius: [0, 40], angle: [0, 360], scale: [10, 200],

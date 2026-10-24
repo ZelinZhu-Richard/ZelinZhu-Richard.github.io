@@ -16,7 +16,11 @@ test('settings round trip preserves every control and an embedded custom texture
   const card = { ...DEFAULTS, title: '旅行 <&> “club”', ratio: 'landscape', width: 420, primary: PRESETS.Rose[0], texture: 'custom', image: pixel, logo: 'rings', aurora: false, ticket: false };
   assert.deepEqual(parseSettings(serializeSettings(card)), card);
   assert.deepEqual(validateCard({}), DEFAULTS);
-  assert.equal(DEFAULTS.title, 'Luminary Club');
+  assert.equal(DEFAULTS.title, 'Z-stack');
+  assert.equal(DEFAULTS.subtitle, 'Chief Executive Officer');
+  assert.equal(DEFAULTS.cardholder, 'Richard Zhu');
+  assert.equal(DEFAULTS.number, '000');
+  assert.equal(DEFAULTS.valid, '2029.3');
 });
 
 test('untrusted imports cannot override types, bounds, resource URLs, or object prototypes', () => {

@@ -169,7 +169,22 @@ try {
   const saved = await loadDesign();
   if (saved) {
     const restored = parseSettings(JSON.stringify(saved)); await decodeTexture(restored.image);
-    if (revision === initialRevision) update(restored, { save: false });
+    // Refresh the old example in local saves while preserving personalized copy.
+    const originalCopy = { title: 'Luminary Club', subtitle: 'Founding Member', cardholder: 'Alex Chen', number: '0042', valid: '2028.09' };
+    const isOriginalExample = Object.entries(originalCopy).every(([key, value]) => restored[key] === value);
+    if (isOriginalExample) for (const key of Object.keys(originalCopy)) restored[key] = DEFAULTS[key];
+    // Update exact old preset matches; individually edited colors stay intact.
+    const previousPalettes = {
+      Pearl: [['#FFC9D8', '#F3E7BD', '#C9B8EE']],
+      Aurora: [['#38C9AA', '#BBF1DA', '#47AFB1'], ['#66DEC4', '#CDE987', '#7DADE5']],
+      Rose: [['#F07C8B', '#FFD3B9', '#EB7182'], ['#FFBD79', '#EF86B8', '#E68489']],
+      Champagne: [['#E9AD39', '#FFE4A1', '#C78C39'], ['#F4A783', '#F4D06F', '#A5D4AA']],
+      Glacier: [['#62A9ED', '#C3E6FF', '#7395DD'], ['#78D9EE', '#A99AE5', '#73A5E6']],
+    };
+    const colorKeys = ['primary', 'secondary', 'accent'];
+    const previousPalette = Object.keys(previousPalettes).find(name => previousPalettes[name].some(colors => colors.every((color, index) => color.toLowerCase() === restored[colorKeys[index]].toLowerCase())));
+    if (previousPalette) colorKeys.forEach((key, index) => { restored[key] = PRESETS[previousPalette][index]; });
+    if (revision === initialRevision) update(restored, { save: isOriginalExample || Boolean(previousPalette) });
   }
 } catch { status('Local save unavailable · export settings to keep a copy', true); }
 initialized = true;

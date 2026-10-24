@@ -5,12 +5,13 @@ export function mountCard(host, initial) {
   card.tabIndex = 0;
   card.setAttribute('role', 'img');
   card.setAttribute('aria-label', 'Holographic card. Use arrow keys to move the light; Escape resets it.');
-  card.innerHTML = `<div class="flash-face"><div class="flash-base"></div><div class="flash-foil"></div><div class="flash-texture"></div><div class="flash-grain"></div><div class="flash-glare"></div><div class="flash-edge"></div><svg class="flash-logo" viewBox="0 0 40 40" aria-hidden="true"><path class="flash-star" d="M20 0C22 14 26 18 40 20C26 22 22 26 20 40C18 26 14 22 0 20C14 18 18 14 20 0Z"/><g class="flash-rings" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="20" cy="20" rx="18" ry="10" transform="rotate(-35 20 20)"/><ellipse cx="20" cy="20" rx="18" ry="10" transform="rotate(35 20 20)"/></g></svg><div class="flash-perforation"></div><div class="flash-copy"><div class="flash-title"></div><div class="flash-subtitle"></div><div class="flash-meta"><div><span>Cardholder</span><strong data-copy="cardholder"></strong></div><div><span>No.</span><strong data-copy="number"></strong></div><div><span>Valid thru</span><strong data-copy="valid"></strong></div></div></div></div>`;
+  card.innerHTML = `<div class="flash-face"><div class="flash-base"></div><div class="flash-foil"></div><div class="flash-texture"></div><div class="flash-grain"></div><div class="flash-scatter"></div><div class="flash-glare"></div><svg class="flash-edge" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke"/></svg><svg class="flash-logo" viewBox="0 0 40 40" aria-hidden="true"><path class="flash-star" d="M20 0C22 14 26 18 40 20C26 22 22 26 20 40C18 26 14 22 0 20C14 18 18 14 20 0Z"/><g class="flash-rings" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="20" cy="20" rx="18" ry="10" transform="rotate(-35 20 20)"/><ellipse cx="20" cy="20" rx="18" ry="10" transform="rotate(35 20 20)"/></g></svg><div class="flash-perforation"></div><div class="flash-copy"><div class="flash-title"></div><div class="flash-subtitle"></div><div class="flash-meta"><div><span>Cardholder</span><strong data-copy="cardholder"></strong></div><div><span>No.</span><strong data-copy="number"></strong></div><div><span>Valid thru</span><strong data-copy="valid"></strong></div></div></div></div>`;
   host.append(card);
   const face = card.querySelector('.flash-face');
   const title = card.querySelector('.flash-title');
   const subtitle = card.querySelector('.flash-subtitle');
   const texture = card.querySelector('.flash-texture');
+  const edge = card.querySelector('.flash-edge');
   const media = matchMedia('(prefers-reduced-motion: reduce)');
   let settings, current = { x: 0, y: 0 }, target = { x: 0, y: 0 }, frame = 0, previousTime = 0, activePointer = null;
   const uri = svg => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
@@ -63,8 +64,14 @@ export function mountCard(host, initial) {
     card.classList.toggle('flash-wide', ratio >= 1);
     const h = 292 / ratio, radius = Math.min(settings.radius / settings.width * 292, h / 2);
     const tearY = ratio >= 1 ? h * .53 : h * .66;
-    const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="292" height="${h}" viewBox="0 0 292 ${h}"><defs><mask id="m"><rect width="292" height="${h}" rx="${radius}" fill="white"/>${settings.ticket ? `<circle cx="0" cy="${tearY}" r="12" fill="black"/><circle cx="292" cy="${tearY}" r="12" fill="black"/>` : ''}</mask></defs><rect width="292" height="${h}" fill="white" mask="url(#m)"/></svg>`;
+    // One contour owns both clipping and the rim, including the ticket punches.
+    const rightPunch = settings.ticket ? `V${tearY - 12}a12 12 0 0 0 0 24` : '';
+    const leftPunch = settings.ticket ? `V${tearY + 12}a12 12 0 0 0 0 -24` : '';
+    const outline = `M${radius} 0H${292 - radius}A${radius} ${radius} 0 0 1 292 ${radius}${rightPunch}V${h - radius}A${radius} ${radius} 0 0 1 ${292 - radius} ${h}H${radius}A${radius} ${radius} 0 0 1 0 ${h - radius}${leftPunch}V${radius}A${radius} ${radius} 0 0 1 ${radius} 0Z`;
+    const mask = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 292 ${h}"><path d="${outline}" fill="white"/></svg>`;
     face.style.setProperty('--card-mask', uri(mask));
+    edge.setAttribute('viewBox', `0 0 292 ${h}`);
+    edge.firstElementChild.setAttribute('d', outline);
     texture.style.backgroundImage = settings.texture === 'custom' && settings.image ? `url("${settings.image}")` : settings.texture === 'none' ? 'none' : pattern(settings.texture, settings.emboss);
     texture.style.mixBlendMode = settings.blend;
     title.textContent = settings.title;
@@ -83,10 +90,11 @@ export function mountCard(host, initial) {
     card.style.setProperty('--py', `${50 + current.y * 42}%`);
     card.style.setProperty('--shift-x', `${current.x * 23}%`);
     card.style.setProperty('--shift-y', `${current.y * 23}%`);
-    card.style.setProperty('--hue', `${current.x * 36 - current.y * 24}deg`);
+    card.style.setProperty('--hue', `${current.x * 12 - current.y * 8}deg`);
+    edge.style.stroke = `rgba(255,255,255,${.46 + (current.x - current.y) * .12})`;
   }
   function tick(time) {
-    const response = target.x === 0 && target.y === 0 ? 95 : 75;
+    const response = target.x === 0 && target.y === 0 ? 120 : 85;
     const amount = media.matches ? 1 : 1 - Math.exp(-Math.min(time - (previousTime || time - 16), 40) / response);
     previousTime = time;
     current.x += (target.x - current.x) * amount;
@@ -104,12 +112,17 @@ export function mountCard(host, initial) {
     // Measure the untransformed card so its own tilt cannot move the pointer's origin.
     const x = e.clientX - rect.left - card.offsetLeft - card.offsetWidth / 2;
     const y = e.clientY - rect.top - card.offsetTop - card.offsetHeight / 2;
-    move(x / (card.offsetWidth / 2) * 1.25, y / (card.offsetHeight / 2) * 1.25);
+    const inside = Math.abs(x) <= card.offsetWidth / 2 + 6 && Math.abs(y) <= card.offsetHeight / 2 + 6;
+    if (activePointer !== null || inside) move(x / (card.offsetWidth / 2) * 1.25, y / (card.offsetHeight / 2) * 1.25);
+    else release();
   }
-  card.addEventListener('pointermove', e => { if (e.pointerType === 'mouse' || activePointer === e.pointerId) pointer(e); });
+  function trackPointer(e) { if (e.pointerType === 'mouse' || activePointer === e.pointerId) pointer(e); }
+  function leaveHost() { if (activePointer === null) release(); }
+  // The host never tilts, so a moving edge cannot repeatedly exit/re-enter hover.
+  host.addEventListener('pointermove', trackPointer);
+  host.addEventListener('pointerleave', leaveHost);
   card.addEventListener('pointerdown', e => { activePointer = e.pointerId; card.setPointerCapture(e.pointerId); pointer(e); });
   function release() { activePointer = null; move(0, 0); }
-  card.addEventListener('pointerleave', () => { if (activePointer === null) release(); });
   card.addEventListener('pointerup', release);
   card.addEventListener('pointercancel', release);
   card.addEventListener('lostpointercapture', release);
@@ -123,7 +136,7 @@ export function mountCard(host, initial) {
   document.fonts?.ready.then(fitText);
   media.addEventListener('change', draw);
   update(initial);
-  return { update, element: card, destroy() { cancelAnimationFrame(frame); observer.disconnect(); media.removeEventListener('change', draw); card.remove(); } };
+  return { update, element: card, destroy() { cancelAnimationFrame(frame); observer.disconnect(); media.removeEventListener('change', draw); host.removeEventListener('pointermove', trackPointer); host.removeEventListener('pointerleave', leaveHost); card.remove(); } };
 }
 
 export function mountAurora(canvas, enabled = true) {
