@@ -142,17 +142,43 @@ test('commitment bonus: kept when raising, lost when lowering below the morning 
   assert.equal(closeOf(E.advance(s, at(D, 22))).bonus, 0);
 });
 
-test('the bonus goes into active pets\' XP and egg meters, split evenly', () => {
+test('the bonus goes into active pets\' XP and egg meters at the last tick, split evenly', () => {
   let s = start();
-  s = tickAll(s);
+  const last = s.list.tasks[s.list.tasks.length - 1].id;
+  for (const t of s.list.tasks) if (t.id !== last) s = tick(s, t.id).state;
   const pet = s.pets[0];
-  s = act(s, { type: 'pet/feed', petId: pet.id, amount: 100 }, at(D, 10)).state;
-  const r = E.advance(s, at(D, 22));
-  assert.equal(closeOf(r).bonus, 72);
+  const r = tick(s, last);
+  assert.equal(r.events.find((e) => e.type === 'commit.bonus').amount, 72);
   const xpEv = r.events.filter((e) => e.type === 'pet.xp' && e.petId === pet.id);
   assert.equal(xpEv.reduce((a, e) => a + e.xp, 0), 72);
   assert.equal(r.state.pets[0].xp, 72);
   assert.equal(r.state.pets[0].meter, 72); // floor(72 × 1.001)
+  s = act(r.state, { type: 'pet/feed', petId: pet.id, amount: 100 }, at(D, 10)).state;
+  const c = E.advance(s, at(D, 22));
+  assert.equal(closeOf(c).bonus, 72, 'close reports the bonus');
+  assert.ok(!c.events.some((e) => e.type === 'commit.bonus'), 'and does not pay it again');
+  assert.equal(c.state.pets[0].xp, 72);
+});
+
+test('the last tick pays the completion reward; the day\'s ticks are final from then on', () => {
+  let s = start();
+  const last = s.list.tasks[s.list.tasks.length - 1].id;
+  for (const t of s.list.tasks) if (t.id !== last) s = tick(s, t.id).state;
+  assert.equal(s.day.reward, null);
+  assert.equal(s.streak, 0);
+  const r = tick(s, last, at(D, 9, 1));
+  const types = r.events.map((e) => e.type);
+  assert.ok(types.indexOf('task.ticked') < types.indexOf('perfect.day'));
+  assert.ok(types.includes('streak.eggs'));
+  assert.equal(r.state.streak, 1);
+  assert.equal(r.state.completeDays, 1);
+  assert.deepEqual(r.state.day.reward.eggs, { tier: 0, count: 1, lucky: false });
+  assert.equal(r.state.day.reward.at, at(D, 9, 1));
+  const v = E.viewToday(r.state, at(D, 9, 2));
+  assert.equal(v.reward.streakAfter, 1);
+  assert.ok(v.tasks.every((t) => !t.canUndo));
+  assert.throws(() => act(r.state, { type: 'task/undo', taskId: last }, at(D, 9, 2)), { code: 'day_final' });
+  assert.throws(() => act(r.state, { type: 'task/undo', taskId: s.list.tasks[0].id }, at(D, 9, 2)), { code: 'day_final' });
 });
 
 test('soft cap: food above 1,200 counts at 50 %, applied as it is earned (bonus included)', () => {
@@ -182,7 +208,7 @@ test('feeding: from the pool, active pets only, beyond 100 goes to XP and the me
   r = act(r.state, { type: 'pet/feed', petId: pet.id, amount: 70 }, at(D, 10));
   assert.equal(r.events.find((e) => e.type === 'pet.fed').excess, 50);
   assert.equal(r.events.find((e) => e.type === 'pet.xp').xp, 50);
-  assert.equal(r.state.pets[0].meter, 50);
+  assert.equal(r.state.pets[0].meter, 72 + 50, 'the 72 commitment bonus from the last tick, then 50 excess');
   assert.equal(r.state.day.pool, 360 - 150);
   assert.throws(() => act(r.state, { type: 'pet/feed', petId: pet.id, amount: 0 }, at(D, 10)), { code: 'bad_amount' });
   assert.throws(() => act(r.state, { type: 'pet/feed', petId: pet.id, amount: 1.5 }, at(D, 10)), { code: 'bad_amount' });
@@ -207,10 +233,12 @@ test('undo is refused once that food was fed', () => {
 test('undo recomputes the soft cap', () => {
   let s = start();
   s = act(s, { type: 'day/setLevel', level: 'hard' }, at(D, 9)).state;
-  s = tickAll(s);
+  for (const t of s.list.tasks) if (t.id !== 'sleep') s = tick(s, t.id).state; // sleep stays open: no reward yet
+  assert.equal(s.day.raw, 1800);
+  assert.equal(s.day.counted, 1500);
   const r = act(s, { type: 'task/undo', taskId: 'deep' }, at(D, 9, 2));
-  assert.equal(r.state.day.raw, 1800);
-  assert.equal(r.state.day.counted, 1500);
+  assert.equal(r.state.day.raw, 1440);
+  assert.equal(r.state.day.counted, 1320);
   assert.equal(r.events.find((e) => e.type === 'task.undone').food, 180);
 });
 

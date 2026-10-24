@@ -1257,7 +1257,7 @@ Eight behaviours make ticking a task the best moment on the page. **None grants 
      - The **streak flame** inside the ring.
      - The day-level picker, then the list.
    - Heading: "A little progress, every day."
-   - When the last segment closes, the flame lights with "+1 at 22:00".
+   - When the last segment closes, the flame lights with "Done · +1 earned": the reward is paid at the last tick.
    - From 19:00 on an unfinished day, the flame flickers amber with "2 left · 2h 14m". Nothing changes after 21:30.
    - Touch targets are ≥ 44 px; the tick is 56 px.
 2. **Receipt, then reward.** *Must-have.*
@@ -1283,7 +1283,7 @@ Eight behaviours make ticking a task the best moment on the page. **None grants 
    - The last tick closes the ring and opens one inline recap. The celebration is **the same at Chill as at Hard**. The full list is the win; per-tick orbs already reward effort.
    - Heading: "Today's list: complete."
    - Real receipts: "Today added 23 pages, 40 minutes outside and 95 minutes of focused work."
-   - Tonight's preview: streak eggs (count and tier), whether the commitment bonus is alive, quest stars.
+   - What was just earned: the new streak, the streak eggs (count and tier, with a link to open them) and the commitment bonus, then quest stars.
    - Then the **Feed dinner** button.
    - Then "You're done for today. Enjoy your evening."
    - A Goddamn day changes nothing here; the Ultra sale appears only in the shop.
@@ -1294,7 +1294,7 @@ Eight behaviours make ticking a task the best moment on the page. **None grants 
    - Last night's eggs wait as a stack with a Brawl Stars-style one-by-one reveal. It is **one tap away and never blocks the list**.
    - Today's 3 quests flip over inline in the quest panel.
    - The day-level picker shows "Commit to {level}" before the first tick.
-   - Opening the card grants nothing; rewards were already delivered at close.
+   - Opening the card grants nothing; the completion reward was delivered at the last tick, the rest at close.
 8. **Goals beside the tasks.** Purpose lines are *must-have*; the ledger can follow.
    - Each task carries a quiet purpose line:
      - Sleep: "Protect tomorrow's focus."
@@ -1311,7 +1311,7 @@ Eight behaviours make ticking a task the best moment on the page. **None grants 
   "engagement": {
     "additionalEconomy": { "coins": 0, "diamonds": 0, "petFood": 0, "keeperXp": 0, "seasonXp": 0 },
     "behaviours": [
-      { "id": "todayRingFlame", "mustHave": true, "firstViewport": ["petStatusLine", "todayRing", "streakFlame", "dayPicker", "list"], "heading": "A little progress, every day.", "ringSegment": "equal per task, filled in ticked-level colour", "litCopy": "+1 at 22:00", "atRiskFrom": "19:00", "atRiskCopy": "{left} left · {timeLeft}", "noChangesAfter": "21:30", "touchTargetPx": 44, "tickTargetPx": 56 },
+      { "id": "todayRingFlame", "mustHave": true, "firstViewport": ["petStatusLine", "todayRing", "streakFlame", "dayPicker", "list"], "heading": "A little progress, every day.", "ringSegment": "equal per task, filled in ticked-level colour", "litCopy": "Done · +1 earned", "atRiskFrom": "19:00", "atRiskCopy": "{left} left · {timeLeft}", "noChangesAfter": "21:30", "touchTargetPx": 44, "tickTargetPx": 56 },
       { "id": "receiptThenReward", "mustHave": true, "receiptFirst": true, "receiptExample": "Read · 23 pages", "rewardExample": "+120 food", "orbsByLevel": { "chill": 3, "easy": 4, "medium": 6, "hard": 9, "goddamn": 14 }, "animationMs": 650, "undoRingMin": 5, "vibrateMs": 10, "soundDefault": false, "reducedMotion": "instant", "failureCopy": "That tick didn't save. Try again." },
       { "id": "companionNotices", "mustHave": true, "companionPx": 200, "reaction": "tickCheer", "patronCheer": true, "eatsOnTick": false, "preTickHungerBubbles": false, "queueLimit": 1 },
       { "id": "raisePreview", "mustHave": true, "shows": ["requirementChange", "foodChange", "projectedDailyTotal", "softCapLine", "petOutcome"], "clientSideOnly": true, "preselect": false, "suggestSleepRaiseAfterShortNight": false },

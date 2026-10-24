@@ -26,9 +26,15 @@ function pet(s, over = {}) {
   return p;
 }
 
-/** Tick every task at 09:00 and feed each active pet its 100 (as far as the pool goes). */
+/** Tick every task at 09:00 and feed each active pet its 100 (as far as the pool goes). The last tick's events
+ * (the completion reward) are kept in `played`. */
+let played = [];
 function playDay(s, key, { feed = true } = {}) {
-  for (const t of s.list.tasks) s = act(s, { type: 'task/tick', taskId: t.id }, at(key, 9)).state;
+  for (const t of s.list.tasks) {
+    const r = act(s, { type: 'task/tick', taskId: t.id }, at(key, 9));
+    s = r.state;
+    played = r.events;
+  }
   if (feed) {
     for (const p of s.pets.filter((x) => x.location === 'active')) {
       const amount = Math.min(100, s.day.pool);
@@ -89,21 +95,41 @@ test('streak-band egg counts by thirds and lucky days', () => {
   }
 });
 
-test('a complete day pays streak eggs; day 10 is a lucky day of Rare eggs', () => {
+test('a complete day pays streak eggs at the last tick; day 10 is a lucky day of Rare eggs', () => {
   let s = playDay(start(), D);
-  let r = E.advance(s, at(day(1), 7));
-  const ev = r.events.find((e) => e.type === 'streak.eggs');
+  const ev = played.find((e) => e.type === 'streak.eggs');
   assert.deepEqual([ev.tier, ev.count, ev.lucky], [0, 1, false]);
+  assert.equal(s.streak, 1, 'the streak moves at the last tick');
+  assert.equal(s.inv.openEggs.filter((e) => e.source === 'streak').length, 1);
+  let r = E.advance(s, at(day(1), 7));
+  assert.ok(!r.events.some((e) => e.type === 'streak.eggs'), 'close does not pay again');
+  assert.equal(closeEvents(r)[0].outcome, 'complete');
+  assert.equal(r.state.streak, 1);
   assert.equal(r.state.inv.openEggs.filter((e) => e.source === 'streak').length, 1);
+  assert.deepEqual([r.state.lastDay.streakBefore, r.state.lastDay.streakAfter], [0, 1]);
   s = r.state;
   s.streak = 9;
   s = playDay(s, day(1));
-  r = E.advance(s, at(day(2), 7));
-  const lucky = r.events.find((e) => e.type === 'streak.eggs');
+  const lucky = played.find((e) => e.type === 'streak.eggs');
   assert.equal(lucky.lucky, true);
   assert.equal(lucky.tier, 1);
   assert.ok(lucky.count >= 5 && lucky.count <= 10);
-  assert.equal(r.state.inv.openEggs.filter((e) => e.source === 'streak' && e.tier === 1).length, lucky.count);
+  assert.equal(s.inv.openEggs.filter((e) => e.source === 'streak' && e.tier === 1).length, lucky.count);
+});
+
+test('a complete day from a save made before the last-tick reward is paid at close, once', () => {
+  let s = playDay(start(), D);
+  // Roll the reward back as an older engine would have left the day.
+  s.day.reward = null;
+  s.streak = 0;
+  s.best = 0;
+  s.completeDays = 0;
+  s.inv.openEggs = s.inv.openEggs.filter((e) => e.source !== 'streak');
+  const r = E.advance(s, at(day(1), 7));
+  assert.ok(r.events.some((e) => e.type === 'streak.eggs'));
+  assert.equal(closeEvents(r)[0].outcome, 'complete');
+  assert.equal(r.state.streak, 1);
+  assert.equal(r.state.inv.openEggs.filter((e) => e.source === 'streak').length, 1);
 });
 
 test('freezes: bought in the shop, held ≤ 3, used automatically; the streak holds and the miss is not counted', () => {
@@ -148,9 +174,13 @@ test('penalties stack (Hungry −2, Starving −5 more), the floor is 1, comebac
     s.pets.find((p) => p.id === a.id).location = 'active';
     s.pets[0].location = 'backpack';
     s = playDay(s, day(2), { feed: false });
+    const bonus = played.find((e) => e.type === 'commit.bonus').amount;
+    pa = s.pets.find((p) => p.id === a.id);
+    assert.equal(owed - pa.comebackOwed, 2 * bonus, 'the commitment bonus at the last tick is growth too, at 2×');
+    const before = pa.comebackOwed;
     s = act(s, { type: 'pet/feed', petId: a.id, amount: 300 }, at(day(2), 10)).state;
     pa = s.pets.find((p) => p.id === a.id);
-    assert.equal(owed - pa.comebackOwed, 400, '200 growth food → 400 XP at 2×');
+    assert.equal(before - pa.comebackOwed, 400, '200 growth food → 400 XP at 2×');
   } finally {
     E.resetConfig();
   }
@@ -208,8 +238,8 @@ test('Phoenix: 3 complete days in a row inside the window revive the best pet at
   assert.equal(lvl, 21 - 3 - 6 - 1); // underfed+Hungry, underfed+Starving, underfed on the death night
   // day(3) complete → welcome egg + progress 1; day(4) complete; day(5) miss → reset; day(6..8) complete → revive.
   s = playDay(s, day(3));
+  assert.ok(played.some((e) => e.type === 'welcome.back'));
   let r = E.advance(s, at(day(4), 7));
-  assert.ok(r.events.some((e) => e.type === 'welcome.back'));
   assert.equal(r.state.inv.openEggs.filter((e) => e.source === 'welcome' && e.tier === 1).length, 1);
   assert.equal(r.state.ashes.done, 1);
   s = playDay(r.state, day(4));
@@ -219,12 +249,13 @@ test('Phoenix: 3 complete days in a row inside the window revive the best pet at
   assert.equal(r.state.ashes.done, 0, 'a miss resets the count');
   assert.equal(r.state.ashes.deadlineDay, day(9), 'but not the window');
   s = r.state;
+  let rev = null;
   for (const k of [6, 7, 8]) {
     s = playDay(s, day(k));
+    rev ||= played.find((e) => e.type === 'phoenix.revived');
     r = E.advance(s, at(day(k + 1), 7));
     s = r.state;
   }
-  const rev = r.events.find((e) => e.type === 'phoenix.revived');
   assert.ok(rev);
   const back = s.pets.find((p) => p.id === epic.id);
   assert.equal(back.level, Math.floor(lvl / 2));
@@ -328,13 +359,11 @@ test('milestones pay once per account; badges stay after the streak breaks', () 
   let s = start();
   s.streak = 6;
   s = playDay(s, D);
-  let r = E.advance(s, at(day(1), 7));
-  const m = r.events.find((e) => e.type === 'streak.milestone');
+  const m = played.find((e) => e.type === 'streak.milestone');
   assert.deepEqual([m.days, m.badge, m.coins, m.diamonds], [7, 'First Footprints', 300, 0]);
-  s = r.state;
+  s = E.advance(s, at(day(1), 7)).state;
   s.streak = 6;
   s = playDay(s, day(1));
-  r = E.advance(s, at(day(2), 7));
-  assert.ok(!r.events.some((e) => e.type === 'streak.milestone'));
-  assert.equal(r.state.badges.length, 1);
+  assert.ok(!played.some((e) => e.type === 'streak.milestone'));
+  assert.equal(s.badges.length, 1);
 });

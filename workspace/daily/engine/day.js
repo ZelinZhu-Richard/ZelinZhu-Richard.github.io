@@ -4,6 +4,7 @@
 import { CONFIG, GODDAMN, LEVEL_LABELS } from './config.js';
 import { DEEP_WORK_TAGS } from './content.js';
 import { computeEffects, petNeed } from './effects.js';
+import { payCompletion } from './close.js';
 import { addGrowth, fedToday } from './pets.js';
 import { patronPetsFor, replaceQuestsForSwap } from './progress.js';
 import { fail, requirePet } from './state.js';
@@ -34,6 +35,7 @@ export function newDayRecord(s, key, now) {
     quests: [],
     targets: {},
     starGiven: false,
+    reward: null, // the completion reward, once paid (close.js payCompletion): ticks are final from then on
     openedAt: now,
   };
 }
@@ -206,7 +208,7 @@ function recount(day) {
   day.counted = capFood(raw);
 }
 
-export function tickTask(s, taskId, opts, now, events) {
+export function tickTask(s, taskId, opts, now, events, rng) {
   const day = requireOpenDay(s, now);
   const task = s.list.tasks.find((t) => t.id === taskId);
   if (!task) fail('no_task', 'That task is not on the list.');
@@ -246,14 +248,19 @@ export function tickTask(s, taskId, opts, now, events) {
   recount(day);
   const counted = day.counted - before;
   day.pool += counted;
-  events?.push({ type: 'task.ticked', taskId, level, levelLabel: LEVEL_LABELS[level], food: raw, counted, qty, cheer, perfect: s.list.tasks.every((t) => day.ticks[t.id]) });
+  const perfect = s.list.tasks.every((t) => day.ticks[t.id]);
+  events?.push({ type: 'task.ticked', taskId, level, levelLabel: LEVEL_LABELS[level], food: raw, counted, qty, cheer, perfect });
+  // The last tick pays the completion reward right away.
+  if (perfect) payCompletion(s, day, now, rng, events ?? []);
 }
 
-/** Undo within 5 minutes (strictly before tick + 5:00). Refused if that food was already handed out. */
+/** Undo within 5 minutes (strictly before tick + 5:00). Refused if that food was already handed out, or once the
+ * completion reward is paid. */
 export function undoTick(s, taskId, now, events) {
   const day = requireOpenDay(s, now);
   const tick = day.ticks[taskId];
   if (!tick) fail('not_ticked', 'That task is not ticked.');
+  if (day.reward) fail('day_final', "Today's reward is paid, so today's ticks are final.");
   // Exclusive at +5:00: from that instant the tick is final and quests may already have paid for it.
   if (now - tick.at >= CONFIG.time.undoMinutes * 60_000) fail('undo_expired', `Ticks can be undone for ${CONFIG.time.undoMinutes} minutes.`);
   const newCounted = capFood(day.raw - tick.raw);

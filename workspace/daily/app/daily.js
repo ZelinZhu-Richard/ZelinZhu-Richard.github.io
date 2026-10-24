@@ -104,6 +104,8 @@ async function onEvents(events, before, c) {
       playOnce(finish, 'is-arriving', 900);
       c.announce("Today's list: complete. You're done for today.");
     }
+    if (ev.type === 'streak.eggs' && ev.count) c.announce(`Reward: ${ev.count} ${tierName(ev.tier)} egg${ev.count === 1 ? '' : 's'}${ev.lucky ? ', a lucky day' : ''}. Open them on the Eggs page.`);
+    if (ev.type === 'commit.bonus') c.announce(`Commitment bonus: +${num(ev.amount)} growth for your pets.`);
     if (ev.type === 'pet.fed') {
       const target = petEl(ev.petId);
       await flyOrbs(qs('#pool-count'), target, Math.min(8, Math.max(2, Math.round(ev.amount / 20))), '#dfccff', 500);

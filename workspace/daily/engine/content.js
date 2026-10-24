@@ -513,7 +513,7 @@ export const ENGAGEMENT = {
     seasonXp: 0
   },
   behaviours: [
-    {"id":"todayRingFlame","mustHave":true,"firstViewport":["petStatusLine","todayRing","streakFlame","dayPicker","list"],"heading":"A little progress, every day.","ringSegment":"equal per task, filled in ticked-level colour","litCopy":"+1 at 22:00","atRiskFrom":"19:00","atRiskCopy":"{left} left · {timeLeft}","noChangesAfter":"21:30","touchTargetPx":44,"tickTargetPx":56},
+    {"id":"todayRingFlame","mustHave":true,"firstViewport":["petStatusLine","todayRing","streakFlame","dayPicker","list"],"heading":"A little progress, every day.","ringSegment":"equal per task, filled in ticked-level colour","litCopy":"Done · +1 earned","atRiskFrom":"19:00","atRiskCopy":"{left} left · {timeLeft}","noChangesAfter":"21:30","touchTargetPx":44,"tickTargetPx":56},
     {"id":"receiptThenReward","mustHave":true,"receiptFirst":true,"receiptExample":"Read · 23 pages","rewardExample":"+120 food","orbsByLevel":{"chill":3,"easy":4,"medium":6,"hard":9,"goddamn":14},"animationMs":650,"undoRingMin":5,"vibrateMs":10,"soundDefault":false,"reducedMotion":"instant","failureCopy":"That tick didn't save. Try again."},
     {"id":"companionNotices","mustHave":true,"companionPx":200,"reaction":"tickCheer","patronCheer":true,"eatsOnTick":false,"preTickHungerBubbles":false,"queueLimit":1},
     {"id":"raisePreview","mustHave":true,"shows":["requirementChange","foodChange","projectedDailyTotal","softCapLine","petOutcome"],"clientSideOnly":true,"preselect":false,"suggestSleepRaiseAfterShortNight":false},

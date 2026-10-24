@@ -158,23 +158,80 @@ function revive(s, key, ctx) {
 
 // ---- closing a day ---------------------------------------------------------------------------------------
 
+// ---- the completion reward -------------------------------------------------------------------------------
+
+/**
+ * The reward for finishing the list, paid once, the moment the last task is ticked (day.js tickTask): the
+ * commitment bonus, streak +1, streak eggs, milestones, the welcome-back egg, Phoenix progress and flash sales.
+ * From then on the day's ticks are final. closeDay pays it for a complete day that never got it (saves from
+ * before this rule). Dividends, upkeep and the underfed check stay at close: feeding goes on all evening.
+ */
+export function payCompletion(s, day, now, rng, events) {
+  if (day.reward) return day.reward;
+  const key = day.key;
+  const tasks = s.list.tasks;
+  const fx = computeEffects(s);
+  const ctx = { fx, events, dayKey: key, counters: day.counters, rng, now };
+  const streakBefore = s.streak;
+
+  // Commitment bonus: +20 % (+commitBonusPts, ≤ +10) of the day's food, through the soft cap, straight into
+  // active pets' XP and egg meters, split evenly.
+  let bonus = 0;
+  if (day.commitLevel != null && !day.commitBroken) {
+    const rate = CONFIG.tasks.commitBonus + commitBonusPts(fx) / 100;
+    bonus = capFood(day.raw * (1 + rate)) - capFood(day.raw);
+  }
+  const active = s.pets.filter((p) => p.location === 'active');
+  if (bonus > 0 && active.length) {
+    const share = Math.floor(bonus / active.length);
+    active.forEach((pet, i) => addGrowth(s, pet, share + (i === 0 ? bonus - share * active.length : 0), ctx));
+  }
+  if (bonus > 0) events.push({ type: 'commit.bonus', amount: bonus, petIds: active.map((p) => p.id) });
+
+  s.streak += 1;
+  s.best = Math.max(s.best, s.streak);
+  s.missRun = 0;
+  s.completeDays += 1;
+  events.push({ type: 'perfect.day', dayKey: key });
+  const fx2 = computeEffects(s);
+  const se = streakEggs(s.streak, rng);
+  const extra = streakEggBonusFor(fx2, s.streak);
+  const count = se.count + extra;
+  for (let i = 0; i < count; i += 1) addOpenEgg(s, { tier: se.tier, source: 'streak', dayKey: key });
+  events.push({ type: 'streak.eggs', tier: se.tier, count, lucky: se.lucky, bonus: extra });
+  checkMilestone(s, s.streak, key, events);
+  if (s.welcomePending) {
+    s.welcomePending = false;
+    const egg = addOpenEgg(s, { tier: CONFIG.welcomeBackTier, source: 'welcome', dayKey: key });
+    events.push({ type: 'welcome.back', eggId: egg.id, tier: egg.tier });
+  }
+  if (s.ashes && key > s.ashes.deathDay && key <= s.ashes.deadlineDay) {
+    s.ashes.done += 1;
+    events.push({ type: 'phoenix.progress', done: s.ashes.done, need: CONFIG.phoenix.daysNeeded, deadline: s.ashes.deadlineDay });
+    if (s.ashes.done >= CONFIG.phoenix.daysNeeded) revive(s, key, ctx);
+  }
+  if (CONFIG.trinkets.flashStreaks.includes(s.streak)) startFlashSale(s, now, `streak:${s.streak}`, events);
+  const gd = tasks.filter((t) => day.ticks[t.id].level === GODDAMN).length;
+  if (gd === CONFIG.tasks.maxGoddamn && tasks.every((t) => day.ticks[t.id].level >= HARD)) startFlashSale(s, now, 'goddamnDay', events);
+
+  day.reward = { at: now, bonus, streakBefore, streakAfter: s.streak, eggs: { tier: se.tier, count, lucky: se.lucky } };
+  return day.reward;
+}
+
 function closeDay(s, key, rng, events) {
   const closeAt = closeInstant(key);
   rolloverList(s, key, closeAt, events);
   const day = s.day && s.day.key === key ? s.day : newDayRecord(s, key, closeAt);
   const tasks = s.list.tasks;
-  const complete = tasks.length > 0 && tasks.every((t) => day.ticks[t.id]);
-  const fx = computeEffects(s);
-  const ctx = { fx, events, dayKey: key, counters: day.counters, rng, now: closeAt };
+  const complete = Boolean(day.reward) || (tasks.length > 0 && tasks.every((t) => day.ticks[t.id]));
   const streakBefore = s.streak;
 
-  // 1. Commitment bonus: +20 % (+commitBonusPts, ≤ +10) of the day's food, through the soft cap.
-  let bonus = 0;
-  if (complete && day.commitLevel != null && !day.commitBroken) {
-    const rate = CONFIG.tasks.commitBonus + commitBonusPts(fx) / 100;
-    bonus = capFood(day.raw * (1 + rate)) - capFood(day.raw);
-  }
+  // 1. The completion reward was paid at the last tick; a save from before that rule gets it now.
+  if (complete && !day.reward) payCompletion(s, day, closeAt, rng, events);
+  const bonus = day.reward?.bonus || 0;
   const foodTotal = day.counted + bonus;
+  const fx = computeEffects(s);
+  const ctx = { fx, events, dayKey: key, counters: day.counters, rng, now: closeAt };
 
   // Will tonight take a Hungry/Starving/death penalty? (config: whether underfed/upkeep losses stack with it)
   // A frozen night has "no penalty" (PLAN §4): by default it skips the underfed/upkeep losses too.
@@ -215,24 +272,13 @@ function closeDay(s, key, rng, events) {
     }
   }
 
-  // 4. The bonus goes straight into active pets' XP and egg meters, split evenly.
-  if (bonus > 0 && active.length) {
-    const share = Math.floor(bonus / active.length);
-    active.forEach((pet, i) => addGrowth(s, pet, share + (i === 0 ? bonus - share * active.length : 0), ctx));
-  }
-  if (bonus > 0) events.push({ type: 'commit.bonus', amount: bonus, petIds: active.map((p) => p.id) });
-
-  // 5. Final quest pass (every tick counts now; noWaste needs the leftover).
+  // 4. Final quest pass (every tick counts now; noWaste needs the leftover).
   refreshQuests(s, day, closeAt, events, { closing: true, upkeepCovered, leftover });
 
-  // 6. Outcome.
+  // 5. Outcome. A complete day's streak, eggs and the rest were paid with the reward (step 1).
   let outcome;
   if (complete) {
     outcome = 'complete';
-    s.streak += 1;
-    s.best = Math.max(s.best, s.streak);
-    s.missRun = 0;
-    s.completeDays += 1;
   } else if (s.inv.freezes > 0) {
     outcome = 'frozen';
     s.inv.freezes -= 1;
@@ -243,31 +289,9 @@ function closeDay(s, key, rng, events) {
   }
   events.push({ type: 'day.closed', dayKey: key, outcome, streak: s.streak, foodTotal, bonus, missRun: s.missRun, dividends: { coins: divCoins, shards: divShards } });
 
-  if (outcome === 'complete') {
-    events.push({ type: 'perfect.day', dayKey: key });
-    const fx2 = computeEffects(s);
-    const se = streakEggs(s.streak, rng);
-    const extra = streakEggBonusFor(fx2, s.streak);
-    const count = se.count + extra;
-    for (let i = 0; i < count; i += 1) addOpenEgg(s, { tier: se.tier, source: 'streak', dayKey: key });
-    events.push({ type: 'streak.eggs', tier: se.tier, count, lucky: se.lucky, bonus: extra });
-    checkMilestone(s, s.streak, key, events);
-    if (s.welcomePending) {
-      s.welcomePending = false;
-      const egg = addOpenEgg(s, { tier: CONFIG.welcomeBackTier, source: 'welcome', dayKey: key });
-      events.push({ type: 'welcome.back', eggId: egg.id, tier: egg.tier });
-    }
-    if (s.ashes && key > s.ashes.deathDay && key <= s.ashes.deadlineDay) {
-      s.ashes.done += 1;
-      events.push({ type: 'phoenix.progress', done: s.ashes.done, need: CONFIG.phoenix.daysNeeded, deadline: s.ashes.deadlineDay });
-      if (s.ashes.done >= CONFIG.phoenix.daysNeeded) revive(s, key, ctx);
-    }
-    if (CONFIG.trinkets.flashStreaks.includes(s.streak)) startFlashSale(s, closeAt, `streak:${s.streak}`, events);
-    const gd = tasks.filter((t) => day.ticks[t.id].level === GODDAMN).length;
-    if (gd === CONFIG.tasks.maxGoddamn && tasks.every((t) => day.ticks[t.id].level >= HARD)) startFlashSale(s, closeAt, 'goddamnDay', events);
-  } else if (outcome === 'frozen') {
+  if (outcome === 'frozen') {
     events.push({ type: 'freeze.used', left: s.inv.freezes });
-  } else {
+  } else if (outcome === 'missed') {
     if (s.ashes && key > s.ashes.deathDay && key <= s.ashes.deadlineDay && s.ashes.done > 0) {
       s.ashes.done = 0; // a miss resets the 3-day count, not the 7-day window
       events.push({ type: 'phoenix.progress', done: 0, need: CONFIG.phoenix.daysNeeded, deadline: s.ashes.deadlineDay });
@@ -285,12 +309,12 @@ function closeDay(s, key, rng, events) {
     }
   }
 
-  // 7. Keeper and season XP: final task food, once.
+  // 6. Keeper and season XP: final task food, once.
   addKeeperXp(s, foodTotal, events);
   addSeasonXp(s, key, foodTotal, events);
   s.stats.foodEarned += foodTotal;
 
-  // 8. Receipts and the rolling history (quest targets).
+  // 7. Receipts and the rolling history (quest targets).
   recordReceipts(s, day, tasks, foodTotal);
   const ticks = {};
   for (const t of tasks) if (day.ticks[t.id]) ticks[t.id] = { min: day.ticks[t.id].min, level: day.ticks[t.id].level, raised: day.ticks[t.id].raised };
@@ -298,7 +322,7 @@ function closeDay(s, key, rng, events) {
   const keepFrom = addDays(key, -CONFIG.quests.historyDays);
   s.history = s.history.filter((h) => h.key > keepFrom);
 
-  // 9. Ashes window.
+  // 8. Ashes window.
   if (s.ashes && key >= s.ashes.deadlineDay) {
     graveyardPush(s, s.ashes.pets, s.ashes.deathDay);
     events.push({ type: 'phoenix.expired', petId: s.ashes.petId });
@@ -323,8 +347,9 @@ function closeDay(s, key, rng, events) {
     leftover,
     levelUps: day.counters.levelUps,
     eggsLaid: day.counters.eggsLaid,
-    streakBefore,
+    streakBefore: day.reward?.streakBefore ?? streakBefore,
     streakAfter: s.streak,
+    reward: day.reward || null,
     quests: day.quests.map((q) => ({
       id: q.id, text: q.text, coins: q.coins, done: q.done, paid: q.paid, private: !!q.private, timed: !!q.timed, slot: q.slot, cat: q.cat, voided: !!q.voided,
     })),

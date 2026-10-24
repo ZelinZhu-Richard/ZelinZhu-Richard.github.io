@@ -12,9 +12,9 @@ const ui = ctx => ctx.ui || {};
 export function streakLine(header) {
   const t = header.tonight || {};
   if (!header.streak) return 'No bonus until a full day is finished.';
-  if (t.lucky) return `Lucky day: 5–10 ${tierName(t.tier)} eggs tonight.`;
+  if (t.lucky) return `Next full day is lucky: 5–10 ${tierName(t.tier)} eggs.`;
   const count = t.count || 0;
-  const now = count ? `${count} ${tierName(t.tier)} egg${count === 1 ? '' : 's'} a night.` : '';
+  const now = count ? `${count} ${tierName(t.tier)} egg${count === 1 ? '' : 's'} per full day.` : '';
   const step = header.nextStep;
   const next = !step ? '' : typeof step === 'string' ? step : step.lucky ? `Lucky day at ${step.day}.` : `${step.count} from day ${step.day}.`;
   return `${now} ${next}`.trim();
@@ -98,7 +98,7 @@ export function flameState(today, header, now) {
   const { done, total } = today.progress || { done: 0, total: 0 };
   const win = header.window || {};
   const left = total - done;
-  if (total && left === 0) return { kind: 'lit', text: '+1 at 22:00' };
+  if (total && left === 0) return { kind: 'lit', text: today.reward ? 'Done · +1 earned' : '+1 at 22:00' };
   if (win.phase === 'open' && nyMinutes(now) >= 19 * 60) return { kind: 'risk', text: `${left} left · ${duration((win.closesAt || now) - now)}` };
   if (win.phase === 'closed') return { kind: 'idle', text: 'Closed for today' };
   return { kind: 'idle', text: `${left} left today` };
@@ -123,7 +123,7 @@ export function renderDayPicker(today, ctx) {
   const firstTick = !(today.progress?.done) && !today.commitLevel;
   const bonus = today.commitLevel
     ? (today.bonusAlive ? html`<span class="bonus bonus--alive">+20% commitment bonus alive · committed at ${levelLabel(today.commitLevel)}</span>` : html`<span class="bonus bonus--lost">Commitment bonus lost today</span>`)
-    : html`<span class="bonus">Commit to ${levelLabel(today.level)}: finish without lowering for +20% food at close.</span>`;
+    : html`<span class="bonus">Commit to ${levelLabel(today.level)}: finish without lowering for +20% food when you finish.</span>`;
   return html`<div class="day-picker"><div class="picker-row" role="group" aria-label="Day level">${DAY_LEVELS.map(l => {
     const on = today.level === l;
     return html`<button type="button" class="chip-button"${ctx.owner ? raw(' data-action="day-level"') : ''} data-level="${l}" aria-pressed="${on}" style="--chip:${levelColor(l)}" ${ctx.owner ? '' : raw('disabled')}>${on && firstTick && ctx.owner ? `Commit to ${levelLabel(l)}` : levelLabel(l)}</button>`;
@@ -202,14 +202,21 @@ export function renderFinish(today, header, ctx) {
   const ticked = (today.tasks || []).filter(t => t.ticked && t.type !== 'quality' && t.unit);
   const added = ticked.map(t => `${t.amountText} (${t.name.toLowerCase()})`);
   const t = header.tonight || {};
-  const preview = [
+  const rw = today.reward;
+  // Paid at the last tick (engine close.js payCompletion); a save from before that rule is paid at 22:00.
+  const preview = rw ? [
+    `Streak ${rw.streakAfter}.`,
+    rw.eggs?.count ? `Earned ${plural(rw.eggs.count, `${tierName(rw.eggs.tier)} egg`)}${rw.eggs.lucky ? ' (lucky day)' : ''}.` : '',
+    rw.bonus ? `+${num(rw.bonus)} commitment bonus went into your pets' growth.` : '',
+    `${today.weekStars ?? 0}/5 quest stars this week.`,
+  ] : [
     t.lucky ? `Lucky night: 5–10 ${tierName(t.tier)} eggs.` : t.count ? `Tonight at 22:00: ${plural(t.count, `${tierName(t.tier)} egg`)}.` : '',
     today.bonusAlive ? 'The +20% commitment bonus is alive.' : '',
     `${today.weekStars ?? 0}/5 quest stars this week.`,
-  ].filter(Boolean);
+  ];
   return html`<section class="finish" aria-labelledby="finish-title" tabindex="-1" id="finish"><h3 id="finish-title">Today's list: complete.</h3>
-${added.length ? html`<p>Today added ${listText(added)}.</p>` : ''}<p class="muted">${preview.join(' ')}</p>
-${ctx.owner ? html`<button type="button" class="button button--accent" data-action="feed-dinner">Feed dinner</button>` : ''}
+${added.length ? html`<p>Today added ${listText(added)}.</p>` : ''}<p class="muted">${preview.filter(Boolean).join(' ')}</p>
+${ctx.owner ? html`<button type="button" class="button button--accent" data-action="feed-dinner">Feed dinner</button>${rw?.eggs?.count ? html` <a class="button" href="/daily/eggs/#openable">Open ${plural(rw.eggs.count, 'egg')}</a>` : ''}` : ''}
 <p class="finish-done">You're done for today. Enjoy your evening.</p></section>`;
 }
 
@@ -251,7 +258,7 @@ ${f.upkeep ? html`<p class="pool-note">${num(f.upkeep)} reserved for backpack up
 <dl class="food-math">
 <dt>Earned so far</dt><dd>${num(f.earned)}${f.counted !== undefined && f.counted !== f.earned ? html` <span class="muted">(${num(f.counted)} counted)</span>` : ''}</dd>
 <dt>If you finish as set</dt><dd>${num(proj.total)}</dd>
-<dt>Commitment bonus at close</dt><dd>${today.bonusAlive || !today.commitLevel ? `+${num(f.bonusPreview)}` : 'lost'}</dd>
+<dt>Commitment bonus when you finish</dt><dd>${today.reward ? `+${num(today.reward.bonus)} paid` : today.bonusAlive || !today.commitLevel ? `+${num(f.bonusPreview)}` : 'lost'}</dd>
 <dt>Soft cap</dt><dd>${num(f.cap ?? 1200)}, then ${Math.round((f.capRate ?? 0.5) * 100)}%</dd>
 <dt>Active pets need (${activeN} × 100)</dt><dd>${num(f.activeNeed)}</dd>
 <dt>Backpack upkeep (${backN} × 10)</dt><dd>${num(f.upkeep)}</dd>

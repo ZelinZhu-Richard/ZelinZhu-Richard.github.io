@@ -15,8 +15,13 @@ function start() {
   s = act(s, { type: 'petEgg/hatch', petEggId: s.inv.petEggs[0].id }, at(D, 8, 1)).state;
   return s;
 }
+let played = []; // the last tick's events (the completion reward)
 function playDay(s, key) {
-  for (const t of s.list.tasks) s = act(s, { type: 'task/tick', taskId: t.id }, at(key, 9)).state;
+  for (const t of s.list.tasks) {
+    const r = act(s, { type: 'task/tick', taskId: t.id }, at(key, 9));
+    s = r.state;
+    played = r.events;
+  }
   return s;
 }
 
@@ -121,25 +126,25 @@ test('flash sale triggers on streak 100, lasts 24 hours, sells every Ultra trink
   let s = start();
   s.streak = 99;
   s = playDay(s, D);
-  const r = E.advance(s, at('2026-11-03', 7));
-  const ev = r.events.find((e) => e.type === 'flashSale.started');
+  const ev = played.find((e) => e.type === 'flashSale.started');
   assert.ok(ev);
   assert.equal(ev.price, 15400);
-  assert.equal(ev.until, T.closeInstant(D) + 24 * 3_600_000);
-  s = r.state;
-  const shop = E.viewShop(s, at('2026-11-03', 9));
+  const end = at(D, 9) + 24 * 3_600_000; // from the last tick
+  assert.equal(ev.until, end);
+  s = E.advance(s, at('2026-11-03', 7)).state;
+  const shop = E.viewShop(s, at('2026-11-03', 8));
   assert.equal(shop.flashSale.offers.length, 5);
   const ultra = shop.tabs.find((t) => t.id === 'trinkets').items.filter((i) => i.flash);
   assert.equal(ultra.length, 5);
   assert.ok(ultra.every((i) => i.price === 15400 && !i.canBuy));
   s.inv.diamonds = 20000;
-  const b = buy(s, 'ultra:theLongSun', at('2026-11-03', 9));
+  const b = buy(s, 'ultra:theLongSun', at('2026-11-03', 8));
   assert.equal(b.state.inv.diamonds, 4600);
   assert.equal(b.state.shop.flashSale.offers.length, 4);
   // 24 h later it's gone.
-  const later = E.advance(b.state, T.closeInstant(D) + 24 * 3_600_000);
+  const later = E.advance(b.state, end);
   assert.equal(later.state.shop.flashSale, null);
-  assert.throws(() => buy(later.state, 'ultra:keepersCrown', T.closeInstant(D) + 24 * 3_600_000 + 1), { code: 'no_item' });
+  assert.throws(() => buy(later.state, 'ultra:keepersCrown', end + 1), { code: 'no_item' });
 });
 
 test('flash sale triggers on a Goddamn day (2 Goddamn tasks, every other at Hard or above)', () => {
@@ -148,12 +153,13 @@ test('flash sale triggers on a Goddamn day (2 Goddamn tasks, every other at Hard
   s = act(s, { type: 'task/raise', taskId: 'read', level: 'goddamn' }).state;
   s = act(s, { type: 'task/raise', taskId: 'grass', level: 'goddamn' }).state;
   s = playDay(s, D);
-  assert.ok(E.advance(s, at('2026-11-03', 7)).events.some((e) => e.type === 'flashSale.started' && e.reason === 'goddamnDay'));
+  assert.ok(played.some((e) => e.type === 'flashSale.started' && e.reason === 'goddamnDay'));
   // One Goddamn task is not enough.
   let t = start();
   t = act(t, { type: 'day/setLevel', level: 'hard' }).state;
   t = act(t, { type: 'task/raise', taskId: 'read', level: 'goddamn' }).state;
   t = playDay(t, D);
+  assert.ok(!played.some((e) => e.type === 'flashSale.started'));
   assert.ok(!E.advance(t, at('2026-11-03', 7)).events.some((e) => e.type === 'flashSale.started'));
 });
 

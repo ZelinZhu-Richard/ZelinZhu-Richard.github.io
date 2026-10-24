@@ -32,7 +32,7 @@ and nothing changes. `now` is epoch ms; every calendar decision goes through `ti
 | `tasks.js` | List validation, normalized base food, tier amounts and text, the soft cap. |
 | `effects.js` | The effect vocabulary and every panel cap (see the header comment). |
 | `day.js` | List setup / next month / swap, the day level, raises, ticks, undo, feeding from the pool. |
-| `close.js` | `advanceMut`: idempotent close of every finished day, outcome (streak, freezes, penalties, death, Phoenix, welcome-back), streak eggs, list rollover, opening today. |
+| `close.js` | `payCompletion`: the completion reward at the last tick (commitment bonus, streak, streak eggs, milestones, welcome-back, Phoenix progress, flash sales). `advanceMut`: idempotent close of every finished day (dividends, upkeep, freezes, penalties, death; the reward for a complete day saved before the last-tick rule), list rollover, opening today. |
 | `pets.js` | Pet creation and names, XP curve and caps, comeback XP, growth and laying, level loss, dividends, seats, backpack, moods. |
 | `eggs-math.js` | Pure odds math: hatch odds (food bonus, 50 % floor, luck, charm), servings, pet-egg chance and splits, item-count distribution. |
 | `eggs.js` | Opening eggs (loot), pet eggs (feed, charm, hatch, separate, combine). |
@@ -64,7 +64,7 @@ Bump `SCHEMA_VERSION` and teach `migrate()` the upgrade whenever a field changes
 
 - **Day boundaries.** A day opens at 05:00 (quests are drawn then, from a side stream keyed by the save's seed and the date — `rng.questRng` — so nothing done between 22:00 and 05:00 can change the draw and `state.rng.n` is untouched; eligibility still reads the state at 05:00) and closes at 22:00. A game started after 22:00 counts from the next day. Catch-up after an absence closes every missed day in order, so a long absence can mean repeated deaths; only one fresh starter egg is ever waiting.
 - **Lowering the day** clears raises on unticked tasks (they take the new level); raising keeps raises still above it. A ticked Goddamn task still counts toward the 2-Goddamn cap. Undoing every tick clears the commitment. Once every task is ticked the day is finished, so lowering the level afterwards no longer breaks the commitment bonus.
-- **Undo window** is `[tick, tick + 5:00)`: at exactly +5:00 the tick is final (quests count it) and undo is refused.
+- **Undo window** is `[tick, tick + 5:00)`: at exactly +5:00 the tick is final (quests count it) and undo is refused. Once the last tick pays the completion reward (`day.reward`), every tick of the day is final (`day_final`).
 - **Underfed / upkeep losses stack** with Hungry/Starving on a missed day, as PLAN §4 and §6 read literally (an unfed active pet loses 1 + 2 levels on the first miss). `config.penalties.underfedStacksWithHunger = false` turns that off.
 - **A frozen day has no penalty** (PLAN §4 "there's no penalty"): no Hungry/Starving and, by default, no underfed −1 or upkeep −1 either. Fed pets still pay dividends. `config.penalties.freezeSkipsFeedingLosses = false` restores the feeding losses on frozen nights. *Owner to confirm.*
 - **Upkeep** covers the highest-tier backpack pets first. Feeding is for active pets only.

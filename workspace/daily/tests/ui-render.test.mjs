@@ -83,7 +83,9 @@ test('ring: one segment per task, ticked ones in their level colour; flame state
   assert.equal(count(out, /ring-seg is-done/g), 3);
   assert.match(out, /3 of 6 tasks done/);
   const done = { ...vm.today, progress: { done: 6, total: 6 } };
-  assert.deepEqual(flameState(done, vm.header, NOW), { kind: 'lit', text: '+1 at 22:00' });
+  assert.deepEqual(flameState(done, vm.header, NOW), { kind: 'lit', text: '+1 at 22:00' }, 'a save from before the last-tick reward');
+  const paid = { ...done, reward: { streakAfter: 4, bonus: 72, eggs: { tier: 1, count: 1, lucky: false } } };
+  assert.deepEqual(flameState(paid, vm.header, NOW), { kind: 'lit', text: 'Done · +1 earned' });
   const evening = Date.UTC(2026, 10, 13, 0, 46); // 19:46 New York
   const risk = flameState(vm.today, vm.header, evening);
   assert.equal(risk.kind, 'risk');
@@ -102,6 +104,11 @@ test('the finish celebration is the same at every level and only on a complete d
     assert.doesNotMatch(out, /Chill|Hard|Goddamn|Ultra/);
   }
   assert.equal(chill, hard);
+  // The reward is paid at the last tick: the card shows what was earned, with a way to the eggs.
+  const paid = s(renderFinish({ ...at('easy'), reward: { streakAfter: 4, bonus: 72, eggs: { tier: 1, count: 2, lucky: false } } }, vm.header, ctx()));
+  assert.match(paid, /Streak 4\. Earned 2 Rare eggs\. \+72 commitment bonus went into your pets&#39; growth\./);
+  assert.match(paid, /href="\/daily\/eggs\/#openable">Open 2 eggs</);
+  assert.doesNotMatch(paid, /Tonight at 22:00/);
 });
 
 test('dinner then growth: exact preview, upkeep reserved', () => {
@@ -129,7 +136,7 @@ test('visitor mode is read-only', () => {
 });
 
 test('header stats, hunger ladder and Phoenix', () => {
-  assert.equal(streakLine(vm.header), '1 Rare egg a night. 2 from day 40.');
+  assert.equal(streakLine(vm.header), '1 Rare egg per full day. 2 from day 40.');
   const stats = s(renderHeaderStats(vm.header, ctx()));
   assert.match(stats, /Keeper level/);
   assert.match(stats, /\/ 3 max/);
@@ -283,7 +290,7 @@ test('engine-shaped view models (numeric levels, richer fields) normalize to the
   assert.equal(v.today.season.nextReward, '90 coins');
   assert.equal(v.today.season.cosmetic, 'Acorn Cap');
   assert.deepEqual(v.ladder.levels, ['chill', 'easy', 'medium', 'hard', 'goddamn']);
-  assert.equal(streakLine(v.header), '1 Rare egg a night. 2 from day 40.');
+  assert.equal(streakLine(v.header), '1 Rare egg per full day. 2 from day 40.');
   assert.equal(v.collection.petdex.names.dragon, 'DRAGON');
   const odds = s(renderOdds(v.odds));
   assert.match(odds, /Coins 41\.2%/, 'shares are of the real total (97), not of 100');

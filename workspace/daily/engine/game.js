@@ -83,7 +83,7 @@ function dispatch(s, a, now, rng, events) {
     case 'list/swap': return swapTask(s, a.taskId, a.task, a.reason, now, events);
     case 'day/setLevel': return setDayLevel(s, a.level, now, events);
     case 'task/raise': return raiseTask(s, a.taskId, a.level, now, events);
-    case 'task/tick': return tickTask(s, a.taskId, { qty: a.qty, goalTag: a.goalTag }, now, events);
+    case 'task/tick': return tickTask(s, a.taskId, { qty: a.qty, goalTag: a.goalTag }, now, events, rng);
     case 'task/undo': return undoTick(s, a.taskId, now, events);
     case 'pet/feed': return feedPet(s, a.petId, a.amount, now, ctx);
     case 'pet/activate': return activatePet(s, a.petId, ctx);

@@ -82,7 +82,7 @@ Status (2026-10-24): built and tested against a local stack; the owner's hosted 
 - A day's window is 05:00–22:00 America/New_York. Ticks only count inside the window (tonight: device clock, honour system; later: server time).
 - At 22:00 the day closes and is evaluated (section 4).
 - Sleep is a daily task about the previous night. It is ticked inside the window, on the honour system.
-- A tick can be undone within 5 minutes. After that it's final.
+- A tick can be undone within 5 minutes. After that it's final. Once the last task is ticked and the day's reward is paid, every tick of the day is final.
 
 ## 3. Daily tasks
 
@@ -117,7 +117,7 @@ Daily difficulty is set for the whole day, not per task.
 - Raise single tasks. Any unticked task can be raised above the day level, up to Goddamn. At most 2 Goddamn tasks per day.
 - No lowering single tasks. A task can never go below the day level. The only way down is lowering the whole day. This stops cherry-picking.
 - Changing the day level. The owner can raise or lower it any time before 22:00. A change only affects unticked tasks; ticked tasks keep the level and food they were ticked at. On a bad evening, lowering the whole day to Chill still saves the streak; it just earns less.
-- Commitment bonus. The day level when the first task is ticked is the commitment. If the day is finished without ever lowering below it, it earns +20% of the day's food at close. Raising is always fine. **Resolution:** the bonus is computed at close, passes through the soft cap, counts toward Keeper and Season XP, and goes straight into active pets' XP and egg meters (split evenly), because unspent pool food expires at close.
+- Commitment bonus. The day level when the first task is ticked is the commitment. If the day is finished without ever lowering below it, it earns +20% of the day's food the moment the last task is ticked. Raising is always fine. **Resolution:** the bonus is computed at the last tick, passes through the soft cap, counts toward Keeper and Season XP, and goes straight into active pets' XP and egg meters (split evenly), because unspent pool food expires at close.
 - Soft daily cap. A day's pet food above 1,200 (bonus included) counts at 50%, applied as food is earned. For a 6-task list: Easy day 360 → 432 with the bonus; Medium 720 → 864; Hard 2,160 → 2,592, capped to 1,896.
 - A task's level locks when it's ticked.
 
@@ -134,7 +134,7 @@ Ticking also records the real quantity done at that tier (pages, minutes, hours 
 
 Complete day = every task ticked inside the window. Each task counts at the level it was ticked at, which is always at least the day level at that moment.
 
-Streak +1 per complete day.
+Streak +1 per complete day. The completion reward is paid the moment the last task is ticked: the commitment bonus, streak +1, streak eggs, milestones, the welcome-back egg, Phoenix progress and flash sales. From then on the day's ticks are final. The 22:00 close keeps pet dividends, upkeep and the underfed check (feeding goes on all evening), and still pays the reward for a complete day saved before this rule.
 
 Incomplete day:
 
