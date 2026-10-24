@@ -237,3 +237,32 @@ What it fixed and what it didn't:
 - Beacons, extra seats, backpack upgrades, the guaranteed shop pets, the Ultra flash sale and real-life redemptions are never bought. Coins pile up beyond freezes.
 - Only the 6 default tasks were simulated.
 - The 2-year runs use 1,000 runs per player type, not 5,000.
+
+## Supabase phase (2026-10-24)
+
+Built on branch `daily-supabase` from origin/main. Code is ready, and nothing changes in production until the owner pastes a project URL and key (SETUP.md). The hosted project isn't created yet.
+
+### Checked
+
+- `npm test` and `TZ=UTC npm test` pass: 596 tests, including `tests/cloud.test.mjs` and `workspace/hq/tests/sync.test.mjs`. `npm run build` passes `tools/verify.mjs`.
+- `npm run test:db` passes 9/9, twice in a row, against a local stack (`supabase start`, CLI 2.122.0, Postgres 17, edge runtime 1.77.8):
+  - **RLS.** Anon can't read or write `game_state`, `game_events`, `task_lists`, `reminder_log` or any `hq_*` table, can't call `hq_export`, `hq_replace`, `is_owner` or `daily_commit`, and can read `daily_public` and `game_config`. A signed-in stranger reads nothing, `hq_apply` and `hq_replace` answer "Not authorised", direct inserts are refused, and both owner-only functions answer 403. The owner can't read the raw `game_state` (seed included) through the API either.
+  - **HQ.** `seed.example.json` → `hq_replace` → `hq_export` comes back identical (rows by id). One `hq_apply` change set lands exactly, including a priority-slot swap.
+  - **Game, through the browser's own `SupabaseBackend` and the vendored supabase-js.** Create works, and the seed never reaches the browser. Hatching the starter egg logs every draw. A refusal is 400, logged with `ok: false` and its code. A stale version is 409 with the fresh state. The event log is append-only, even for `postgres`. `task_lists` is filled. `daily_public` updates and is sanitized: no seed, settings, redemptions or goals.
+  - **Import of a local-first save.** It replaces the cloud game, keeps `createdAt`, gets a new server seed, and logs `reseeded`. A bad save is a 400.
+  - **`day-close`.** It needs the cron secret (an owner session doesn't count), catches up 3+ missed days on a save written 4 days old, and runs a second time with `changed: false`. The public view follows.
+  - **`remind` and `generate-variants`.** `remind` needs the cron secret and doesn't send without email secrets. `generate-variants` answers 401 to anon, 403 to a stranger, 400 to a bad task, and 503 `not_configured` without a key.
+  - **Cron.** All four jobs exist. `private.invoke_function('day-close')` → Vault → pg_net → Kong → function answers 200. Unknown function names are refused.
+- **CORS.** `_shared/cors.ts` is unit-tested under Node type stripping: the site origin is allowed, others get no allow-origin header, and a foreign preflight gets 403. Local Kong overrides function CORS headers with `*`, so this can't be observed through the local gateway.
+- **Cron times.** For each reminder slot, the cron UTC hours match New York time in both EDT and EST (unit test).
+- **Secret guards.** `verify.mjs` flags `sb_secret_…`, `sk-ant-…` and service_role JWTs. The `http://localhost:9999` exemption holds only for the pinned bundle: an edited bundle fails, and the same literal elsewhere fails. `buildDaily` refuses a secret or service_role key in `cloud-config.js`. A repo scan finds no such keys, and `supabase/.temp`, `functions/.env` and `seed.local.sql` are ignored.
+- **Browser, default (unconfigured) build only, at 1280 px.** /daily/ visitor view: no supabase-js loaded, no console errors. Owner view → setup → tick a task: saved locally, through the now-awaited `act()`. /hq/: original gate, `connect-src 'none'`, opens and saves locally, no console errors.
+- **Vendored bundle.** supabase-js 2.118.0 matches npm's published sha512 for the tarball.
+
+### Not checked
+
+- **A real deploy** (`supabase functions deploy`). Locally, `supabase start` serves the functions with the engine imported from `workspace/daily/engine/`. Bundling that import for a hosted deploy wasn't run (running the edge-runtime bundler by hand was blocked in this session). SETUP.md step 5 has a check that exercises the engine right after deploying.
+- **GitHub OAuth.** Locally the tests sign in with email and password. The PKCE redirect back to /daily/ and /hq/ is untested.
+- **The cloud-mode UI in a browser:** sign-in button, upload prompt, "Owner view · synced", Suggest tier text, HQ's cloud gate and optimistic saves. The classes behind them are tested against the real stack, but the controller and `app.js` DOM wiring in cloud mode wasn't clicked through. No test user was signed in in the browser.
+- **Live calls.** Email delivery through Resend and a real Claude call from `generate-variants` (no keys locally).
+- **Visitor Cheers** (optional, PLAN.md section 1) is not built.

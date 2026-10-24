@@ -66,6 +66,9 @@ The game is designed to be as compelling as Duolingo and Brawl Stars, in service
 
 ### Later: Supabase (deferred by the owner; keep the design ready)
 
+Status (2026-10-24): built and tested against a local stack; the owner's hosted setup steps are in `workspace/daily/SETUP.md`, the contracts in ARCHITECTURE.md "Supabase mode".
+
+
 - Auth: GitHub OAuth, with an allowlist containing only the owner's user id.
 - Postgres tables: `game_state` (one row, full state as JSONB), `game_events` (append-only log of every action with inputs, RNG outcomes and result), `task_lists` (monthly locked lists), `game_config` (tunables, mirrored by the client config module). HQ tables are in section 21.
 - RLS: the public can read a sanitized view (pets, streak, today's list and statuses, receipts, odds tables). Only Edge Functions write.

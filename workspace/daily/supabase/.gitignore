@@ -1,0 +1,12 @@
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
+
+# Local function env and any real seed (never committed; the repo is public)
+functions/.env
+seed.local.sql

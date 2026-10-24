@@ -1,8 +1,10 @@
 // Backend interface (ARCHITECTURE.md "UI backend"). The UI talks only to this object:
 //   load() → { state, events }   act(action) → { state, events }   views() → view models
 // LocalBackend runs the pure engine in the browser and saves to localStorage.
-// PublicBackend shows the published snapshot read-only. A later SupabaseBackend replaces
-// LocalBackend without touching the engine or the render modules.
+// PublicBackend shows the published snapshot read-only. When app/cloud-config.js holds a Supabase project,
+// SupabaseBackend (app/cloud.js) replaces LocalBackend without touching the engine or the render modules.
+import { cloudConfig, cloudEnabled } from './cloud-config.js';
+
 export const SAVE_KEY = 'daily:v1';
 export const SNAPSHOT_URL = '/daily/snapshot.json';
 
@@ -72,15 +74,7 @@ export class LocalBackend {
     return { state, events };
   }
 
-  views() {
-    const e = this.engine, s = this.state, n = this.now();
-    return {
-      header: e.viewHeader(s, n), today: e.viewToday(s, n), pets: e.viewPets(s, n), eggs: e.viewEggs(s),
-      collection: e.viewCollection(s), shop: e.viewShop(s, n), odds: e.viewOdds(), receipts: e.viewReceipts(s, n),
-      ladder: e.viewLadder(s), settings: s.settings || {}, generatedAt: n, morning: typeof e.viewMorning === 'function' ? e.viewMorning(s, n) : null,
-      list: s.list ? { month: s.list.month, tasks: s.list.tasks, next: s.nextList?.tasks || null, swapUsed: (s.list.swaps || 0) >= 1 } : null,
-    };
-  }
+  views() { return engineViews(this.engine, this.state, this.now()); }
 
   hatchOdds(...args) { return typeof this.engine.hatchOdds === 'function' ? this.engine.hatchOdds(...args) : null; }
   exportJson() { return JSON.stringify(this.state, null, 2); }
@@ -91,6 +85,16 @@ export class LocalBackend {
   }
   exportSnapshot() { return JSON.stringify(this.engine.publicSnapshot(this.state, this.now()), null, 2); }
   forget() { this.store.remove(SAVE_KEY); }
+}
+
+// Every view model at once, computed by the engine in the browser (LocalBackend and SupabaseBackend).
+export function engineViews(e, s, n) {
+  return {
+    header: e.viewHeader(s, n), today: e.viewToday(s, n), pets: e.viewPets(s, n), eggs: e.viewEggs(s),
+    collection: e.viewCollection(s), shop: e.viewShop(s, n), odds: e.viewOdds(), receipts: e.viewReceipts(s, n),
+    ladder: e.viewLadder(s), settings: s.settings || {}, generatedAt: n, morning: typeof e.viewMorning === 'function' ? e.viewMorning(s, n) : null,
+    list: s.list ? { month: s.list.month, tasks: s.list.tasks, next: s.nextList?.tasks || null, swapUsed: (s.list.swaps || 0) >= 1 } : null,
+  };
 }
 
 export class PublicBackend {
@@ -124,9 +128,10 @@ export function snapshotViews(snap) {
   };
 }
 
-// Chooses the backend: a save on this device → owner; otherwise visitor.
+// Chooses the backend. With a Supabase project configured: the owner's session → SupabaseBackend, otherwise the
+// public view (app/cloud.js). Without one (local-first): a save on this device → owner; otherwise visitor.
 // Local dev hosts may pass ?fixtures=owner|visitor to use the hand-written fixtures.
-export async function createBackend({ location = globalThis.location, storage = globalThis.localStorage, fetchImpl, base = import.meta.url } = {}) {
+export async function createBackend({ location = globalThis.location, storage = globalThis.localStorage, fetchImpl, base = import.meta.url, cloud = cloudConfig({ location, storage }) } = {}) {
   const local = /^(localhost|127\.0\.0\.1|\[::1\]|.*\.localhost|.*\.test)$/.test(location?.hostname || '');
   const fixtures = local ? new URLSearchParams(location.search).get('fixtures') : null;
   if (fixtures) {
@@ -134,6 +139,14 @@ export async function createBackend({ location = globalThis.location, storage = 
       const mod = await import(new URL('./fixtures/backend.js', base).href);
       return mod.createFixtureBackend(fixtures === 'visitor' ? 'visitor' : 'owner', storage);
     } catch { /* fixtures are not deployed; fall through */ }
+  }
+  if (cloudEnabled(cloud)) {
+    try {
+      const mod = await import(new URL('./cloud.js', base).href);
+      return await mod.createCloudBackend({ cloud, location, storage, fetchImpl, base });
+    } catch {
+      return new PublicBackend(fetchImpl);
+    }
   }
   const store = safeStorage(storage);
   if (store.get(SAVE_KEY) !== null) {

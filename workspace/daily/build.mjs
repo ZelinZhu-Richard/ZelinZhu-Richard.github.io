@@ -1,11 +1,12 @@
 import { cp, mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { pages } from '../../site/pages.mjs';
 
 const source = fileURLToPath(new URL('.', import.meta.url));
 
-// Runtime allowlist (ARCHITECTURE.md). Docs, tests, sim, _private, .qa, fixtures and dev HTML (e.g. a pets gallery) never ship.
+// Runtime allowlist (ARCHITECTURE.md). Docs, tests, sim, supabase/, _private, .qa, fixtures and dev HTML (e.g. a pets gallery) never ship.
 const DIRS = ['app', 'engine', 'pets'];
 const EXCLUDE = /(^|[\\/])(fixtures|tests?|sim|_private|\.qa|node_modules)([\\/]|$)|\.(md|mjs|py|html|test\.js)$|(^|[\\/])\./;
 const ROUTES = [
@@ -86,12 +87,41 @@ export async function enginePreview(days = 9) {
   return E.publicSnapshot(s, last, { preview: true });
 }
 
+// The vendored supabase-js (PLAN.md section 1 "Later"): every file must match vendor/manifest.json, like Gym's vendor.
+export async function verifyVendor(dir = join(source, 'vendor')) {
+  const manifest = JSON.parse(await readFile(join(dir, 'manifest.json'), 'utf8'));
+  for (const entry of manifest.files) {
+    const bytes = await readFile(join(dir, '..', entry.file));
+    if (bytes.length !== entry.bytes || createHash('sha256').update(bytes).digest('hex') !== entry.sha256) throw new Error(`Daily vendor integrity failed: ${entry.file}`);
+  }
+  return manifest;
+}
+
+// app/cloud-config.js may only hold public values: the project URL and the publishable/anon key.
+export function assertPublicCloud(cloud) {
+  const key = String(cloud?.anonKey || '');
+  if (/^sb_secret_/.test(key)) throw new Error('app/cloud-config.js holds a secret key (sb_secret_…). Paste the publishable key instead.');
+  const payload = key.split('.')[1];
+  if (payload) {
+    let role = null;
+    try { role = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')).role; } catch { /* not a JWT */ }
+    if (role === 'service_role') throw new Error('app/cloud-config.js holds the service_role key. Paste the anon key instead.');
+  }
+  if (cloud?.url && !/^https:\/\/[a-z0-9.-]+$/i.test(cloud.url)) throw new Error(`app/cloud-config.js url must be an https origin such as https://<project-ref>.supabase.co (got ${cloud.url}).`);
+}
+
 export async function buildDaily(output) {
+  const { CLOUD } = await import(pathToFileURL(join(source, 'app', 'cloud-config.js')).href);
+  assertPublicCloud(CLOUD);
+  const manifest = await verifyVendor();
   const target = join(output, 'daily');
   await mkdir(join(target, 'eggs'), { recursive: true });
   for (const [template, file, path] of ROUTES) await writeFile(join(output, file), await renderPage(template, path));
   await cp(join(source, 'style.css'), join(target, 'style.css'));
   for (const dir of DIRS) if (await exists(join(source, dir))) await copyTree(join(source, dir), join(target, dir));
+  await mkdir(join(target, 'vendor'), { recursive: true });
+  for (const entry of manifest.files) await cp(join(source, entry.file), join(target, entry.file));
+  await cp(join(source, 'vendor', 'manifest.json'), join(target, 'vendor', 'manifest.json')); // verify.mjs checks the bundle against it
   await writeFile(join(target, 'snapshot.json'), await snapshotJson());
 }
 

@@ -4,6 +4,8 @@ The owner's private planning page: priorities (today top 3, month top 5), a dead
 
 The page code is public; the data is not. Everything is stored in this browser's localStorage under `hq:v1` and never leaves it (the page's CSP sets `connect-src 'none'`). Export JSON to back up or move data between devices.
 
+**Supabase mode.** Once `workspace/daily/app/cloud-config.js` holds a project (owner steps: `workspace/daily/SETUP.md`), the gate shows only "Sign in with GitHub". The allowlisted owner gets everything, from owner-only `hq_*` tables. Anyone else sees "Not authorised", and the anon role can read nothing. Every edit is applied on screen at once and stored as one change set (`sync.js`: `diffState` → `hq_apply`, writes queued in order). If the cloud refuses a change, the page reloads the cloud copy and says so. On first sign-in with an empty cloud, the page offers to copy this browser's HQ data up. Import JSON replaces the cloud copy in one transaction. The build then allows exactly the project's origin in `connect-src`, and the footer's "Clear this device" becomes "Sign out". HQ shares Daily's vendored supabase-js (`/daily/vendor/supabase.js`) and its auth session.
+
 ## Use
 
 - First visit on a device: the page shows only "Open on this device" (starts an empty command center with the default categories) and "Import" (loads an export file).
@@ -26,7 +28,8 @@ The page code is public; the data is not. Everything is stored in this browser's
 | `store.js` | Data model, validation, storage, mutators |
 | `helpers.js` | New York date helpers, countdown/status/sort, period reset |
 | `style.css` | Fonts (from `/_nuxt/`), portfolio tokens, layout |
-| `build.mjs` | `buildHq(output)` copies the allowlist `HQ_FILES` into `dist/hq/` |
+| `sync.js` | Supabase mode: diff two states into one change set; the `hq_export` / `hq_apply` / `hq_replace` client |
+| `build.mjs` | `buildHq(output)` copies the allowlist `HQ_FILES` into `dist/hq/` and sets `connect-src` from the cloud config |
 | `seed.example.json` | Fictional example export (also the good test fixture) |
 | `tests/` | helpers, store, build (including a real full-site build in `.qa/`) and publication tests |
 

@@ -12,10 +12,13 @@ Rules: PLAN.md. Content and art: CONTENT.md. This file is the contract between t
 | `pages/` | UI | HTML templates for `/daily/` and `/daily/eggs/` (`<!-- PORTFOLIO_HEADER -->` placeholder filled by build.mjs). |
 | `style.css` | UI | Page styles (tokens, fonts, layout). Imports nothing; `pets.css` is linked separately. |
 | `sim/` | engine | `daily_balance_sim.py` (reference only) and `balance.mjs` (hand-run, drives the real engine). |
-| `public/snapshot.json` | owner | Optional published public snapshot (written by "Export public snapshot", committed by hand). |
+| `public/snapshot.json` | owner | Optional published public snapshot (written by "Export public snapshot", committed by hand). In Supabase mode, only the fallback when `daily_public` can't be read. |
+| `vendor/` | cloud | supabase-js 2.118.0 UMD build (unmodified), `SUPABASE-LICENSE.txt`, sha256 `manifest.json` (checked by `buildDaily` and `tools/verify.mjs`). |
+| `supabase/` | cloud | CLI project (`--workdir workspace/daily`): `config.toml`, `migrations/`, `functions/` (Deno; imports `engine/` and `app/cloud-protocol.js`), `tests/` (`npm run test:db`). Never copied to `dist/`. |
+| `SETUP.md` | owner | The hosted Supabase steps only the owner can do. |
 | `tests/` | all | `engine-*.test.mjs`, `pets-*.test.mjs`, `ui-*.test.mjs`. |
 
-`build.mjs` (`buildDaily(output)`) writes `dist/daily/index.html` and `dist/daily/eggs/index.html` from `pages/` with the site header injected, and copies an allowlist: `style.css`, `app/`, `engine/`, `pets/`, and `snapshot.json` (the published one if present, else a preview generated at build time by the engine with a fixed seed and `preview: true`). Never `sim/`, `tests/`, `_private/`, `.qa/`, or the docs.
+`build.mjs` (`buildDaily(output)`) writes `dist/daily/index.html` and `dist/daily/eggs/index.html` from `pages/` with the site header injected, and copies an allowlist: `style.css`, `app/`, `engine/`, `pets/`, the three `vendor/` files (after checking them against `vendor/manifest.json`), and `snapshot.json` (the published one if present, else a preview generated at build time by the engine with a fixed seed and `preview: true`). Never `sim/`, `tests/`, `_private/`, `.qa/`, or the docs.
 
 ## Engine API (`engine/index.js` re-exports everything below)
 
@@ -143,3 +146,49 @@ UI details (UI build, 2026-10-24; additive to the contract above):
 - The UI reads `settings.companionId` (falls back to `viewPets.companionId`), writes `settings/save { companionId, reminders, sound, motion: 'system'|'reduced' }`, patron cheers from `task.ticked.cheer`, and sends `task/tick { goalTag }` for Deep work. TaskDefs written by list setup follow `engine/tasks.js normalizeTask` (`chill`, `chillText`, `tiers` keyed by level, hidden `tag/receipt/purpose` carried through); the editor starts from `engine DEFAULT_TASKS`.
 - Dev only: on local hosts `?fixtures=owner|visitor` loads `app/fixtures/` (hand-written view models + a small simulating backend). The build never copies `app/fixtures/`, so this is inert in production.
 - Build: `buildDaily` also injects the site footer (`<!-- PORTFOLIO_FOOTER -->`), refuses a page without canonical + og:url, and excludes `.html` under `engine/`/`pets/` (e.g. `pets/gallery.html`) besides docs, tests, sim, `_private`, `.qa`, fixtures and dotfiles. With no `public/snapshot.json`, the preview is played by the real engine (`enginePreview()`: seed 20261024, nine scripted November days, the last one 4/6 done, `publicSnapshot(…, { preview: true })`); the fixture preview is only a fallback if the engine throws.
+
+## Supabase mode (PLAN.md section 1 "Later"; owner steps in SETUP.md)
+
+Off until `app/cloud-config.js` holds a project URL and publishable/anon key (on local hosts, a JSON `{ url, anonKey }` under localStorage `daily:cloud` overrides it). Off means everything above is unchanged.
+
+```js
+// app/backend.js createBackend(): cloud configured → (await import('./cloud.js')).createCloudBackend()
+SupabaseBackend   { mode:'owner', cloud:true, init(), load(), refresh(), act(action), create(tasks), importJson(text), views(), hatchOdds(), exportJson(), exportSnapshot(), suggestTiers(task), forget() }
+CloudPublicBackend extends PublicBackend { client?, notice?, pendingOwner?, source: 'cloud'|'file' }   // reads daily_public, falls back to /daily/snapshot.json
+```
+
+- The backend contract is now **awaitable**: the controller awaits `act()`, `refresh()` and `importJson()` (LocalBackend still answers synchronously). `views()` stays synchronous: `engineViews(engine, state, now)` (exported from backend.js) computes every view in the browser for both backends.
+- SupabaseBackend holds a copy of the state from `game-action` with `rng.seed` zeroed and `rng.redacted: true` (`app/cloud-protocol.js redactState`). `refresh()` runs `advance()` locally on that copy only to see whether a day is due; if so it asks the server (`op: 'advance'`), otherwise it re-reads the save every 5 minutes. A 409 `stale` (the save moved on: another device or the cron close) adopts the fresh state and surfaces the message; the owner retries.
+- createCloudBackend: no session → CloudPublicBackend with `client` ("Owner view" signs in with GitHub, PKCE, back to the same page); owner with a game → SupabaseBackend; owner without one → CloudPublicBackend with `pendingOwner` (the controller offers to upload this device's `daily:v1` save, kept afterwards as `daily:v1:uploaded`, else opens list setup, which calls `pendingOwner.create()`); not allowlisted → visitor with `notice` and signed out.
+- `rulesHash(engine)` (sha256 of CONFIG, content and SCHEMA_VERSION) is compared with the server's on every reply; a mismatch shows a notice, and the server's rules decide.
+- List editor rows get "Suggest tier text" (`generate-variants`) in Supabase mode; it keeps the owner's own Chill text.
+
+### game-action (owner only; every reply `{ state (redacted), version, events, rules }`)
+
+| op | body | notes |
+|---|---|---|
+| `load` | | `state: null` when there is no game yet |
+| `create` | `{ tasks }` | `newGame` with a server seed, then `advance`; 409 `game_exists` if one exists |
+| `import` | `{ save, replace?, version? }` | a local-first save: `migrate`, **new server seed** (`rng = { seed, n: 0 }`), `advance`; replacing needs the current version |
+| `act` | `{ action, version }` | `applyAction` at the server's clock; 400 `{ code, message }` from GameError (logged with `ok: false`); 409 `stale` with the fresh state |
+| `advance` | `{ version? }` | writes only if `advance` changed something; losing a race returns the winner's state |
+
+Errors are `{ error: { code, message } }`: 401 `signed_out`, 403 `not_owner`, 404 `no_game`, 500 `server`. Writes go through `public.daily_commit` (service role only): version check, `game_state`, one `game_events` row (`rng: { from, to, draws }` from `drawAt`, capped at 512 draws; the 05:00 quest stream is keyed separately and not listed), `game_public` (`publicSnapshot`), `task_lists` (`listRows`), all in one transaction.
+
+### Tables and access (migrations/)
+
+| Table | anon | other signed-in user | owner | writes |
+|---|---|---|---|---|
+| `game_state` (one row, full state incl. seed) | – | – | – (through game-action only) | Edge Functions |
+| `game_events` (append-only, trigger-enforced) | – | – | read | Edge Functions |
+| `task_lists`, `reminder_log` | – | – | read | Edge Functions |
+| `game_public` / view `daily_public` (sanitized snapshot) | read | read | read | Edge Functions |
+| `game_config` (CONFIG mirror + rules hash) | read | read | read | Edge Functions |
+| `hq_categories`, `hq_priorities`, `hq_deadlines`, `hq_tasks`, `hq_thoughts`, `hq_ideas` | – | – | read/write | owner via `hq_apply` / `hq_replace` |
+| `private.app_owner` (allowlist, not exposed) | – | – | – | by hand (SETUP.md) |
+
+`public.is_owner()` (security definer) backs every owner policy. HQ's RPCs speak the HQ export shape: `hq_export()`, `hq_apply({ delete: { collection: [ids] }, upsert: { collection: [rows] } })` (FKs and the priority slot are deferred, so order inside one change set doesn't matter), `hq_replace(export)`. `workspace/hq/sync.js` diffs two HQ states into one change set (`diffState`) and queues writes in order (`HqCloud`).
+
+### Scheduled functions
+
+`day-close` (hourly at :05) and `remind` (each reminder slot at both its EDT and EST UTC hour) are called by pg_cron through `private.invoke_function(fn)`, which reads `daily_functions_url` and `daily_cron_secret` from Vault and posts with header `x-daily-cron`; the functions compare it to the `CRON_SECRET` function secret. `remind` claims a `reminder_log` row per day and slot before sending (Resend email, only with its three secrets), skips anything at or after 21:30 New York, and respects the evening/morning settings. Browser-called functions answer CORS from `_shared/cors.ts`: exactly `https://zelinzhu-richard.github.io`, plus `ALLOWED_ORIGINS` locally.

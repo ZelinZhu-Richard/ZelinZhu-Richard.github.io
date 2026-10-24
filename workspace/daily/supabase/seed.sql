@@ -1,0 +1,2 @@
+-- Local development seed. Intentionally empty: the game save, HQ data and the owner allowlist are never
+-- committed (the repo is public). Locally, tests create their own users and rows; see tests/rls.test.mjs.

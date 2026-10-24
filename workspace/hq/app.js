@@ -1,7 +1,11 @@
 // HQ: the private command center. Local-first: all data lives in this browser's localStorage
 // ('hq:v1') and never leaves it (the page's CSP sets connect-src 'none').
+// Supabase mode (when /daily/app/cloud-config.js holds a project): the owner signs in with GitHub and the
+// data lives in owner-only hq_* tables; build.mjs then allows exactly that origin in connect-src.
 import * as H from './helpers.js';
 import * as S from './store.js';
+import { HqCloud, isBlank } from './sync.js';
+import { cloudConfig, cloudEnabled } from '/daily/app/cloud-config.js';
 
 const $ = id => document.getElementById(id);
 const store = (() => {
@@ -12,6 +16,10 @@ const store = (() => {
 const reduceMotion = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } };
 
 let state = null;
+const cloud = cloudConfig();
+const CLOUD_MODE = cloudEnabled(cloud);
+let hq = null; // HqCloud once the owner is signed in (Supabase mode)
+let sb = null; // the supabase-js client (Supabase mode)
 const ui = {
   filter: 'all', open: new Set(), form: null, formDraft: null, formErrors: [],
   addingTask: null, taskDraft: '', picker: null, pickerChoice: '', celebrate: null, focusKey: null,
@@ -68,6 +76,15 @@ function commit(mutate, { message = 'Saved.', render: rerender = true } = {}) {
   const prev = state;
   const next = mutate(prev);
   if (next === prev) return false;
+  if (hq) {
+    // Optimistic: show the change now; if the cloud refuses it, reload the cloud copy and say so.
+    state = next;
+    if (els.error) els.error.textContent = '';
+    if (rerender) render();
+    say(message);
+    hq.save(prev, next).catch(error => reloadFromCloud(`Your last change didn't save (${error.message}). HQ reloaded from the cloud.`));
+    return true;
+  }
   const result = S.writeStorage(store, next);
   if (!result.ok) {
     state = prev;
@@ -80,6 +97,15 @@ function commit(mutate, { message = 'Saved.', render: rerender = true } = {}) {
   if (rerender) render();
   say(message);
   return true;
+}
+
+async function reloadFromCloud(message = '') {
+  try {
+    await hq.settled();
+    state = await hq.load();
+    render();
+  } catch { /* keep what is on screen */ }
+  if (message) fail(message);
 }
 
 function confirmDialog({ title, body, ok = 'Delete' }) {
@@ -173,7 +199,7 @@ function showApp() {
 function buildShell() {
   const app = $('app');
   els.line = h('p', { class: 'eyebrow mono', id: 'hq-line' });
-  els.idle = h('span', { class: 'save-idle' }, 'Saved on this device');
+  els.idle = h('span', { class: 'save-idle' }, hq ? 'Synced' : 'Saved on this device');
   els.status = h('span', { class: 'save-live', role: 'status', 'aria-live': 'polite' });
   els.error = h('p', { class: 'save-error', role: 'alert' });
   els.today = h('div', { class: 'panel panel-today' });
@@ -240,11 +266,11 @@ function buildShell() {
           h('div', { class: 'tools-row' },
             h('button', { type: 'button', class: 'tool', key: 'tools-export', onclick: onExport }, 'Export JSON'),
             h('label', { class: 'tool', for: 'tools-file' }, 'Import JSON'), importInput,
-            h('button', { type: 'button', class: 'tool tool-danger', onclick: onClear }, 'Clear this device')),
+            h('button', { type: 'button', class: hq ? 'tool' : 'tool tool-danger', onclick: onClear }, hq ? 'Sign out' : 'Clear this device')),
           els.toolsError,
           els.backups,
           h('details', { class: 'cat-details' }, h('summary', { class: 'tool' }, 'Categories'), els.cats),
-          h('p', { class: 'tools-note' }, 'Everything here is stored only in this browser. Export JSON to back it up or move it.')))));
+          h('p', { class: 'tools-note' }, hq ? 'Stored in your private cloud tables; only you can read them. Export JSON to keep a copy.' : 'Everything here is stored only in this browser. Export JSON to back it up or move it.')))));
 }
 
 // ---------- render ----------
@@ -687,6 +713,14 @@ async function onImport(event) {
 }
 
 async function onClear() {
+  if (hq) {
+    await hq.settled();
+    hq = null;
+    try { await (await import('/daily/app/cloud.js')).signOut(sb); } catch { /* already signed out */ }
+    showGate();
+    $('gate-signin').focus();
+    return;
+  }
   const yes = await confirmDialog({ title: 'Clear this device?', body: 'Everything HQ keeps in this browser will be removed. This cannot be undone here; export first if you want a copy.', ok: 'Clear' });
   if (!yes) return;
   if (!S.clearStorage(store)) { fail('This browser would not clear the data.', els.toolsError); return; }
@@ -710,9 +744,57 @@ function tick() {
   render();
 }
 
+// Supabase mode: a centered "Sign in with GitHub"; the owner gets everything, anyone else "Not authorised".
+async function bootCloud() {
+  $('gate-open').hidden = true;
+  $('gate-import').hidden = true;
+  $('gate-file').hidden = true;
+  $('gate-signin').hidden = false;
+  showGate();
+  try {
+    const mod = await import('/daily/app/cloud.js');
+    sb = mod.createCloudClient(await mod.loadSupabaseLib(), cloud);
+    $('gate-signin').addEventListener('click', () => mod.signIn(sb).catch(error => fail(error.message, $('gate-error'))));
+    const token = await mod.accessToken(sb); // also completes a pending GitHub sign-in (?code=…)
+    mod.cleanAuthParams();
+    if (!token) return;
+    const remote = new HqCloud(sb);
+    if (!(await remote.isOwner())) {
+      await mod.signOut(sb);
+      fail('Not authorised.', $('gate-error'));
+      return;
+    }
+    let loaded = await remote.load();
+    if (isBlank(loaded)) {
+      // First sign-in: offer this device's local HQ data, or start with the default categories.
+      const local = S.readStorage(store);
+      if (local.status === 'ok' && !isBlank(local.state) && await confirmDialog({ title: 'Copy this device’s data to the cloud?', body: 'HQ in the cloud is empty, and this browser holds your HQ data. Copy it up? The copy on this device stays until you clear it.', ok: 'Copy to the cloud' })) {
+        await remote.replace(local.state);
+        loaded = local.state;
+      } else if (!loaded.categories.length) {
+        loaded = S.emptyState();
+        await remote.replace(loaded);
+      }
+    }
+    hq = remote;
+    state = loaded;
+    showApp();
+  } catch (error) {
+    fail(`HQ could not reach the cloud: ${error.message}`, $('gate-error'));
+  }
+}
+
 function boot() {
   setupGate();
   setupDialog();
+  if (CLOUD_MODE) {
+    bootCloud();
+    setInterval(tick, 30000);
+    // Back on the tab: pick up edits from other devices, unless an edit is in progress here.
+    const editing = () => ui.form || ui.addingTask || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && hq && !editing()) reloadFromCloud(); else tick(); });
+    return;
+  }
   const result = S.readStorage(store);
   if (result.status === 'ok') { state = result.state; showApp(); }
   else {

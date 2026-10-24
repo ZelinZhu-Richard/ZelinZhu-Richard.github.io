@@ -6,7 +6,7 @@ import { stampLabel } from './time.js';
 // The owner/visitor bar under the hero. Visitors get a small "Owner view" link.
 export function renderModeBar(vm, ctx) {
   if (ctx.owner) {
-    return html`<p class="mode-line"><span class="mode-chip mode-chip--owner">Owner view · saved on this device</span>${ctx.fixture ? html`<span class="mode-chip">Fixture data</span>` : ''}<button type="button" class="text-button" data-action="view-as-visitor">See the public view</button></p>`;
+    return html`<p class="mode-line"><span class="mode-chip mode-chip--owner">Owner view · ${ctx.cloud ? 'synced' : 'saved on this device'}</span>${ctx.fixture ? html`<span class="mode-chip">Fixture data</span>` : ''}<button type="button" class="text-button" data-action="view-as-visitor">See the public view</button></p>`;
   }
   const when = vm.generatedAt ? html` · snapshot from ${stampLabel(vm.generatedAt)}` : '';
   return html`<p class="mode-line"><span class="mode-chip">Public view · read-only${when}</span>${vm.preview ? html`<span class="mode-chip mode-chip--amber">Preview · sample data, not real progress</span>` : ''}${ctx.canReturn ? html`<button type="button" class="text-button" data-action="view-as-owner">Back to owner view</button>` : html`<button type="button" class="text-button" data-action="owner-view">Owner view</button>`}</p>`;

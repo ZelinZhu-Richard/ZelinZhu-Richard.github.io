@@ -4,6 +4,7 @@ import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { buildDaily } from '../build.mjs';
 
 async function walk(dir) {
@@ -31,9 +32,9 @@ test('build writes exactly the two Daily pages', () => {
 
 test('build copies only the runtime allowlist', () => {
   for (const f of files) {
-    const ok = ['index.html', 'eggs/index.html', 'style.css', 'snapshot.json'].includes(f) || /^(app|engine|pets)\//.test(f);
+    const ok = ['index.html', 'eggs/index.html', 'style.css', 'snapshot.json', 'vendor/supabase.js', 'vendor/SUPABASE-LICENSE.txt', 'vendor/manifest.json'].includes(f) || /^(app|engine|pets)\//.test(f);
     assert.ok(ok, `unexpected file in dist/daily: ${f}`);
-    assert.doesNotMatch(f, /(^|\/)(fixtures|tests?|sim|_private|\.qa)(\/|$)/, `excluded folder shipped: ${f}`);
+    assert.doesNotMatch(f, /(^|\/)(fixtures|tests?|sim|supabase|_private|\.qa)(\/|$)/, `excluded folder shipped: ${f}`);
     assert.doesNotMatch(f, /\.(md|mjs|py)$/, `doc or dev file shipped: ${f}`);
   }
   assert.ok(files.includes('app/daily.js') && files.includes('app/eggs.js') && files.includes('app/backend.js'));
@@ -60,10 +61,20 @@ for (const [file, path] of [['index.html', '/daily/'], ['eggs/index.html', '/dai
   });
 }
 
+// The one owner-approved exception: supabase-js's bundled auth-js default, only while the file matches its pin.
+async function shippedText(f) {
+  const text = await readFile(join(out, 'daily', f), 'utf8');
+  if (f !== 'vendor/supabase.js') return text;
+  const pin = JSON.parse(await readFile(join(out, 'daily', 'vendor', 'manifest.json'), 'utf8')).files.find(x => x.file === f);
+  assert.equal(createHash('sha256').update(await readFile(join(out, 'daily', f))).digest('hex'), pin.sha256, 'vendored supabase-js matches its manifest');
+  assert.equal(text.split('http://localhost:9999').length - 1, 1, 'exactly one bundled local URL');
+  return text.replace('http://localhost:9999', '');
+}
+
 test('no local development URLs in any shipped file', async () => {
   for (const f of files) {
     if (!/\.(html|js|css|json)$/.test(f)) continue;
-    const text = await readFile(join(out, 'daily', f), 'utf8');
+    const text = await shippedText(f);
     assert.doesNotMatch(text, /https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?/, `local URL in ${f}`);
     assert.doesNotMatch(text, /\/Users\//, `local path in ${f}`);
   }

@@ -2,7 +2,7 @@
 // Pages supply sections (pure renderers) and action handlers; animations run from events.
 import { createBackend, snapshotViews, startOwnerGame, defaultTasks, SAVE_KEY } from './backend.js';
 import { loadArt, petsStylesheet, placeholderArt } from './art.js';
-import { DEFAULT_TASKS, readTaskForm } from './tasks.js';
+import { DEFAULT_TASKS, TIER_KEYS, readTaskForm } from './tasks.js';
 import { renderModeBar } from './render-common.js';
 import { renderListEditor, renderEditorRow } from './render-settings.js';
 import { reduced } from './motion.js';
@@ -41,7 +41,7 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     const active = vm.pets?.active || [];
     const companionId = vm.settings?.companionId ?? vm.settings?.companion;
     const focusPet = active.find(p => p.id === companionId && p.mood !== 'dead') || active.find(p => p.mood !== 'dead') || null;
-    return { owner: c.owner, fixture: Boolean(c.backend?.fixture), canReturn: c.backend?.mode === 'owner' && c.asVisitor, art: c.art, now: c.backend?.now() ?? Date.now(), ui: c.ui, ladder: vm.ladder, focusPet, reduced: reduced(), defaults: c.defaults, window: vm.header?.window };
+    return { owner: c.owner, cloud: Boolean(c.backend?.config), fixture: Boolean(c.backend?.fixture), canReturn: c.backend?.mode === 'owner' && c.asVisitor, art: c.art, now: c.backend?.now() ?? Date.now(), ui: c.ui, ladder: vm.ladder, focusPet, reduced: reduced(), defaults: c.defaults, window: vm.header?.window };
   };
 
   c.views = () => {
@@ -95,18 +95,19 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     }
   }
 
-  // Runs one engine action; animations come from the returned events.
+  // Runs one engine action (in the browser, or in the game-action Edge Function in Supabase mode);
+  // animations come from the returned events.
   c.act = async (action, { quiet = false } = {}) => {
     if (!c.owner) return null;
     const before = c.vm;
     try {
-      const events = normalizeEvents(c.backend.act(action).events);
+      const events = normalizeEvents((await c.backend.act(action)).events);
       c.error('');
       c.render();
       Promise.resolve(onEvents(events || [], before, c)).catch(() => {}); // animations never block input
       return events || [];
     } catch (err) {
-      if (!quiet) c.error(err?.code === 'save-failed' ? "That didn't save. Try again." : err?.message || 'That action failed.');
+      if (!quiet || err?.code === 'stale') c.error(err?.code === 'save-failed' ? "That didn't save. Try again." : err?.message || 'That action failed.');
       c.render();
       return null;
     }
@@ -164,7 +165,8 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
   const shared = {
     'view-as-visitor': () => { c.asVisitor = true; try { sessionStorage.setItem(VISITOR_FLAG, '1'); } catch { /* blocked */ } c.render(); c.announce('Showing the public view.'); },
     'view-as-owner': () => { c.asVisitor = false; try { sessionStorage.removeItem(VISITOR_FLAG); } catch { /* blocked */ } c.render(); c.announce('Back to the owner view.'); },
-    'owner-view': () => openSetup(),
+    'owner-view': () => (c.backend?.config ? ownerSignIn() : openSetup()),
+    'suggest-tiers': el => suggestTiers(el),
     'list-add-row': el => {
       const form = el.closest('form');
       const count = form.querySelector('[name="count"]');
@@ -183,6 +185,7 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     'export-save': () => download(`daily-save-${dayKey(Date.now())}.json`, c.backend.exportJson()),
     'export-snapshot': () => { download('snapshot.json', c.backend.exportSnapshot()); c.announce('Snapshot exported. Commit it as workspace/daily/public/snapshot.json.'); },
     'forget-device': async () => {
+      if (c.backend?.cloud) { await c.backend.forget(); location.reload(); return; } // Supabase mode: sign out
       if (!(await c.confirm({ title: 'Remove the save from this device?', body: 'Export your save first. This cannot be undone on this device.', confirm: 'Remove the save', danger: true }))) return;
       c.backend.forget?.();
       location.reload();
@@ -193,10 +196,66 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     const d = $('#setup-dialog');
     if (!d?.showModal) return;
     const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
-    d.querySelector('[data-slot="editor"]').innerHTML = String(renderListEditor(c.defaults, { form: 'setup', submit: 'Start on this device', intro: 'Set this month’s list. It locks for the calendar month. Your game is saved only in this browser.' }));
+    const cloud = Boolean(c.backend?.pendingOwner);
+    d.querySelector('#setup-title').textContent = cloud ? 'Start the game' : 'Start the game on this device';
+    d.querySelector('[data-slot="editor"]').innerHTML = String(renderListEditor(c.defaults, cloud
+      ? { form: 'setup', suggest: true, submit: 'Start the game', intro: 'Set this month’s list. It locks for the calendar month. Your game is saved in the cloud and every change runs on the server.' }
+      : { form: 'setup', submit: 'Start on this device', intro: 'Set this month’s list. It locks for the calendar month. Your game is saved only in this browser.' }));
     const dev = d.querySelector('[data-slot="dev"]');
     if (dev) dev.hidden = !local;
     d.showModal();
+  }
+
+  // ---------- Supabase mode: sign-in, first run, tier suggestions ----------
+  async function ownerSignIn() {
+    if (c.backend?.pendingOwner) return onboardOwner();
+    if (!c.backend?.client) { c.error(c.backend?.notice || 'Owner sign-in is unavailable right now.'); return; }
+    try { await (await import('./cloud.js')).signIn(c.backend.client); } catch (err) { c.error(err.message); }
+  }
+
+  // Signed in as the owner with no cloud game yet: upload this device's local save, or set the first list.
+  async function onboardOwner() {
+    const owner = c.backend.pendingOwner;
+    const cloud = await import('./cloud.js');
+    const text = cloud.localSave();
+    if (text && await c.confirm({ title: 'Move this device’s save to the cloud?', body: 'This browser holds your Daily save. Upload it as the cloud game; a copy stays on this device. Cancel to start a new list instead.', confirm: 'Upload the save' })) {
+      try {
+        await owner.importJson(text);
+        cloud.retireLocalSave();
+        c.backend = owner;
+        c.last.clear();
+        c.render();
+        c.announce('Your save is in the cloud now.');
+      } catch (err) { c.error(err.message || 'The upload failed. Nothing changed.'); }
+      return;
+    }
+    openSetup();
+  }
+
+  async function suggestTiers(el) {
+    const backend = c.backend?.pendingOwner || c.backend;
+    if (typeof backend?.suggestTiers !== 'function') return;
+    const row = el.closest('.editor-row');
+    const field = name => row.querySelector(`[name$="-${name}"]`);
+    const task = {
+      name: field('name').value.trim(), type: field('type').value, unit: field('unit').value.trim() || undefined,
+      chill: Number(field('chill').value) || undefined, chillText: field('tier-0').value.trim() || undefined,
+      purpose: field('purpose')?.value || undefined, physical: field('physical').checked,
+    };
+    if (!task.name) { c.error('Name the task first.'); return; }
+    const label = el.textContent;
+    el.disabled = true;
+    el.textContent = 'Suggesting…';
+    try {
+      const tiers = await backend.suggestTiers(task);
+      TIER_KEYS.forEach((k, n) => { const input = field(`tier-${n}`); if (tiers?.[k] && !(n === 0 && input.value.trim())) input.value = tiers[k]; });
+      c.announce('Tier text suggested. Edit it before you save the list.');
+    } catch (err) {
+      c.error(err.message || 'No suggestion right now. Write the tiers by hand.');
+    } finally {
+      el.disabled = false;
+      el.textContent = label;
+    }
   }
 
   function download(name, text) {
@@ -214,7 +273,8 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
       const tasks = readTaskForm(form);
       if (tasks.length < 1) { c.error('Add at least one task.'); return; }
       try {
-        c.backend = await startOwnerGame(tasks);
+        const owner = c.backend?.pendingOwner;
+        if (owner) { await owner.create(tasks); c.backend = owner; } else c.backend = await startOwnerGame(tasks);
         form.closest('dialog')?.close();
         c.last.clear();
         c.render();
@@ -283,8 +343,11 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     if (input.matches('[data-action="import-save"]') && input.files?.[0]) {
       const text = await input.files[0].text();
       input.value = '';
-      if (!(await c.confirm({ title: 'Replace this device’s save?', body: 'The imported file replaces the current game on this device. Export the current save first if you want to keep it.', confirm: 'Import and replace', danger: true }))) return;
-      try { c.backend.importJson(text); c.last.clear(); c.render(); c.announce('Save imported.'); } catch (err) { c.error(err.message || 'That file could not be imported.'); }
+      const cloud = Boolean(c.backend?.cloud);
+      if (!(await c.confirm(cloud
+        ? { title: 'Replace the cloud game?', body: 'The imported file replaces your game on every device. Export the current save first if you want to keep it.', confirm: 'Import and replace', danger: true }
+        : { title: 'Replace this device’s save?', body: 'The imported file replaces the current game on this device. Export the current save first if you want to keep it.', confirm: 'Import and replace', danger: true }))) return;
+      try { await c.backend.importJson(text); c.last.clear(); c.render(); c.announce('Save imported.'); } catch (err) { c.error(err.message || 'That file could not be imported.'); }
     }
   });
 
@@ -308,6 +371,9 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     document.getElementById('load-status')?.setAttribute('hidden', '');
     c.render();
     onLoad(events, c);
+    if (c.backend.notice) c.error(c.backend.notice);
+    if (c.backend.rulesMismatch) c.error('The game rules on the server differ from this page. Reload once the latest site update is live.');
+    if (c.backend.pendingOwner) onboardOwner();
     setInterval(() => tick(), 60000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
     return c;
@@ -316,7 +382,7 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
   async function tick() {
     if (!c.backend) return;
     try {
-      const events = normalizeEvents(c.backend.refresh().events);
+      const events = normalizeEvents((await c.backend.refresh()).events);
       const before = c.vm;
       c.render();
       if (events?.length) Promise.resolve(onEvents(events, before, c)).catch(() => {});

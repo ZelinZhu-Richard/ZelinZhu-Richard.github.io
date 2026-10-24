@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { extname } from 'node:path';
 import { inventory } from './manifest.mjs';
 const root = process.argv[2] || 'dist';
@@ -30,9 +31,29 @@ function localReference(ref, from) {
     if (!html.includes(`id="${id}"`) && !html.includes(`id='${id}'`)) errors.push(`Missing anchor ${ref} in ${from}`);
   }
 }
+// Owner-approved exemption (2026-10-24): the vendored supabase-js bundle carries auth-js's default URL
+// http://localhost:9999. Only that literal, only in that file, and only while the file's sha256 matches the
+// pinned daily/vendor/manifest.json entry; any other edit to the bundle fails the build.
+const VENDORED_SUPABASE = { file: 'daily/vendor/supabase.js', manifest: 'daily/vendor/manifest.json', entry: 'vendor/supabase.js', literal: 'http://localhost:9999' };
+async function devPathText(file, text) {
+  if (file !== VENDORED_SUPABASE.file) return text;
+  let pinned;
+  try { pinned = JSON.parse(documents.get(VENDORED_SUPABASE.manifest) || '').files.find(f => f.file === VENDORED_SUPABASE.entry); } catch { /* reported below */ }
+  const actual = createHash('sha256').update(await readFile(`${root}/${file}`)).digest('hex');
+  if (!pinned || pinned.sha256 !== actual) { errors.push(`Vendored supabase-js does not match ${VENDORED_SUPABASE.manifest}: ${file}`); return text; }
+  return text.split(VENDORED_SUPABASE.literal).join('');
+}
+// A JWT whose payload says role: service_role (Supabase's legacy secret key) must never ship.
+function serviceRoleJwt(text) {
+  for (const m of text.matchAll(/\beyJ[A-Za-z0-9_-]{10,}\.(eyJ[A-Za-z0-9_-]{10,})\.[A-Za-z0-9_-]{10,}/g)) {
+    try { if (JSON.parse(Buffer.from(m[1], 'base64url').toString('utf8')).role === 'service_role') return true; } catch { /* not a JWT */ }
+  }
+  return false;
+}
 for (const [file, text] of documents) {
   if (/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})|\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/.test(text)) errors.push(`Possible secret material in ${file}`);
-  if (/https?:\/\/(?:localhost|127\.0\.0\.1):\d+|\/Users\/|\/src\/main\.jsx/.test(text)) errors.push(`Development path in ${file}`);
+  if (/\bsb_secret_[A-Za-z0-9_-]{10,}|\bsk-ant-[A-Za-z0-9_-]{10,}/.test(text) || serviceRoleJwt(text)) errors.push(`Possible secret material in ${file}`);
+  if (/https?:\/\/(?:localhost|127\.0\.0\.1):\d+|\/Users\/|\/src\/main\.jsx/.test(await devPathText(file, text))) errors.push(`Development path in ${file}`);
   if (/noomoagency\.com|hello@noomo|Noomo Agency Logo|\/cases\/|videos\/cases/.test(text)) errors.push(`Obsolete agency content in ${file}`);
   if (file.endsWith('.html')) {
     if (!text.includes('id="ascii-sharks-background"') || !text.includes('href="/ascii-sharks/background.css"') || !text.includes('src="/ascii-sharks/background.js"')) errors.push(`Shared shark background missing: ${file}`);
@@ -53,7 +74,7 @@ for (const [file, text] of documents) {
 }
 for (const file of ['video/index.html', 'video/style.css', 'video/assets/neon-rain.mp4', 'video/assets/neon-rain-poster.jpg', 'index.html', 'work/index.html', 'about/index.html', 'research/index.html', 'contacts/index.html', 'domainexp/index.html', 'domainexp/style.css', 'domainexp/app.js', 'domainexp/camera.js', 'domainexp/geometry.js', 'domainexp/render.js', 'domainexp/dust.js', 'domainexp/fireball.js', 'domainexp/vision.js', 'domainexp/vision-worker.js', 'domainexp/vendor/hand_landmarker.task', 'domainexp/vendor/mediapipe/vision_bundle.mjs', 'domainexp/vendor/mediapipe/wasm/vision_wasm_internal.js', 'domainexp/vendor/mediapipe/wasm/vision_wasm_internal.wasm', 'domainexp/vendor/mediapipe/wasm/vision_wasm_nosimd_internal.js', 'domainexp/vendor/mediapipe/wasm/vision_wasm_nosimd_internal.wasm', 'domainexp/vendor/MEDIAPIPE-LICENSE.txt', 'gym/index.html', 'gym/app.js', 'gym/camera.js', 'gym/vision-worker.js', 'gym/vendor/pose_landmarker_lite.task', 'gym/vendor/mediapipe/vision_bundle.mjs', 'gym/vendor/mediapipe/wasm/vision_wasm_internal.wasm', 'ppiano/index.html', 'ppiano/app.js', 'ppiano/camera.js', 'ppiano/vision-worker.js', 'ppiano/vendor/hand_landmarker.task', 'ppiano/vendor/opencv.js', 'ppiano/assets/samples.json', 'flash/index.html', 'flash/editor.js', 'flash/renderer.js', 'flash/card.css', 'flash/export-assets.js', '404.html', 'Zelin_Zhu_CV.pdf', '.nojekyll', 'robots.txt', 'sitemap.xml', 'models/v20.glb']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 if (!(await readFile(`${root}/Zelin_Zhu_CV.pdf`)).subarray(0, 5).equals(Buffer.from('%PDF-'))) errors.push('CV is not a valid PDF file');
-for (const file of ['now/index.html', 'now/style.css', 'daily/index.html', 'daily/eggs/index.html', 'hq/index.html']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+for (const file of ['now/index.html', 'now/style.css', 'daily/index.html', 'daily/eggs/index.html', 'daily/vendor/supabase.js', 'daily/vendor/SUPABASE-LICENSE.txt', 'daily/vendor/manifest.json', 'daily/app/cloud.js', 'daily/app/cloud-config.js', 'hq/index.html']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 if (documents.get('sitemap.xml')?.includes('/hq/') || documents.get('robots.txt')?.includes('/hq/')) errors.push('Private page listed in sitemap or robots.txt: /hq/');
 for (const file of ['repolarisdm/index.html', 'repolarisdm/placement/index.html', 'repolarisdm/cards/index.html', 'repolarisdm/agent-patch-audit/index.html', 'repolarisdm/grader-validity/index.html', 'repolarisdm/defend-it/index.html', 'repolarisdm/capstone/index.html', 'repolarisdm/tracker/index.html', 'repolarisdm/assets/style.css', 'repolarisdm/assets/app.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 if (errors.length) { console.error([...new Set(errors)].join('\n')); process.exitCode = 1; }
