@@ -123,6 +123,17 @@ export const PROJECTS = [
     live: '/video/',
     repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/video',
   },
+  {
+    id: 'daily',
+    name: 'Daily',
+    context: 'Personal · Habit Game',
+    year: '2026',
+    oneLiner: 'My daily list feeds my pets.',
+    desc: 'A habit game in public: every task I finish feeds animated pets that level up, lay loot eggs and hatch rarer pets. Miss days and they starve. The odds are public, the stakes are real, and the receipts track what I actually did.',
+    tags: ['Game Design', 'Behaviour Design', 'JavaScript'],
+    live: '/daily/',
+    repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/daily',
+  },
 ];
 
 export const SKILLS = {

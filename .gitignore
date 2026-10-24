@@ -18,3 +18,5 @@ artifacts/
 # Private, local-only folders (never publish; see workspace/repolarisdm/tests/publication.test.mjs)
 /holdout/
 /workspace/polaris-capstone/
+/workspace/daily/_private/
+/workspace/hq/_private/

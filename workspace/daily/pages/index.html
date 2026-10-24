@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily — Richard Zhu</title>
+<meta name="description" content="My daily habits feed animated pets. Finish the list and they grow, lay loot eggs and hatch rarer pets; miss days and they starve. Public odds, real receipts.">
+<link rel="canonical" href="https://zelinzhu-richard.github.io/daily/">
+<meta property="og:title" content="Daily — Keep them fed.">
+<meta property="og:description" content="A habit game where my real daily list feeds my pets. Public odds, real receipts, no real money.">
+<meta property="og:url" content="https://zelinzhu-richard.github.io/daily/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#111022">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/portfolio.css">
+<link rel="stylesheet" href="/daily/style.css">
+<script src="/portfolio.js" defer></script>
+<script type="module" src="/daily/app/daily.js"></script>
+</head>
+<body class="daily-page">
+<a class="skip-link" href="#today-section">Skip to today's list</a>
+<!-- PORTFOLIO_HEADER -->
+<main id="main" class="daily">
+<nav class="daily-nav" aria-label="Daily"><a href="/daily/" aria-current="page">Pets &amp; tasks</a><a href="/daily/eggs/">Eggs, collection &amp; shop</a></nav>
+
+<section class="hero" aria-labelledby="daily-title">
+<div class="hero-copy">
+<p class="eyebrow-mono">Daily · a habit game</p>
+<h1 id="daily-title">Keep them <em>fed.</em></h1>
+<p class="lede">My daily list feeds my pets. Finish everything and they live; push tasks harder and they grow. Leave days unfinished and they starve.</p>
+<div id="status-line" class="status-slot"></div>
+</div>
+<div id="hero-stats" class="hero-stats"></div>
+</section>
+
+<div id="mode-bar" class="mode-bar"></div>
+<p id="load-status" class="load-status" role="status">Loading today's list…</p>
+<noscript><p class="load-status">Daily needs JavaScript to show the list and the pets. The odds and rules are on the <a href="/daily/eggs/">Eggs page</a>.</p></noscript>
+<p id="error" class="error" role="alert" hidden></p>
+<div id="reminder" hidden></div>
+<div id="morning" hidden></div>
+
+<div class="today-grid" id="today-section" tabindex="-1">
+<section id="today" class="today" aria-labelledby="today-title"></section>
+<aside class="today-aside" aria-label="Pet food, quests and season">
+<section class="panel pool-panel" aria-label="Pet food"><div id="companion" class="companion-slot"></div><div id="pool" class="pool-slot"></div></section>
+<section class="panel" id="quests" aria-label="Daily quests"></section>
+<section class="panel" id="season" aria-label="Season track"></section>
+</aside>
+</div>
+
+<p id="resources" class="resources" aria-label="Resources" hidden></p>
+
+<section class="block" aria-labelledby="hunger-title">
+<div class="section-head"><h2 id="hunger-title" class="section-title">Pet <em>status</em></h2><p class="mono-label">misses stack · freezes cover one day each</p></div>
+<div id="hunger"></div>
+</section>
+
+<section class="block" id="pets" aria-label="Active pets"></section>
+<section class="block" id="receipts" aria-label="Receipts"></section>
+<section class="block" id="ladder" aria-label="Difficulty ladder"></section>
+<section class="block" id="backpack" aria-label="Backpack"></section>
+<section class="block" id="settings" aria-label="Settings" hidden></section>
+
+<p id="live" class="sr-only" aria-live="polite"></p>
+</main>
+
+<dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-title">
+<form method="dialog">
+<h2 id="confirm-title" data-slot="title">Are you sure?</h2>
+<p data-slot="body"></p>
+<label class="field" data-slot="field" hidden><span>Name</span><input type="text" autocomplete="off"></label>
+<div class="dialog-actions"><button type="submit" class="button button--accent" value="ok" data-slot="ok">Confirm</button><button type="submit" class="button" value="cancel" formnovalidate>Cancel</button></div>
+</form>
+</dialog>
+
+<dialog id="setup-dialog" class="dialog dialog--wide" aria-labelledby="setup-title">
+<h2 id="setup-title">Start the game on this device</h2>
+<div data-slot="editor"></div>
+<p class="error" data-slot="setup-error" role="alert"></p>
+<p class="small muted" data-slot="dev" hidden>Local development: <a href="?fixtures=owner">owner view with fixture data</a> · <a href="?fixtures=visitor">visitor view with fixture data</a>.</p>
+<form method="dialog"><button type="submit" class="button">Not now</button></form>
+</dialog>
+
+<!-- PORTFOLIO_FOOTER -->
+</body>
+</html>

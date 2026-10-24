@@ -1,0 +1,345 @@
+/* /now/ — learning in public. Tokens come from /portfolio.css (:root). */
+/* This stylesheet loads only on /now/, so main carries the page tokens. */
+main{
+  --now-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --now-amber:#ffc98f;
+  --now-ground:#0d0c1c;
+  --now-chip-ink:#15122a
+}
+.now-eyebrow{
+  font-family:var(--now-mono);
+  font-size:13px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0
+}
+/* Hero eyebrow: the site .eyebrow (size and its 700px step) in the mono stack */
+.now-mono{
+  font-family:var(--now-mono)
+}
+.now-intro{
+  padding:90px 0 110px
+}
+.now-lede{
+  margin-bottom:40px
+}
+.now-currently{
+  display:inline-flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px 14px;
+  margin:0;
+  padding:12px 18px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#0d0c1cb3;
+  font-family:var(--now-mono);
+  font-size:14px;
+  line-height:1.5;
+  color:var(--muted)
+}
+.now-currently-label,.now-caret{
+  color:var(--accent)
+}
+.now-currently-items{
+  color:var(--ink)
+}
+.now-currently-last{
+  white-space:nowrap
+}
+.now-caret{
+  display:inline-block;
+  margin-left:2px;
+  animation:now-blink 1.1s steps(1) infinite
+}
+@keyframes now-blink{
+  0%,100%{opacity:1}
+  50%{opacity:0}
+}
+
+/* Section frame shared by both lists */
+.now-section{
+  padding:70px 0 40px;
+  border-top:1px solid var(--line)
+}
+.now-section-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px 40px;
+  margin-bottom:30px
+}
+.now-section-head h2{
+  margin:0
+}
+
+/* 01 — courses, on the site's .experience rows */
+.experience.now-courses{
+  padding:70px 0 40px
+}
+.now-courses ol{
+  margin:0
+}
+.now-course-meta{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:10px
+}
+.now-chip{
+  font-family:var(--now-mono);
+  font-size:12px;
+  line-height:1.6;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:4px 10px;
+  border-radius:999px
+}
+.now-chip--enrolled{
+  background:var(--accent);
+  color:var(--now-chip-ink)
+}
+.now-chip--sitting-in,.now-chip--auditing{
+  padding:3px 10px;
+  border:1px solid #ffffff59;
+  color:var(--ink)
+}
+.now-chip--self-study{
+  background:var(--now-amber);
+  color:var(--now-chip-ink)
+}
+.now-where{
+  font-size:15px;
+  color:var(--muted)
+}
+.now-course h3{
+  margin:0 0 6px
+}
+.experience .now-course .now-note{
+  margin:0 0 18px
+}
+.experience .now-course .now-lines{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 32px;
+  margin:0;
+  font-family:var(--now-mono);
+  font-size:14px;
+  color:var(--ink)
+}
+.now-line-label{
+  color:var(--muted)
+}
+
+/* 02 — milestones timeline */
+.now-milestones{
+  padding-bottom:60px
+}
+.now-milestones .now-section-head{
+  margin-bottom:50px
+}
+.now-timeline{
+  list-style:none;
+  margin:0;
+  padding:0
+}
+.now-milestone{
+  display:grid;
+  grid-template-columns:minmax(84px,150px) 32px minmax(0,1fr);
+  column-gap:20px
+}
+.now-when{
+  font-family:var(--now-mono);
+  font-size:14px;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding-top:4px
+}
+.now-milestone--next .now-when{
+  color:var(--now-amber)
+}
+.now-rail{
+  position:relative;
+  display:flex;
+  justify-content:center
+}
+.now-rail::before{
+  content:'';
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:var(--line)
+}
+.now-milestone:last-child .now-rail::before{
+  bottom:auto;
+  height:18px
+}
+.now-dot{
+  position:relative;
+  margin-top:9px;
+  width:14px;
+  height:14px;
+  border-radius:999px;
+  border:1px solid #ffffff73;
+  background:var(--now-ground)
+}
+.now-milestone--done .now-dot{
+  border-color:var(--accent);
+  background:var(--accent)
+}
+.now-milestone--review .now-dot{
+  border-color:var(--accent)
+}
+.now-milestone--next .now-dot{
+  border-color:var(--now-amber);
+  background:var(--now-amber)
+}
+.now-pulse{
+  position:absolute;
+  inset:-6px;
+  border-radius:999px;
+  border:1px solid var(--now-amber);
+  opacity:.55;
+  animation:now-pulse 2.4s ease-out infinite
+}
+@keyframes now-pulse{
+  0%{transform:scale(.8);opacity:.8}
+  100%{transform:scale(1.9);opacity:0}
+}
+.now-milestone-body{
+  padding-bottom:44px
+}
+.now-milestone:last-child .now-milestone-body{
+  padding-bottom:10px
+}
+.now-milestone-body h3{
+  margin:0 0 4px
+}
+.now-milestone-body p{
+  margin:0;
+  color:var(--muted)
+}
+
+/* 03 — optional "This month" strip (hidden unless /daily/snapshot.json loads) */
+.now-month[hidden]{
+  display:none
+}
+.now-month{
+  padding:50px 0 40px
+}
+.now-month-title{
+  font-size:clamp(28px,3vw,40px)
+}
+.now-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:24px 30px;
+  margin:0 0 20px
+}
+.now-stats dt{
+  font-family:var(--now-mono);
+  font-size:12px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--muted)
+}
+.now-stats dd{
+  margin:4px 0 0;
+  font-family:var(--now-mono);
+  font-size:32px;
+  line-height:1.2;
+  font-variant-numeric:tabular-nums
+}
+.now-month-link{
+  display:inline-block;
+  padding:10px 0;
+  border-bottom:1px solid var(--line)
+}
+.now-month-link span{
+  margin-left:10px
+}
+
+/* Closing line: small, the footer carries the display statement */
+.now-closing{
+  margin:0;
+  padding:30px 0 0;
+  border-top:1px solid var(--line);
+  font-family:var(--now-mono);
+  font-size:13px;
+  color:var(--muted)
+}
+.now-closing time{
+  white-space:nowrap
+}
+
+.now-visually-hidden{
+  position:absolute;
+  width:1px;
+  height:1px;
+  margin:-1px;
+  padding:0;
+  overflow:hidden;
+  clip:rect(0 0 0 0);
+  white-space:nowrap;
+  border:0
+}
+
+@media(max-width:700px){
+  .now-intro{
+    padding:60px 0 70px
+  }
+  .now-currently{
+    border-radius:22px
+  }
+  .now-section,.experience.now-courses{
+    padding:45px 0 30px
+  }
+  .now-milestones .now-section-head{
+    margin-bottom:34px
+  }
+  .now-course h3,.now-milestone-body h3{
+    font-size:22px
+  }
+  .now-milestone{
+    grid-template-columns:24px minmax(0,1fr);
+    column-gap:14px
+  }
+  .now-rail{
+    grid-column:1;
+    grid-row:1/span 2
+  }
+  .now-when{
+    grid-column:2;
+    grid-row:1;
+    padding-top:0
+  }
+  .now-milestone-body{
+    grid-column:2;
+    grid-row:2;
+    padding-bottom:34px
+  }
+  .now-dot{
+    margin-top:5px
+  }
+  .now-milestone:last-child .now-rail::before{
+    height:12px
+  }
+  .now-stats{
+    grid-template-columns:repeat(2,minmax(0,1fr))
+  }
+  .now-stats dd{
+    font-size:26px
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .now-caret,.now-pulse{
+    animation:none
+  }
+  .now-caret{
+    opacity:1
+  }
+}

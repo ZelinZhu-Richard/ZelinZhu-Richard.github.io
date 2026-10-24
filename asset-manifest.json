@@ -8,8 +8,8 @@
     },
     {
       "file": "_nuxt/CbdjwYMp.js",
-      "bytes": 1609263,
-      "sha256": "cc19c6723b2f3d4a5d654719af515dfb85bc56b9275feea2f3c7f5747cd1d8f4"
+      "bytes": 1609677,
+      "sha256": "f314f1765e8ff55fdbfb9e19dfca2bf1f550faf0a26b6bf8c12f727226eddbd4"
     },
     {
       "file": "_nuxt/CoNJmAYZ.js",
@@ -93,8 +93,8 @@
     },
     {
       "file": "contacts/index.html",
-      "bytes": 7905,
-      "sha256": "65e94477d52705c7cd9c460191249a29018dc99e5e9835c6dca2afae667dcd24"
+      "bytes": 7965,
+      "sha256": "27650b7487f8c3ef0a4b290cf81b3d068d4983918c27e048b15942e822b2abf9"
     },
     {
       "file": "favicon.svg",
@@ -198,8 +198,8 @@
     },
     {
       "file": "index.html",
-      "bytes": 11069,
-      "sha256": "f3d50fa163f65cb8e2044a4660be580c9f5c837f4e4048245ab134fe69405d13"
+      "bytes": 11129,
+      "sha256": "3da2c345305fedc4f90f6cefc616c6b582d98d1c2ef02d89a75c2f2780f4921e"
     },
     {
       "file": "libs/draco/draco_decoder.js",
@@ -269,7 +269,7 @@
     {
       "file": "portfolio.css",
       "bytes": 7206,
-      "sha256": "49d9a8787628ff77c397a0858296a278baaf789b20fe257e74b06b292178e135"
+      "sha256": "2525bc6d1b5cb6b944475c3f45e3bbe24e8c57cf9250d55b062099df91e79a18"
     },
     {
       "file": "portfolio.js",

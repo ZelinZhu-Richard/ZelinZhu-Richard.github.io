@@ -1,0 +1,1076 @@
+/* Daily pets: every keyframe, mood class, tier/aura animation, egg and state animation.
+   Rendered by pets/index.js (see the layer map at the top of pets/rig.js).
+
+   Rules
+   - Base styles ARE the static mood pose. Animations only add motion, so reduced motion
+     (and .pet--still) simply turns animation off.
+   - Every pet breathes and blinks. Aura animation and species idle run only inside .pet--focus
+     (CONTENT.md §A.1 performance rule). Thumbnails (.pet--thumb, 72 px) never idle.
+   - Triggered one-shot classes on the <svg> root: pet--bounce, pet--eat, pet--levelup, pet--cheer,
+     egg--shake, egg--crack. Durations: ANIM_MS in pets/index.js.
+   - .pet--paused pauses everything (for off-screen cards via IntersectionObserver).
+   - Per-species keyframes live ONLY in that species' marked block at the end of this file. */
+
+/* ---------- base ---------- */
+
+.pet, .egg, .pet-silhouette { display: inline-block; overflow: visible; vertical-align: middle; }
+.pet *, .egg * { transform-box: view-box; }
+.pet .pet-breathe, .pet .pet-act, .pet .pet-mood, .pet .pet-idle, .pet .pet-float, .pet .pet-headrig { transform-origin: 80px 148px; }
+.pet .pet-headrig { transform: translateY(var(--head-y, 0px)); }
+
+/* ---------- breathing + blink (all pets) ---------- */
+
+.pet .pet-breathe { animation: pet-breathe var(--breathe, 3.6s) ease-in-out var(--breathe-delay, 0s) infinite; }
+.pet .pet-headrig { animation: pet-breathe-head var(--breathe, 3.6s) ease-in-out var(--breathe-delay, 0s) infinite; }
+.pet .eyes-open { transform-box: fill-box; transform-origin: center; animation: pet-blink var(--blink-every, 5s) linear var(--blink-delay, 0s) infinite; }
+
+@keyframes pet-breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.03); } }
+@keyframes pet-breathe-head {
+  0%, 100% { transform: translateY(var(--head-y, 0px)); }
+  50% { transform: translateY(calc(var(--head-y, 0px) - 1.5px)); }
+}
+@keyframes pet-blink { 0%, 96.5% { transform: scaleY(1); } 98% { transform: scaleY(.1); } 100% { transform: scaleY(1); } }
+/* Rim-lit pets (5★ gold rim, Ultra prism rim) carry a filter on .pet-idle: breathing would re-run it every
+   frame, so only the focused one breathes (they still blink). */
+.pet--rim:not(.pet--focus) .pet-breathe, .pet--rim:not(.pet--focus) .pet-headrig { animation: none; }
+
+/* ---------- moods ---------- */
+
+/* Happy: hearts float up and fade (loop on the focused pet; static elsewhere). */
+.pet .fx-heart { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.pet--mood-happy .fx-heart { opacity: .95; }
+.pet--focus.pet--mood-happy .fx-heart { animation: heart-loop 3.6s ease-out var(--d, 0s) infinite; }
+@keyframes heart-loop {
+  0% { opacity: 0; transform: translateY(4px) scale(.5); }
+  6% { opacity: 1; transform: translateY(0) scale(1.1); }
+  33% { opacity: 0; transform: translateY(-24px) scale(1); }
+  100% { opacity: 0; transform: translateY(-24px) scale(1); }
+}
+
+/* Hungry: head drops 3 px, slower breath, grey belly squiggle every 6 s. */
+.pet--mood-hungry { --head-y: 3px; --breathe: 4.8s; }
+.pet .fx-growl { opacity: .75; }
+.pet--focus .fx-growl { animation: growl 6s ease-in-out infinite; }
+@keyframes growl { 0%, 100% { opacity: 0; } 10%, 22% { opacity: .9; } 34% { opacity: 0; } }
+
+/* Starving: slumped (scaleY .94; a species may set --slump), shallow slow breath, shiver burst every 3 s, tear. */
+.pet--mood-starving { --breathe: 5.4s; }
+.pet--mood-starving .pet-mood { transform: scaleY(var(--slump, .94)); }
+.pet--focus.pet--mood-starving .pet-mood { animation: shiver 3s linear infinite; }
+@keyframes shiver {
+  0%, 90%, 100% { transform: translateX(0) scaleY(var(--slump, .94)); }
+  91.25% { transform: translateX(1px) scaleY(var(--slump, .94)); }
+  92.5% { transform: translateX(-1px) scaleY(var(--slump, .94)); }
+  93.75% { transform: translateX(1px) scaleY(var(--slump, .94)); }
+  95% { transform: translateX(-1px) scaleY(var(--slump, .94)); }
+}
+.pet .tear { transform-box: fill-box; transform-origin: center top; }
+.pet--focus .tear { animation: tear-slide 2s ease-in infinite; }
+@keyframes tear-slide {
+  0% { opacity: 0; transform: translateY(-3px) scale(.6); }
+  15% { opacity: 1; transform: translateY(0) scale(1); }
+  80% { opacity: 1; transform: translateY(9px) scale(1); }
+  100% { opacity: 0; transform: translateY(12px) scale(.9); }
+}
+
+/* ---------- triggered: face swap to happy ---------- */
+
+.pet--bounce .face-mood, .pet--eat .face-mood, .pet--levelup .face-mood, .pet--cheer .face-mood { display: none; }
+.pet--bounce .face-react, .pet--eat .face-react, .pet--levelup .face-react, .pet--cheer .face-react { display: inline; }
+.pet--thumb:is(.pet--bounce, .pet--eat, .pet--levelup, .pet--cheer) .face-mood { display: inline; } /* thumbs have no happy copy */
+.pet--bounce .fx-heart, .pet--cheer .fx-heart, .pet--levelup .fx-heart, .pet--eat .fx-heart { animation: heart-burst 1.2s ease-out var(--d, 0s) both; }
+.pet--eat .fx-heart { animation-delay: calc(var(--d, 0s) + .45s); }
+@keyframes heart-burst {
+  0% { opacity: 0; transform: translateY(4px) scale(.4); }
+  15% { opacity: 1; transform: translateY(0) scale(1.15); }
+  100% { opacity: 0; transform: translateY(-24px) scale(1); }
+}
+
+/* ---------- triggered: happy bounce (2 hops, 0.7 s) ---------- */
+
+.pet--bounce .pet-act, .pet--cheer .pet-act { animation: pet-hop .7s cubic-bezier(.3, .7, .4, 1) both; }
+.pet--bounce .pet-shadow, .pet--cheer .pet-shadow { transform-origin: 80px 149px; animation: shadow-hop .7s ease-in-out both; }
+@keyframes pet-hop {
+  0% { transform: none; }
+  8% { transform: scale(1.08, .92); }
+  25% { transform: translateY(-14px) scale(.95, 1.06); }
+  42% { transform: translateY(0) scale(1.1, .9); }
+  50% { transform: translateY(0) scale(1, 1); }
+  68% { transform: translateY(-14px) scale(.96, 1.05); }
+  86% { transform: translateY(0) scale(1.1, .9); }
+  100% { transform: none; }
+}
+@keyframes shadow-hop { 0%, 42%, 50%, 86%, 100% { transform: scaleX(1); } 25%, 68% { transform: scaleX(.78); opacity: .2; } }
+.pet .fx-trail g { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.pet--bounce .fx-trail g, .pet--cheer .fx-trail g { animation: trail .7s ease-out both; animation-delay: calc(var(--i) * 60ms); }
+@keyframes trail { 0% { opacity: 0; transform: scale(.4); } 30% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0; transform: translateY(-8px) scale(.6); } }
+
+/* ---------- triggered: eating (orb 350 ms, then ~800 ms species action, 3 crumbs) ---------- */
+
+.pet .fx-orb { opacity: 0; }
+.pet--eat .fx-orb { animation: orb-fly 1.2s linear both; }
+.pet--eat .fx-orb-trail { animation-delay: calc(var(--i, 1) * 28ms); }
+@keyframes orb-fly {
+  0% { opacity: 0; transform: translate(-74px, 36px) scale(1.1) rotate(0deg); }
+  4% { opacity: 1; }
+  14% { transform: translate(-40px, -26px) scale(1.1) rotate(90deg); animation-timing-function: ease-in; }
+  29% { opacity: 1; transform: translate(0, 0) scale(.7) rotate(180deg); }
+  32%, 100% { opacity: 0; transform: translate(0, 0) scale(.2); }
+}
+.pet .fx-crumb { opacity: 0; }
+.pet--eat .fx-crumb { animation: crumb 1.2s ease-in both; animation-delay: calc(var(--i) * 90ms); }
+@keyframes crumb {
+  0%, 40% { opacity: 0; transform: translate(0, 0); }
+  46% { opacity: 1; }
+  85% { opacity: 1; transform: translate(calc((var(--i) - 1) * 7px), 16px); }
+  100% { opacity: 0; transform: translate(calc((var(--i) - 1) * 7px), 18px); }
+}
+/* Default eating action (species may override in its block): two chomps after the orb lands. */
+.pet--eat .pet-act { animation: pet-chomp 1.2s ease-in-out both; }
+@keyframes pet-chomp {
+  0%, 30% { transform: none; }
+  38% { transform: scale(1.03, .94); }
+  46% { transform: none; }
+  54% { transform: scale(1.03, .94); }
+  62%, 100% { transform: none; }
+}
+
+/* ---------- triggered: level-up (1.2 s) ---------- */
+
+.pet--levelup .pet-act { animation: pet-jump 1.2s cubic-bezier(.3, .7, .4, 1) both; }
+.pet--levelup .pet-shadow { transform-origin: 80px 149px; animation: shadow-jump 1.2s ease-in-out both; }
+@keyframes pet-jump {
+  0% { transform: none; }
+  12% { transform: translateY(3px) scale(1.07, .93); }
+  30% { transform: translateY(-22px) scale(.95, 1.06); }
+  50% { transform: translateY(-22px) scale(1, 1); }
+  66% { transform: translateY(0) scale(1.08, .92); }
+  76% { transform: scale(.97, 1.03); }
+  86%, 100% { transform: none; }
+}
+@keyframes shadow-jump { 0%, 12%, 66%, 100% { transform: scaleX(1); } 30%, 50% { transform: scaleX(.7); opacity: .18; } }
+.pet .fx-ring, .pet .fx-sparkle, .pet .fx-pill { opacity: 0; }
+.pet .fx-sparkle { transform-box: fill-box; transform-origin: center; }
+.pet--levelup .fx-ring { animation: lv-ring 1.2s ease-out both; }
+@keyframes lv-ring {
+  0%, 22% { opacity: 0; transform: scale(.02); stroke-width: 8; }
+  24% { opacity: 1; }
+  80% { opacity: 0; transform: scale(1); stroke-width: .5; }
+  100% { opacity: 0; transform: scale(1); }
+}
+.pet--levelup .fx-sparkle { animation: lv-sparkle 1.2s ease-out both; animation-delay: calc(var(--i) * 45ms); }
+@keyframes lv-sparkle {
+  0%, 22% { opacity: 0; transform: translateY(0) scale(.3); }
+  32% { opacity: 1; transform: translateY(-6px) scale(1.1); }
+  90%, 100% { opacity: 0; transform: translateY(-36px) scale(.7) rotate(90deg); }
+}
+.pet--levelup .fx-pill { animation: lv-pill 1.2s ease-out both; }
+@keyframes lv-pill {
+  0%, 24% { opacity: 0; transform: scale(.4); }
+  34% { opacity: 1; transform: scale(1.15); }
+  42% { transform: scale(1); }
+  85% { opacity: 1; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+
+/* ---------- tier aura (focused pet / live egg only; static elsewhere) ---------- */
+
+.pet .aura-twinkle g, .pet .aura-twinkle path, .egg .aura-twinkle path { transform-box: fill-box; transform-origin: center; }
+:is(.pet--focus, .egg--focus) .aura-twinkle path { animation: aura-twinkle 5s ease-in-out var(--d, 0s) infinite; }
+@keyframes aura-twinkle {
+  0%, 30%, 100% { opacity: 0; transform: scale(.5); }
+  6% { opacity: 1; transform: scale(1.15) rotate(20deg); }
+  14% { opacity: 1; transform: scale(1); }
+  24% { opacity: 0; transform: scale(.6); }
+}
+:is(.pet--focus, .egg--focus) .aura-glow { animation: aura-glow 3s ease-in-out infinite alternate; }
+@keyframes aura-glow { from { opacity: .7; } to { opacity: 1; } }
+:is(.pet--focus, .egg--focus) .aura-spin { animation: aura-spin var(--spin, 20s) linear infinite; }
+@keyframes aura-spin { to { transform: rotate(360deg); } }
+:is(.pet--focus, .egg--focus) .aura-orbit { animation: aura-orbit var(--dur, 6s) linear infinite; }
+@keyframes aura-orbit { from { transform: rotate(var(--a0, 0deg)); } to { transform: rotate(calc(var(--a0, 0deg) + 360deg)); } }
+:is(.pet--focus, .egg--focus) .aura-pulse { animation: aura-pulse 4s ease-in-out infinite; }
+@keyframes aura-pulse { 0%, 100% { transform: scale(.95); } 50% { transform: scale(1.05); } }
+.pet .aura-rise, .egg .aura-rise { transform-box: fill-box; transform-origin: center; }
+:is(.pet--focus, .egg--focus) .aura-rise { animation: aura-rise 3.2s ease-in-out var(--d, 0s) infinite; }
+@keyframes aura-rise {
+  0% { opacity: 0; transform: translateY(14px) scale(.6); }
+  25% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-34px) scale(.8) rotate(90deg); }
+}
+
+/* Ultra: float 4 px (static via the markup) and bob on the focused pet; prism hue drift. */
+.pet--focus.pet--tier-6 .pet-float { animation: ultra-float 3.2s ease-in-out infinite; }
+@keyframes ultra-float { 0%, 100% { transform: translateY(-4px); } 50% { transform: translateY(-8px); } }
+.pet--focus.pet--tier-6 .pet-shadow { transform-origin: 80px 149px; animation: ultra-shadow 3.2s ease-in-out infinite; }
+@keyframes ultra-shadow { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.86); } }
+:is(.pet--focus, .egg--focus) .prism-drift { animation: prism-drift 6s linear infinite; }
+@keyframes prism-drift { from { transform: translateX(0); } to { transform: translateX(120px); } }
+/* One white sheen band sweeps across the focused Ultra pet (1.2 s every 4.5 s). */
+.pet--focus.pet--tier-6 .prism-sheen { animation: prism-sheen 4.5s ease-in-out 1s infinite; }
+@keyframes prism-sheen { 0% { transform: translateX(0); } 26.7%, 100% { transform: translateX(250px); } }
+
+/* ---------- thumbnails (72 px): no thin markings, static ring, no idle, no fx ---------- */
+
+.pet--thumb .g-markings .thin { display: none; }
+.pet--thumb .pet-idle { animation: none !important; }
+.pet--thumb .g-fx { display: none; }
+
+/* ---------- fallback (species not built yet) ---------- */
+
+.pet--fallback .fallback-marker { pointer-events: none; }
+
+/* ---------- gravestone and ashes ---------- */
+
+.pet--grave * { animation: none !important; }
+.pet--ashes .ash-coal { animation: coal-pulse 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * -.48s); }
+.pet--ashes .ash-glow { animation: coal-pulse 2.4s ease-in-out infinite; }
+@keyframes coal-pulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+.pet--ashes .ash-wisp { animation: ash-wisp 5s ease-out infinite; }
+@keyframes ash-wisp {
+  0% { opacity: 0; transform: translateY(6px); }
+  20% { opacity: 1; }
+  70%, 100% { opacity: 0; transform: translateY(-30px); }
+}
+.pet--ashes .ash-sparks path { transform-box: fill-box; transform-origin: center; animation: ash-spark 3s ease-out infinite; animation-delay: calc(var(--i) * 1s); }
+@keyframes ash-spark {
+  0% { opacity: 0; transform: translateY(8px) scale(.5); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-22px) scale(1); }
+}
+
+/* ---------- eggs ---------- */
+
+.egg .egg-wobble { transform-origin: 80px 146px; }
+.egg .egg-cap { transform-origin: 80px 88px; }
+/* Idle: loot eggs gleam, pet eggs wiggle (something is alive in there). */
+.egg--live:where(.egg--state-idle) .egg-shine { animation: egg-shine 4.2s ease-in-out infinite; }
+@keyframes egg-shine { 0%, 55% { transform: translateX(-90px); } 85%, 100% { transform: translateX(120px); } }
+.egg--live:where(.egg--kind-pet.egg--state-idle) .egg-wobble { animation: egg-wiggle 4.5s ease-in-out infinite; }
+.egg--live:where(.egg--kind-open.egg--state-idle) .egg-wobble { animation: egg-wiggle 6s ease-in-out 1.2s infinite; }
+@keyframes egg-wiggle {
+  0%, 18%, 100% { transform: rotate(0); }
+  3% { transform: rotate(-4deg); }
+  7% { transform: rotate(3.5deg); }
+  11% { transform: rotate(-2deg); }
+  14% { transform: rotate(1deg); }
+}
+.egg--live .egg-life { animation: egg-life 2.6s ease-in-out infinite alternate; }
+@keyframes egg-life { from { opacity: .1; } to { opacity: .3; } }
+/* Shake state: keeps shaking in bursts (anticipation). */
+.egg--state-shake .egg-wobble { animation: egg-shake-loop 1.4s ease-in-out infinite; }
+@keyframes egg-shake-loop {
+  0%, 50%, 100% { transform: rotate(0); }
+  6% { transform: rotate(-8deg); } 13% { transform: rotate(7deg); } 20% { transform: rotate(-6deg); }
+  27% { transform: rotate(5deg); } 34% { transform: rotate(-3deg); } 41% { transform: rotate(2deg); }
+}
+/* Trigger: one shake. */
+.egg--shake .egg-wobble { animation: egg-shake .6s ease-in-out both; }
+@keyframes egg-shake {
+  0%, 100% { transform: rotate(0); }
+  12% { transform: rotate(-9deg) translateY(-2px); } 28% { transform: rotate(8deg); } 44% { transform: rotate(-7deg) translateY(-2px); }
+  60% { transform: rotate(6deg); } 76% { transform: rotate(-3deg); } 90% { transform: rotate(2deg); }
+}
+/* Crack state: light leaks and pulses. Trigger: the crack draws in with a jolt. */
+.egg--live.egg--state-crack .egg-leak { animation: egg-leak 1.6s ease-in-out infinite alternate; }
+@keyframes egg-leak { from { opacity: .5; } to { opacity: 1; } }
+.egg--crack .egg-cracks { display: inline; }
+.egg--crack .egg-crackline { stroke-dasharray: 100; animation: egg-crack-draw .45s ease-out both; }
+.egg--crack .egg-leak { animation: egg-leak-in .5s ease-out both; }
+.egg--crack .egg-wobble { animation: egg-jolt .5s ease-out both; }
+@keyframes egg-crack-draw { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+@keyframes egg-leak-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes egg-jolt { 0%, 100% { transform: none; } 20% { transform: scale(1.04, .96); } 45% { transform: rotate(-3deg); } 70% { transform: rotate(2deg); } }
+/* Open state: the cap pops off, light beam, rarity burst and sparks (plays once when inserted). */
+.egg--state-open .egg-cap { animation: egg-cap-pop .7s cubic-bezier(.2, 1.5, .45, 1) both; }
+@keyframes egg-cap-pop {
+  0% { transform: none; }
+  60% { transform: translate(-16px, -26px) rotate(-30deg); }
+  100% { transform: translate(-14px, -20px) rotate(-24deg); }
+}
+.egg--state-open .egg-beam { animation: egg-beam .9s ease-out both; }
+@keyframes egg-beam { 0% { opacity: 0; transform: scaleY(.2); } 40% { opacity: 1; } 100% { opacity: 1; transform: scaleY(1); } }
+.egg .egg-beam { transform-origin: 80px 92px; }
+.egg--state-open .egg-rays, .egg--state-open .egg-core-glow { animation: egg-rays-in .8s ease-out both; }
+.egg .egg-core-glow { transform-box: fill-box; transform-origin: center; }
+.egg--live.egg--state-open .egg-rays { animation: egg-rays-in .8s ease-out both, egg-rays-spin 24s linear .8s infinite; }
+@keyframes egg-rays-in { 0% { opacity: 0; transform: scale(.2); } 50% { opacity: 1; } 100% { opacity: 1; transform: scale(1); } }
+@keyframes egg-rays-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.egg .egg-spark path { transform-box: fill-box; transform-origin: center; }
+.egg--state-open .egg-spark path { animation: egg-spark .9s ease-out both; animation-delay: calc(.12s + var(--i) * 40ms); }
+@keyframes egg-spark {
+  0% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(.2); }
+  60% { opacity: 1; transform: translate(0, 0) scale(1.25); }
+  100% { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+
+/* ---------- pause / still / reduced motion ---------- */
+
+.pet--paused, .pet--paused *, .egg--paused, .egg--paused * { animation-play-state: paused !important; }
+.pet--still, .pet--still *, .egg--still, .egg--still * { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .pet, .pet *, .egg, .egg *, .pet-silhouette, .pet-silhouette * { animation: none !important; transition: none !important; }
+}
+
+/* =====================================================================================
+   PER-SPECIES BLOCKS. Each species agent edits ONLY its own block.
+   Conventions (see species/_template.js):
+   - Idle flourish: `.pet--focus .pet-idle--<id>` runs `<id>-idle` over var(--idle-every)
+     with var(--idle-delay); put the whole flourish in 0%–10% and rest from 10% to 100%.
+   - Tick cheer: `.pet--cheer .pet-idle--<id>` runs the same keyframes once over 10s
+     (so the flourish takes 1 s); the shared hop runs on .pet-act at the same time.
+   - Eating: override `.pet--<id>.pet--eat .pet-act` (default: two chomps) and/or animate parts.
+   - Prefix every class and keyframe with the species id. Only animate inside .pet--focus,
+     except triggered classes (.pet--eat/.pet--cheer/.pet--bounce/.pet--levelup).
+   ===================================================================================== */
+
+/* ===== species: dragon ===== */
+/* Idle flourish (focused pet, every 8–12 s): two wing flaps (−18°, 0.25 s each), a little puff-up,
+   then 3 smoke rings (r 4 → 10) rise 30 px from the snout and fade (~1.4 s). Hungry: smaller flaps
+   and a grey wisp instead of rings. Starving: no flourish. Tail sways gently on the focused pet. */
+.pet--dragon { --dragon-flap: 18deg; }
+.pet--dragon.pet--mood-hungry { --dragon-flap: 8deg; }
+.pet--focus .pet-idle--dragon { animation: dragon-idle var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes dragon-idle {
+  0%, 4%, 100% { transform: none; }
+  6% { transform: scale(1.025, 1.035); }
+  8% { transform: scale(.99, .985); }
+  10% { transform: none; }
+}
+.pet--focus .dragon-wing { animation: dragon-flap var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes dragon-flap {
+  0%, 5%, 100% { transform: rotate(0deg); }
+  1.25%, 3.75% { transform: rotate(calc(var(--dir, 1) * var(--dragon-flap, 18deg))); }
+  2.5% { transform: rotate(calc(var(--dir, 1) * -4deg)); }
+}
+.pet--dragon .dragon-ring { transform: scale(.4); }
+.pet--focus .dragon-ring { animation: dragon-ring var(--idle-every, 10s) ease-out infinite; animation-delay: calc(var(--idle-delay, 0s) + var(--i, 0) * .16s); }
+@keyframes dragon-ring {
+  0%, 6% { opacity: 0; transform: translate(0, 0) scale(.4); }
+  7% { opacity: .95; }
+  12% { opacity: .7; }
+  20%, 100% { opacity: 0; transform: translate(calc((var(--i, 0) - 1) * 2px), -30px) scale(1); }
+}
+.pet--focus .dragon-wisp { animation: dragon-wisp var(--idle-every, 10s) ease-out var(--idle-delay, 0s) infinite; }
+@keyframes dragon-wisp {
+  0%, 6% { opacity: 0; transform: translate(0, 4px) scale(.7); }
+  9% { opacity: .85; }
+  20%, 100% { opacity: 0; transform: translate(1px, -14px) scale(1.1); }
+}
+.pet--focus .dragon-tail { animation: dragon-tail 4.4s ease-in-out var(--breathe-delay, 0s) infinite; }
+@keyframes dragon-tail { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(3deg); } }
+/* Happy (focused): the wings flutter and the tail wags faster. */
+.pet--focus.pet--mood-happy .dragon-wing { animation: dragon-flutter 1.4s ease-in-out infinite; }
+@keyframes dragon-flutter { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(calc(var(--dir, 1) * 7deg)); } }
+.pet--focus.pet--mood-happy .dragon-tail { animation-duration: 1.8s; }
+.pet--focus.pet--mood-hungry .dragon-tail { animation-duration: 7s; }
+.pet--dragon.pet--mood-starving .dragon-wing, .pet--dragon.pet--mood-starving .dragon-tail, .pet--dragon.pet--mood-starving .pet-idle--dragon { animation: none; }
+
+/* Tick cheer (1.2 s): two quick flaps and one smoke ring, over the shared hop. */
+.pet--dragon.pet--cheer .pet-idle--dragon { animation: dragon-idle 10s ease-in-out 0s 1 both; }
+.pet--dragon.pet--cheer .dragon-wing { animation: dragon-cheer-flap 1.2s ease-in-out 1 both; }
+@keyframes dragon-cheer-flap {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  12.5%, 37.5% { transform: rotate(calc(var(--dir, 1) * 20deg)); }
+  25% { transform: rotate(calc(var(--dir, 1) * -4deg)); }
+}
+.pet--dragon.pet--cheer .dragon-ring, .pet--dragon.pet--cheer .dragon-wisp { animation: dragon-cheer-ring 1.2s ease-out 1 both; animation-delay: calc(var(--i, 0) * 80ms); }
+@keyframes dragon-cheer-ring {
+  0%, 35% { opacity: 0; transform: translate(0, 0) scale(.4); }
+  45% { opacity: .95; }
+  100% { opacity: 0; transform: translate(0, -28px) scale(1); }
+}
+
+/* Eating: orb lands (350 ms), two chomps (head scaleY .92, jaw open/shut, 150 ms each), hiccup flame. */
+.pet--dragon.pet--eat .pet-act { animation: dragon-hic 1.2s ease-in-out both; }
+@keyframes dragon-hic {
+  0%, 56%, 100% { transform: none; }
+  60% { transform: translateY(-3px) scale(1.02, .98); }
+  66% { transform: translateY(0) scale(.99, 1.01); }
+  72% { transform: none; }
+}
+.pet--dragon.pet--eat .pet-headrig { transform-origin: 80px 96px; animation: dragon-chomp 1.2s ease-in-out both; }
+@keyframes dragon-chomp {
+  0%, 29% { transform: translateY(var(--head-y, 0px)) scaleY(1); }
+  35% { transform: translateY(var(--head-y, 0px)) scaleY(.92); }
+  41.5% { transform: translateY(var(--head-y, 0px)) scaleY(1); }
+  47.5% { transform: translateY(var(--head-y, 0px)) scaleY(.92); }
+  54%, 100% { transform: translateY(var(--head-y, 0px)) scaleY(1); }
+}
+.pet--dragon.pet--eat .mouth-open { transform-box: fill-box; transform-origin: center top; animation: dragon-jaw 1.2s ease-in-out both; }
+@keyframes dragon-jaw {
+  0%, 29% { transform: scaleY(1); }
+  35% { transform: scaleY(.18); }
+  41.5% { transform: scaleY(1); }
+  47.5% { transform: scaleY(.18); }
+  54%, 100% { transform: scaleY(1); }
+}
+.pet--dragon.pet--eat .dragon-hiccup { animation: dragon-hiccup 1.2s ease-out both; }
+@keyframes dragon-hiccup {
+  0%, 62% { opacity: 0; transform: scale(.4); }
+  70% { opacity: 1; transform: translate(1px, -1px) scale(1.1); }
+  80% { opacity: 1; transform: translate(3px, -4px) scale(.96, 1.04); }
+  86% { opacity: 1; transform: translate(4px, -6px) scale(.9); }
+  95%, 100% { opacity: 0; transform: translate(6px, -9px) scale(.9); }
+}
+/* ===== end species: dragon ===== */
+
+/* ===== species: fox ===== */
+/* Kitsu. Poses are static geometry in species/fox.js; everything here is motion only. */
+/* Starving: the head sinks onto the curled tail (on top of the shared slump). */
+.pet--fox.pet--mood-starving { --head-y: 14px; }
+
+/* Idle flourish (focused pet): a small lean, the tail swishes ±8° over 1.6 s, then the left ear twitches twice (120 ms each). */
+.pet--focus .pet-idle--fox { animation: fox-idle var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes fox-idle {
+  0% { transform: none; }
+  4% { transform: rotate(-1.2deg); }
+  8% { transform: rotate(.8deg); }
+  10%, 100% { transform: none; }
+}
+.pet--focus .fox-tail { animation: fox-swish var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes fox-swish {
+  0% { transform: rotate(0); }
+  4% { transform: rotate(8deg); }
+  8% { transform: rotate(-8deg); }
+  12% { transform: rotate(4deg); }
+  16%, 100% { transform: rotate(0); }
+}
+.pet--focus .fox-ear--l { animation: fox-twitch var(--idle-every, 10s) linear var(--idle-delay, 0s) infinite; }
+@keyframes fox-twitch {
+  0%, 12% { transform: rotate(0); }
+  12.6% { transform: rotate(-12deg); }
+  13.2% { transform: rotate(0); }
+  13.8% { transform: rotate(-12deg); }
+  14.4%, 100% { transform: rotate(0); }
+}
+
+/* Happy (focused): a fast wag, ±14° × 3 in 0.9 s, then a rest. */
+.pet--focus.pet--mood-happy .fox-tail { animation: fox-wag 2.6s ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes fox-wag {
+  0%, 36%, 100% { transform: rotate(0); }
+  6% { transform: rotate(14deg); }
+  12% { transform: rotate(-14deg); }
+  18% { transform: rotate(14deg); }
+  24% { transform: rotate(-14deg); }
+  30% { transform: rotate(7deg); }
+}
+
+/* Triggers: bounce wags once; the tick cheer plays the flourish (1 s) with a quick ear flick. */
+.pet--fox.pet--bounce .fox-tail, .pet--fox.pet--cheer .fox-tail { animation: fox-wag-once .9s ease-in-out both; }
+@keyframes fox-wag-once {
+  0%, 100% { transform: rotate(0); }
+  17% { transform: rotate(14deg); }
+  33% { transform: rotate(-14deg); }
+  50% { transform: rotate(14deg); }
+  67% { transform: rotate(-14deg); }
+  83% { transform: rotate(7deg); }
+}
+.pet--fox.pet--cheer .pet-idle--fox { animation: fox-idle 10s ease-in-out 0s 1 both; }
+.pet--fox.pet--cheer .fox-ear--l { animation: fox-flick .5s linear .1s 1 both; }
+@keyframes fox-flick { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 50% { transform: rotate(0); } 75% { transform: rotate(-12deg); } }
+
+/* Spirit tails sway gently and foxfire wisps flicker and stay upright as they orbit (focused pet). */
+.pet--focus .fox-spirit { animation: fox-spirit 4.8s ease-in-out infinite alternate; animation-delay: calc(var(--i, 0) * -.7s); }
+@keyframes fox-spirit { from { transform: rotate(-3.5deg); } to { transform: rotate(3.5deg); } }
+.pet--focus .fox-wisp-up { animation: fox-wisp-upright 6s linear infinite; }
+@keyframes fox-wisp-upright { from { transform: rotate(calc(var(--a0, 0deg) * -1)); } to { transform: rotate(calc(var(--a0, 0deg) * -1 - 360deg)); } }
+.pet--focus .fox-wisp-flame { animation: fox-flicker 1.1s ease-in-out infinite alternate; }
+@keyframes fox-flicker { from { transform: scale(1, 1); } 50% { transform: scale(1.06, .94); } to { transform: scale(.95, 1.14); } }
+
+/* Eating: the head darts up 8 px to snap the orb from the air, lands, the cheek ruff puffs (1.1) and it chews twice. */
+.pet--fox.pet--eat .pet-act { animation: fox-eat-body 1.2s ease-in-out both; }
+@keyframes fox-eat-body {
+  0%, 14% { transform: none; }
+  22% { transform: scale(.97, 1.04); }
+  34% { transform: scale(1.03, .96); }
+  42%, 100% { transform: none; }
+}
+.pet--fox.pet--eat .pet-headrig { animation: fox-snap 1.2s ease-in-out both; }
+@keyframes fox-snap {
+  0%, 14% { transform: translateY(var(--head-y, 0px)); }
+  23%, 29% { transform: translateY(calc(var(--head-y, 0px) - 8px)); }
+  36% { transform: translateY(calc(var(--head-y, 0px) + 1.5px)); }
+  44% { transform: translateY(var(--head-y, 0px)); }
+  54% { transform: translateY(calc(var(--head-y, 0px) + 1.5px)); }
+  62% { transform: translateY(var(--head-y, 0px)); }
+  72% { transform: translateY(calc(var(--head-y, 0px) + 1.5px)); }
+  80%, 100% { transform: translateY(var(--head-y, 0px)); }
+}
+.pet--fox.pet--eat .fox-cheeks { animation: fox-puff 1.2s ease-in-out both; }
+@keyframes fox-puff {
+  0%, 32% { transform: none; }
+  40% { transform: scale(1.1, 1.04); }
+  50% { transform: scale(1.05, 1.02); }
+  58% { transform: scale(1.1, 1.04); }
+  68% { transform: scale(1.05, 1.02); }
+  76% { transform: scale(1.1, 1.04); }
+  88%, 100% { transform: none; }
+}
+
+/* Thumbnails never idle. */
+.pet--thumb .fox-tail, .pet--thumb .fox-ear, .pet--thumb .fox-spirit, .pet--thumb .fox-wisp-up, .pet--thumb .fox-wisp-flame { animation: none !important; }
+/* ===== end species: fox ===== */
+
+/* ===== species: slime ===== */
+.pet--slime { --slump: 1; } /* the slime's slump/puddle is drawn into its geometry */
+.pet--focus .pet-idle--slime { animation: slime-idle var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes slime-idle {
+  0% { transform: scale(1, 1); }
+  2.5% { transform: scale(1.06, .94); }
+  5% { transform: scale(.97, 1.04); }
+  7% { transform: scale(1.02, .98); }
+  8.5% { transform: scale(.995, 1.005); }
+  10%, 100% { transform: scale(1, 1); }
+}
+.pet .slime-bubble { transform-box: fill-box; transform-origin: center; }
+.pet--focus .slime-bubble, .pet--cheer .slime-bubble { animation: slime-bubble var(--idle-every, 10s) ease-out infinite; animation-delay: calc(var(--idle-delay, 0s) + var(--i) * .25s); }
+.pet--cheer .slime-bubble { animation-duration: 10s; animation-iteration-count: 1; animation-delay: calc(var(--i) * .25s); }
+@keyframes slime-bubble {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  9% { opacity: 0; transform: translateY(-20px) scale(.7); }
+  9.5% { opacity: 0; transform: translateY(0) scale(.4); }
+  14%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pet--focus.pet--mood-happy .pet-idle--slime { animation: slime-jiggle 3.2s ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes slime-jiggle {
+  0%, 30%, 100% { transform: scale(1, 1); }
+  5% { transform: scale(1.07, .93); }
+  10% { transform: scale(.96, 1.05); }
+  15% { transform: scale(1.06, .94); }
+  20% { transform: scale(.97, 1.03); }
+  25% { transform: scale(1.01, .99); }
+}
+.pet--slime.pet--cheer .pet-idle--slime { animation: slime-idle 10s ease-in-out 0s 1 both; }
+.pet--slime.pet--mood-starving .slime-bubble { animation: none !important; opacity: .35; }
+/* Eating: the orb is absorbed and stays visible inside, sinking to the core; the surface bulges. */
+.pet--slime.pet--eat .pet-act { animation: none; }
+.pet--slime.pet--eat .pet-idle--slime { animation: slime-gulp 1.2s ease-in-out both; }
+@keyframes slime-gulp {
+  0%, 28% { transform: scale(1, 1); }
+  36% { transform: scale(1.04, .97); }
+  48% { transform: scale(.98, 1.03); }
+  60% { transform: scale(1.02, .99); }
+  72%, 100% { transform: scale(1, 1); }
+}
+.pet .slime-eat-orb { transform-box: fill-box; transform-origin: center; }
+.pet--slime.pet--eat .slime-eat-orb { animation: slime-swallow 1.2s ease-in-out both; }
+@keyframes slime-swallow {
+  0%, 27% { opacity: 0; transform: translateY(0) scale(.6); }
+  30% { opacity: 1; transform: translateY(0) scale(1); }
+  70% { opacity: 1; transform: translateY(17px) scale(.85); }
+  78% { opacity: 1; transform: translateY(18px) scale(1.25); }
+  92%, 100% { opacity: 0; transform: translateY(18px) scale(.2); }
+}
+/* ===== end species: slime ===== */
+
+/* ===== species: owl ===== */
+/* Idle (focused pet): every other flourish the head tilts 15° (0.6 s), holds 0.8 s and returns, with
+   a small body lean; the next one is a one-eye wink with a cheeky counter-tilt. The keyframes span two
+   idle periods (tilt at 0–9.5 %, wink at 50–56 %). Head parts are the six groups inside .pet-headrig. */
+.pet--owl .pet-headrig > g { transform-origin: 80px 92px; }
+.pet--owl .owl-wing--l { transform-origin: 54px 97px; }
+.pet--owl .owl-wing--r { transform-origin: 106px 97px; }
+.pet--owl .owl-eye, .pet--owl .owl-gulp, .pet--owl .owl-feather { transform-box: fill-box; transform-origin: center; }
+.pet--focus.pet--owl .pet-headrig > g { animation: owl-tilt calc(var(--idle-every, 10s) * 2) ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus .pet-idle--owl { animation: owl-lean calc(var(--idle-every, 10s) * 2) ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus.pet--owl .owl-eye--r { animation: owl-wink-eye calc(var(--idle-every, 10s) * 2) ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus.pet--owl .owl-wink { animation: owl-wink-arc calc(var(--idle-every, 10s) * 2) linear var(--idle-delay, 0s) infinite; }
+@keyframes owl-tilt {
+  0% { transform: rotate(0deg); }
+  3% { transform: rotate(-16deg); }
+  3.8%, 7% { transform: rotate(-15deg); }
+  9.5%, 49% { transform: rotate(0deg); }
+  51%, 54.5% { transform: rotate(5deg); }
+  56.5%, 100% { transform: rotate(0deg); }
+}
+@keyframes owl-lean {
+  0% { transform: rotate(0deg); }
+  3%, 7% { transform: rotate(-2deg); }
+  9.5%, 100% { transform: rotate(0deg); }
+}
+@keyframes owl-wink-eye {
+  0%, 50% { transform: scaleY(1); }
+  51%, 54% { transform: scaleY(.08); }
+  55.5%, 100% { transform: scaleY(1); }
+}
+@keyframes owl-wink-arc { 0%, 50.6% { opacity: 0; } 51%, 54% { opacity: 1; } 54.4%, 100% { opacity: 0; } }
+
+/* Happy (focused): a small hop every 2.4 s with a wing flap (the wings are already out 20° in the geometry). */
+.pet--focus.pet--mood-happy .pet-idle--owl { animation: owl-hop 2.4s ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus.pet--mood-happy.pet--owl .owl-wing--l { animation: owl-flap-l 2.4s ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus.pet--mood-happy.pet--owl .owl-wing--r { animation: owl-flap-r 2.4s ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes owl-hop {
+  0%, 42%, 100% { transform: none; }
+  9% { transform: scale(1.05, .95); }
+  21% { transform: translateY(-7px) scale(.97, 1.04); }
+  33% { transform: translateY(0) scale(1.05, .95); }
+}
+@keyframes owl-flap-l { 0%, 42%, 100% { transform: rotate(0deg); } 14% { transform: rotate(16deg); } 24% { transform: rotate(-4deg); } 33% { transform: rotate(10deg); } }
+@keyframes owl-flap-r { 0%, 42%, 100% { transform: rotate(0deg); } 14% { transform: rotate(-16deg); } 24% { transform: rotate(4deg); } 33% { transform: rotate(-10deg); } }
+
+/* Triggered: the cheer plays the tilt once (1.2 s) over the shared hop; bounce/cheer/level-up flap the wings. */
+.pet--owl:is(.pet--cheer, .pet--bounce, .pet--eat, .pet--levelup) .pet-idle--owl { animation: none; }
+.pet--owl.pet--cheer .pet-headrig > g { animation: owl-cheer-tilt 1.2s ease-in-out both; }
+@keyframes owl-cheer-tilt { 0% { transform: rotate(0deg); } 22% { transform: rotate(-16deg); } 30%, 66% { transform: rotate(-15deg); } 92%, 100% { transform: rotate(0deg); } }
+.pet--owl:is(.pet--cheer, .pet--bounce) .owl-wing--l { animation: owl-flap-l .7s ease-in-out both; }
+.pet--owl:is(.pet--cheer, .pet--bounce) .owl-wing--r { animation: owl-flap-r .7s ease-in-out both; }
+.pet--owl.pet--levelup .owl-wing--l { animation: owl-flap-l 1.2s ease-in-out both; }
+.pet--owl.pet--levelup .owl-wing--r { animation: owl-flap-r 1.2s ease-in-out both; }
+
+/* Eating: catches the orb in the beak, stretches up and gulps it whole; a bulge (r 6, shade) travels
+   down the throat from y 84 to y 110 in ~400 ms, then a satisfied settle. */
+.pet--owl.pet--eat .pet-act { animation: owl-gulp 1.2s ease-in-out both; }
+.pet--owl.pet--eat .pet-headrig > g { animation: owl-gulp-head 1.2s ease-in-out both; }
+.pet--owl.pet--eat .owl-gulp { animation: owl-bulge 1.2s ease-in-out both; }
+@keyframes owl-gulp {
+  0%, 27% { transform: none; }
+  31% { transform: translateY(1px) scale(1.03, .96); }
+  39% { transform: translateY(-3px) scale(.97, 1.05); }
+  50% { transform: scale(1.02, .98); }
+  60% { transform: none; }
+  68% { transform: scale(1.015, .985); }
+  76%, 100% { transform: none; }
+}
+@keyframes owl-gulp-head {
+  0%, 28% { transform: none; }
+  36% { transform: translateY(-2px) rotate(-3deg); }
+  46% { transform: translateY(-1px) rotate(2deg); }
+  58%, 100% { transform: none; }
+}
+@keyframes owl-bulge {
+  0%, 29% { opacity: 0; transform: translateY(-2px) scale(.5); }
+  32% { opacity: 1; transform: translateY(0) scale(1); }
+  63% { opacity: 1; transform: translateY(24px) scale(1.08); }
+  72%, 100% { opacity: 0; transform: translateY(26px) scale(.5); }
+}
+
+/* Starving: a stray feather drifts down (focused pet only; static mid-air elsewhere). */
+.pet--focus.pet--owl .owl-feather { animation: owl-feather 5s ease-in-out infinite; }
+@keyframes owl-feather {
+  0% { opacity: 0; transform: translate(-6px, -16px) rotate(-20deg); }
+  12% { opacity: 1; }
+  40% { transform: translate(4px, 2px) rotate(25deg); }
+  70% { opacity: 1; transform: translate(-3px, 18px) rotate(-15deg); }
+  100% { opacity: 0; transform: translate(2px, 32px) rotate(20deg); }
+}
+/* ===== end species: owl ===== */
+
+/* ===== species: turtle ===== */
+/* Head drop and hiding are drawn into the geometry (hungry: head 6 px lower; starving: head inside the
+   shell), so the rig's extra hungry drop is off and the slump is light. The hat follows the head. */
+.pet--turtle { --slump: .96; }
+.pet--turtle.pet--mood-hungry { --head-y: 0px; }
+.pet--turtle .g-cosmetic, .pet .turtle-hd { transform-origin: 79px 62px; }
+.pet--turtle.pet--mood-hungry .g-cosmetic { translate: 0 6px; }
+.pet--turtle.pet--mood-starving .g-cosmetic { translate: 0 45px; }
+
+/* Idle (focused pet): pull the head halfway into the shell, peek, pop back out. The shell settles. */
+.pet--focus .pet-idle--turtle { animation: turtle-idle var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus .turtle-hd, .pet--focus.pet--turtle:not(.pet--mood-starving) .g-cosmetic { animation: turtle-peek var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--turtle.pet--cheer .pet-idle--turtle { animation: turtle-idle 10s ease-in-out 0s 1 both; }
+.pet--turtle.pet--cheer .turtle-hd, .pet--turtle.pet--cheer:not(.pet--mood-starving) .g-cosmetic { animation: turtle-peek 10s ease-in-out 0s 1 both; }
+@keyframes turtle-idle {
+  0%, 1.5% { transform: none; }
+  4% { transform: scale(1.025, .975); }
+  5.5% { transform: scale(.995, 1.005); }
+  7.5% { transform: scale(1, 1); }
+  8.8% { transform: scale(.985, 1.02); }
+  10%, 100% { transform: none; }
+}
+@keyframes turtle-peek {
+  0% { transform: none; animation-timing-function: cubic-bezier(.5, 0, .7, .4); }
+  4% { transform: translateY(22px) scale(.88); }
+  5.2% { transform: translateY(19.5px) scale(.88); }
+  6.4% { transform: translateY(19.5px) scale(.88) rotate(-4deg); }
+  7.4% { transform: translateY(19.5px) scale(.88) rotate(3deg); animation-timing-function: cubic-bezier(.2, .8, .3, 1.2); }
+  9% { transform: translateY(-2.5px) scale(1.03, .98); }
+  10%, 100% { transform: none; }
+}
+
+/* Yawn every 12 s (healthy, focused): the eyes squeeze shut and the mouth opens into an O for 0.8 s. */
+.pet--focus.pet--turtle.pet--mood-healthy .turtle-yawn { animation: turtle-yawn 12s ease-in-out calc(var(--idle-delay, 0s) + 4.5s) infinite; }
+.pet--focus.pet--turtle.pet--mood-healthy .face-mood .eyes-open { animation: pet-blink var(--blink-every, 5s) linear var(--blink-delay, 0s) infinite, turtle-yawn-hide 12s ease-in-out calc(var(--idle-delay, 0s) + 4.5s) infinite; }
+.pet--focus.pet--turtle.pet--mood-healthy .face-mood .mouth-smile { animation: turtle-yawn-hide 12s ease-in-out calc(var(--idle-delay, 0s) + 4.5s) infinite; }
+.pet .turtle-yawn { transform-origin: 78px 80px; }
+@keyframes turtle-yawn {
+  0%, 100% { opacity: 0; transform: scale(.9); }
+  1% { opacity: 1; transform: scale(.95); }
+  3.5% { opacity: 1; transform: scale(1.06, 1.1); }
+  6% { opacity: 1; transform: scale(1); }
+  7%, 99% { opacity: 0; transform: scale(.9); }
+}
+@keyframes turtle-yawn-hide { 0%, 100% { opacity: 1; } 1%, 6% { opacity: 0; } 7%, 99% { opacity: 1; } }
+
+/* Happy: stamps the front feet (two alternating 3 px lifts). */
+.pet .turtle-foot { transform-origin: 54px 147px; }
+.pet .turtle-foot--r { transform-origin: 106px 147px; }
+.pet--focus.pet--turtle.pet--mood-happy .turtle-foot--l { animation: turtle-stamp 1.6s ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus.pet--turtle.pet--mood-happy .turtle-foot--r { animation: turtle-stamp 1.6s ease-in-out calc(var(--idle-delay, 0s) + .4s) infinite; }
+.pet--turtle:is(.pet--cheer, .pet--bounce) .turtle-foot--l { animation: turtle-stamp .7s ease-in-out both; }
+.pet--turtle:is(.pet--cheer, .pet--bounce) .turtle-foot--r { animation: turtle-stamp .7s ease-in-out .18s both; }
+@keyframes turtle-stamp {
+  0%, 50%, 100% { transform: none; }
+  14% { transform: translateY(-3px) rotate(-6deg); }
+  28% { transform: translateY(.4px) scale(1.06, .94); }
+  38% { transform: none; }
+}
+
+/* Hungry: a sigh puff drifts away from the mouth (static, faint, elsewhere). */
+.pet .turtle-sigh { transform-origin: 46px 82px; }
+.pet--focus.pet--turtle.pet--mood-hungry .turtle-sigh { animation: turtle-sigh 5s ease-out var(--idle-delay, 0s) infinite; }
+@keyframes turtle-sigh {
+  0%, 8% { opacity: 0; transform: translate(6px, 2px) scale(.4); }
+  20% { opacity: 1; transform: translate(0, 0) scale(1); }
+  60% { opacity: 0; transform: translate(-9px, -9px) scale(1.25); }
+  100% { opacity: 0; transform: translate(-9px, -9px) scale(1.25); }
+}
+
+/* Eating: a slow munch over ~1 s after the orb lands; cheeks puff twice, two crumb triangles fall. */
+.pet--turtle.pet--eat .pet-act { animation: none; }
+.pet--turtle.pet--eat .turtle-hd { animation: turtle-munch 1.2s ease-in-out both; }
+.pet--turtle.pet--eat .face-happy .mouth-open { display: none; }
+.pet--turtle.pet--eat .turtle-cheeks { animation: turtle-cheeks-on 1.2s linear both; }
+.pet .turtle-cheek--l { transform-origin: 57px 79px; }
+.pet .turtle-cheek--r { transform-origin: 99px 79px; }
+.pet--turtle.pet--eat .turtle-cheek { animation: turtle-puff 1.2s ease-in-out both; }
+@keyframes turtle-munch {
+  0%, 28% { transform: none; }
+  40% { transform: translateY(2.5px) scale(1.02, .98); }
+  52% { transform: translateY(-.5px); }
+  66% { transform: translateY(2.5px) scale(1.02, .98); }
+  80% { transform: translateY(-.5px); }
+  92%, 100% { transform: none; }
+}
+@keyframes turtle-cheeks-on { 0%, 27% { opacity: 0; } 30%, 92% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes turtle-puff {
+  0%, 28% { transform: scale(.4); }
+  40% { transform: scale(1.12); }
+  52% { transform: scale(.8); }
+  66% { transform: scale(1.12); }
+  80% { transform: scale(.8); }
+  92%, 100% { transform: scale(.5); }
+}
+.pet .turtle-crumb { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.pet--turtle.pet--eat .turtle-crumb { animation: turtle-crumb 1.2s ease-in both; animation-delay: calc(.12s + var(--i) * .26s); }
+@keyframes turtle-crumb {
+  0%, 30% { opacity: 0; transform: translate(0, 0) rotate(0); }
+  36% { opacity: 1; }
+  80% { opacity: 1; transform: translate(calc((var(--i) - .5) * 10px), 22px) rotate(160deg); }
+  100% { opacity: 0; transform: translate(calc((var(--i) - .5) * 10px), 24px) rotate(200deg); }
+}
+
+/* Never animate turtle parts on thumbnails. */
+.pet--thumb :is(.turtle-hd, .turtle-foot, .turtle-yawn, .turtle-sigh, .turtle-cheeks, .turtle-cheek, .turtle-crumb), .pet--thumb.pet--turtle .g-cosmetic { animation: none !important; }
+/* ===== end species: turtle ===== */
+
+/* ===== species: axolotl ===== */
+/* Starving: the head sinks onto the front feet (drawn tucked under the chin), so the rig slump is lighter. */
+.pet--axolotl.pet--mood-starving { --head-y: 9px; --slump: .97; }
+.pet .axolotl-frond { transform-origin: 0 0; }
+.pet .axolotl-bubble, .pet .axolotl-whirl, .pet .axolotl-puff { transform-box: fill-box; transform-origin: center; }
+/* Idle: the body sways ±2°, the gills flutter in a wave (each frond ±10°, 80 ms stagger), a bubble rises. */
+.pet--focus .pet-idle--axolotl { animation: axolotl-idle var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+@keyframes axolotl-idle {
+  0% { transform: rotate(0); }
+  8% { transform: rotate(2deg); }
+  20% { transform: rotate(-2deg); }
+  28%, 100% { transform: rotate(0); }
+}
+.pet--focus .axolotl-frond { animation: axolotl-flutter var(--idle-every, 10s) ease-in-out infinite; animation-delay: calc(var(--idle-delay, 0s) + var(--i) * 80ms); }
+@keyframes axolotl-flutter {
+  0% { transform: rotate(0); }
+  1.6% { transform: rotate(calc(var(--dir) * -10deg)); }
+  3.6% { transform: rotate(calc(var(--dir) * 10deg)); }
+  5.4% { transform: rotate(calc(var(--dir) * -5deg)); }
+  7%, 100% { transform: rotate(0); }
+}
+.pet--focus .axolotl-bubble { animation: axolotl-bubble var(--idle-every, 10s) ease-out infinite; animation-delay: calc(var(--idle-delay, 0s) + .3s); }
+@keyframes axolotl-bubble {
+  0% { opacity: 0; transform: translateY(0) scale(.4); }
+  2% { opacity: 1; transform: translateY(-3px) scale(1); }
+  14% { opacity: .9; transform: translate(3px, -20px) scale(1.15); }
+  18%, 100% { opacity: 0; transform: translate(2px, -28px) scale(1.2); }
+}
+/* Happy (focused): the fronds keep a gentle, quicker wave. */
+.pet--focus.pet--mood-happy .axolotl-frond { animation: axolotl-wave 2.8s ease-in-out infinite; animation-delay: calc(var(--i) * 120ms); }
+@keyframes axolotl-wave {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(calc(var(--dir) * -7deg)); }
+  65% { transform: rotate(calc(var(--dir) * 5deg)); }
+}
+/* Hungry / starving: limp gills, only a slow sag. */
+.pet--focus.pet--mood-starving .axolotl-frond { animation: axolotl-sag 5.4s ease-in-out infinite; animation-delay: calc(var(--i) * 200ms); }
+@keyframes axolotl-sag { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(calc(var(--dir) * 4deg)); } }
+/* Tick cheer: the same flourish once (the shared hop runs on .pet-act). */
+.pet--axolotl.pet--cheer .pet-idle--axolotl { animation: axolotl-idle 10s ease-in-out 0s 1 both; }
+.pet--axolotl.pet--cheer .axolotl-frond { animation: axolotl-flutter 10s ease-in-out 1 both; animation-delay: calc(var(--i) * 80ms); }
+.pet--axolotl.pet--cheer .axolotl-bubble { animation: axolotl-bubble 10s ease-out .1s 1 both; }
+/* Eating: a suction gulp. A white whirl spins at the mouth as the orb arrives, the cheeks puff once,
+   the gills flare, and the body pulls in and settles. */
+.pet--axolotl.pet--eat .pet-act { animation: axolotl-gulp 1.2s ease-in-out both; }
+@keyframes axolotl-gulp {
+  0%, 24% { transform: none; }
+  32% { transform: scale(.97, 1.03); }
+  40% { transform: scale(1.05, .95); }
+  50% { transform: scale(.98, 1.02); }
+  60% { transform: scale(1.01, .99); }
+  70%, 100% { transform: none; }
+}
+.pet--axolotl.pet--eat .axolotl-whirl { animation: axolotl-whirl 1.2s ease-in-out both; }
+@keyframes axolotl-whirl {
+  0%, 14% { opacity: 0; transform: rotate(0) scale(1.5); }
+  20% { opacity: 1; }
+  32% { opacity: 1; transform: rotate(-540deg) scale(.5); }
+  38%, 100% { opacity: 0; transform: rotate(-600deg) scale(.2); }
+}
+.pet--axolotl.pet--eat .axolotl-puff { animation: axolotl-puff 1.2s ease-out both; }
+@keyframes axolotl-puff {
+  0%, 32% { opacity: 0; transform: scale(.5); }
+  40% { opacity: 1; transform: scale(1.3); }
+  52% { opacity: 1; transform: scale(1); }
+  66%, 100% { opacity: 0; transform: scale(.8); }
+}
+.pet--axolotl.pet--eat .axolotl-frond { animation: axolotl-flare 1.2s ease-out both; animation-delay: calc(var(--i) * 40ms); }
+@keyframes axolotl-flare {
+  0%, 30% { transform: rotate(0); }
+  40% { transform: rotate(calc(var(--dir) * (var(--i) - 1) * 16deg - var(--dir) * 6deg)); }
+  52% { transform: rotate(calc(var(--dir) * (var(--i) - 1) * -4deg)); }
+  64%, 100% { transform: rotate(0); }
+}
+/* ===== end species: axolotl ===== */
+
+/* ===== species: hedgehog ===== */
+/* Idle (focused pet): a sniff (the nose wiggles ±2 px three times in 0.4 s), then a ripple runs
+   left → right across the spine fan: each spine (.hh-sp, --i 0–12) scales 1.08 in turn, 50 ms
+   apart, from its own inline transform-origin. The body gives a tiny perk while sniffing. */
+.pet .hh-nose { transform-box: fill-box; transform-origin: center; }
+.pet--focus .pet-idle--hedgehog { animation: hedgehog-idle var(--idle-every, 10s) ease-in-out var(--idle-delay, 0s) infinite; }
+.pet--focus .pet-idle--hedgehog .hh-nose { animation: hedgehog-sniff var(--idle-every, 10s) linear var(--idle-delay, 0s) infinite; }
+.pet--focus .pet-idle--hedgehog .hh-sp { animation: hedgehog-ripple var(--idle-every, 10s) ease-in-out infinite; animation-delay: calc(var(--idle-delay, 0s) + .4s + var(--i) * 50ms); }
+@keyframes hedgehog-idle {
+  0%, 6%, 100% { transform: none; }
+  1% { transform: translateY(-1.5px) scale(1.01, .995); }
+  4% { transform: translateY(-1.5px) scale(1.01, .995); }
+}
+@keyframes hedgehog-sniff {
+  0%, 4%, 100% { transform: none; }
+  .67% { transform: translate(2px, -.5px); }
+  1.33% { transform: translate(-2px, 0); }
+  2% { transform: translate(2px, -.5px); }
+  2.67% { transform: translate(-2px, 0); }
+  3.33% { transform: translate(1.5px, -.3px); }
+}
+@keyframes hedgehog-ripple {
+  0% { transform: scale(1); }
+  1.1% { transform: scale(1.08); }
+  2.6%, 100% { transform: scale(1); }
+}
+/* Tick cheer: the same flourish once over 10 s (sniff + ripple finish inside the 1.2 s cheer). */
+.pet--hedgehog.pet--cheer .pet-idle--hedgehog { animation: hedgehog-idle 10s ease-in-out 0s 1 both; }
+.pet--hedgehog.pet--cheer .hh-nose { animation: hedgehog-sniff 10s linear 0s 1 both; }
+.pet--hedgehog.pet--cheer .hh-sp { animation: hedgehog-ripple 10s ease-in-out 1 both; animation-delay: calc(.4s + var(--i) * 50ms); }
+.pet--thumb .hh-nose, .pet--thumb .hh-sp, .pet--thumb .hh-arm, .pet--thumb .hh-held, .pet--thumb .hh-held-orb { animation: none !important; }
+
+/* Eating (1.2 s): the orb lands between the paws (rig orb, 0–29 %); both arms swing up to hold it,
+   it turns once in the paws, then two neat bites (paws lift to the mouth, the head dips, the orb
+   shrinks in two steps). --ra / --rb are each arm's hold and lift rotations, set inline per mood. */
+.pet--hedgehog.pet--eat .pet-act { animation: hedgehog-eat-body 1.2s ease-in-out both; }
+@keyframes hedgehog-eat-body {
+  0%, 22%, 40%, 100% { transform: none; }
+  30% { transform: scale(1.025, .975); }
+}
+.pet--hedgehog.pet--eat .hh-arm { animation: hedgehog-eat-arm 1.2s ease-in-out both; }
+@keyframes hedgehog-eat-arm {
+  0% { transform: none; }
+  22%, 52% { transform: rotate(var(--ra)); }
+  59% { transform: rotate(var(--rb)); }
+  64% { transform: rotate(calc(var(--rb) * .75 + var(--ra) * .25)); }
+  70% { transform: rotate(var(--rb)); }
+  75% { transform: rotate(calc(var(--rb) * .75 + var(--ra) * .25)); }
+  82% { transform: rotate(calc(var(--rb) * .8 + var(--ra) * .2)); }
+  94%, 100% { transform: none; }
+}
+.pet .hh-held-orb { transform-box: fill-box; transform-origin: center; }
+.pet--hedgehog.pet--eat .hh-held { animation: hedgehog-held 1.2s ease-in-out both; }
+@keyframes hedgehog-held {
+  0%, 27% { opacity: 0; transform: none; }
+  29%, 52% { opacity: 1; transform: none; }
+  59% { opacity: 1; transform: translateY(-3.5px); }
+  64% { transform: translateY(-2px); }
+  70% { transform: translateY(-3.5px); }
+  75% { opacity: 1; transform: translateY(-2px); }
+  79%, 100% { opacity: 0; transform: translateY(-2.5px); }
+}
+.pet--hedgehog.pet--eat .hh-held-orb { animation: hedgehog-orb 1.2s ease-in-out both; }
+@keyframes hedgehog-orb {
+  0%, 30% { transform: rotate(0deg) scale(1); }
+  50%, 61% { transform: rotate(360deg) scale(1); }
+  63%, 71% { transform: rotate(372deg) scale(.7); }
+  73%, 100% { transform: rotate(384deg) scale(.38); }
+}
+.pet--hedgehog.pet--eat .pet-headrig { animation: hedgehog-eat-head 1.2s ease-in-out both; }
+@keyframes hedgehog-eat-head {
+  0%, 30%, 52%, 100% { transform: translateY(var(--head-y, 0px)); }
+  40% { transform: translateY(var(--head-y, 0px)) rotate(-2.5deg); }
+  61% { transform: translateY(calc(var(--head-y, 0px) + 3px)); }
+  66% { transform: translateY(var(--head-y, 0px)); }
+  72% { transform: translateY(calc(var(--head-y, 0px) + 3px)); }
+  77% { transform: translateY(var(--head-y, 0px)); }
+}
+/* ===== end species: hedgehog ===== */
+
+/* ===== cosmetics ===== */
+/* Head-top cosmetics (pets/cosmetics.js, class prefix cos-), the standalone cosmetic icon
+   (.pet-cosmetic) and the Petdex "unfound" silhouette (.pet-silhouette). Owned by the cosmetics
+   agent; edit only inside this block.
+   - Rest pose = the static pose: fx parts (firework, petal, drip) are hidden until they play.
+   - Idle motion (sway, firework, petal, drip, lantern glow, orbit) runs on the focused pet only.
+   - Hop follow-through, pom bounce and tassel swing run on the trigger classes (any non-thumb pet).
+   - Nothing moves on thumbnails, under .pet--still or under prefers-reduced-motion. */
+
+.pet-cosmetic { display: inline-block; overflow: visible; vertical-align: middle; }
+.pet-cosmetic * { transform-box: view-box; }
+.g-cosmetic .cos, .pet-cosmetic .cos { transform-box: fill-box; transform-origin: 50% 100%; }
+.g-cosmetic .cos-fx, .pet-cosmetic .cos-fx { opacity: 0; }
+
+/* Follow-through: the hat lags a beat behind the body on each hop, then settles. */
+.pet--bounce .g-cosmetic .cos, .pet--cheer .g-cosmetic .cos { animation: cos-hop .7s cubic-bezier(.3, .7, .4, 1) both; }
+@keyframes cos-hop {
+  0%, 100% { transform: none; }
+  10% { transform: translateY(.8px) scale(1.03, .96); }
+  24% { transform: translateY(1.6px) scale(.99, 1.01); }
+  34% { transform: translateY(-2.6px) scale(.97, 1.04); }
+  44% { transform: translateY(1.4px) scale(1.05, .93); }
+  54% { transform: none; }
+  67% { transform: translateY(1.6px); }
+  77% { transform: translateY(-2.6px) scale(.97, 1.04); }
+  88% { transform: translateY(1.4px) scale(1.05, .93); }
+}
+.pet--levelup .g-cosmetic .cos { animation: cos-jump 1.2s cubic-bezier(.3, .7, .4, 1) both; }
+@keyframes cos-jump {
+  0%, 100% { transform: none; }
+  12% { transform: translateY(1px) scale(1.04, .95); }
+  26% { transform: translateY(2.4px); }
+  38% { transform: translateY(-4.6px) scale(.97, 1.04) rotate(-4deg); }
+  50% { transform: translateY(-1px) rotate(2deg); }
+  66% { transform: translateY(2px) scale(1.06, .92); }
+  78% { transform: translateY(-1px) scale(.98, 1.02); }
+  88% { transform: none; }
+}
+
+/* Snowfall Beanie: the pom bounces on every hop. Graduation Cap: the tassel swings ±10°. */
+.pet--bounce .cos-pom, .pet--cheer .cos-pom { animation: cos-pom .7s ease-out both; }
+.pet--levelup .cos-pom { animation: cos-pom 1.2s ease-out both; }
+@keyframes cos-pom {
+  0%, 100% { transform: none; }
+  22% { transform: translateY(1.8px) scale(1.12, .86); }
+  34% { transform: translateY(-3.4px) scale(.88, 1.14); }
+  44% { transform: translateY(1.6px) scale(1.14, .86); }
+  56% { transform: translateY(-1px) scale(.96, 1.05); }
+  68% { transform: translateY(1.8px) scale(1.1, .88); }
+  78% { transform: translateY(-3.4px) scale(.88, 1.14); }
+  88% { transform: translateY(1.4px) scale(1.12, .88); }
+  95% { transform: scale(.98, 1.02); }
+}
+.pet--bounce .cos-tassel, .pet--cheer .cos-tassel { animation: cos-tassel .7s ease-in-out both; }
+.pet--levelup .cos-tassel { animation: cos-tassel 1.2s ease-in-out both; }
+@keyframes cos-tassel {
+  0%, 100% { transform: rotate(0); }
+  14% { transform: rotate(7deg); }
+  30% { transform: rotate(-10deg); }
+  48% { transform: rotate(10deg); }
+  64% { transform: rotate(-7deg); }
+  80% { transform: rotate(4deg); }
+  92% { transform: rotate(-1.5deg); }
+}
+
+/* Acorn stem / Seedling: sway with the breathing (focused pet). */
+.pet--focus .cos-sway { animation: cos-sway var(--breathe, 3.6s) ease-in-out var(--breathe-delay, 0s) infinite; }
+@keyframes cos-sway { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+.pet--focus .cos--seedling > .cos-sway { animation-name: cos-sway-soft; }
+@keyframes cos-sway-soft { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+.pet--focus .cos-sway--leaves { animation: cos-sway-leaves var(--breathe, 3.6s) ease-in-out calc(var(--breathe-delay, 0s) - .5s) infinite; }
+@keyframes cos-sway-leaves { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+
+/* Paper Party Crown: a spark rises and a tiny firework pops every 10 s. */
+.pet--focus .cos-firework-trail { animation: cos-firework-trail 10s ease-out var(--idle-delay, 2s) infinite; }
+.pet--focus .cos-firework { animation: cos-firework 10s ease-out var(--idle-delay, 2s) infinite; }
+@keyframes cos-firework-trail {
+  0% { opacity: 0; transform: translate(0, 0); }
+  1% { opacity: 1; }
+  4.6% { opacity: 1; transform: translate(3.1px, -7.6px); }
+  5%, 100% { opacity: 0; transform: translate(3.1px, -7.6px); }
+}
+@keyframes cos-firework {
+  0%, 4.6% { opacity: 0; transform: scale(.2); }
+  5% { opacity: 1; transform: scale(.45); }
+  7.5% { opacity: 1; transform: scale(1.08) rotate(12deg); }
+  11% { opacity: 0; transform: scale(1.3) rotate(18deg); }
+  100% { opacity: 0; transform: scale(1.3) rotate(18deg); }
+}
+
+/* Blossom Sprig: a petal drifts down 40 px every 8 s. */
+.pet--focus .cos-petal { animation: cos-petal 8s ease-in-out var(--idle-delay, 2s) infinite; }
+@keyframes cos-petal {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0); }
+  3% { opacity: 1; }
+  12% { transform: translate(-6px, 12px) rotate(80deg); }
+  22% { transform: translate(3px, 25px) rotate(160deg); }
+  30% { opacity: .9; transform: translate(-3px, 36px) rotate(230deg); }
+  34%, 100% { opacity: 0; transform: translate(-1px, 40px) rotate(260deg); }
+}
+
+/* Rain Bucket Hat: a drop swells on the brim and falls every 9 s. */
+.pet--focus .cos-drip { animation: cos-drip 9s ease-in var(--idle-delay, 2s) infinite; }
+@keyframes cos-drip {
+  0% { opacity: 0; transform: scale(.2); }
+  4% { opacity: 1; transform: scale(.75); }
+  9% { opacity: 1; transform: scale(1, 1.12); }
+  11% { opacity: 1; transform: translateY(1.5px) scale(.9, 1.22); }
+  16% { opacity: 1; transform: translateY(16px) scale(.85, 1.25); }
+  19%, 100% { opacity: 0; transform: translateY(22px) scale(.8, 1.1); }
+}
+
+/* Little Lantern: the glow flickers softly. Orbit Club: a tiny satellite circles the pin. */
+.pet--focus .cos-glow { animation: cos-glow 2.6s ease-in-out infinite; }
+@keyframes cos-glow {
+  0%, 100% { opacity: .75; transform: scale(.92); }
+  30% { opacity: 1; transform: scale(1.06); }
+  52% { opacity: .82; transform: scale(.97); }
+  70% { opacity: 1; transform: scale(1.04); }
+}
+.pet--focus .cos-orbit { animation: cos-orbit 4.5s linear infinite; }
+@keyframes cos-orbit { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Thumbnails never move a cosmetic. */
+.pet--thumb .g-cosmetic, .pet--thumb .g-cosmetic * { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .pet-cosmetic, .pet-cosmetic * { animation: none !important; transition: none !important; }
+}
+
+/* Petdex "unfound" cell (renderSilhouette): a dim spotlight tinted by the column's tier (the UI sets
+   --tier on the cell), a deep indigo silhouette with a soft tinted rim drawn round the union of its
+   parts (no seams between them), and a small "?" badge. Hover lifts the rim a little: a peek. */
+.pet-silhouette {
+  --sil-tint: var(--tier, #dfccff);
+  --sil-rim: color-mix(in srgb, var(--sil-tint) 40%, #3a3450);
+  --sil-glow: color-mix(in srgb, var(--sil-tint) 26%, transparent);
+  border-radius: 22%;
+  /* fallbacks first for browsers without color-mix() */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%2322203a' stroke='%234a4560' stroke-width='1.6'/%3E%3Cpath d='M9.1 9.7a2.9 2.9 0 1 1 4.3 2.5c-.9.5-1.4 1.1-1.4 2.1v.4' fill='none' stroke='%23c2bad0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='17.7' r='1.3' fill='%23c2bad0'/%3E%3C/svg%3E") right 3% top 3% / 25% 25% no-repeat,
+    radial-gradient(closest-side circle at 50% 62%, #dfccff26, #dfccff0d 68%, transparent);
+  filter: drop-shadow(0 0 1px #6f6585) drop-shadow(0 0 4px #dfccff33);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10' fill='%2322203a' stroke='%234a4560' stroke-width='1.6'/%3E%3Cpath d='M9.1 9.7a2.9 2.9 0 1 1 4.3 2.5c-.9.5-1.4 1.1-1.4 2.1v.4' fill='none' stroke='%23c2bad0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='17.7' r='1.3' fill='%23c2bad0'/%3E%3C/svg%3E") right 3% top 3% / 25% 25% no-repeat,
+    radial-gradient(closest-side circle at 50% 62%, color-mix(in srgb, var(--sil-tint) 15%, transparent), color-mix(in srgb, var(--sil-tint) 5%, transparent) 68%, transparent);
+  filter: drop-shadow(1px 0 0 var(--sil-rim)) drop-shadow(-1px 0 0 var(--sil-rim)) drop-shadow(0 1px 0 var(--sil-rim)) drop-shadow(0 -1px 0 var(--sil-rim)) drop-shadow(0 0 4px var(--sil-glow));
+  transition: filter .25s ease;
+}
+.pet-silhouette > g:not(.fallback-marker) { fill: #231e38; stroke: none; }
+.pet-silhouette > ellipse { opacity: .5; }
+.pet-silhouette:hover {
+  --sil-rim: color-mix(in srgb, var(--sil-tint) 75%, #3a3450);
+  --sil-glow: color-mix(in srgb, var(--sil-tint) 42%, transparent);
+}
+/* ===== end cosmetics ===== */

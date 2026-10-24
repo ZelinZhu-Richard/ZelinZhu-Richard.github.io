@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#111022">
+<title>Private</title>
+<link rel="canonical" href="https://zelinzhu-richard.github.io/hq/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/hq/style.css">
+<script type="module" src="/hq/app.js"></script>
+</head>
+<body>
+<main id="gate" class="gate" hidden>
+<div class="gate-box">
+<button type="button" class="btn-primary gate-open" id="gate-open">Open on this device</button>
+<label class="gate-import" for="gate-file">Import</label>
+<input class="visually-hidden" id="gate-file" type="file" accept="application/json,.json">
+<p class="gate-error" id="gate-error" role="alert"></p>
+</div>
+</main>
+<noscript><p class="gate-noscript">This page needs JavaScript.</p></noscript>
+<div id="app" hidden></div>
+<dialog id="confirm" class="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+<h2 id="confirm-title" class="confirm-title">Are you sure?</h2>
+<p id="confirm-body" class="confirm-body"></p>
+<div class="confirm-actions">
+<button type="button" class="btn-ghost" id="confirm-cancel">Cancel</button>
+<button type="button" class="btn-danger" id="confirm-ok">Delete</button>
+</div>
+</dialog>
+</body>
+</html>

@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pet gallery (dev only)</title>
+<link rel="stylesheet" href="./pets.css">
+<style>
+  :root { --page: #111022; --panel: #0d0c1c; --ink: #f8f0fc; --muted: #c2bad0; --line: #ffffff30; --accent: #dfccff; --warn: #ffc98f; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 system-ui, sans-serif; }
+  body.light { --page: #f4f1f8; --panel: #ffffff; --ink: #1a1530; --muted: #5b5672; --line: #1a153030; }
+  header { position: sticky; top: 0; z-index: 5; background: var(--page); border-bottom: 1px solid var(--line); padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  header h1 { font-size: 15px; margin: 0 8px 0 0; font-weight: 600; }
+  label { color: var(--muted); font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; display: inline-flex; gap: 6px; align-items: center; }
+  select, button { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; min-height: 32px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  main { padding: 16px; display: grid; gap: 28px; }
+  section > h2 { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+  .cell { display: grid; justify-items: center; gap: 2px; }
+  .cell small { color: var(--muted); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; text-align: center; }
+  .status { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; padding: 3px 8px; border-radius: 99px; border: 1px solid var(--line); }
+  .chip.ok { color: #7ee0c3; border-color: #7ee0c366; }
+  .chip.bad { color: #1a1530; background: var(--warn); border-color: var(--warn); }
+  .fallback-banner { background: var(--warn); color: #1a1530; padding: 8px 12px; border-radius: 4px; font-weight: 600; }
+  table { border-collapse: collapse; }
+  th { font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); font-weight: 400; padding: 4px 8px; text-align: center; }
+  th.tier { text-align: right; white-space: nowrap; }
+  td { padding: 2px 4px; text-align: center; }
+  .species-block { overflow-x: auto; }
+  .species-block h3 { margin: 6px 0; font-size: 14px; }
+  .species-block h3 .fb { color: var(--warn); font-weight: 600; margin-left: 8px; }
+  .hero { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; }
+  @media (max-width: 1100px) { .hero { grid-template-columns: 1fr; } }
+  main, .panel { min-width: 0; }
+  .panel { overflow-x: auto; }
+  body { overflow-x: hidden; }
+  .stage { width: 240px; height: 240px; display: grid; place-items: center; background: radial-gradient(circle at 50% 60%, color-mix(in srgb, var(--accent) 14%, var(--panel)), var(--panel) 70%); border-radius: 4px; }
+  .controls { display: grid; gap: 10px; }
+  .controls .row { gap: 8px; align-items: center; }
+  .pet, .egg { cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Pet gallery <small style="color:var(--muted);font-weight:400">dev only, never shipped</small></h1>
+  <label>focus all <input type="checkbox" id="focusAll"></label>
+  <label>still (reduced-motion pose) <input type="checkbox" id="still"></label>
+  <label>light bg <input type="checkbox" id="light"></label>
+  <span class="status" id="status"></span>
+</header>
+<main>
+  <div id="fallbackBanner" class="fallback-banner" hidden></div>
+
+  <section>
+    <h2>Hero (200 px, focused)</h2>
+    <div class="panel hero">
+      <div class="row">
+        <div class="stage" id="heroPet"></div>
+        <div class="stage" id="heroEgg"></div>
+      </div>
+      <div class="controls">
+        <div class="row">
+          <label>species <select id="hSpecies"></select></label>
+          <label>tier <select id="hTier"></select></label>
+          <label>mood <select id="hMood"></select></label>
+          <label>stars <select id="hStars"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+          <label>size <select id="hSize"><option>200</option><option>128</option><option>72</option></select></label>
+        </div>
+        <div class="row" aria-label="Pet animations">
+          <button data-play="pet--bounce">bounce</button>
+          <button data-play="pet--eat">eat</button>
+          <button data-play="pet--levelup">levelup</button>
+          <button data-play="pet--cheer">cheer</button>
+          <span style="color:var(--muted);font-size:12px">applies to the hero and the focused row below</span>
+        </div>
+        <div class="row" aria-label="Egg animations">
+          <label>egg <select id="eKind"><option value="open">loot (open)</option><option value="pet">pet egg</option></select></label>
+          <label>tier <select id="eTier"></select></label>
+          <button data-egg="shake">shake</button>
+          <button data-egg="crack">crack</button>
+          <button data-egg="open">open</button>
+          <button data-egg="reset">reset</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Every species, focused (200 px, hero tier/mood)</h2>
+    <div class="panel row" id="focusRow"></div>
+  </section>
+
+  <section>
+    <h2>Species × tier × mood (128 px)</h2>
+    <div id="matrix" class="panel" style="display:grid;gap:18px"></div>
+  </section>
+
+  <section>
+    <h2>Thumbnails (72 px)</h2>
+    <div id="thumbs" class="panel" style="display:grid;gap:8px"></div>
+  </section>
+
+  <section>
+    <h2>Eggs × tier × state (128 px)</h2>
+    <div id="eggs" class="panel" style="display:grid;gap:14px;overflow-x:auto"></div>
+  </section>
+
+  <section>
+    <h2>Gravestone, ashes, silhouettes</h2>
+    <div id="states" class="panel" style="display:grid;gap:14px;overflow-x:auto"></div>
+  </section>
+</main>
+
+<script type="module">
+  import { SPECIES, TIER_NAMES, MOODS, LIVE_MOODS, EGG_STATES, renderPet, renderEgg, renderSilhouette, speciesStatus, play } from './index.js';
+
+  const $ = (s) => document.querySelector(s);
+  const opt = (sel, items) => { sel.innerHTML = items.map(([v, t]) => `<option value="${v}">${t}</option>`).join(''); };
+  opt($('#hSpecies'), SPECIES.map((s) => [s.id, `${s.name} (${s.id})`]));
+  opt($('#hTier'), TIER_NAMES.map((n, i) => [i, `${i} ${n}`]));
+  opt($('#eTier'), TIER_NAMES.map((n, i) => [i, `${i} ${n}`]));
+  opt($('#hMood'), MOODS.map((m) => [m, m]));
+  $('#hSpecies').value = 'slime';
+
+  const st = speciesStatus();
+  $('#status').innerHTML = Object.entries(st).map(([id, s]) => `<span class="chip ${s === 'ready' ? 'ok' : 'bad'}" title="${s}">${id}: ${s === 'ready' ? 'ready' : 'FALLBACK'}</span>`).join('');
+  const missing = Object.entries(st).filter(([, s]) => s !== 'ready');
+  if (missing.length) {
+    const b = $('#fallbackBanner');
+    b.hidden = false;
+    b.textContent = `FALLBACK in use for ${missing.map(([id, s]) => `${id} (${s})`).join(', ')}. These render the slime with a TODO marker until the species module exists.`;
+  }
+
+  const names = { dragon: 'Ember', fox: 'Pip', slime: 'Mochi', owl: 'Euler', turtle: 'Pebble', axolotl: 'Bubbles', hedgehog: 'Thimble' };
+  const focusAll = () => $('#focusAll').checked;
+  const still = () => $('#still').checked;
+
+  function heroPet() {
+    $('#heroPet').innerHTML = renderPet({ species: $('#hSpecies').value, tier: +$('#hTier').value, mood: $('#hMood').value, stars: +$('#hStars').value, size: +$('#hSize').value, name: names[$('#hSpecies').value], level: 12, focus: true, animate: !still(), ashesDone: 2 });
+  }
+  let eggState = 'idle';
+  function heroEgg() {
+    $('#heroEgg').innerHTML = renderEgg({ kind: $('#eKind').value, tier: +$('#eTier').value, state: eggState, size: 200, animate: !still() });
+  }
+  function focusRow() {
+    $('#focusRow').innerHTML = SPECIES.map((s) => `<div class="cell">${renderPet({ species: s.id, tier: +$('#hTier').value, mood: $('#hMood').value, stars: +$('#hStars').value, size: 200, name: names[s.id], level: 7, focus: true, animate: !still(), ashesDone: 1 })}<small>${s.name}${st[s.id] === 'ready' ? '' : ' (fallback)'}</small></div>`).join('');
+  }
+  function matrix() {
+    $('#matrix').innerHTML = SPECIES.map((s) => `<div class="species-block"><h3>${s.name} <small style="color:var(--muted)">${s.id}</small>${st[s.id] === 'ready' ? '' : '<span class="fb">FALLBACK</span>'}</h3><table><tr><th></th>${MOODS.map((m) => `<th>${m}</th>`).join('')}<th>5★ healthy</th></tr>` +
+      TIER_NAMES.map((tn, t) => `<tr><th class="tier">${t} ${tn}</th>${MOODS.map((m) => `<td>${renderPet({ species: s.id, tier: t, mood: m, size: 128, name: names[s.id], level: 3 + t * 9, focus: focusAll(), animate: !still(), ashesDone: t % 4 })}</td>`).join('')}<td>${renderPet({ species: s.id, tier: t, mood: 'healthy', stars: 5, size: 128, focus: focusAll(), animate: !still() })}</td></tr>`).join('') + `</table></div>`).join('');
+  }
+  function thumbs() {
+    $('#thumbs').innerHTML = SPECIES.map((s) => `<div class="row" style="gap:6px;align-items:center"><small style="width:90px;color:var(--muted);font:11px ui-monospace,monospace">${s.name}</small>${TIER_NAMES.map((_, t) => renderPet({ species: s.id, tier: t, size: 72, animate: !still() })).join('')}${LIVE_MOODS.slice(1).map((m) => renderPet({ species: s.id, tier: 2, mood: m, size: 72, animate: !still() })).join('')}${renderPet({ species: s.id, mood: 'dead', size: 72, name: names[s.id], level: 9 })}${renderPet({ species: s.id, tier: 4, mood: 'ashes', size: 72, ashesDone: 1, animate: !still() })}${renderSilhouette({ species: s.id, size: 72 })}</div>`).join('');
+  }
+  function eggs() {
+    $('#eggs').innerHTML = ['open', 'pet'].map((k) => `<table><tr><th></th>${TIER_NAMES.map((n, t) => `<th>${t} ${n}</th>`).join('')}</tr>` +
+      EGG_STATES.map((s) => `<tr><th class="tier">${k === 'open' ? 'loot' : 'pet'} · ${s}</th>${TIER_NAMES.map((_, t) => `<td>${renderEgg({ kind: k, tier: t, state: s, size: 128, animate: !still() })}</td>`).join('')}</tr>`).join('') +
+      `<tr><th class="tier">${k === 'open' ? 'loot' : 'pet'} · 72</th>${TIER_NAMES.map((_, t) => `<td>${renderEgg({ kind: k, tier: t, size: 72, animate: !still() })}</td>`).join('')}</tr></table>`).join('');
+  }
+  function states() {
+    $('#states').innerHTML =
+      `<table><tr><th></th>${SPECIES.map((s) => `<th>${s.name}</th>`).join('')}</tr>` +
+      `<tr><th class="tier">grave 200</th>${SPECIES.map((s) => `<td>${renderPet({ species: s.id, mood: 'dead', size: 200, name: names[s.id], level: 23 })}</td>`).join('')}</tr>` +
+      `<tr><th class="tier">ashes 200 (0–3 days)</th>${SPECIES.map((s, i) => `<td>${renderPet({ species: s.id, tier: i % 7, mood: 'ashes', size: 200, ashesDone: i % 4, animate: !still() })}</td>`).join('')}</tr>` +
+      `<tr><th class="tier">grave 128 (long name)</th>${SPECIES.map((s) => `<td>${renderPet({ species: s.id, mood: 'dead', size: 128, name: 'Clementine', level: 40 })}</td>`).join('')}</tr>` +
+      `<tr><th class="tier">silhouette 128</th>${SPECIES.map((s) => `<td>${renderSilhouette({ species: s.id, size: 128 })}</td>`).join('')}</tr>` +
+      `<tr><th class="tier">silhouette 72</th>${SPECIES.map((s) => `<td>${renderSilhouette({ species: s.id, size: 72 })}</td>`).join('')}</tr></table>`;
+  }
+
+  // Pause pets that are off-screen (the same pattern the UI uses).
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    for (const e of entries) e.target.classList.toggle(e.target.classList.contains('egg') ? 'egg--paused' : 'pet--paused', !e.isIntersecting);
+  }) : null;
+  const observe = () => { if (io) { io.disconnect(); document.querySelectorAll('main .pet, main .egg').forEach((el) => io.observe(el)); } };
+
+  function all() { heroPet(); heroEgg(); focusRow(); matrix(); thumbs(); eggs(); states(); observe(); }
+  all();
+
+  for (const id of ['#hSpecies', '#hTier', '#hMood', '#hStars', '#hSize']) $(id).addEventListener('change', () => { heroPet(); focusRow(); observe(); });
+  for (const id of ['#eKind', '#eTier']) $(id).addEventListener('change', () => { eggState = 'idle'; heroEgg(); });
+  for (const id of ['#focusAll', '#still']) $(id).addEventListener('change', all);
+  $('#light').addEventListener('change', (e) => document.body.classList.toggle('light', e.target.checked));
+
+  document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => {
+    const cls = b.dataset.play;
+    document.querySelectorAll('#heroPet .pet, #focusRow .pet').forEach((el) => play(el, cls));
+  }));
+  document.querySelectorAll('[data-egg]').forEach((b) => b.addEventListener('click', async () => {
+    const a = b.dataset.egg;
+    if (a === 'reset') { eggState = 'idle'; heroEgg(); return; }
+    if (a === 'shake') { await play($('#heroEgg .egg'), 'egg--shake'); return; }
+    if (a === 'crack') { eggState = 'crack'; heroEgg(); await play($('#heroEgg .egg'), 'egg--crack'); return; }
+    if (a === 'open') {
+      if (eggState === 'idle') { await play($('#heroEgg .egg'), 'egg--shake'); eggState = 'crack'; heroEgg(); await play($('#heroEgg .egg'), 'egg--crack'); }
+      eggState = 'open'; heroEgg();
+    }
+  }));
+  // Click any pet to bounce it.
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('svg.pet');
+    if (el && !el.classList.contains('pet--grave')) play(el, 'pet--bounce');
+  });
+</script>
+</body>
+</html>

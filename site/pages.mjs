@@ -1,9 +1,11 @@
 import { LINKS, ABOUT, EXPERIENCE, PROJECTS, SKILLS } from './content.mjs';
 import { videoPage } from '../workspace/video/page.mjs';
+import { nowPage } from '../workspace/now/page.mjs';
+import { NOW } from '../workspace/now/now.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
-const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],[LINKS.resume,'CV'],['/contacts/','Contact']];
+const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/now/','Now'],['/daily/','Daily'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],[LINKS.resume,'CV'],['/contacts/','Contact']];
 const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet } = {}) => `<!doctype html>
 <html lang="en">
 <head>
@@ -104,7 +106,8 @@ export function pages() {
 </section>`;
   return new Map([
     ['video/index.html',frame('/video/','Neon Rain — Video','Neon Rain: an agentic AI filmmaking experiment by Richard Zhu, combining GPT Image, computer graphics, and temporal validation into a 10-second sci-fi noir film.',videoPage,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: '/video/style.css' })],
-    ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, Gym, Domain Expansion, and Neon Rain.',work)],
+    ['now/index.html',frame('/now/','Now','What Richard Zhu is studying, has shipped, and plans next: a running log, updated as things move.',nowPage(NOW),{ stylesheet: '/now/style.css' })],
+    ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, Gym, Domain Expansion, Neon Rain, and Daily.',work)],
     ['about/index.html',frame('/about/','About','About Richard Zhu, a computer science and economics student at UNC Chapel Hill.',about)],
     ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES and related projects.',research)],
     ['404.html',frame('/404.html','Page not found','This page could not be found.',intro('404','A different<br><em>path.</em>','This page does not exist. Return to the homepage or explore the work.')+`<div class="actions">${link('/','Home')}${link('/work/','Selected work')}</div>`)],

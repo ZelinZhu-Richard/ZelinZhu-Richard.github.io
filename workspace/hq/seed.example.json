@@ -1,0 +1,53 @@
+{
+  "format": "hq-export",
+  "version": 1,
+  "categories": [
+    { "id": "cat-college", "name": "College", "position": 0 },
+    { "id": "cat-fellowships", "name": "Fellowships", "position": 1 },
+    { "id": "cat-jobs", "name": "Jobs", "position": 2 },
+    { "id": "cat-research", "name": "Research", "position": 3 }
+  ],
+  "priorities": [
+    { "id": "pri-1", "scope": "today", "period": "2026-10-24", "slot": 1, "text": "Placeholder: trim the main essay", "done": false },
+    { "id": "pri-2", "scope": "today", "period": "2026-10-24", "slot": 2, "text": "Placeholder: final pass on supplements", "done": true },
+    { "id": "pri-3", "scope": "today", "period": "2026-10-23", "slot": 1, "text": "Placeholder: send a follow-up email", "done": false },
+    { "id": "pri-4", "scope": "month", "period": "2026-10", "slot": 1, "text": "Placeholder: submit College A", "done": false },
+    { "id": "pri-5", "scope": "month", "period": "2026-10", "slot": 2, "text": "Placeholder: record the demo video", "done": false }
+  ],
+  "deadlines": [
+    { "id": "dl-1", "title": "Fellowship B", "kind": "Placeholder phase 1 application", "category": "cat-fellowships", "date": "2026-09-30", "approx": false, "dateLabel": null, "sortOrder": 0 },
+    { "id": "dl-2", "title": "College C", "kind": "Early action", "category": "cat-college", "date": "2026-10-15", "approx": false, "dateLabel": null, "sortOrder": 1 },
+    { "id": "dl-3", "title": "College A", "kind": "Early decision", "category": "cat-college", "date": "2026-11-01", "approx": false, "dateLabel": null, "sortOrder": 2 },
+    { "id": "dl-4", "title": "College D", "kind": "Early action · confirm the date", "category": "cat-college", "date": "2026-11-01", "approx": true, "dateLabel": "NOV 1?", "sortOrder": 3 },
+    { "id": "dl-5", "title": "Program E", "kind": "Placeholder founder program", "category": "cat-fellowships", "date": "2026-11-05", "approx": true, "dateLabel": "EARLY NOV", "sortOrder": 4 },
+    { "id": "dl-6", "title": "Workshop F", "kind": "Placeholder workshop paper", "category": "cat-research", "date": "2026-12-09", "approx": false, "dateLabel": null, "sortOrder": 5 },
+    { "id": "dl-7", "title": "Company G", "kind": "Placeholder internship", "category": "cat-jobs", "date": null, "approx": false, "dateLabel": "ROLLING", "sortOrder": 6 },
+    { "id": "dl-8", "title": "Fellowship H", "kind": "Placeholder intro call", "category": "cat-fellowships", "date": null, "approx": false, "dateLabel": null, "sortOrder": 7 }
+  ],
+  "tasks": [
+    { "id": "t-1", "deadlineId": "dl-1", "text": "Phase 1 submitted", "done": true, "position": 0 },
+    { "id": "t-2", "deadlineId": "dl-2", "text": "Application submitted", "done": true, "position": 0 },
+    { "id": "t-3", "deadlineId": "dl-3", "text": "Cut the main essay to the word limit", "done": false, "position": 0 },
+    { "id": "t-4", "deadlineId": "dl-3", "text": "Final pass on supplements", "done": true, "position": 1 },
+    { "id": "t-5", "deadlineId": "dl-3", "text": "Placeholder: confirm references are in", "done": false, "position": 2 },
+    { "id": "t-6", "deadlineId": "dl-3", "text": "Submit and send scores", "done": false, "position": 3 },
+    { "id": "t-7", "deadlineId": "dl-4", "text": "Confirm the deadline", "done": false, "position": 0 },
+    { "id": "t-8", "deadlineId": "dl-4", "text": "Placeholder essay", "done": false, "position": 1 },
+    { "id": "t-9", "deadlineId": "dl-5", "text": "Record the demo video", "done": false, "position": 0 },
+    { "id": "t-10", "deadlineId": "dl-5", "text": "Submit the application", "done": false, "position": 1 },
+    { "id": "t-11", "deadlineId": "dl-6", "text": "Post the preprint", "done": false, "position": 0 },
+    { "id": "t-12", "deadlineId": "dl-6", "text": "Prepare the presentation", "done": false, "position": 1 },
+    { "id": "t-13", "deadlineId": "dl-7", "text": "Application submitted", "done": true, "position": 0 },
+    { "id": "t-14", "deadlineId": "dl-7", "text": "Follow up with the recruiter", "done": false, "position": 1 },
+    { "id": "t-15", "deadlineId": "dl-8", "text": "Schedule the intro call", "done": false, "position": 0 }
+  ],
+  "thoughts": [
+    { "id": "th-1", "text": "Placeholder: which program matters more this month?", "createdAt": "2026-10-22T14:05:00.000Z" },
+    { "id": "th-2", "text": "Placeholder: pick the first skill to write.", "createdAt": "2026-10-23T19:30:00.000Z" }
+  ],
+  "ideas": [
+    { "id": "idea-1", "title": "Project A", "note": "Placeholder note about a habit tool.", "bucket": "next", "position": 0 },
+    { "id": "idea-2", "title": "Project B", "note": "", "bucket": "later", "position": 1 },
+    { "id": "idea-3", "title": "Project C", "note": "Placeholder note about a research tool.", "bucket": "later", "position": 2 }
+  ]
+}

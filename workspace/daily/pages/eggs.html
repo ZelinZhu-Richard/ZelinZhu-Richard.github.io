@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily: eggs, collection &amp; shop — Richard Zhu</title>
+<meta name="description" content="Openable eggs, the hatchery, merging and combining pets, the Petdex, the shop, and every odds table for Daily, Richard Zhu's habit game.">
+<link rel="canonical" href="https://zelinzhu-richard.github.io/daily/eggs/">
+<meta property="og:title" content="Daily — Eggs &amp; loot.">
+<meta property="og:description" content="Pets lay openable eggs and the streak pays them every night. Every odds table is public.">
+<meta property="og:url" content="https://zelinzhu-richard.github.io/daily/eggs/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#111022">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/portfolio.css">
+<link rel="stylesheet" href="/daily/style.css">
+<script src="/portfolio.js" defer></script>
+<script type="module" src="/daily/app/eggs.js"></script>
+</head>
+<body class="daily-page">
+<a class="skip-link" href="#eggs-section">Skip to the eggs</a>
+<!-- PORTFOLIO_HEADER -->
+<main id="main" class="daily">
+<nav class="daily-nav" aria-label="Daily"><a href="/daily/">Pets &amp; tasks</a><a href="/daily/eggs/" aria-current="page">Eggs, collection &amp; shop</a></nav>
+
+<section class="hero hero--single" aria-labelledby="eggs-title">
+<div class="hero-copy">
+<p class="eyebrow-mono">Daily · eggs, collection &amp; shop</p>
+<h1 id="eggs-title">Eggs &amp; <em>loot.</em></h1>
+<p class="lede">Pets lay openable eggs and the streak pays them every night. Most of what's inside is loot. Pet eggs are rare, and get rarer the higher you climb.</p>
+</div>
+</section>
+
+<div id="mode-bar" class="mode-bar"></div>
+<p id="load-status" class="load-status" role="status">Loading eggs…</p>
+<p id="error" class="error" role="alert" hidden></p>
+<p id="resources" class="resources" aria-label="Resources" aria-live="polite" hidden></p>
+
+<section class="block" aria-labelledby="how-title">
+<h2 id="how-title" class="section-title">How it <em>works</em></h2>
+<ol class="how">
+<li><span class="how-n">01</span><span class="how-t">Finish tasks</span><span class="how-d">Pet food comes only from tasks. Harder tiers pay far more.</span></li>
+<li><span class="how-n">02</span><span class="how-t">Feed active pets</span><span class="how-d">100 a day keeps one alive and paying dividends. Extra = XP + egg meter.</span></li>
+<li><span class="how-n">03</span><span class="how-t">Eggs arrive</span><span class="how-d">A full meter lays an egg of the pet's tier. The streak pays more every night.</span></li>
+<li><span class="how-n">04</span><span class="how-t">Open: 3–12 items</span><span class="how-d">Coins, egg food, XP treats, diamonds, boosters. Sometimes one pet egg.</span></li>
+<li><span class="how-n">05</span><span class="how-t">Hatch</span><span class="how-d">95% its own tier, 5% one higher. Better food nudges the odds up.</span></li>
+<li><span class="how-n">06</span><span class="how-t">Merge or gamble</span><span class="how-d">Twins merge for a star. Different species can combine for a shot at the next tier.</span></li>
+<li><span class="how-n">07</span><span class="how-t">Save or spend</span><span class="how-d">Bad luck? Diamonds buy an Epic egg in about half a year.</span></li>
+</ol>
+</section>
+
+<div class="split block" id="eggs-section" tabindex="-1">
+<section class="split-main" aria-labelledby="openable-title">
+<div class="section-head"><h2 id="openable-title" class="section-title section-title--md">Openable <em>eggs</em></h2></div>
+<div id="openable"></div>
+</section>
+<section class="split-side" aria-labelledby="hatchery-title">
+<h2 id="hatchery-title" class="section-title section-title--md">Hatch<em>ery</em></h2>
+<div id="hatchery"></div>
+<div id="bag"></div>
+</section>
+</div>
+
+<section class="block" aria-labelledby="collection-title">
+<div class="section-head"><h2 id="collection-title" class="section-title">Collec<em>tion</em></h2><p class="mono-label">pick two pets to merge or combine</p></div>
+<div class="split">
+<div class="split-main" id="collection"></div>
+<div class="split-side" id="petdex"></div>
+</div>
+</section>
+
+<section class="block" aria-labelledby="odds-title">
+<div class="section-head"><h2 id="odds-title" class="section-title">The <em>odds</em></h2><p class="mono-label">all public · tuned with a year-long simulation</p></div>
+<div id="odds"></div>
+</section>
+
+<section class="block split" aria-label="Stars and trinkets">
+<div class="split-main">
+<h2 class="section-title section-title--md">Stars &amp; <em>levels</em></h2>
+<ol class="star-list">
+<li><span class="amber">★★</span><span class="muted">2 copies · Twin Spark: egg meter +10%, XP +10%</span></li>
+<li><span class="amber">★★★</span><span class="muted">4 copies · Second Helping: +2 items in every egg it lays</span></li>
+<li><span class="amber">★★★★</span><span class="muted">8 copies · Golden Touch: dividends +25%, shards +25%, +1 item</span></li>
+<li><span class="amber">★★★★★</span><span class="muted">16 copies · Nine Lives: survives one death, once per lineage</span></li>
+</ol>
+<p class="small muted">Levels cap by tier: Ordinary 20 · Rare 30 · Super Rare 40 · Epic 55 · Mythic 70 · Legendary 85 · Ultra 100. Each level: +0.1% egg-meter speed and +1% dividends. Every 10 levels: +1 item in the eggs it lays. Skills unlock at 10, 25, 40, 55, 70, 85 and 100.</p>
+</div>
+<div class="split-side">
+<h2 class="section-title section-title--md">Trin<em>kets</em></h2>
+<div class="trinket-slots" aria-hidden="true"><span class="on"></span><span></span><span></span><span></span><span></span></div>
+<p class="small muted">5 slots on Epic pets and up. Epic, Mythic and Legendary trinkets drop from Epic+ eggs or cost diamonds. Ultra trinkets are wildly overpowered: 10% from Ultra eggs, or a 24-hour flash sale after a big win, never below 15,000 diamonds even discounted.</p>
+</div>
+</section>
+
+<section class="block" aria-labelledby="shop-title">
+<div class="section-head"><h2 id="shop-title" class="section-title">Shop</h2><p class="mono-label">earned currency only · no real money, ever</p></div>
+<div id="shop"></div>
+</section>
+
+<p id="live" class="sr-only" aria-live="polite"></p>
+</main>
+
+<dialog id="reveal-dialog" class="dialog reveal" aria-labelledby="reveal-title">
+<p class="mono-label" id="reveal-kicker"></p>
+<h2 id="reveal-title">Opening</h2>
+<div class="reveal-stage" id="reveal-stage"></div>
+<ol class="item-chips reveal-items" id="reveal-items" aria-label="Contents"></ol>
+<p class="sr-only" id="reveal-live" aria-live="assertive"></p>
+<div class="dialog-actions">
+<button type="button" class="button" id="reveal-skip">Show all now</button>
+<button type="button" class="button button--accent" id="reveal-next" data-action="reveal-next" hidden>Open next</button>
+<form method="dialog"><button type="submit" class="button" id="reveal-done">Done</button></form>
+</div>
+</dialog>
+
+<dialog id="confirm-dialog" class="dialog" aria-labelledby="confirm-title">
+<form method="dialog">
+<h2 id="confirm-title" data-slot="title">Are you sure?</h2>
+<p data-slot="body"></p>
+<label class="field" data-slot="field" hidden><span>Name</span><input type="text" autocomplete="off"></label>
+<div class="dialog-actions"><button type="submit" class="button button--accent" value="ok" data-slot="ok">Confirm</button><button type="submit" class="button" value="cancel" formnovalidate>Cancel</button></div>
+</form>
+</dialog>
+
+<dialog id="setup-dialog" class="dialog dialog--wide" aria-labelledby="setup-title">
+<h2 id="setup-title">Start the game on this device</h2>
+<div data-slot="editor"></div>
+<p class="error" data-slot="setup-error" role="alert"></p>
+<p class="small muted" data-slot="dev" hidden>Local development: <a href="?fixtures=owner">owner view with fixture data</a> · <a href="?fixtures=visitor">visitor view with fixture data</a>.</p>
+<form method="dialog"><button type="submit" class="button">Not now</button></form>
+</dialog>
+
+<!-- PORTFOLIO_FOOTER -->
+</body>
+</html>
