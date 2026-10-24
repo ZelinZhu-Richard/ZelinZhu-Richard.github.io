@@ -3,8 +3,8 @@
 // Leave them empty to keep the local-first mode (the game and HQ live in this browser only).
 // Never paste a secret key (sb_secret_…) or the service_role key here; the build refuses them.
 export const CLOUD = Object.freeze({
-  url: '', // https://<project-ref>.supabase.co
-  anonKey: '', // the publishable key (sb_publishable_…) or the legacy anon key
+  url: 'https://qpfieueqcevmuvdpvskp.supabase.co',
+  anonKey: 'sb_publishable_5AkhDED7V5z4EVeLQp11yQ_a7MZODxF',
 });
 
 // Local development only: on localhost, a JSON { url, anonKey } saved under this localStorage key points the

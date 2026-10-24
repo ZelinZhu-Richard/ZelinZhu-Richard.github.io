@@ -15,7 +15,8 @@ test('buildHq copies the runtime allowlist only, with a private head', async () 
   await rm(out, { recursive: true, force: true });
   await mkdir(out, { recursive: true });
   try {
-    await buildHq(out);
+    // Local-first head; the configured CSP is covered in sync.test.mjs.
+    await buildHq(out, { cloud: { url: '', anonKey: '' } });
     assert.deepEqual(await readdir(out), ['hq']);
     const files = (await readdir(join(out, 'hq'))).sort();
     assert.deepEqual(files, [...HQ_FILES].sort());
