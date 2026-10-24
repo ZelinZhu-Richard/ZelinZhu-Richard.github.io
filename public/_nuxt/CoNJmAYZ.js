@@ -1,1 +1,1 @@
-import{y as s}from"./CbdjwYMp.js";const i=s("/images/svg/logoSimple.svg");export{i as _};
+import{y as s}from"./CbdjwYMp.js";const i=s("/images/svg/footerName.svg");export{i as _};

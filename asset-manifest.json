@@ -14,7 +14,7 @@
     {
       "file": "_nuxt/CoNJmAYZ.js",
       "bytes": 90,
-      "sha256": "5bfea990c40c05b45234822982b008ba51077b6c7a045709c219e2b8d7486cef"
+      "sha256": "0e9c6529b3bd918b0a0504a98cab82c8475d58d8c748f261cfdcb295a91a08a8"
     },
     {
       "file": "_nuxt/FZFS71Nt.js",
@@ -135,6 +135,11 @@
       "file": "images/svg/cursor_border.svg",
       "bytes": 687,
       "sha256": "12d900116bd1bbebf3ad7bf2464f305e7566208c06a8bd955459062e5f3032dd"
+    },
+    {
+      "file": "images/svg/footerName.svg",
+      "bytes": 242,
+      "sha256": "25039773d89c67318647bd566905bae71ab2d64c3313ea37fa48021acc0f9f26"
     },
     {
       "file": "images/svg/fromError.svg",
