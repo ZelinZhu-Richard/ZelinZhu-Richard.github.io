@@ -1,0 +1,64 @@
+/* The page's existing background stays beneath the decorative ocean. */
+body:has(> #ascii-sharks-background) {
+  isolation: isolate;
+}
+#ascii-sharks-background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  touch-action: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  opacity: .46;
+  mix-blend-mode: screen;
+  filter: saturate(.45);
+  mask-image: linear-gradient(90deg, #0008, #000 65%);
+}
+.sharks-toggle {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid #dfccff40;
+  border-radius: 4px;
+  background: #111022;
+  color: #dfccff;
+  font: 12px/1.4 Neoris, Arial, sans-serif;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.sharks-toggle:hover { background: #242035; border-color: #dfccff90; }
+.sharks-toggle:focus-visible { outline: 2px solid #dfccff; outline-offset: 4px; }
+.sharks-toggle:active { transform: translateY(1px); }
+.sharks-toggle[hidden] { display: none; }
+.sharks-toggle svg { width: 12px; height: 12px; fill: currentColor; }
+/* The Flash preview remains the same surface; its card and editor stay opaque. */
+body:has(> #ascii-sharks-background) .flash-scene { background: transparent; }
+/* The captured phoenix runtime has its own opaque, fixed WebGL backdrop. */
+body:has(> #__nuxt) > #ascii-sharks-background { z-index: 1; opacity: .32; }
+body:has(> #ascii-sharks-background) #smooth-wrapper { z-index: 2; }
+body:has(> #__nuxt) .sharks-toggle,
+.domain-page .sharks-toggle { bottom: max(86px, calc(env(safe-area-inset-bottom) + 70px)); }
+body:has(.station) .sharks-toggle { top: 16px; bottom: auto; right: calc(368px + 20px); }
+@media (min-width: 1600px) {
+  body:has(.station) .sharks-toggle { right: calc(400px + 20px); }
+}
+@media (max-width: 800px) {
+  body:has(.station) .sharks-toggle { right: 12px; }
+}
+@media (max-width: 700px) {
+  #ascii-sharks-background { opacity: .34; mask-image: linear-gradient(90deg, #0009, #000); }
+  .sharks-toggle { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
+}
+@media print {
+  #ascii-sharks-background, .sharks-toggle { display: none; }
+}

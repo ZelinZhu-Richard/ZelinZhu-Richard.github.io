@@ -1,0 +1,11 @@
+ASCII sharks by stackedlol
+https://github.com/stackedlol/ascii-sharks
+Source commit: c521e24a787e6d4cc460d4cf2b9815f25e4fe453
+
+Upstream publishes no license file or package license declaration as of this
+revision. No particular license or original authorship is claimed here.
+
+The vendored engine retains the upstream shark geometry, ASCII rendering,
+fish-school simulation, and pointer interaction. Local changes add pause/resume,
+bound background rendering cost, and remove grid lines. The portfolio wrapper
+adds site-wide compositing, motion preferences, media suspension, and cleanup.

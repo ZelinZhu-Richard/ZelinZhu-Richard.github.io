@@ -35,6 +35,7 @@ for (const [file, text] of documents) {
   if (/https?:\/\/(?:localhost|127\.0\.0\.1):\d+|\/Users\/|\/src\/main\.jsx/.test(text)) errors.push(`Development path in ${file}`);
   if (/noomoagency\.com|hello@noomo|Noomo Agency Logo|\/cases\/|videos\/cases/.test(text)) errors.push(`Obsolete agency content in ${file}`);
   if (file.endsWith('.html')) {
+    if (!text.includes('id="ascii-sharks-background"') || !text.includes('href="/ascii-sharks/background.css"') || !text.includes('src="/ascii-sharks/background.js"')) errors.push(`Shared shark background missing: ${file}`);
     if (/noindex|gtag:\{enabled:true/.test(text)) errors.push(`Incorrect production metadata or analytics: ${file}`);
     if (!text.includes('https://zelinzhu-richard.github.io')) errors.push(`Production metadata missing: ${file}`);
     for (const m of text.matchAll(/(?:src|href)=["']([^"']+)["']/g)) localReference(m[1], file);

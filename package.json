@@ -11,7 +11,7 @@
     "dev": "npm run build && node tools/serve.mjs dist",
     "build": "node tools/build.mjs",
     "preview": "node tools/serve.mjs dist --port 4173",
-    "test": "node --test tests/*.test.mjs workspace/flash/tests/*.test.mjs workspace/ppiano/tests/*.test.mjs workspace/gym/tests/*.test.mjs workspace/domainexp/tests/*.test.mjs workspace/repolarisdm/tests/*.test.mjs",
+    "test": "node --test tests/*.test.mjs workspace/flash/tests/*.test.mjs workspace/ppiano/tests/*.test.mjs workspace/gym/tests/*.test.mjs workspace/domainexp/tests/*.test.mjs workspace/repolarisdm/tests/*.test.mjs workspace/ascii-sharks/tests/*.test.mjs",
     "verify": "node tools/verify.mjs dist",
     "manifest": "node tools/manifest.mjs"
   }
