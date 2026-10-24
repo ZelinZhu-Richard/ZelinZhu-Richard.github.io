@@ -134,7 +134,7 @@ const DEFAULTS = {
       { kind: 'eggFood', weight: 35 },
       { kind: 'xpTreat', weight: 12 },
       { kind: 'diamonds', weight: 8 },
-      { kind: 'charm', weight: 3, minTier: 3 }, // Epic+ eggs only; otherwise coins
+      { kind: 'charm', weight: 0, minTier: 3 }, // Spec §7: 3 (Epic+ eggs only; otherwise coins). Owner set 0 on 2026-10-24 (balance dial; VALIDATION.md)
       { kind: 'trinket', weight: 2, minTier: 3 }, // Epic+ eggs only; otherwise coins
     ],
     lootCoins: [10, 20, 35, 60, 100, 160, 250],

@@ -27,9 +27,10 @@ function normalizeOdds(o) {
   if (!out.tierSplit && o.petEggSplit) out.tierSplit = { laid: o.petEggSplit.laid, other: o.petEggSplit.other };
   if (Array.isArray(o.loot)) {
     const LABEL = { coins: 'Coins', eggFood: 'Egg food', xpTreat: 'XP treat', treat: 'XP treat', diamonds: 'Diamonds', charm: 'Tier charm', trinket: 'Trinket' };
-    out.loot = o.loot.map(l => ({
+    const total = o.loot.reduce((sum, l) => sum + (Number(l.weight) || 0), 0) || 1;
+    out.loot = o.loot.filter(l => Number(l.weight) > 0).map(l => ({
       ...l,
-      weight: l.weight > 1 ? l.weight / 100 : l.weight,
+      weight: l.weight / total,
       label: l.label || `${LABEL[l.kind] || l.kind}${l.minTier ? ` (${tierName(l.minTier)} eggs and up)` : ''}`,
     }));
   }

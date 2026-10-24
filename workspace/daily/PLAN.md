@@ -255,7 +255,7 @@ Every other item is loot (weighted):
 | Egg food | 35% | 1–3 servings: the egg's tier 70%, one lower 25%, one higher 5% |
 | XP treat | 12% | +100 × (tier + 1) XP to a pet of the owner's choice |
 | Diamonds | 8% | Ordinary 1 · Rare 1 · Super Rare 2 · Epic 3 · Mythic 5 · Legendary 8 · Ultra 12 |
-| Tier charm | 3% | Epic+ eggs only; otherwise coins |
+| Tier charm | 3% → **0** (owner's balance dial, 2026-10-24; see VALIDATION.md) | Epic+ eggs only; otherwise coins. At 0 the other weights share the whole table (e.g. coins 40/97). |
 | Regular trinket | 2% | Epic+ eggs only, trinket tier ≤ egg tier; otherwise coins |
 
 Opening resolves in the engine and returns the contents for the reveal animation (section 13).

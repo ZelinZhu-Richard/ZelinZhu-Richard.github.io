@@ -207,6 +207,30 @@ By 30-day block it starts at **303** in days 1–30, rises to 370–380 in month
 
 This player does about 2.7 of 3 quests a day, against the panel's 0.85 × 3. Even so, the current copy "About 300 coins ≈ one good day" (CONTENT E) is right for the first month and about 25 % low after that. "About 400 coins" fits an Easy year. The copy and the reward prices are the owner's call.
 
+### Dial applied: Epic+ loot tier-charm weight 3 → 0 (owner's choice, 2026-10-24)
+
+`config.eggs.loot` charm weight is now 0, so Epic+ eggs no longer drop full tier charms. The other loot rows share the whole table (coins 40/97, egg food 35/97, XP treat 12/97, diamonds 8/97, trinket 2/97 on Epic+ eggs). Tier charms remain in the code for any future source; the shop and season tier 20 still give Sprout charms. The public odds list on /daily/eggs/ shows the renormalized shares and hides zero-weight rows.
+
+Both columns were run on the same engine (after the seat and freeze fixes), Sprout charms, `--charm-buy eager`, 1,000 runs per player type, seed 1, each pinned with `--set eggs.loot=…`. Year one; Mythic 95 % CI ≈ ±3 points.
+
+| Player type | Target Mythic | Mythic before → after | Legendary before → after (target) | Ultra before → after (target) | P(death) | Coins/day |
+|---|---|---|---|---|---|---|
+| Chill days | ~7 % | 23.0 % → 19.4 % | 0.3 % → 0.3 % (~0) | 0.0 % → 0.0 % (0) | 0.6 % | 292 → 289 |
+| Easy days | ~9 % | 26.5 % → 27.8 % | 0.8 % → 0.6 % (~0) | 0.1 % → 0.0 % (0) | 2.8 % | 382 → 380 |
+| Medium days | ~32 % | 75.0 % → **57.3 %** | 12.9 % → 6.3 % (~3) | 1.0 % → 0.6 % (~0.3) | 1.2 % | 541 → 530 |
+| Medium + Hard weekends | ~51 % | 80.1 % → **63.9 %** | 18.4 % → 7.6 % (~10) | 2.2 % → 0.9 % (~1) | 1.1 % | 568 → 550 |
+| Hard + 2 Goddamn weekends | ~78 % | 95.0 % → **85.7 %** | 40.7 % → 21.3 % (~24) | 7.8 % → 2.5 % (~3) | 1.0 % | 676 → 644 |
+| Inconsistent | ~28 % | 66.6 % → **47.2 %** | 11.3 % → 4.4 % (~3) | 0.8 % → 0.3 % (0) | 8.5 % (target 25–30 %) | 487 → 476 |
+
+Odds check after the change: `montecarlo.mjs` 255 checks, 0 missed (charm share 0.000 % on Ordinary, Epic and Ultra eggs).
+
+What it fixed and what it didn't:
+
+- **Legendary and Ultra are now on target** for Medium + Hard weekends and Hard, and close for Medium (Ultra 0.6 % vs ~0.3 %). This was the dial's main effect.
+- **Mythic is still high** for every player type: Medium 57 % against ~32 %, Inconsistent 47 % against ~28 %.
+- **Chill and Easy don't move** (19–28 % against 7–9 %). Their main route to Mythic is a Sprout charm on a Super Rare egg that rolls +1, plus streak Super Rare eggs, not loot charms.
+- **Deaths are unchanged.** Inconsistent players still die far less than intended (8.5 % a year against 25–30 %); the freeze price is the dial for that (600 → 1,500 measured ≈ 29.5 % in the 150-run sweep).
+
 ### Not checked
 
 - The balance player is a greedy upper bound. A real owner who opens eggs later, skips quests or keeps diamonds will climb more slowly.

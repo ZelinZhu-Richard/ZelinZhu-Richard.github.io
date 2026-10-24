@@ -28,7 +28,7 @@ const SPEC = {
   laidSplit: [[0.825, 0.125, 0.05], [0.825, 0.125, 0.05], [0.88, 0.10, 0.02], [0.92, 0.07, 0.01], [0.94, 0.05, 0.01], [0.75, 0.25, 0], [1, 0, 0]],
   otherSplit: [0.9, 0.1, 0],
   itemBase: 3, itemTrials: 9, itemP: 0.28,
-  loot: { coins: 40, eggFood: 35, xpTreat: 12, diamonds: 8, charm: 3, trinket: 2 }, // charm/trinket → coins below Epic
+  loot: { coins: 40, eggFood: 35, xpTreat: 12, diamonds: 8, charm: 0, trinket: 2 }, // charm/trinket → coins below Epic; charm 0 is the owner's 2026-10-24 dial (spec §7 says 3)
   lootCoins: [10, 20, 35, 60, 100, 160, 250],
   lootDiamonds: [1, 1, 2, 3, 5, 8, 12],
   foodSplit: [0.70, 0.25, 0.05],

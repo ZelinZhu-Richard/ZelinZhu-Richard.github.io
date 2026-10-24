@@ -275,7 +275,7 @@ test('engine-shaped view models (numeric levels, richer fields) normalize to the
   raw.ladder = { ...raw.ladder, levels: raw.ladder.levels.map(id => ({ id, label: id })) };
   raw.header = { ...raw.header, nextStep: { streak: 40, tier: 1, count: 2, lucky: false } };
   raw.collection = { ...raw.collection, petdex: { ...raw.collection.petdex, species: raw.collection.petdex.species.map(id => ({ id, name: id.toUpperCase() })) } };
-  raw.odds = { ...raw.odds, tierSplit: undefined, petEggSplit: raw.odds.tierSplit, loot: [{ kind: 'coins', weight: 40, minTier: null }, { kind: 'trinket', weight: 2, minTier: 3 }], hatch: { base: { same: 0.95, up: 0.05 }, foodBonus: 0.01, ownFloor: 0.5, servings: [5, 6, 8, 10, 12, 15, 20] } };
+  raw.odds = { ...raw.odds, tierSplit: undefined, petEggSplit: raw.odds.tierSplit, loot: [{ kind: 'coins', weight: 40, minTier: null }, { kind: 'eggFood', weight: 35, minTier: null }, { kind: 'xpTreat', weight: 12, minTier: null }, { kind: 'diamonds', weight: 8, minTier: null }, { kind: 'charm', weight: 0, minTier: 3 }, { kind: 'trinket', weight: 2, minTier: 3 }], hatch: { base: { same: 0.95, up: 0.05 }, foodBonus: 0.01, ownFloor: 0.5, servings: [5, 6, 8, 10, 12, 15, 20] } };
   const v = normalizeViews(raw);
   assert.equal(v.today.level, 'easy');
   assert.equal(v.today.tasks.find(t => t.id === 'read').level, 'medium');
@@ -286,8 +286,9 @@ test('engine-shaped view models (numeric levels, richer fields) normalize to the
   assert.equal(streakLine(v.header), '1 Rare egg a night. 2 from day 40.');
   assert.equal(v.collection.petdex.names.dragon, 'DRAGON');
   const odds = s(renderOdds(v.odds));
-  assert.match(odds, /Coins 40%/);
-  assert.match(odds, /Trinket \(Epic eggs and up\) 2%/);
+  assert.match(odds, /Coins 41\.2%/, 'shares are of the real total (97), not of 100');
+  assert.match(odds, /Trinket \(Epic eggs and up\) 2\.062%/);
+  assert.doesNotMatch(odds, /Tier charm/, 'zero-weight rows are hidden');
   assert.match(odds, /82\.5 \/ 12\.5 \/ 5/);
   assert.match(s(renderToday(v.today, v.header, ctx({ ladder: v.ladder }))), /Tick Read: Medium, 45 pages/);
   assert.deepEqual(normalizeEvents([{ type: 'task.ticked', level: 3 }]), [{ type: 'task.ticked', level: 'hard' }]);

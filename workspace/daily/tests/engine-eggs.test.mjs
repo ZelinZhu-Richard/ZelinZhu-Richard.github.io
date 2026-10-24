@@ -90,7 +90,7 @@ test('pet-egg tier splits: laid by a pet vs streak/chest/season (never +2)', () 
   assert.equal(ultra[0], 1, 'Ultra stays Ultra');
 });
 
-test('loot weights: coins 40 · egg food 35 · XP treat 12 · diamonds 8 · charm 3 · trinket 2 (Epic+ only, else coins)', () => {
+test('loot weights: coins 40 · egg food 35 · XP treat 12 · diamonds 8 · charm 0 (owner dial, spec 3) · trinket 2 (Epic+ only, else coins)', () => {
   const freq = (eggs) => {
     const items = eggs.flat().filter((i) => i.kind !== 'petEgg' && !i.ultra);
     const f = {};
@@ -99,12 +99,12 @@ test('loot weights: coins 40 · egg food 35 · XP treat 12 · diamonds 8 · char
     return f;
   };
   const epic = freq(openMany(5000, 3, 'streak', { seed: 12 }));
-  near(epic.coins, 0.40, 0.012, 'coins'); near(epic.eggFood, 0.35, 0.012, 'egg food'); near(epic.xpTreat, 0.12, 0.008, 'treat');
-  near(epic.diamonds, 0.08, 0.007, 'diamonds'); near(epic.charm, 0.03, 0.005, 'charm'); near(epic.trinket, 0.02, 0.004, 'trinket');
+  near(epic.coins, 40 / 97, 0.012, 'coins'); near(epic.eggFood, 35 / 97, 0.012, 'egg food'); near(epic.xpTreat, 12 / 97, 0.008, 'treat');
+  near(epic.diamonds, 8 / 97, 0.007, 'diamonds'); assert.equal(epic.charm, undefined, 'no tier charms from loot'); near(epic.trinket, 2 / 97, 0.004, 'trinket');
   const ord = freq(openMany(4000, 0, 'streak', { seed: 13 }));
   assert.equal(ord.charm, undefined);
   assert.equal(ord.trinket, undefined);
-  near(ord.coins, 0.45, 0.015, 'coins absorb charm + trinket below Epic');
+  near(ord.coins, 42 / 97, 0.015, 'coins absorb the trinket share below Epic');
   // Amounts.
   const items = openMany(3000, 2, 'streak', { seed: 14 }).flat();
   const coins = items.filter((i) => i.kind === 'coins').map((i) => i.amount);
