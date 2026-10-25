@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { pages } from '../site/pages.mjs';
-import { filterRepos, groupRepos, stateFromSearch, searchFromState } from '../workspace/github-stars/model.js';
+import { filterRepos, groupRepos, groupByType, stateFromSearch, searchFromState } from '../workspace/github-stars/model.js';
+import { renderTypeGroups } from '../workspace/github-stars/render.mjs';
 import { buildStars } from '../workspace/github-stars/build.mjs';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -30,6 +31,42 @@ test('star groups account for every filtered repository exactly once', () => {
   assert.ok(grouped.every(repo => repo.category === 'agents'));
 });
 
+test('type hierarchy preserves definition order, separates purposes and accounts for each repository once', () => {
+  const categories = [{id:'models',label:'AI models & ML'},{id:'agents',label:'AI agents & coding'},{id:'unused',label:'Unused'}];
+  const types = [{id:'resource',label:'Resource'},{id:'library',label:'Library'},{id:'cli',label:'CLI'},{id:'unused',label:'Unused'}];
+  const extra = {...repos[0],name:'ModelKit',full_name:'example/ModelKit',category:'models'};
+  const source = [...repos,extra];
+  const grouped = groupByType(source,types,categories);
+  assert.deepEqual(grouped.map(group=>group.id),['resource','library','cli']);
+  assert.deepEqual(grouped.find(group=>group.id==='library').purposes.map(purpose=>purpose.id),['models','agents']);
+  const leaves = grouped.flatMap(group=>group.purposes.flatMap(purpose=>purpose.repos));
+  assert.equal(leaves.length,source.length);
+  assert.equal(new Set(leaves.map(repo=>repo.full_name)).size,source.length);
+  assert.ok(grouped.every(group=>group.purposes.every(purpose=>purpose.repos.every(repo=>repo.type===group.id&&repo.category===purpose.id))));
+  const ordered = groupByType([extra,repos[0],{...extra,full_name:'example/SecondModel'}],types,categories);
+  assert.deepEqual(ordered[0].purposes[0].repos.map(repo=>repo.full_name),['example/ModelKit','example/SecondModel']);
+});
+
+test('type and purpose drill-down controls stay scoped and progressive limits apply per purpose', () => {
+  const categories = [{id:'agents',label:'AI agents & coding',description:'Agent tools'},{id:'models',label:'AI models & ML',description:'Model tools'}];
+  const types = [{id:'library',label:'Library / framework'}];
+  const source = Array.from({length:40},(_,index)=>({...repos[0],name:`repo-${index}`,full_name:`example/repo-${index}`,url:`https://github.com/example/repo-${index}`,category:index<20?'agents':'models'}));
+  const groups = groupByType(source,types,categories);
+  const overview = renderTypeGroups(groups,types,{overview:true});
+  assert.equal([...overview.matchAll(/class="repo-row"/g)].length,2);
+  assert.match(overview,/data-type="library" data-open-type="true"/);
+  assert.match(overview,/data-type="library" data-purpose="agents" data-open-purpose="true"/);
+  assert.match(overview,/<h2 id="type-heading-library">Libraries &amp; frameworks/);
+  assert.match(overview,/<h3 id="type-library-pile-agents-heading">AI agents &amp; coding/);
+  const detail = renderTypeGroups(groups,types,{limits:{agents:18}});
+  assert.equal([...detail.matchAll(/class="repo-row"/g)].length,30);
+  assert.match(detail,/data-type="library" data-more="agents"/);
+  assert.match(detail,/Show 2 more/);
+  const complete = renderTypeGroups(groups,types,{staticContent:true});
+  assert.equal([...complete.matchAll(/class="repo-row"/g)].length,40);
+  assert.doesNotMatch(complete,/data-(?:open-type|open-purpose|more)=/);
+});
+
 test('filter URLs preserve punctuation and non-Latin search text', () => {
   const state = { query: '模型 & coding / C++', category: 'models', type: 'resource', language: 'C++', sort: 'newest' };
   const decoded = stateFromSearch(searchFromState(state));
@@ -55,6 +92,9 @@ test('static route includes every repo without JavaScript and excludes authoring
   for (const repo of catalog.repos) assert.ok(html.includes(`href="${repo.url}"`), repo.full_name);
   assert.match(html,/https:\/\/zelinzhu-richard.github.io\/github\/stars\//);
   assert.match(html,/enhancement-status[^>]*hidden/);
+  assert.equal([...html.matchAll(/class="repo-type-group"/g)].length,catalog.types.length);
+  assert.match(html,/<h2 id="type-heading-application">Applications/);
+  assert.match(html,/<h3 id="type-application-pile-[^"]+-heading">/);
   assert.deepEqual((await readdir(resolve(target,'github/stars'))).sort(),['index.html','model.js','render.mjs','stars.css','stars.js','stars.json']);
 });
 

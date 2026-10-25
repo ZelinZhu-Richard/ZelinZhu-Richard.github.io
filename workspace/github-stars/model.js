@@ -42,3 +42,10 @@ export function filterRepos(repos, {query='',category='all',type='all',language=
 export function groupRepos(repos, categories) {
   return categories.map(category => ({...category,repos:repos.filter(repo => repo.category === category.id)})).filter(group => group.repos.length);
 }
+
+export function groupByType(repos, types, categories) {
+  return types.map(type => {
+    const typedRepos = repos.filter(repo => repo.type === type.id);
+    return {...type,repos:typedRepos,purposes:groupRepos(typedRepos,categories)};
+  }).filter(group => group.repos.length);
+}

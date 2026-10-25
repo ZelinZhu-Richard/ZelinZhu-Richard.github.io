@@ -14,8 +14,10 @@ Preserve the existing static Node build, shared portfolio identity, real HTML ro
 
 ## Workflow
 
-Browse primary-purpose piles; search repository names, descriptions, and topics; narrow by repository type and language; sort by star date, popularity, update date, or name. Download the snapshot or open the original GitHub repository. Full HTML remains browsable without JavaScript.
+Browse seven repository types, then explore nested purpose piles drawn from 12 purpose categories. Search repository names, descriptions, and topics; narrow by purpose and language; sort by star date, popularity, update date, or name. Download the snapshot or open the original GitHub repository. Full HTML includes all 708 repositories and remains browsable without JavaScript.
 
-## Defaults and open decisions
+## Defaults and decisions
 
-Purpose-first browsing is the implementation default, pending the optional user preference question; type remains a separate filter. Classification is a reviewed editorial judgment using repository metadata and selected README checks, with persistent overrides for future refreshes. Snapshots refresh manually, not on a timer.
+The user confirmed type first, then purpose. The main index and section headings use type; Purpose and Language are dropdown filters. All stars is the default view, with one repository per type-and-purpose subgroup and scoped View all actions. Selecting a type starts with 12 repositories per purpose; opening a purpose within that type starts with 36. Show more adds up to 24 per purpose. Existing `type` and `pile` URL parameters remain compatible.
+
+Classification is a reviewed editorial judgment using repository metadata and selected README checks, with persistent overrides for future refreshes. Snapshots refresh manually, not on a timer.

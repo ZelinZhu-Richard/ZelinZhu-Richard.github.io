@@ -1,5 +1,5 @@
-import { DEFAULT_STATE,filterRepos,groupRepos,stateFromSearch,searchFromState } from './model.js';
-import { escape,repoRow } from './render.mjs';
+import { DEFAULT_STATE,filterRepos,groupByType,stateFromSearch,searchFromState } from './model.js';
+import { renderTypeGroups } from './render.mjs';
 
 const status = document.querySelector('#enhancement-status');
 status.hidden=false;
@@ -8,7 +8,7 @@ try {
   if (!response.ok) throw new Error('Snapshot unavailable');
   const catalog = await response.json();
   const input = document.querySelector('#repo-search');
-  const type = document.querySelector('#type-filter');
+  const purpose = document.querySelector('#purpose-filter');
   const language = document.querySelector('#language-filter');
   const sort = document.querySelector('#sort-filter');
   const clear = document.querySelector('#clear-search');
@@ -17,57 +17,61 @@ try {
   const count = document.querySelector('#result-count');
   const navigation = document.querySelector('#pile-navigation');
   let state = stateFromSearch(location.search);
-  let visible = 36;
+  let limits = {};
   function validate() {
     if (!catalog.categories.some(category=>category.id===state.category)) state.category='all';
     if (!catalog.types.some(item=>item.id===state.type)) state.type='all';
     if (![...language.options].some(option=>option.value===state.language)) state.language='all';
   }
   function syncControls() {
-    input.value=state.query;type.value=state.type;language.value=state.language;sort.value=state.sort;
+    input.value=state.query;purpose.value=state.category;language.value=state.language;sort.value=state.sort;
   }
   function render(updateURL=true) {
     validate();
     const filtered = filterRepos(catalog.repos,state);
-    const groups = groupRepos(filtered,catalog.categories);
-    const allPiles = state.category==='all';
-    const limit = allPiles ? 4 : visible;
+    const groups = groupByType(filtered,catalog.types,catalog.categories);
+    const overview = state.type==='all';
     const total = filtered.length;
-    count.textContent=`${total.toLocaleString('en-US')} ${total===1?'repository':'repositories'}${allPiles ? ` in ${groups.length} ${groups.length===1?'pile':'piles'}` : ''}`;
+    count.textContent=`${total.toLocaleString('en-US')} ${total===1?'repository':'repositories'} in ${groups.length} ${groups.length===1?'type':'types'}`;
     clear.hidden=!state.query;
     reset.hidden=!Object.keys(DEFAULT_STATE).some(key=>state[key]!==DEFAULT_STATE[key]);
-    for (const link of navigation.querySelectorAll('[data-category]')) {
-      if (link.dataset.category===state.category) link.setAttribute('aria-current','true');
+    for (const link of navigation.querySelectorAll('[data-type]')) {
+      if (link.dataset.type===state.type) link.setAttribute('aria-current','true');
       else link.removeAttribute('aria-current');
     }
-    results.innerHTML=groups.length ? groups.map(group=>{
-      const shown = group.repos.slice(0,limit);
-      const remaining = group.repos.length-shown.length;
-      return `<section class="repo-pile" id="pile-${escape(group.id)}" aria-labelledby="heading-${escape(group.id)}"><div class="pile-heading"><div><h2 id="heading-${escape(group.id)}">${escape(group.label)} <span>${group.repos.length}</span></h2><p>${escape(group.description)}</p></div>${allPiles && remaining ? `<button class="view-pile" data-pile="${escape(group.id)}" type="button">View all ${group.repos.length}<span class="sr-only"> in ${escape(group.label)}</span><span aria-hidden="true"> →</span></button>`:''}</div><ul class="repo-list">${shown.map(repo=>repoRow(repo,catalog.types)).join('')}</ul>${!allPiles && remaining ? `<button class="load-more" type="button" data-more="true">Show ${Math.min(36,remaining)} more <span>(${remaining} remaining)</span></button>`:''}</section>`;
-    }).join('') : '<div class="empty-state"><h2>No stars in this corner.</h2><p>Try a broader search, a different pile, or reset your filters.</p><button type="button" data-reset="true">Reset all filters</button></div>';
+    const displayLimits = state.category==='all' ? limits : {[state.category]:36,...limits};
+    results.innerHTML=groups.length ? renderTypeGroups(groups,catalog.types,{overview,limits:displayLimits}) : '<div class="empty-state"><h2>No stars in this corner.</h2><p>Try a broader search, a different type or purpose, or reset your filters.</p><button type="button" data-reset="true">Reset all filters</button></div>';
     if (updateURL) history.replaceState(null,'',location.pathname+searchFromState(state));
   }
-  function update(next) {state={...state,...next};visible=36;render();}
-  function selectPile(category) {update({category});document.querySelector('#collection').scrollIntoView({block:'start',behavior:'instant'});}
-  function resetAll() {state={...DEFAULT_STATE};visible=36;syncControls();render();}
+  function update(next) {state={...state,...next};limits={};render();}
+  function selectGroup(type,category=state.category) {
+    update({type,category});purpose.value=state.category;
+    document.querySelector('#collection').scrollIntoView({block:'start',behavior:'instant'});
+  }
+  function resetAll() {state={...DEFAULT_STATE};limits={};syncControls();render();}
   input.addEventListener('input',()=>update({query:input.value}));
   document.querySelector('#search-form').addEventListener('submit',event=>{event.preventDefault();update({query:input.value});});
-  type.addEventListener('change',()=>update({type:type.value}));
+  purpose.addEventListener('change',()=>update({category:purpose.value}));
   language.addEventListener('change',()=>update({language:language.value}));
   sort.addEventListener('change',()=>update({sort:sort.value}));
   clear.addEventListener('click',()=>{input.value='';update({query:''});input.focus();});
   reset.addEventListener('click',resetAll);
-  navigation.addEventListener('click',event=>{const link=event.target.closest('[data-category]');if(!link)return;event.preventDefault();selectPile(link.dataset.category);});
+  navigation.addEventListener('click',event=>{const link=event.target.closest('[data-type]');if(!link)return;event.preventDefault();selectGroup(link.dataset.type);});
   results.addEventListener('click',event=>{
-    const pile=event.target.closest('[data-pile]');
-    if(pile) {selectPile(pile.dataset.pile);return;}
+    const purposeButton=event.target.closest('[data-open-purpose]');
+    if(purposeButton) {selectGroup(purposeButton.dataset.type,purposeButton.dataset.purpose);return;}
+    const typeButton=event.target.closest('[data-open-type]');
+    if(typeButton) {selectGroup(typeButton.dataset.type);return;}
     if(event.target.closest('[data-reset]')) {resetAll();input.focus();return;}
-    if(event.target.closest('[data-more]')) {
-      const firstNewIndex=visible;visible+=36;render(false);
-      results.querySelectorAll('.repo-name')[firstNewIndex]?.focus();
+    const more=event.target.closest('[data-more]');
+    if(more) {
+      const category=more.dataset.more;
+      const firstNewIndex=limits[category] ?? (state.category==='all'?12:36);
+      limits[category]=firstNewIndex+24;render(false);
+      document.getElementById(`type-${more.dataset.type}-pile-${category}`)?.querySelectorAll('.repo-name')[firstNewIndex]?.focus();
     }
   });
-  window.addEventListener('popstate',()=>{state=stateFromSearch(location.search);visible=36;validate();syncControls();render(false);});
+  window.addEventListener('popstate',()=>{state=stateFromSearch(location.search);limits={};validate();syncControls();render(false);});
   validate();syncControls();render();
   document.querySelectorAll('.enhanced').forEach(element=>element.hidden=false);
   status.hidden=true;
