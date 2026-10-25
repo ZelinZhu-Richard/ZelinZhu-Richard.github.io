@@ -6,7 +6,7 @@
 // Covers: RLS (anon reads only the public snapshot and the config; a signed-in stranger reads and writes no
 // hq_* or game table), the owner's HQ round trip through hq_replace/hq_apply/hq_export, the game through the
 // browser's own SupabaseBackend (create, act, refusals, stale versions, the RNG log, the sanitized public view),
-// importing a local-first save, day-close, remind, generate-variants, and the pg_cron → Vault → pg_net path.
+// importing a local-first save, correcting the locked list (list/edit), day-close, remind, generate-variants, and the pg_cron → Vault → pg_net path.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -198,6 +198,26 @@ test('owner: importing a local-first save replaces the cloud game with a fresh s
   assert.deepEqual([last.data[0].source, last.data[0].action.reseeded, last.data[0].action.replaced], ['import', true, true]);
   const refused = await fn('game-action', { token: owner.token, body: { op: 'import', save: { format: 'nope' }, replace: true, version: b.version } });
   assert.equal(refused.status, 400);
+});
+
+test('owner: list/edit corrects the locked list on the server and logs it in game_events', async () => {
+  const b = new SupabaseBackend(E, { cloud, getToken: async () => owner.token });
+  await b.init();
+  const workout = b.state.list.tasks.find(t => t.id === 'workout');
+  const version = b.version;
+  const r = await b.act({ type: 'list/edit', taskId: 'workout', task: { ...workout, noGoddamn: true }, reason: 'Workouts have no Goddamn tier' });
+  assert.ok(r.events.some(e => e.type === 'list.edited' && e.taskId === 'workout'));
+  assert.equal(b.version, version + 1);
+  assert.equal(b.state.list.tasks.find(t => t.id === 'workout').noGoddamn, true);
+  const read = b.state.list.tasks.find(t => t.id === 'read');
+  await assert.rejects(b.act({ type: 'list/edit', taskId: 'read', task: { ...read, chill: 1 }, reason: 'Easier' }), err => err.code === 'edit_easier' && err.status === 400);
+  const log = await owner.client.from('game_events').select('source, ok, action, events, error').order('id', { ascending: false }).limit(2);
+  const [refused, edited] = log.data;
+  assert.deepEqual([edited.source, edited.ok, edited.action.type, edited.action.reason], ['action', true, 'list/edit', 'Workouts have no Goddamn tier']);
+  assert.deepEqual(edited.events.find(e => e.type === 'list.edited').changed, ['noGoddamn']);
+  assert.deepEqual([refused.ok, refused.error.code], [false, 'edit_easier'], 'a refused correction is logged too');
+  const row = await owner.client.from('task_lists').select('tasks').eq('month', b.state.list.month).single();
+  assert.equal(row.data.tasks.find(t => t.id === 'workout').noGoddamn, true, 'task_lists follows the correction');
 });
 
 test('day-close: needs the cron secret, closes finished days once, and is idempotent', { skip: CRON.length < 16 && 'set DAILY_CRON_SECRET (same value the stack was started with)' }, async () => {

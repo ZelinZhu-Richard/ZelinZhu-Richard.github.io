@@ -7,7 +7,9 @@ import { advanceMut } from './close.js';
 import {
   combinePets, mergePets, releasePet,
 } from './collection.js';
-import { feedPet, raiseTask, setDayLevel, setNextList, setupList, swapTask, tickTask, undoTick } from './day.js';
+import {
+  editTask, feedPet, raiseTask, setDayLevel, setNextList, setupList, swapTask, tickTask, undoTick,
+} from './day.js';
 import {
   charmPetEgg, combinePetEggs, feedPetEgg, hatchPetEgg, openEgg, separatePetEgg,
 } from './eggs.js';
@@ -81,6 +83,7 @@ function dispatch(s, a, now, rng, events) {
       return;
     case 'list/setNext': return setNextList(s, a.tasks, now, events);
     case 'list/swap': return swapTask(s, a.taskId, a.task, a.reason, now, events);
+    case 'list/edit': return editTask(s, a.taskId, a.task, a.reason, now, events);
     case 'day/setLevel': return setDayLevel(s, a.level, now, events);
     case 'task/raise': return raiseTask(s, a.taskId, a.level, now, events);
     case 'task/tick': return tickTask(s, a.taskId, { qty: a.qty, goalTag: a.goalTag }, now, events, rng);

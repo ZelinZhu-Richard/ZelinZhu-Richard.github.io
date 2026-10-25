@@ -111,6 +111,8 @@ export function normalizeTask(def, index = 0) {
   if (Array.isArray(def.tierQty) && def.tierQty.length === LEVELS.length && def.tierQty.every((q) => Number.isFinite(q) && q >= 0)) {
     out.tierQty = def.tierQty.slice();
   }
+  // Only stored when set, so existing lists keep their exact shape.
+  if (def.noGoddamn === true) out.noGoddamn = true;
   return out;
 }
 

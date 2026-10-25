@@ -36,7 +36,8 @@ export function streakEggs(days, rng = null) {
 
 // ---- list month rollover ---------------------------------------------------------------------------------
 
-/** On the 1st: next month's list locks; otherwise last month's carries over (with a fresh emergency swap). */
+/** On the 1st: next month's list locks; otherwise last month's carries over (with a fresh emergency swap and
+ * fresh corrections). */
 export function rolloverList(s, key, at, events) {
   const month = monthOf(key);
   if (!s.list || s.list.month >= month) return;
@@ -46,6 +47,7 @@ export function rolloverList(s, key, at, events) {
     events?.push({ type: 'list.locked', month, tasks: s.list.tasks.length });
   } else {
     s.list = { ...s.list, month, swaps: 0 };
+    delete s.list.edits;
     events?.push({ type: 'list.carried', month });
   }
 }

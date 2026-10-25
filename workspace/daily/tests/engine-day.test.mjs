@@ -289,3 +289,64 @@ test('monthly lock: next month\'s list locks on the 1st; otherwise the list carr
   assert.equal(s.list.month, '2027-01');
   assert.equal(s.list.tasks.length, 2, 'carried over');
 });
+
+test('noGoddamn: stored only when set; no Goddamn raise, option or ladder cell for that task', () => {
+  const tasks = E.DEFAULT_TASKS.map((t) => (t.id === 'workout' ? { ...t, noGoddamn: true } : t));
+  let s = start(tasks);
+  assert.equal(s.list.tasks.find((t) => t.id === 'workout').noGoddamn, true);
+  assert.equal('noGoddamn' in s.list.tasks.find((t) => t.id === 'read'), false, 'other tasks keep their exact shape');
+  const v = E.viewToday(s, at(D, 9));
+  assert.deepEqual(v.tasks.find((t) => t.id === 'workout').raiseTo, [2, 3]);
+  assert.deepEqual(v.tasks.find((t) => t.id === 'read').raiseTo, [2, 3, 4]);
+  assert.throws(() => act(s, { type: 'task/raise', taskId: 'workout', level: 'goddamn' }, at(D, 9)), { code: 'no_goddamn' });
+  s = act(s, { type: 'task/raise', taskId: 'workout', level: 'hard' }, at(D, 9)).state;
+  assert.equal(s.day.raises.workout, 3);
+  const ladder = E.viewLadder(s);
+  assert.equal(ladder.rows.find((r) => r.taskId === 'workout').cells.goddamn, undefined);
+  assert.ok(ladder.rows.find((r) => r.taskId === 'read').cells.goddamn);
+});
+
+test('list/edit: corrects one task of the locked list, keeps its id, logs a reason, within limits', () => {
+  // The setup bug: a list locked without Sleep's tierQty.
+  const lost = E.DEFAULT_TASKS.map(({ tierQty, ...t }) => t);
+  let s = start(lost);
+  const task = (id) => s.list.tasks.find((t) => t.id === id);
+  const edit = (taskId, patch, reason = 'Setup lost this', now = at(D, 9)) => act(s, { type: 'list/edit', taskId, task: { ...task(taskId), ...patch }, reason }, now);
+
+  let r = edit('sleep', { tierQty: [7, 7.5, 8, 8, 8.5] });
+  assert.deepEqual(r.events.find((e) => e.type === 'list.edited'), { type: 'list.edited', taskId: 'sleep', changed: ['tierQty'], reason: 'Setup lost this' });
+  s = r.state;
+  assert.deepEqual(task('sleep').tierQty, [7, 7.5, 8, 8, 8.5]);
+  assert.equal(s.list.tasks.length, 6);
+  assert.deepEqual(s.list.edits, [{ dayKey: D, taskId: 'sleep', changed: ['tierQty'], reason: 'Setup lost this' }]);
+
+  // A Goddamn raise on a task that loses Goddamn drops to Hard.
+  s = act(s, { type: 'task/raise', taskId: 'workout', level: 'goddamn' }, at(D, 9)).state;
+  s = edit('workout', { noGoddamn: true }).state;
+  assert.equal(task('workout').noGoddamn, true);
+  assert.equal(task('workout').id, 'workout');
+  assert.equal(s.day.raises.workout, 3);
+
+  // Limits.
+  assert.throws(() => edit('read', { name: 'Reading' }, ''), { code: 'edit_reason' });
+  assert.throws(() => edit('read', { name: 'Reading' }, 'x'.repeat(E.CONFIG.tasks.swapReasonMax + 1)), { code: 'edit_reason' });
+  assert.throws(() => edit('nope', { name: 'X', type: 'quality', chillText: 'x' }), { code: 'no_task' });
+  assert.throws(() => edit('read', { type: 'quality', chillText: '1 chapter' }), { code: 'edit_type' });
+  assert.throws(() => edit('read', { unit: 'minutes' }), { code: 'edit_unit' });
+  assert.throws(() => edit('read', { chill: 10 }), { code: 'edit_easier' });
+  assert.throws(() => edit('grass', { unit: 'hours', chill: 0.25 }), { code: 'edit_easier' }, '15 min is easier than 20 min');
+  assert.throws(() => edit('read', {}), { code: 'edit_unchanged' });
+  s = tick(s, 'read').state;
+  assert.throws(() => edit('read', { name: 'Reading' }), { code: 'task_ticked' });
+  s = edit('grass', { unit: 'hours', chill: 0.5 }).state; // 30 min ≥ 20 min, same kind of unit
+  assert.equal(task('grass').unit, 'hours');
+
+  // A few a month; a new month brings fresh ones, and the list carries over.
+  while (s.list.edits.length < E.CONFIG.tasks.editsPerMonth) s = edit('deep', { purpose: `Edit ${s.list.edits.length}` }).state;
+  assert.throws(() => edit('deep', { purpose: 'One more' }), { code: 'edits_used' });
+  s = E.advance(s, at('2026-12-01', 9)).state;
+  assert.equal(s.list.month, '2026-12');
+  assert.equal(s.list.edits, undefined);
+  s = edit('deep', { purpose: 'December' }, 'New month', at('2026-12-01', 9)).state;
+  assert.equal(s.list.edits.length, 1);
+});

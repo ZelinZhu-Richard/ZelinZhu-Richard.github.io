@@ -1,7 +1,7 @@
 // View models (ARCHITECTURE.md). Pure functions of (state, now); the UI renders only from these.
 
 import {
-  CONFIG, LEVELS, LEVEL_LABELS, TIERS, TIER_LABELS, ULTRA,
+  CONFIG, GODDAMN, LEVELS, LEVEL_LABELS, TIERS, TIER_LABELS, ULTRA,
 } from './config.js';
 import {
   ENGAGEMENT, KEEPER, LAUNCH_PROLOGUE, MILESTONES, QUESTS, REAL_LIFE, SEASON_COSMETICS, SKILLS, SPECIES, STAR_ABILITIES,
@@ -493,7 +493,8 @@ export function viewLadder(s) {
   const tasks = s.list?.tasks || [];
   const n = tasks.length;
   const levels = LEVELS.map((id, i) => ({ id, label: LEVEL_LABELS[i], qtyMult: CONFIG.tasks.qtyMult[i], foodMult: CONFIG.tasks.foodMult[i], dayLevel: i <= CONFIG.tasks.dayLevelMax }));
-  const rows = tasks.map((t) => ({ taskId: t.id, name: t.name, type: t.type, physical: t.physical, cells: Object.fromEntries(LEVELS.map((id, i) => [id, amountText(t, i)])) }));
+  // A noGoddamn task has no Goddamn cell (the ladder shows a dash).
+  const rows = tasks.map((t) => ({ taskId: t.id, name: t.name, type: t.type, physical: t.physical, cells: Object.fromEntries(LEVELS.flatMap((id, i) => (i === GODDAMN && t.noGoddamn ? [] : [[id, amountText(t, i)]]))) }));
   const foodRow = Object.fromEntries(LEVELS.map((id, i) => [id, foodAt(n, i)]));
   const dayTotals = Object.fromEntries(LEVELS.slice(0, CONFIG.tasks.dayLevelMax + 1).map((id, i) => {
     const raw = foodAt(n, i) * n;

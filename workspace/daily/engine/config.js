@@ -36,6 +36,7 @@ const DEFAULTS = {
     softCapRate: 0.5,
     swapsPerMonth: 1,
     swapReasonMax: 140,
+    editsPerMonth: 5, // owner corrections to the locked list (list/edit), each logged with a reason
     qtyMax: 100000, // largest real amount a tick accepts
     unitMax: 20,
   },

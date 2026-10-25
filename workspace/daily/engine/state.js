@@ -36,7 +36,7 @@ export function createState({ seed, now }) {
     // calendar
     startDay: null, // first day that counts
     lastClosed: null, // last day whose 22:00 close was processed
-    list: null, // { month, tasks: TaskDef[], swaps: number, lockedAt }
+    list: null, // { month, tasks: TaskDef[], swaps: number, lockedAt, edits?: [{ dayKey, taskId, changed, reason }] }
     nextList: null, // { month, tasks }
     swapLog: [], // public: [{ month, dayKey, fromId, fromName, toName, reason }]
     day: null, // the open day (see day.js openDayRecord)

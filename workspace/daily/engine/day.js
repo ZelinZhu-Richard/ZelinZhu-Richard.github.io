@@ -53,13 +53,17 @@ export function goddamnCount(day, tasks) {
   return tasks.filter((t) => taskLevel(day, t.id) === GODDAMN).length;
 }
 
-/** Levels an unticked task can be raised to: above its level, up to Goddamn, Goddamn only while under the cap. */
+/**
+ * Levels an unticked task can be raised to: above its level, up to Goddamn, Goddamn only while under the cap and
+ * never for a task marked noGoddamn.
+ */
 export function raiseOptions(day, tasks, taskId) {
   if (!day || day.ticks[taskId]) return [];
   const cur = taskLevel(day, taskId);
+  const noGoddamn = tasks.find((t) => t.id === taskId)?.noGoddamn === true;
   const out = [];
   for (let l = cur + 1; l <= GODDAMN; l += 1) {
-    if (l === GODDAMN && goddamnCount(day, tasks) >= CONFIG.tasks.maxGoddamn) continue;
+    if (l === GODDAMN && (noGoddamn || goddamnCount(day, tasks) >= CONFIG.tasks.maxGoddamn)) continue;
     out.push(l);
   }
   return out;
@@ -120,6 +124,42 @@ function swapIsEasier(old, next) {
     return next.chill * minutesPerUnit(next.unit) < old.chill * minutesPerUnit(old.unit) - 1e-9;
   }
   return canonicalUnit(old.unit) === canonicalUnit(next.unit) && next.chill < old.chill;
+}
+
+/**
+ * A correction to one task on this month's locked list (a setup mistake, a missing option), logged with a reason
+ * in the save and in game_events. The task keeps its id and type; a quantity task keeps a comparable unit and an
+ * equal or harder Chill amount; a task ticked today can't change until tomorrow; a few corrections a month.
+ */
+export function editTask(s, taskId, def, reason, now, events) {
+  if (!s.list) fail('no_list', 'Set up your list first.');
+  const edits = s.list.edits || [];
+  if (edits.length >= CONFIG.tasks.editsPerMonth) fail('edits_used', `This month's ${CONFIG.tasks.editsPerMonth} list corrections are used.`);
+  const why = typeof reason === 'string' ? reason.trim() : '';
+  if (!why) fail('edit_reason', 'A correction needs a one-line reason.');
+  if (why.length > CONFIG.tasks.swapReasonMax) fail('edit_reason', `Keep the reason under ${CONFIG.tasks.swapReasonMax} characters.`);
+  const idx = s.list.tasks.findIndex((t) => t.id === taskId);
+  if (idx < 0) fail('no_task', 'That task is not on the list.');
+  const old = s.list.tasks[idx];
+  const today = s.day && s.day.key === dayKey(now) ? s.day : null;
+  if (today?.ticks[taskId]) fail('task_ticked', 'That task is already ticked today. Correct it tomorrow.');
+  const next = { ...normalizeTask(def, idx), id: old.id };
+  if (next.type !== old.type) fail('edit_type', 'A correction keeps the task type. Use the emergency swap to change it.');
+  if (old.type === 'quantity') {
+    const comparable = canonicalUnit(old.unit) === canonicalUnit(next.unit) || (isDurationUnit(old.unit) && isDurationUnit(next.unit));
+    if (!comparable) fail('edit_unit', `A correction keeps the unit (${old.unit}). Use the emergency swap to change it.`);
+    if (swapIsEasier(old, next)) fail('edit_easier', `The Chill amount (${next.chill} ${next.unit}) must stay at least ${old.chill} ${old.unit}.`);
+  }
+  const changed = Object.keys({ ...old, ...next }).filter((k) => JSON.stringify(old[k]) !== JSON.stringify(next[k]));
+  if (!changed.length) fail('edit_unchanged', 'Nothing changed.');
+  s.list.tasks = s.list.tasks.map((t, i) => (i === idx ? next : t));
+  s.list.edits = [...edits, { dayKey: dayKey(now), taskId, changed, reason: why }];
+  // A raise to Goddamn on a task that just lost its Goddamn tier drops back to Hard (or to the day level).
+  if (today && next.noGoddamn && today.raises[taskId] === GODDAMN) {
+    if (GODDAMN - 1 > today.level) today.raises[taskId] = GODDAMN - 1;
+    else delete today.raises[taskId];
+  }
+  events?.push({ type: 'list.edited', taskId, changed, reason: why });
 }
 
 /** One emergency swap a month, logged publicly with a reason. Chill baseline must be equal or harder. */
@@ -191,6 +231,7 @@ export function raiseTask(s, taskId, level, now, events) {
   if (!levelOk(lv, GODDAMN)) fail('bad_level', 'Unknown level.');
   const cur = taskLevel(day, taskId);
   if (lv <= cur) fail('no_lowering', 'Tasks can only be raised above the day level. Lower the whole day instead.');
+  if (lv === GODDAMN && task.noGoddamn) fail('no_goddamn', `${task.name} has no Goddamn tier.`);
   if (lv === GODDAMN && goddamnCount(day, s.list.tasks) >= CONFIG.tasks.maxGoddamn) fail('goddamn_cap', `At most ${CONFIG.tasks.maxGoddamn} Goddamn tasks a day.`);
   day.raises[taskId] = lv;
   events?.push({ type: 'task.raised', taskId, from: cur, level: lv });

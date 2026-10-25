@@ -1,6 +1,6 @@
 // List-setup defaults and the list editor's form reader. TaskDef follows engine/tasks.js
 // normalizeTask: { id, name, type, physical, unit, chill (quantity), chillText (quality),
-// tiers: { chill, easy, medium, hard, goddamn }, tag, receipt, purpose, goal }.
+// tiers: { chill, easy, medium, hard, goddamn }, tierQty, noGoddamn, tag, receipt, purpose, goal }.
 // The UI prefers engine/index.js DEFAULT_TASKS when it exists; this copy is the fallback.
 export const DEFAULT_TASKS = [
   { id: 'sleep', name: 'Sleep', type: 'quality', physical: false, unit: 'hours', tag: 'sleep', receipt: 'sleep', purpose: "Protect tomorrow's focus.",
@@ -18,9 +18,12 @@ export const TIER_KEYS = ['chill', 'easy', 'medium', 'hard', 'goddamn'];
 export const TIER_LABELS = ['Chill', 'Easy', 'Medium', 'Hard', 'Goddamn'];
 
 // Reads the list editor's fields (named `task-<n>-<field>`) into TaskDefs. Hidden fields carry
-// id/tag/receipt/purpose through unchanged so defaults keep their patron tags and receipt kinds.
-export function readTaskForm(form) {
-  const data = new FormData(form);
+// id/tag/receipt/purpose/tierQty through unchanged so defaults keep their patron tags, receipt kinds and
+// per-tier amounts.
+export const readTaskForm = form => readTaskFields(new FormData(form));
+
+// The same from anything with get(name) (FormData, or a test's map).
+export function readTaskFields(data) {
   const count = Number(data.get('count')) || 0;
   const tasks = [];
   const text = key => String(data.get(key) ?? '').trim();
@@ -30,11 +33,14 @@ export function readTaskForm(form) {
     if (!name) continue;
     const type = text(`${p}-type`) === 'quality' ? 'quality' : 'quantity';
     const task = { name, type, physical: data.get(`${p}-physical`) === 'on' };
+    if (data.get(`${p}-noGoddamn`) === 'on') task.noGoddamn = true;
     for (const k of ['id', 'tag', 'receipt', 'purpose', 'goal', 'unit']) if (text(`${p}-${k}`)) task[k] = text(`${p}-${k}`);
     if (type === 'quantity') task.chill = Number(text(`${p}-chill`)) || 0;
     const tiers = {};
     TIER_KEYS.forEach((k, n) => { const v = text(`${p}-tier-${n}`); if (v) tiers[k] = v; });
     if (Object.keys(tiers).length) task.tiers = tiers;
+    const qty = text(`${p}-tierQty`).split(',').filter(Boolean).map(Number);
+    if (qty.length === TIER_KEYS.length && qty.every(Number.isFinite)) task.tierQty = qty;
     tasks.push(task);
   }
   return tasks;

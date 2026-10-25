@@ -48,7 +48,7 @@ and nothing changes. `now` is epoch ms; every calendar decision goes through `ti
 Plain JSON. Top-level fields:
 
 - `format: 'daily-save'`, `version`, `createdAt`, `rng: { seed: [4 × uint32], n }`, `seq` (id counter).
-- Calendar: `startDay`, `lastClosed` (last processed close; the next close is `lastClosed + 1`), `list: { month, tasks, swaps, lockedAt }`, `nextList`, `swapLog` (public).
+- Calendar: `startDay`, `lastClosed` (last processed close; the next close is `lastClosed + 1`), `list: { month, tasks, swaps, lockedAt, edits? }`, `nextList`, `swapLog` (public).
 - `day`: the open day (05:00–22:00) — `{ key, month, level, commitLevel, commitBroken, raises, ticks: { taskId: { level, raw, counted, at, min, qty, qtyGiven, raised, goalTag, patronHit, seq } }, raw, counted, pool, fedTotal, counters, quests, targets, starGiven, openedAt, prologue }`. `null` between 22:00 and 05:00.
 - `lastDay`: summary of the last close (morning card, after-close view).
 - Outcomes: `streak`, `best`, `missRun`, `completeDays`, `welcomePending`, `lastDeath`, `ashes: { pets, petId, deathDay, deadlineDay, done }`, `graveyard`, `flags`.

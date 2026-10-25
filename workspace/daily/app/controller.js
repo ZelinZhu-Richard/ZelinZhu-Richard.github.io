@@ -201,6 +201,7 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     d.querySelector('[data-slot="editor"]').innerHTML = String(renderListEditor(c.defaults, cloud
       ? { form: 'setup', suggest: true, submit: 'Start the game', intro: 'Set this month’s list. It locks for the calendar month. Your game is saved in the cloud and every change runs on the server.' }
       : { form: 'setup', submit: 'Start on this device', intro: 'Set this month’s list. It locks for the calendar month. Your game is saved only in this browser.' }));
+    d.querySelector('[data-slot="setup-error"]').textContent = '';
     const dev = d.querySelector('[data-slot="dev"]');
     if (dev) dev.hidden = !local;
     d.showModal();
@@ -270,8 +271,10 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
 
   const sharedForms = {
     setup: async form => {
+      const slot = form.closest('dialog').querySelector('[data-slot="setup-error"]');
       const tasks = readTaskForm(form);
-      if (tasks.length < 1) { c.error('Add at least one task.'); return; }
+      slot.textContent = '';
+      if (tasks.length < 1) { slot.textContent = 'Add at least one task.'; return; }
       try {
         const owner = c.backend?.pendingOwner;
         if (owner) { await owner.create(tasks); c.backend = owner; } else c.backend = await startOwnerGame(tasks);
@@ -280,13 +283,19 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
         c.render();
         c.announce('Your game has started on this device.');
       } catch (err) {
-        form.closest('dialog').querySelector('[data-slot="setup-error"]').textContent = err.message;
+        slot.textContent = err.message;
       }
     },
     'next-list': async form => {
       const tasks = readTaskForm(form);
       if (!tasks.length) { c.error('Add at least one task.'); return; }
       if (await c.act({ type: 'list/setNext', tasks })) c.announce("Next month's list is set. It locks on the 1st.");
+    },
+    'list-edit': async form => {
+      const [task] = readTaskForm(form);
+      if (!task) { c.error('The task needs a name.'); return; }
+      const reason = String(new FormData(form).get('reason') || '').trim();
+      if (await c.act({ type: 'list/edit', taskId: form.dataset.taskId, task, reason })) c.announce(`${task.name} corrected. The change is logged.`);
     },
     swap: async form => {
       const data = new FormData(form);

@@ -93,7 +93,10 @@ export function engineViews(e, s, n) {
     header: e.viewHeader(s, n), today: e.viewToday(s, n), pets: e.viewPets(s, n), eggs: e.viewEggs(s),
     collection: e.viewCollection(s), shop: e.viewShop(s, n), odds: e.viewOdds(), receipts: e.viewReceipts(s, n),
     ladder: e.viewLadder(s), settings: s.settings || {}, generatedAt: n, morning: typeof e.viewMorning === 'function' ? e.viewMorning(s, n) : null,
-    list: s.list ? { month: s.list.month, tasks: s.list.tasks, next: s.nextList?.tasks || null, swapUsed: (s.list.swaps || 0) >= 1 } : null,
+    list: s.list ? {
+      month: s.list.month, tasks: s.list.tasks, next: s.nextList?.tasks || null, swapUsed: (s.list.swaps || 0) >= 1,
+      editsLeft: Math.max(0, (e.CONFIG?.tasks?.editsPerMonth ?? 0) - (s.list.edits?.length || 0)),
+    } : null,
   };
 }
 
