@@ -1,0 +1,7 @@
+export const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+export const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg>';
+export const star = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></svg>';
+export function repoRow(repo,types) {
+  const type = types.find(type => type.id === repo.type)?.label || repo.type;
+  return `<li class="repo-row"><div class="repo-copy"><a class="repo-name" href="${escape(repo.url)}" target="_blank" rel="noopener noreferrer"><span class="repo-owner">${escape(repo.full_name.split('/')[0])} / </span><span>${escape(repo.name)}</span>${arrow}</a><p dir="auto">${escape(repo.description || 'No description provided on GitHub.')}</p><div class="repo-meta"><span>${escape(repo.language || 'Language unspecified')}</span><span class="repo-stars">${star}${repo.stars.toLocaleString('en-US')}<span class="sr-only"> GitHub stars</span></span>${repo.archived ? '<span class="archived">Archived</span>' : ''}${repo.topics.slice(0,2).map(topic => `<span class="repo-topic">${escape(topic)}</span>`).join('')}</div></div><span class="repo-type">${escape(type)}</span></li>`;
+}
