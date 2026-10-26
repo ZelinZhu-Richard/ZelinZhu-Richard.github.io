@@ -54,3 +54,61 @@ Next authorized work: M1 Kun model, per PLAN.md. Show side, top and front refere
 - The shell's python3 is Homebrew Python 3.14 without numpy. Use the plan's known `/opt/anaconda3/bin/python3` for silhouette comparison (numpy 2.3.5, Pillow 12.0.0, SciPy 1.16.3); no install.
 - Initial Cycles build/export and six preview/mask renders exited 0. Initial comparison at b09a45d: side 0.3706/0.80, top 0.7015/0.75, front 0.3775/0.70. The side camera was mirrored (head left); corrected to the required head-right -X view, with no change to orthographic projection, fit, normalization, blur or thresholds. The reference crop also exposed a fragment of the neighboring view because the boxes overlap; the generated reference preview now shows only its assigned component. The scored reference masks are unchanged.
 - One bounded geometry correction pass: chordwise fin twist to make the upper/lower fans visible from the front, a taller narrow dorsal ridge, and swept fluke lobes rather than rounded lobes. No further automated tuning after that pass; remaining misses will be shown to Richard. Disable and ignore Python bytecode files after Blender generated one alongside common.py.
+
+## M1 STOPPED FOR RICHARD — thresholds missed (2026-10-26, commit e846586b92e87b0598578eef22d6f091633b790d)
+
+**M1 is not passed and remains unticked.** Following Richard's instruction to stop after reasonable effort, stop after the initial build and one geometry correction pass. No automatic third pass. No waiver presumed. No M2 work.
+
+Final evidence generated from clean commit e846586 (`dirty: false` in both the render metadata and comparison JSON):
+
+```
+/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python-exit-code 1 --python games/xiaoyaoyou/tools/silhouette.py -- --render kun --engine cycles
+/opt/anaconda3/bin/python3 games/xiaoyaoyou/tools/silhouette.py --compare kun
+```
+
+The render exited 0; compare exited 2 to signal threshold misses. Final metadata: `_dev/silhouette/raw/kun-render.json`; comparison: `_dev/silhouette/kun.json`. All three final reference | Blender preview | overlay panels were opened and inspected. Browser screenshots: **n/a for M1**, as specified by PLAN.md. The M0 runtime code, fonts and text have not changed.
+
+| View | IoU | Required | Result | Evidence |
+|---|---:|---:|---|---|
+| side | 0.6351 | ≥0.80 | **FAIL** | `_dev/silhouette/kun-side.png` |
+| top | 0.7640 | ≥0.75 | **PASS** | `_dev/silhouette/kun-top.png` |
+| front | 0.4556 | ≥0.70 | **FAIL** | `_dev/silhouette/kun-front.png` |
+
+| Other M1 criterion | Result and observed value |
+|---|---|
+| Closed lofted/subdivided body, ≥16 sections | **PASS** — 43 longitudinal loops × 48 radial samples; applied Subdivision Surface level 1. Body non-manifold edges **0**. |
+| Hero triangle count ≤60,000 | **PASS** — **29,468**, independently confirmed from the exported GLB's index accessors. |
+| Quad ratio ≥0.90 before triangulation | **PASS** — **0.9913501825 (99.14%)**, including eyes, mouth and throat detail. |
+| Loop spacing ratio ≤3 | **PASS** — **1.0414547988**, measured along the curved loop-center spine. |
+| Max texture size ≤2048 | **PASS** — **2048**, landscape resized before export; two embedded images. |
+| Required six node names | **PASS** — all six present in exported GLB, plus 17 throat pleats, mouth strokes and eyes. |
+| Materials and textures | **PARTIAL / visual approval pending** — real UVs and both textures present; cream belly and dorsal paper band; fin wave color and alpha embedded, BLEND and double-sided. Landscape is too compressed near the upper flank compared with the sheet. The UVs do not repeat along the body. |
+| Two-lobed horizontal fluke, four alpha-edged fin sheets | **PARTIAL / shape FAIL** — all parts exist and are visible; top IoU passes, but the overall front silhouette and fin fullness fail. Front lower fans are too narrow; body belly is too shallow; the side dorsal/fin spread is too tall relative to length. |
+| Eye, throat pleats, dorsal ridge | **PARTIAL / visual approval pending** — modeled from code; ridge is too rounded/prominent in side profile and does not yet match the sheet's front point. |
+| Engine, duration and exit codes recorded | **PASS for final build/render** — Cycles CPU, 16 samples, denoising off, ≤60 s/image. Build **0.702 s**, render set **2.633 s**, both exit **0**. The historical first Eevee command exited **1** before modeling due to the renamed engine identifier; that nonzero run is explicitly disclosed above. A literal all-attempts-exit-0 criterion is **not met**; no failure is hidden. |
+| Fixed comparison and clean evidence | **PASS** — ref RGB-distance threshold 30; 6 px grouping dilation; view boxes asserted within ±10 px; 0.2% speck bound filter; uniform long side 240 on 256 canvas; Gaussian σ1.5; 0.5 mask threshold. No normalization, blur, scoring thresholds, projection type or reference art changed. Side camera correction was only to enforce the prescribed head-right orientation. |
+| Scope | **PASS** — all project changes remain inside games/xiaoyaoyou; ref/, rubric and PLAN criteria unchanged. No downloads, installs, remote assets, push, branch/config/hook changes or repo-wide build. No primitive mesh operators or imported/generated meshes used for Kun. |
+
+Raw asset: `_dev/raw/kun.glb`; topology/build stats: `_dev/build/asset-stats.json`. Scripts are committed as b09a45d and e846586. The regenerated raw asset and PNG evidence remain gitignored per the plan. This review record is pending Richard and is left uncommitted until his review, following the interactive workflow.
+
+Await Richard's notes. M1 cannot be ticked unless the misses are fixed and approved or Richard explicitly waives them in his own words.
+
+## M1 Richard's geometry review — one correction pass (2026-10-26; not approved)
+
+Richard measured the sheet: at 16% of body length from the snout, side depth and top width are each about 0.15 L, and the frontal body is about as tall as wide. The views are consistent; prior misses are model fin orientation and hump errors, not evidence of inconsistent reference proportions. Preserve the body proportions except the explicitly requested slight ventral fullness increase.
+
+Authorized geometry changes only:
+1. Remove the broad dorsal/body hump; add a thin low spinal ridge with one small slim spike.
+2. Upper fins: 30° dihedral above horizontal; outer third curls farther upward; retain broad chord and raise the side silhouette above the back between roughly 40–65% of body length.
+3. Lower fins: roots cover 35–55% of body length; sweep aft; −55° dihedral; broad chord and rolled sheets, trailing along/below the belly rather than hanging under the head.
+4. Slightly deepen the front-third ventral profile (pleat area) only; no width or dorsal loft profile changes.
+5. Shift eyes back/laterally onto the head near the mouth line.
+
+One build and one three-view remeasurement for this correction pass, then stop and wait. M1 remains unticked. Keep the reference, camera, normalization, blur, thresholds, fluke and texture/material setup unchanged in this pass.
+
+### M2 to-dos (deferred; no texture changes in this M1 pass)
+
+- Address the streaky fin texture appearance.
+- Widen/rework the narrow landscape band on the body.
+
+The above are Richard's explicitly deferred M2 issues; they are not addressed by this geometry correction and do not imply M1 approval.

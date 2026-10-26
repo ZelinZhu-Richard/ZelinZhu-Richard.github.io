@@ -72,8 +72,8 @@ eye_rim = common.plain_material('kun_eye_rim', '#D9CFBB')
 # y, half-width, dorsal z, ventral z. The curved midline falls toward the tail.
 PROFILE = np.array([
     [-5.6, .025, .48, .43], [-5.25, .52, .80, .02],
-    [-4.7, .90, 1.02, -.52], [-3.8, 1.25, 1.15, -.92],
-    [-2.7, 1.42, 1.19, -1.03], [-1.5, 1.40, 1.18, -1.00],
+    [-4.7, .90, 1.02, -.68], [-3.8, 1.25, 1.15, -1.20],
+    [-2.7, 1.42, 1.19, -1.16], [-1.5, 1.40, 1.18, -1.00],
     [-.2, 1.21, 1.08, -.87], [1.2, .86, .72, -.62],
     [2.5, .49, .30, -.45], [3.6, .27, .09, -.33],
     [4.5, .16, .18, -.07], [4.8, .025, .15, .10],
@@ -92,9 +92,8 @@ def skin_point(y, phi, offset=0):
     radius = (top - bottom) / 2
     x = (width + offset) * math.sin(phi)
     z = mid + (radius + offset) * cosine
-    # Narrow dorsal ridge grows naturally from the body surface, no extra cone.
-    ridge = .80 * math.exp(-((y + .3) / 1.0) ** 2) * math.exp(-(min(phi, TAU - phi) / .17) ** 2)
-    return (x, y, z + ridge)
+    # No dorsal displacement: keep the loft's back/head free of a solid hump.
+    return (x, y, z)
 
 
 vertices, faces, uvs = [], [], []
@@ -126,35 +125,65 @@ subdivision.levels = 1
 bpy.context.view_layer.objects.active = body
 bpy.ops.object.modifier_apply(modifier=subdivision.name)
 
+# A thin, low crest follows the spine. Its one slim spike is a local increase
+# in the crest height, not a volumetric bump in the body cross-section.
+ridge_vertices, ridge_faces, ridge_uvs = [], [], []
+RIDGE_LOOPS = 81
+for i in range(RIDGE_LOOPS):
+    y = -3.35 + 5.8 * i / (RIDGE_LOOPS - 1)
+    _, top, _ = profile(y)
+    taper = math.sin(math.pi * i / (RIDGE_LOOPS - 1)) ** .5
+    height = .055 * taper + .44 * math.exp(-((y + .95) / .12) ** 2)
+    half_width = .022 * taper + .002
+    ridge_vertices.extend([
+        (-half_width, y, top - .025), (half_width, y, top - .025),
+        (half_width * .25, y, top + height), (-half_width * .25, y, top + height),
+    ])
+for i in range(RIDGE_LOOPS - 1):
+    for j in range(4):
+        j1 = (j + 1) % 4
+        ridge_faces.append((i * 4 + j, (i + 1) * 4 + j, (i + 1) * 4 + j1, i * 4 + j1))
+        ridge_uvs.append([(.2 + .55 * k / (RIDGE_LOOPS - 1), .985) for k in (i, i + 1, i + 1, i)])
+ridge_faces.extend([(3, 2, 1, 0), tuple((RIDGE_LOOPS - 1) * 4 + j for j in range(4))])
+ridge_uvs.extend([[(.2, .985)] * 4, [(.75, .985)] * 4])
+common.mesh('kun_dorsal_ridge', ridge_vertices, ridge_faces, skin, ridge_uvs)
+
 
 def fin(name, sign, upper):
-    # Span sections: x reach, leading y, trailing y, z. Swept back with a
-    # broad midspan; the trailing contour gets small code-cut brush notches.
+    # s, leading y, trailing y. Preserve a broad chord while placing each
+    # pair in its own plane; dihedral is measured from the transverse horizontal.
     sections = np.array([
-        [0, -2.65, -.20, .45 if upper else -.68],
-        [.18, -2.20, .60, .75 if upper else -.92],
-        [.38, -1.58, 1.42, 1.04 if upper else -1.34],
-        [.60, -.92, 2.08, 1.20 if upper else -1.75],
-        [.80, -.18, 2.35, 1.09 if upper else -2.00],
-        [1, 1.95, 2.08, .74 if upper else -2.13],
+        [0, -2.20, -.10], [.18, -2.20, .20], [.38, -2.00, .75],
+        [.60, -1.30, 1.15], [.80, -.60, 1.60], [1, .80, 1.00],
+    ] if upper else [
+        [0, -1.96, .12], [.18, -1.65, .80], [.38, -1.20, 1.65],
+        [.60, -.60, 2.35], [.80, .25, 2.75], [1, 1.75, 1.92],
     ])
     span, chord = 36, 14
     points, polygons, coordinates = [], [], []
-    reach = 2.14 if upper else 1.98
-    root = 1.03 if upper else .93
+    reach = 2.14 if upper else 2.50
+    root = 1.05 if upper else 1.10
+    root_z = .62 if upper else -.62
+    dihedral = math.radians(30 if upper else -55)
     for i in range(span + 1):
         s = i / span
-        lead, trail, z = [float(np.interp(s, sections[:, 0], sections[:, col])) for col in (1, 2, 3)]
+        lead, trail = [float(np.interp(s, sections[:, 0], sections[:, col])) for col in (1, 2)]
         for j in range(chord + 1):
             c = j / chord
             cut = (.065 * math.sin(49 * s) + .045 * math.sin(101 * s + .7)) * s ** .7 * c ** 6
-            x = sign * (root + reach * s)
+            x = sign * (root + reach * s * math.cos(dihedral))
             y = lead * (1 - c) + trail * c + cut
-            camber = .15 * math.sin(math.pi * c) * math.sin(math.pi * s)
-            # Real chordwise twist: broad fans are visible from the front too.
-            twist = (-.90 if upper else .95) * math.sin(math.pi * s) * c
-            droop = 0 if upper else -.30 * s
-            points.append((x, y, z + camber + twist + droop - .09 * c))
+            z = root_z + reach * s * math.sin(dihedral)
+            camber = .10 * math.sin(math.pi * c) * math.sin(math.pi * s)
+            if upper:
+                # Outer third curls upward beyond the base 30-degree dihedral.
+                curl = .28 * max(0, (s - 2 / 3) * 3) ** 2
+                twist = -.40 * math.sin(math.pi * s) * c
+            else:
+                curl = 0
+                # Chordwise roll gives the steep lower fin a broad frontal fan.
+                twist = .75 * math.sin(math.pi * s) * (c - .5)
+            points.append((x, y, z + camber + twist + curl))
     for i in range(span):
         for j in range(chord):
             a = i * (chord + 1) + j
@@ -225,7 +254,9 @@ for sign in [-1, 1]:
     positions = [skin_point(-5.5 + t * 1.75, sign * (.94 + .37 * t), .018) for t in np.linspace(0, 1, 32)]
     stroke(f'kun_mouth_{sign}', positions, .016, pleat_material)
     # Elliptical eye plate on the skin, with concentric quad rings and a pupil.
-    center_y, center_phi = -4.38, sign * 1.18
+    # Move back onto the lateral head surface, close to the mouth line. The
+    # near-horizontal radial normal points sideways, rather than at the snout.
+    center_y, center_phi = -4.05, sign * 1.47
     for material, radius, name in [(eye_rim, .145, 'rim'), (ink, .083, 'pupil')]:
         verts = [skin_point(center_y, center_phi, .030)]
         for j in range(32):
@@ -265,5 +296,12 @@ common.record('kun', {
     'bbox': bbox, 'nodeNames': [obj.name for obj in objects],
     'engine': ARGS.engine, 'exitCode': 0, 'blenderVersion': bpy.app.version_string,
     'finAlpha': {'white': .43, 'ink': 1.0, 'edge': 'two-pixel alpha feather on geometry contour'},
+    'geometryReview': {
+        'upperDihedralDegrees': 30, 'upperOuterThirdCurl': .28,
+        'lowerDihedralDegrees': -55, 'lowerRootBodyFractions': [.35, .55],
+        'bodyLength': 10.4, 'dorsalRidgeHalfWidth': .022,
+        'dorsalRidgeHeight': .055, 'dorsalSpikeExtraHeight': .44,
+        'eyeY': -4.05, 'eyePhiDegrees': math.degrees(1.47),
+    },
 })
 print('KUN_BUILD', json.dumps(json.loads((ROOT / '_dev/build/asset-stats.json').read_text())['kun']))
