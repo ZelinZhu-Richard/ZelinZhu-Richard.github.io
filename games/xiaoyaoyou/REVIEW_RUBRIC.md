@@ -13,7 +13,11 @@ The grader applies this after every Codex run, together with the milestone's cri
    - Every PLAN criterion for this milestone, plus the global checks in §2.
    - Every earlier checkpoint, for regressions.
    - `git diff --stat HEAD~2` (or since the last REVIEW) for files outside `games/xiaoyaoyou/`.
-5. **Write the verdict** (§8) at the end of `LOG.md`. On FAIL, untick the milestone's box in `PLAN.md`. Change nothing else.
+5. **Write the verdict** (§8) at the end of `LOG.md`.
+   - On FAIL at review 1 or 2, untick the milestone's box in `PLAN.md`.
+   - On FAIL at review 3, also append ` — BLOCKED (3 reviews)` to the end of that milestone's line.
+   - Using the prerequisite table in PLAN.md Rules §2, add one LOG line: either `NEXT: M<k>`, or `NIGHT STOPPED: M<n> blocked`.
+   - Change nothing else.
 
 ## 2. Global checks (any failure = FAIL)
 
@@ -96,18 +100,22 @@ The grader applies this after every Codex run, together with the milestone's cri
 ## 8. Verdict format (append to LOG.md)
 
 ```
-## REVIEW M<n> attempt <k>: PASS | FAIL   (<ISO time>, commit <sha>, evidence: own re-run | Codex's)
+## REVIEW M<n> review <k>/3: PASS | FAIL | BLOCKED   (<ISO time>, commit <sha>, evidence: own re-run | Codex's)
 Criteria: C1 PASS <number/path> · C2 FAIL <observed vs required> · …
 Global: <any §2 failures>
 Instructions for attempt <k+1>:
 1. …
 ```
 
-**Escalation on FAIL.** Each level adds to the one before it. Never lower a criterion, accept "close enough", or approve a criterion you didn't see.
+**Escalation: at most 3 reviews per milestone.** Each level adds to the one before it. Never lower a criterion, accept "close enough", or approve a criterion you didn't see. Codex gets only two more tries, so front-load the specifics.
 
-- **Attempt 1:** list each failing criterion with its evidence path, what you observed against what was required, and a one-line direction.
-- **Attempt 2:** add the root cause from reading the code (`file:line`), plus ordered concrete steps.
-- **Attempt 3:** add exact changes: function names, values, a snippet of ≤ 20 lines. Authorise the milestone's *Fallback if stuck*.
-- **Attempt 4 and later:** add the smallest diff that would pass, written out in full, and a verification command to run before ticking. If the blocker is the environment (Chromium or Blender can't launch, a commit is blocked), add the line `NEEDS RICHARD: <one-line cause>`. The verdict stays FAIL.
+- **Review 1 FAIL:** list each failing criterion with its evidence path and what you observed against what was required. Add the root cause from reading the code (`file:line`) and ordered concrete steps.
+- **Review 2 FAIL** (the last chance): add exact changes: function names, values, snippets of ≤ 20 lines, or the full smallest diff that would pass. Give a verification command for Codex to run before ticking. Authorise the milestone's *Fallback if stuck*.
+- **Review 3 FAIL → BLOCKED:** write no instructions for Codex. Instead write a `FOR RICHARD:` section:
+  - the one-line cause
+  - what does work
+  - the smallest fix you would apply
+  - which later milestones the prerequisite table skips
+  If the cause is the environment (Chromium or Blender can't launch, a commit is blocked), write the line `NEEDS RICHARD: <cause>` at any review.
 
 **On PASS:** list non-blocking issues (at most 5), one line each. Codex may fix them only inside a later milestone's scope.

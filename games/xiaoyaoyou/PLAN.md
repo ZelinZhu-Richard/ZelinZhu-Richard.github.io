@@ -6,8 +6,23 @@ Reviewed by Claude and approved by Richard on 2026-10-26. The grader scores ever
 
 ## Rules for every run (read first, every time)
 
-1. **One milestone per run.** Confirm the worktree (`/Users/richardzhu/dev/site-xiaoyaoyou`), the branch (`game/xiaoyaoyou`) and the Git status. Read this file, then `LOG.md`, then the newest `REVIEW` entry in `LOG.md`. Work only on the **first unchecked milestone**. Never start a second milestone in the same run.
-2. **Retry until pass.** If the newest `REVIEW` for this milestone is `FAIL`, first do every numbered instruction in it. Then answer each one by number in your LOG entry. The grader gets more specific on every failed attempt; follow it literally.
+1. **One milestone per run.** Confirm the worktree (`/Users/richardzhu/dev/site-xiaoyaoyou`), the branch (`game/xiaoyaoyou`) and the Git status. Read this file, then `LOG.md`, then the newest `REVIEW` entry in `LOG.md`. Work only on the **first unchecked milestone that is not marked `BLOCKED` and whose prerequisites are all ticked** (table below). Never start a second milestone in the same run. If no milestone qualifies, write `NIGHT DONE: nothing eligible` in LOG and stop.
+2. **At most 3 attempts per milestone.** If the newest `REVIEW` for this milestone is `FAIL`, first do every numbered instruction in it. Then answer each one by number in your LOG entry. The grader gets more specific after each failed attempt; follow it literally. After the third `FAIL`, the grader appends ` — BLOCKED (3 reviews)` to the milestone's line. Never work on a `BLOCKED` milestone again, and never remove that mark; only Richard does.
+
+   | Milestone | Needs ticked | If it ends `BLOCKED` |
+   |---|---|---|
+   | M0 | — | night stops |
+   | M1 | M0 | night stops |
+   | M2 | M1 | night stops |
+   | M3 | M2 | continue to M4; the slice ships without the look |
+   | M4 | M2 | continue to M5; README v1 moves to M9 |
+   | M5 | M2 | M6, M7 and M8 are skipped; go to M9 |
+   | M6 | M5 | M7 and M8 still run; go on |
+   | M7 | M5 | M8 is skipped |
+   | M8 | M7 | continue |
+   | M9 | M2 | — |
+
+   A `BLOCKED` milestone's criteria are left out of the regression check (§9). Everything that passed stays in it.
 3. **What Codex may change in PLAN.md:** only `[ ]` → `[x]` on the milestone it just finished. Never edit the criteria, the passages block, the Decisions, `REVIEW_RUBRIC.md` or existing `REVIEW` entries. Notes, deviations and questions go in `LOG.md`.
 4. **Scope** (from GAME.md): write only inside `games/xiaoyaoyou/`. No downloads, no installs, no `npx`, no CDN, no repo-wide build, no push, no branch changes, no Git config or hook changes, no `--no-verify`. `/Users/richardzhu/game-assets` is read-only.
 5. **Server:** from the worktree root, `python3 -m http.server 8101 --bind 127.0.0.1`. If `http://127.0.0.1:8101/games/xiaoyaoyou/` already answers 200, reuse it. If port 8101 is taken by something else, log it and stop. Never use another port or address.
@@ -304,7 +319,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
 
 ## Assumptions
 
-- `run_night.sh` gives Codex the first unchecked milestone. The grader runs between Codex runs and can append to LOG.md and untick boxes.
+- `run_night.sh` runs the grader between Codex runs, and the grader can append to LOG.md, untick boxes, and add the `BLOCKED` mark. The runner skips milestone lines ending in `BLOCKED (3 reviews)`, and stops when LOG ends with `NIGHT DONE` or `NIGHT STOPPED`.
 - Richard's test today settles whether Blender runs sandboxed with CPU Cycles. If it doesn't, the runner pre-approves the exact command form above. The plan is identical either way.
 - Headless Chromium from the shared Playwright install launches with WebGL (SwiftShader at worst) wherever capture runs. If the sandbox blocks it, the runner pre-approves `node games/xiaoyaoyou/tools/capture.mjs` the same way.
 - The pinned Three.js is r171 or later (split core build). M0 records the actual version, and the vendor list adjusts to it.
@@ -316,7 +331,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
 
 - **Evidence:** a committed Playwright capture script writes screenshots, `console.json` and `metrics.json`, and the grader re-runs it (Richard, 2026-10-26).
 - **Blender in the sandbox:** if it fails there, the exact command is pre-approved to run outside it (Richard). The renderer is decided once at M1: Eevee is tried once, with CPU Cycles at 16 samples as the fallback.
-- **Grader FAIL:** the next run redoes the same milestone until it passes. Each `REVIEW` gets more specific; the criteria never loosen (Richard).
+- **Grader FAIL:** at most 3 grader reviews per milestone (Richard, 2026-10-26). Each `REVIEW` gets more specific, and the criteria never loosen. After the third FAIL the milestone is `BLOCKED`, and the night either continues or stops according to the prerequisite table in Rules §2.
 - **Build order differs from story order:** the ending (M6) comes before the ascent (M7) and the encounter (M8), so a short night still ends properly. M4 is the guaranteed slice.
 - **Growth:** 7 motes, about 12× scale. Success is measured as reference pillars shrinking on screen while Kun stays the same screen size.
 - **Text:** simplified received text; the passages are fixed in this file. The cicada and dove speak the source's own line, split into two bubbles. The source line is always shown; the translation beneath it toggles with `T`, on by default.
