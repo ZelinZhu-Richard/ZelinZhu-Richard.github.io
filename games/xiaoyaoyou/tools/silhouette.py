@@ -233,10 +233,14 @@ def render(asset, engine):
     links.new(mix.outputs[0], fin_output.inputs['Surface'])
     # -X makes forward -Y read head-right. No score-tuned angle or projection.
     elevation = math.radians(25)
+    gameplay_elevation = math.radians(30)
     orientations = {'side': Vector((-1, 0, 0)), 'top': Vector((0, 0, 1)), 'front': Vector((0, -1, 0)),
                     'three-quarter': Vector((-math.cos(elevation) / math.sqrt(2),
-                                             -math.cos(elevation) / math.sqrt(2), math.sin(elevation)))}
-    views = ['side', 'top', 'front', 'three-quarter'] if asset == 'kun' else ['top', 'side']
+                                             -math.cos(elevation) / math.sqrt(2), math.sin(elevation))),
+                    'gameplay': Vector((-math.cos(gameplay_elevation) / math.sqrt(2),
+                                        math.cos(gameplay_elevation) / math.sqrt(2), math.sin(gameplay_elevation)))}
+    views = ['side', 'top', 'front', 'three-quarter', 'gameplay'] if asset == 'kun' else ['top', 'side']
+    preview_measurements = {}
     for view in views:
         camera_data.type = 'ORTHO'
         camera.location = center + orientations[view] * 30
@@ -247,7 +251,7 @@ def render(asset, engine):
         projected = [inverse @ (point - center) for point in points]
         extent = max(max(point[i] for point in projected) - min(point[i] for point in projected) for i in (0, 1))
         camera_data.ortho_scale = extent * 1.08
-        if view == 'three-quarter':
+        if view in ('three-quarter', 'gameplay'):
             # Added by Richard: a by-eye perspective preview, never scored.
             camera_data.type = 'PERSP'
             camera_data.angle = math.radians(42)
@@ -262,8 +266,21 @@ def render(asset, engine):
                 obj.data.materials.append(material)
         scene.render.filepath = str(OUT / 'raw' / f'{asset}-{view}-preview.png')
         bpy.ops.render.render(write_still=True)
-        if view == 'three-quarter':
-            bpy.data.images['Render Result'].save_render(str(OUT / f'{asset}-three-quarter.png'), scene=scene)
+        if view in ('three-quarter', 'gameplay'):
+            bpy.data.images['Render Result'].save_render(str(OUT / f'{asset}-{view}.png'), scene=scene)
+            if view == 'three-quarter':
+                from bpy_extras.object_utils import world_to_camera_view
+                body_obj = next(obj for obj in meshes if obj.name == 'kun_body')
+                body_vertices = [body_obj.matrix_world @ vertex.co for vertex in body_obj.data.vertices]
+                back_y = max(world_to_camera_view(scene, camera, point).y for point in body_vertices)
+                z_min = min(point.z for point in body_vertices)
+                z_max = max(point.z for point in body_vertices)
+                depth = abs(world_to_camera_view(scene, camera, Vector((0, -2.7, z_max))).y -
+                            world_to_camera_view(scene, camera, Vector((0, -2.7, z_min))).y)
+                fin_y = max(world_to_camera_view(scene, camera, obj.matrix_world @ vertex.co).y
+                            for obj in meshes if obj.name.startswith('kun_fin_') for vertex in obj.data.vertices)
+                preview_measurements['finRiseAboveBackBodyDepthRatio'] = max(0, fin_y - back_y) / depth
+                preview_measurements['bodyDepthProjection'] = 'vertical body-depth segment at x=0,y=-2.7, same perspective camera'
             continue
         for obj in meshes:
             obj.data.materials.clear()
@@ -278,7 +295,10 @@ def render(asset, engine):
         'seconds': round(time.monotonic() - started, 3), 'views': views,
         'resolution': 1024, 'cameraFitPadding': 1.08,
         'previewCameras': {'three-quarter': {'projection': 'perspective', 'azimuthFromFrontDegrees': -45,
-                                            'elevationDegrees': 25, 'fovDegrees': 42}} if asset == 'kun' else {},
+                                            'elevationDegrees': 25, 'fovDegrees': 42},
+                          'gameplay': {'projection': 'perspective', 'azimuthFromFrontDegrees': -135,
+                                       'elevationDegrees': 30, 'fovDegrees': 42}} if asset == 'kun' else {},
+        'previewMeasurements': preview_measurements,
     }
     (OUT / 'raw' / f'{asset}-render.json').write_text(json.dumps(entry, indent=2) + '\n')
     filename = ROOT / '_dev/build/asset-stats.json'

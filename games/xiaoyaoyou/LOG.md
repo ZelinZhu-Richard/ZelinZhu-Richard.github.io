@@ -147,3 +147,44 @@ Only blender/kun.py and LOG.md changed in this pass. Fluke, UV formulas, materia
 Recorded verbatim under Decisions in PLAN.md. The live PLAN criteria and silhouette tool adopt side ≥0.70, top ≥0.75, no front gate. This is Richard's explicit acceptance change, not an agent waiver. The original REVIEW_RUBRIC.md is preserved; its older Kun fin/gate statements are superseded by this decision, as noted in PLAN.md. Previous review records remain historical.
 
 One more geometry pass authorized: upper roots 35–45% of body length, lower roots 40–50%; strong aft sweep (upper 60°, lower 55°), dihedral +15°/−20°; broaden into leaf sheets with gentle cup and 25° spanwise twist; remove the ridge's spike. Preserve body, fluke, eyes, texture generation and materials. Add one by-eye front-left 45° azimuth, 25° elevation preview, perspective FOV 42°. Existing scored cameras and mask normalization remain fixed. Then render once, measure, show and wait; M1 stays unticked.
+
+## M1 trailing-leaf pass — awaiting Richard (2026-10-26, commit 558addc450a2144d15bc14f02a317384efba75ed)
+
+One geometry build and one completed four-view Cycles render set. The first request to launch the render timed out in automatic permission review before Blender started; the tool permitted one retry, which was approved and completed. No extra geometry pass. Stop after inspection and this record; **M1 remains unticked and is not passed**.
+
+Richard's revised gates were applied exactly:
+
+| View | IoU | Required | Result | Evidence |
+|---|---:|---:|---|---|
+| side | **0.6030** | ≥0.70 | **FAIL** | `_dev/silhouette/kun-side.png` |
+| top | **0.7436** | ≥0.75 | **FAIL** | `_dev/silhouette/kun-top.png` |
+| front | n/a | by eye only | **Await Richard** | `_dev/silhouette/raw/kun-front-preview.png` |
+| three-quarter | n/a | by eye only | **Await Richard** | `_dev/silhouette/kun-three-quarter.png` |
+
+The top misses by 0.0064 and is reported as a miss, without waiver. Front JSON now has `iou`, `threshold` and `pass` all null, not an artificial passing score. All mask constants, orthographic side/top/front cameras, reference view-box assertions, normalization and blur remain unchanged. The new perspective camera is preview-only: front-left 45° azimuth, 25° elevation, 42° FOV.
+
+Shown evidence order: side and top reference | render | overlay panels; IoU table; front and three-quarter renders. `_dev/silhouette/kun-front-and-three-quarter.png` is generated with silhouette.py --pair (front on left, three-quarter on right). All requested panels/renders were opened and inspected. Browser n/a for M1.
+
+Geometry/configuration and budgets:
+- Upper roots 35–45% L, 60° aft sweep, +15° dihedral; lower roots 40–50% L, 55° aft sweep, −20° dihedral. Leaf centerlines end at 75% L. Max chord 3.40 units, mirrored 25° spanwise twist, gentle 0.16-unit cup. They are thin quad sheets. The fin minimum z is now **−1.4485** (previous −2.6679), roughly 0.25 below the lowest belly, removing the prior deeply hanging lobe.
+- Needle/spike removed; only the low 0.055-unit crest remains. Body loft, belly, eyes and fluke are unchanged in this pass.
+- **30,112 triangles**, independently verified in the GLB; **quadRatio 0.9915343915 (99.15%)**; **bodyNonManifoldEdges 0**; **loopSpacingRatio 1.0911**; **43 loft sections**; **maxTextureSize 2048**; all required six nodes present. These numerical mesh gates **PASS**.
+- Build **0.664 s**, completed four-view render set **2.773 s**; both actual Blender commands exited **0**, Cycles CPU 16 samples, denoising off. Comparison exited **2** to report the misses.
+- Both embedded image SHA-256s still match the previous pass byte-for-byte: `972194e57381308cf189bcdbd8aae81a8e617e3a84ffd9ca972ec545e44f3b4d` and `7afad749be9a48ae541d473a095fde4c62c85fcf9ad5d3dc90410276732368e3`. No texture/material generation or source art changed; M2 texture to-dos remain deferred.
+
+Visual observations for Richard: the upper fin reads almost edge-on in the strict side view, with less silhouette area than the reference; the lower leaf stays close to the belly, but the sheet still has a broader/lower side outline. The oblique preview exposes the broad leaf surfaces and cup/twist for by-eye judgment. No further tuning performed after the scores.
+
+Clean evidence: both `_dev/silhouette/kun.json` and `raw/kun-render.json` identify 558addc with `dirty: false`. Decision, code and preview changes are committed; this result record is left pending review. Only PLAN.md, LOG.md, blender/kun.py and tools/silhouette.py changed. Reference art, REVIEW_RUBRIC.md, runtime and M0 stay untouched; no push. Await Richard's decision before any further pass or checkbox change.
+
+## M1 traced-planform pass authorized by Richard (2026-10-26; not approved)
+
+Richard: "The body is good: freeze it (proportions, head, fluke position). This pass changes only the fins, the fluke planform, and the eyes."
+
+Implementation scope:
+- `tools/trace_kun.py` extracts the fixed full-resolution top-view reference mask, projects the frozen GLB body's own triangles into it with uniform length alignment, and subtracts the exact body silhouette (no body-mask dilation). The four largest residual components are the two pectoral regions and two fluke lobes. Light Gaussian σ0.65 px smoothing, then outline simplification to 60–120 points. Full-resolution outline coordinates, source SHA and frozen-body geometry hashes are committed in `blender/kun-planforms.json`. Output counts: pectoral left 100, right 98; fluke left 98, right 99. The working segmentation image is `_dev/tmp/kun-trace-segmentation.png`; it is not substituted for Blender evidence.
+- Replace width arrays with thin quad sheets tessellated inside the actual traced polygons. Preserve each trace's pointed tip and wavy perimeter; add a 9 px span/chord interior lattice for later deformation. Use the traced left pectoral for both pairs, mirror left/right, lower scale 0.8. Keep upper/lower placement, 55° aft sweep, +15°/−20° dihedral, gentle cup and 25° twist. An explicit smooth height envelope limits upper fin rise in the 25° preview basis; final perspective projection is also measured.
+- Trace both fluke lobes, retaining the frozen attachment anchor `[0,3.4,0.10]`, the former 6.70-unit span and low arch. Only its planform changes; the body/head generator, ridge, pleats and mouth are untouched.
+- Halve eye radii (rim .0725, pupil .0415); move center back from y=−4.05 to −3.72 and lower from radial angle 84.22° to 98.55°.
+- Add a fifth by-eye preview: behind-left, 30° above, 42° perspective FOV. Side/top gates and their cameras/masks are unchanged. Front, front-left three-quarter and gameplay previews remain by eye only.
+- Preserve all texture images/material generation. Existing M2 texture to-dos remain deferred. Compare frozen-body mesh hashes and embedded image hashes after building. Then render the requested views, show all results, and wait; M1 stays unticked.
+- First traced build exited 1 before export: Blender 5.2's `tessellate_polygon` returned integer indices, while the helper expected Vectors (`AttributeError: 'int' object has no attribute 'x'`). Correct the API compatibility branch and rebuild the same geometry, not a new art-tuning pass. Previous raw GLB remains intact until successful export. This failure is recorded, not claimed as an exit-0 run.

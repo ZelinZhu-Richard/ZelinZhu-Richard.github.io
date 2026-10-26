@@ -148,78 +148,94 @@ ridge_uvs.extend([[(.2, .985)] * 4, [(.75, .985)] * 4])
 common.mesh('kun_dorsal_ridge', ridge_vertices, ridge_faces, skin, ridge_uvs)
 
 
+
+# All planform boundaries below are traced from the full-resolution reference
+# after subtracting this frozen body's own projected silhouette.
+import traced_sheets
+TRACE = json.loads((ROOT / 'blender/kun-planforms.json').read_text())
+SHEET_STATS = {}
+BODY_POINTS = np.array([tuple(vertex.co) for vertex in body.data.vertices])
+BODY_DEPTH = float(BODY_POINTS[:, 2].max() - BODY_POINTS[:, 2].min())
+PREVIEW_UP = Vector((math.sin(math.radians(25)) / math.sqrt(2),
+                     math.sin(math.radians(25)) / math.sqrt(2), math.cos(math.radians(25))))
+BODY_SCREEN_TOP = max(Vector(point).dot(PREVIEW_UP) for point in BODY_POINTS)
+
+
 def fin(name, sign, upper):
-    # Broad, thin leaf sheets: the centerline sweeps toward the tail, with
-    # dihedral about the longitudinal axis rather than a deep downward paddle.
-    widths = np.array([[0, 1.04], [.20, 2.65], [.40, 3.40],
-                       [.60, 2.80], [.80, 1.50], [1, .03]])
-    span, chord = 36, 14
-    points, polygons, coordinates = [], [], []
-    root_x = 1.03 if upper else 1.00
-    root_y = -1.44 if upper else -.92  # 40% / 45%; chord roots ±5% L.
-    root_z = .66 if upper else -.65
-    aft_reach = 2.20 - root_y  # Ends near 75% L from the snout.
-    sweep = math.radians(60 if upper else 55)
-    transverse_reach = aft_reach / math.tan(sweep)
+    # Use one actual pectoral outline for both sides and both pairs, mirrored;
+    # lower pair is uniformly 0.8 scale. No width-envelope approximation.
+    record = TRACE['outlines']['pectoral-image-left']
+    pixels, faces, sheet_stats = traced_sheets.patch(record)
+    source_root = np.array(record['rootXY'])
+    source_tip = np.array(record['pixelsXY'][record['tipIndex']])
+    pixels_per_unit = TRACE['alignment']['pixelsPerUnit']
+    canonical = np.column_stack([source_root[0] - pixels[:, 0], pixels[:, 1] - source_root[1]]) / pixels_per_unit
+    tip = np.array([source_root[0] - source_tip[0], source_tip[1] - source_root[1]]) / pixels_per_unit
+    source_axis = tip / np.linalg.norm(tip)
+    source_chord = np.array([-source_axis[1], source_axis[0]])
+    uu, vv = canonical @ source_axis, canonical @ source_chord
+    factor = 1.0 if upper else .8
+    sweep = math.radians(55)
     dihedral = math.radians(15 if upper else -20)
-    rise = transverse_reach * math.tan(dihedral)
-    axis = Vector((sign * transverse_reach, aft_reach, rise)).normalized()
-    for i in range(span + 1):
-        s = i / span
-        width = float(np.interp(s, widths[:, 0], widths[:, 1]))
-        # Rodrigues rotation adds 25 degrees of twist from root to tip.
-        angle = sign * math.radians(25) * s
-        base_chord = Vector((0, 1, 0))
-        chord_direction = (base_chord * math.cos(angle) + axis.cross(base_chord) * math.sin(angle)
-                           + axis * axis.dot(base_chord) * (1 - math.cos(angle)))
-        normal = axis.cross(chord_direction).normalized()
+    span_axis = Vector((math.cos(sweep), math.sin(sweep), math.cos(sweep) * math.tan(dihedral)))
+    chord_axis = Vector((-math.sin(sweep), math.cos(sweep), -math.sin(sweep) * math.tan(dihedral)))
+    root = Vector((1.03 if upper else 1.00, -1.44 if upper else -.92, .45 if upper else -.62))
+    points = []
+    for u, v in zip(uu, vv):
+        phase = max(0, min(1, u / np.linalg.norm(tip)))
+        angle = math.radians(25) * phase
+        axis = span_axis.normalized()
+        twisted = (chord_axis * math.cos(angle) + axis.cross(chord_axis) * math.sin(angle)
+                   + axis * axis.dot(chord_axis) * (1 - math.cos(angle)))
+        normal = span_axis.cross(twisted).normalized()
         if normal.z < 0:
             normal = -normal
-        for j in range(chord + 1):
-            c = j / chord
-            cut = (.065 * math.sin(49 * s) + .045 * math.sin(101 * s + .7)) * s ** .7 * c ** 6
-            center = Vector((sign * (root_x + transverse_reach * s), root_y + aft_reach * s, root_z + rise * s))
-            camber = (.16 if upper else -.16) * math.sin(math.pi * c) * math.sin(math.pi * s)
-            point = center + chord_direction * ((c - .5) * width + cut) + normal * camber
-            points.append(tuple(point))
-    for i in range(span):
-        for j in range(chord):
-            a = i * (chord + 1) + j
-            polygons.append((a, a + chord + 1, a + chord + 2, a + 1))
-            coordinates.append([(i / span, j / chord), ((i + 1) / span, j / chord), ((i + 1) / span, (j + 1) / chord), (i / span, (j + 1) / chord)])
-    return common.mesh(name, points, polygons, fin_material, coordinates)
+        across = (v - vv.min()) / max(vv.max() - vv.min(), 1e-6)
+        cup = (.10 if upper else -.10) * math.sin(math.pi * phase) * math.sin(math.pi * across)
+        point = root + span_axis * (u * factor) + twisted * (v * factor) + normal * cup
+        # Explicit anti-sail bound in the 25-degree preview's screen-up basis.
+        # Symmetric for left/right; a smooth minimum bends rather than clips tips.
+        limit = (BODY_SCREEN_TOP + .3 * BODY_DEPTH - PREVIEW_UP.x * (abs(point.x) + point.y)) / PREVIEW_UP.z
+        difference = point.z - limit
+        point.z = point.z - .04 * (max(difference / .04, 0) + math.log1p(math.exp(-abs(difference / .04))))
+        point.x *= sign
+        points.append(tuple(point))
+    obj = common.mesh(name, points, faces, fin_material, traced_sheets.uv_coordinates(pixels, faces))
+    sheet_stats.update({'sourceOutline': 'pectoral-image-left', 'scale': factor,
+                        'dihedralDegrees': 15 if upper else -20, 'sweepDegrees': 55,
+                        'twistDegrees': 25, 'root': list(root),
+                        'maxWorldZ': max(point[2] for point in points)})
+    SHEET_STATS[name] = sheet_stats
+    return obj
 
 
 for upper in [True, False]:
     for sign, label in [(-1, 'L'), (1, 'R')]:
         fin(f'kun_fin_{"upper" if upper else "lower"}_{label}', sign, upper)
 
-# The fluke is a continuous two-lobed sheet. Chordwise samples preserve the
-# central notch and swept crescents, without borrowing the wave image's outline.
-points, polygons, coordinates = [], [], []
-SPAN, CHORD = 80, 12
-for i in range(SPAN + 1):
-    t = -1 + 2 * i / SPAN
-    s = abs(t)
-    x = t * 3.35
-    fluke_sections = np.array([
-        [0, 3.40, 4.90], [.2, 3.55, 5.35], [.4, 3.80, 5.85],
-        [.6, 4.25, 6.60], [.8, 4.90, 6.45], [1, 6.10, 6.15],
-    ])
-    leading = float(np.interp(s, fluke_sections[:, 0], fluke_sections[:, 1]))
-    trailing = float(np.interp(s, fluke_sections[:, 0], fluke_sections[:, 2]))
-    for j in range(CHORD + 1):
-        c = j / CHORD
-        ragged = (.055 * math.sin(63 * t) + .035 * math.sin(137 * t)) * c ** 7
-        y = leading * (1 - c) + trailing * c + ragged
-        z = .10 + .65 * math.sin(math.pi * s * .72) + .13 * math.sin(math.pi * c) - .08 * c
-        points.append((x, y, z))
-for i in range(SPAN):
-    for j in range(CHORD):
-        a = i * (CHORD + 1) + j
-        polygons.append((a, a + CHORD + 1, a + CHORD + 2, a + 1))
-        coordinates.append([(i / SPAN, j / CHORD), ((i + 1) / SPAN, j / CHORD), ((i + 1) / SPAN, (j + 1) / CHORD), (i / SPAN, (j + 1) / CHORD)])
-common.mesh('kun_fluke', points, polygons, fin_material, coordinates)
+# Both fluke lobes retain their traced pointed/wavy outlines. The frozen
+# attachment position (0, 3.4, .10) and the existing low arch are retained.
+fluke_records = [TRACE['outlines'][f'fluke-image-{side}'] for side in ['left', 'right']]
+fluke_outlines = np.concatenate([np.array(record['pixelsXY']) for record in fluke_records])
+fluke_pixels_per_unit = (fluke_outlines[:, 0].max() - fluke_outlines[:, 0].min()) / 6.70
+fluke_reference_root_y = float(fluke_outlines[:, 1].min())
+fluke_center_x = TRACE['alignment']['centerX']
+fluke_points, fluke_faces, fluke_uvs = [], [], []
+for record in fluke_records:
+    pixels, faces, sheet_stats = traced_sheets.patch(record)
+    uvs = traced_sheets.uv_coordinates(pixels, faces)
+    offset = len(fluke_points)
+    for px, py in pixels:
+        x = (fluke_center_x - px) / fluke_pixels_per_unit
+        y = 3.40 + (py - fluke_reference_root_y) / fluke_pixels_per_unit
+        span = min(1, abs(x) / 3.35)
+        chord = max(0, min(1, (py - fluke_reference_root_y) / (fluke_outlines[:, 1].max() - fluke_reference_root_y)))
+        z = .10 + .65 * math.sin(math.pi * span * .72) + .13 * math.sin(math.pi * chord) - .08 * chord
+        fluke_points.append((x, y, z))
+    fluke_faces.extend([tuple(index + offset for index in face) for face in faces])
+    fluke_uvs.extend(uvs)
+    SHEET_STATS[f'fluke-{len(SHEET_STATS) - 3}'] = sheet_stats
+common.mesh('kun_fluke', fluke_points, fluke_faces, fin_material, fluke_uvs)
 
 
 def stroke(name, positions, radius, material):
@@ -254,8 +270,8 @@ for sign in [-1, 1]:
     # Elliptical eye plate on the skin, with concentric quad rings and a pupil.
     # Move back onto the lateral head surface, close to the mouth line. The
     # near-horizontal radial normal points sideways, rather than at the snout.
-    center_y, center_phi = -4.05, sign * 1.47
-    for material, radius, name in [(eye_rim, .145, 'rim'), (ink, .083, 'pupil')]:
+    center_y, center_phi = -3.72, sign * 1.72
+    for material, radius, name in [(eye_rim, .0725, 'rim'), (ink, .0415, 'pupil')]:
         verts = [skin_point(center_y, center_phi, .030)]
         for j in range(32):
             a = j * TAU / 32
@@ -295,14 +311,14 @@ common.record('kun', {
     'engine': ARGS.engine, 'exitCode': 0, 'blenderVersion': bpy.app.version_string,
     'finAlpha': {'white': .43, 'ink': 1.0, 'edge': 'two-pixel alpha feather on geometry contour'},
     'geometryReview': {
-        'upperDihedralDegrees': 15, 'upperSweepDegrees': 60,
-        'lowerDihedralDegrees': -20, 'lowerSweepDegrees': 55,
-        'upperRootBodyFractions': [.35, .45], 'lowerRootBodyFractions': [.40, .50],
-        'finTipBodyFraction': .75, 'finTwistDegrees': 25, 'finCupDepth': .16,
-        'finMaxChord': 3.40,
-        'bodyLength': 10.4, 'dorsalRidgeHalfWidth': .022,
+        'planformSource': 'blender/kun-planforms.json',
+        'upperDihedralDegrees': 15, 'lowerDihedralDegrees': -20,
+        'sweepDegrees': 55, 'lowerFinScale': .8, 'twistDegrees': 25,
+        'finCupDepth': .10, 'finPreviewRiseLimitBodyDepth': .3,
+        'bodyLength': 10.4, 'flukeAnchor': [0, 3.40, .10],
         'dorsalRidgeHeight': .055, 'dorsalSpikeExtraHeight': 0,
-        'eyeY': -4.05, 'eyePhiDegrees': math.degrees(1.47),
+        'eyeY': -3.72, 'eyePhiDegrees': math.degrees(1.72), 'eyeSizeScale': .5,
     },
+    'tracedSheets': SHEET_STATS,
 })
 print('KUN_BUILD', json.dumps(json.loads((ROOT / '_dev/build/asset-stats.json').read_text())['kun']))

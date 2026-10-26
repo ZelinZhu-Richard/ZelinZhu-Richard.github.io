@@ -181,6 +181,7 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
 - **Views and cameras** (image orientation as in the sheets):
   - Kun side: head to the right. Kun top: looking down, head at the top. Kun front: looking at the face.
   - Kun three-quarter: from front-left (45° azimuth from the front), 25° above, perspective FOV 42°. Preview only; no IoU. This is the closest preview to the in-game camera.
+  - Kun gameplay: from behind-left (135° azimuth from the front), 30° above, perspective FOV 42°. By eye only; this is the main gameplay-camera preview.
   - Peng top: looking down, head at the top. Peng side: head to the left; preview only, with no IoU. Peng front: no camera and no IoU (see Decisions).
 - **Reference masks** (Richard's verified facts):
   - The background is a uniform grey: Kun ≈ rgb(155,156,158), Peng ≈ rgb(176,175,175), std < 1.2.
@@ -287,7 +288,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
       - ragged ink-wave fin and fluke edges
       - a two-lobed horizontal fluke in the top view
     - `asset-stats.json` for `kun`: `triangles` ≤ 60,000, `quadRatio` ≥ 0.90, `loopSpacingRatio` ≤ 3, `bodyNonManifoldEdges` 0, `maxTextureSize` ≤ 2048, all six node names present, `exitCode` 0 for every Blender run, and `engine` and `seconds` recorded.
-  - Show and wait: side and top silhouette overlays and the IoU table, then front and front-left 25°-above three-quarter renders; browser n/a.
+  - Show and wait: side and top silhouette overlays and the IoU table, then front, front-left 25°-above three-quarter, and behind-left 30°-above gameplay-camera renders; browser n/a.
   - Fallback if stuck: set the body's cross-section widths from the side and top masks (per-column extents), trace the fin and fluke outlines from the reference masks, and drop subdivision to level 1.
 
 - [ ] Milestone 2: Kun in the browser — both textures, swim deformation, north-sea test scene
@@ -495,6 +496,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
 - **Hero modeling** (Richard): Kun and Peng are modeled in Blender from code, never downloaded or AI-generated: lofted cross-sections, subdivision, and thin-sheet fins and feathers. Topology is quad-dominant, with ≤ 60k triangles per hero.
 - **Reference match** (Richard): `tools/silhouette.py` with per-view IoU thresholds: Kun side 0.70, top 0.75, front by eye only; Peng top 0.75 (no front score; see Peng's acceptance).
 - **Kun fin authority and gates** (Richard, 2026-10-26): "The Kun sheet's side and front views disagree about the fins: the side view shows them trailing back along the body like flowing ribbons, while the front view shows them spread out like wings. No single model can match both. The key art (ref/key-north-sea.png) shows long fins trailing back, so the side view and the key art are the authority for the fins. Front IoU is no longer a gate; the front view is a by-eye reference only. The side IoU target is ≥0.70; top must stay ≥0.75."
+- **Kun body frozen** (Richard, 2026-10-26): the body is good; freeze its proportions, head and fluke attachment position. The next pass changes only fin/fluke planforms traced from the sheet and the eyes. Preserve textures. Add a behind-left, 30°-above gameplay-camera preview, by eye only.
 - **Asset manifest** (Richard): every GLB loads through `assets.json`, and game code never hardcodes a GLB path.
 - **Milestone order** (Richard): M0 scaffold, M1 Kun model + silhouette match (Blender only), M2 Kun in the browser. The later milestones keep their order, renumbered M3–M10.
 - **Evidence:** a committed Playwright capture script writes screenshots, `console.json` and `metrics.json`, and `silhouette.py` writes the reference overlays and IoU (Richard, 2026-10-26).
