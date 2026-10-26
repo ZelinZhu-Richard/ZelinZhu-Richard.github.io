@@ -5,7 +5,7 @@ import { NOW } from '../workspace/now/now.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
-const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/now/','Now'],['/daily/','Daily'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],[LINKS.resume,'CV'],['/contacts/','Contact']];
+const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/now/','Now'],['/daily/','Daily'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],['/github/stars/','Stars'],[LINKS.resume,'CV'],['/contacts/','Contact']];
 const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet } = {}) => `<!doctype html>
 <html lang="en">
 <head>

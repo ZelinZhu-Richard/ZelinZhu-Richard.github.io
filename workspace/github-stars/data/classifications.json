@@ -1,0 +1,2834 @@
+{
+  "0xemmkty/QuantMuse": {
+    "category": "quant",
+    "type": "application"
+  },
+  "0xSero/turboquant": {
+    "category": "models",
+    "type": "library"
+  },
+  "1c7/chinese-independent-developer": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "1jehuang/jcode": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "3b1b/manim": {
+    "category": "creative",
+    "type": "library"
+  },
+  "3b1b/videos": {
+    "category": "creative",
+    "type": "resource"
+  },
+  "5harad/cost-of-fairness": {
+    "category": "research",
+    "type": "research"
+  },
+  "5harad/css": {
+    "category": "research",
+    "type": "resource"
+  },
+  "5harad/intro-stats": {
+    "category": "research",
+    "type": "resource"
+  },
+  "666ghj/BettaFish": {
+    "category": "data",
+    "type": "application"
+  },
+  "666ghj/MiroFish": {
+    "category": "agents",
+    "type": "library"
+  },
+  "aaif-goose/goose": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "abhigyanpatwari/GitNexus": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "abi/screenshot-to-code": {
+    "category": "web",
+    "type": "application"
+  },
+  "Ac-Wiki/Ac-Wiki": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "academicpages/academicpages.github.io": {
+    "category": "web",
+    "type": "library"
+  },
+  "AccumulateMore/CV": {
+    "category": "models",
+    "type": "resource"
+  },
+  "addyosmani/agent-skills": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "affaan-m/ECC": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "afshinea/stanford-cme-295-transformers-large-language-models": {
+    "category": "models",
+    "type": "resource"
+  },
+  "afshinea/stanford-cs-221-artificial-intelligence": {
+    "category": "models",
+    "type": "resource"
+  },
+  "afshinea/stanford-cs-229-machine-learning": {
+    "category": "models",
+    "type": "resource"
+  },
+  "afshinea/stanford-cs-230-deep-learning": {
+    "category": "models",
+    "type": "resource"
+  },
+  "AgentR1/Agent-R1": {
+    "category": "models",
+    "type": "research"
+  },
+  "ageron/handson-ml": {
+    "category": "models",
+    "type": "resource"
+  },
+  "ageron/handson-ml2": {
+    "category": "models",
+    "type": "resource"
+  },
+  "ageron/handson-ml3": {
+    "category": "models",
+    "type": "resource"
+  },
+  "AgriciDaniel/claude-obsidian": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "ai-boost/awesome-harness-engineering": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "ai-job-search-dev/ai-job-search": {
+    "category": "learning",
+    "type": "application"
+  },
+  "AI4Finance-Foundation/FinGPT": {
+    "category": "quant",
+    "type": "model"
+  },
+  "AI4Finance-Foundation/FinRL": {
+    "category": "quant",
+    "type": "library"
+  },
+  "AIC333-arc/AI-Youth-Global-Organization-Resources": {
+    "category": "models",
+    "type": "resource"
+  },
+  "AikidoSec/safe-chain": {
+    "category": "security",
+    "type": "cli"
+  },
+  "aiming-lab/AutoHarness": {
+    "category": "agents",
+    "type": "library"
+  },
+  "aiming-lab/AutoResearchClaw": {
+    "category": "research",
+    "type": "application"
+  },
+  "aiming-lab/MetaClaw": {
+    "category": "agents",
+    "type": "library"
+  },
+  "AIPentest/CyberStrikeAI": {
+    "category": "security",
+    "type": "application"
+  },
+  "airbnb/javascript": {
+    "category": "devtools",
+    "type": "resource"
+  },
+  "aishwaryanr/awesome-generative-ai-guide": {
+    "category": "models",
+    "type": "resource"
+  },
+  "alchaincyf/huashu-art-motion": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "alchaincyf/huashu-design": {
+    "category": "web",
+    "type": "skill"
+  },
+  "alchaincyf/loop-engineering-orange-book": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "alchaincyf/nuwa-skill": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "alchaincyf/x-mentor-skill": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "alexeygrigorev/ai-engineering-field-guide": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "alexzhang13/rlm": {
+    "category": "models",
+    "type": "library"
+  },
+  "Alibaba-NLP/DeepResearch": {
+    "category": "research",
+    "type": "application"
+  },
+  "alibaba/open-code-review": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "alirezarezvani/claude-skills": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "Alishahryar1/free-claude-code": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "AllenJWZhu/CMU_Course_Notes": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "AlmanacCode/codealmanac": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "alphaXiv/OpenResearch": {
+    "category": "research",
+    "type": "skill"
+  },
+  "alshedivat/al-folio": {
+    "category": "web",
+    "type": "library"
+  },
+  "AMAP-ML/LongHorizon-Harness": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "amazon-science/chronos-forecasting": {
+    "category": "models",
+    "type": "model"
+  },
+  "amirziai/learning": {
+    "category": "models",
+    "type": "resource"
+  },
+  "amontlabs/lcu": {
+    "category": "agents",
+    "type": "library"
+  },
+  "analyticalrohit/AI-ML-Cheatsheets": {
+    "category": "models",
+    "type": "resource"
+  },
+  "andrewyng/openworker": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "Anil-matcha/Open-Generative-AI": {
+    "category": "creative",
+    "type": "application"
+  },
+  "ankit0183/Wifi-Hacking": {
+    "category": "security",
+    "type": "cli"
+  },
+  "ankitects/anki": {
+    "category": "learning",
+    "type": "application"
+  },
+  "anomalyco/opencode": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "anthropics/claude-code": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "anthropics/claude-plugins-official": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "anthropics/financial-services": {
+    "category": "quant",
+    "type": "skill"
+  },
+  "anthropics/prompt-eng-interactive-tutorial": {
+    "category": "models",
+    "type": "resource"
+  },
+  "anthropics/sandbox-runtime": {
+    "category": "security",
+    "type": "library"
+  },
+  "anthropics/skills": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "antirez/ds4": {
+    "category": "models",
+    "type": "cli"
+  },
+  "apache/tvm": {
+    "category": "models",
+    "type": "library"
+  },
+  "arpitrage/ai-in-finance": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "Asabeneh/30-Days-Of-Python": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "asgeirtj/system_prompts_leaks": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "ashishpatel26/500-AI-Agents-Projects": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "ashishpatel26/500-AI-Machine-learning-Deep-learning-Computer-vision-NLP-Projects-with-code": {
+    "category": "models",
+    "type": "resource"
+  },
+  "ashishps1/awesome-leetcode-resources": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "assafelovic/gpt-researcher": {
+    "category": "research",
+    "type": "application"
+  },
+  "ATH-MaaS/Pixelle-MCP": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "ATH-MaaS/Pixelle-Video": {
+    "category": "creative",
+    "type": "application"
+  },
+  "atinesh/Coursera-Machine-Learning-Stanford": {
+    "category": "models",
+    "type": "resource"
+  },
+  "Avik-Jain/100-Days-Of-ML-Code": {
+    "category": "models",
+    "type": "resource"
+  },
+  "awesome-mlss/awesome-mlss": {
+    "category": "models",
+    "type": "resource"
+  },
+  "awesome-selfhosted/awesome-selfhosted": {
+    "category": "systems",
+    "type": "resource"
+  },
+  "awesomedata/awesome-public-datasets": {
+    "category": "data",
+    "type": "resource"
+  },
+  "AxiomMath/IMO2026": {
+    "category": "research",
+    "type": "research"
+  },
+  "axtonliu/axton-obsidian-visual-skills": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "b-nnett/grok-bot-0.18-reconstructed": {
+    "category": "agents",
+    "type": "application"
+  },
+  "benchflow-ai/awesome-evals": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "bendlang/bend": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "bentoml/BentoML": {
+    "category": "models",
+    "type": "library"
+  },
+  "Bhardwaj-Saurabh/Machine_Learning_Specialization_AndrewNG_Coursera": {
+    "category": "models",
+    "type": "resource"
+  },
+  "bilawalsidhu/gods-eye-view": {
+    "category": "data",
+    "type": "application"
+  },
+  "binary-husky/gpt_academic": {
+    "category": "research",
+    "type": "application"
+  },
+  "blader/humanizer": {
+    "category": "research",
+    "type": "skill"
+  },
+  "Bogdanp/awesome-advent-of-code": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "bradleyboyuyang/ML-HFT": {
+    "category": "quant",
+    "type": "research"
+  },
+  "bradygaster/squad": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "brianpetro/obsidian-smart-connections": {
+    "category": "productivity",
+    "type": "application"
+  },
+  "brodyautomates/polymarket-pipeline": {
+    "category": "quant",
+    "type": "application"
+  },
+  "browser-use/browser-use": {
+    "category": "agents",
+    "type": "library"
+  },
+  "BruceLanLan/augur": {
+    "category": "quant",
+    "type": "application"
+  },
+  "brycewang-stanford/Auto-Empirical-Research-Skills": {
+    "category": "research",
+    "type": "skill"
+  },
+  "business-science/awesome-generative-ai-data-scientist": {
+    "category": "models",
+    "type": "resource"
+  },
+  "buuing/lucky-canvas": {
+    "category": "web",
+    "type": "library"
+  },
+  "byoungd/up": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "bytedance/deer-flow": {
+    "category": "agents",
+    "type": "library"
+  },
+  "caiovicentino/eoq-quantization": {
+    "category": "models",
+    "type": "library"
+  },
+  "camel-ai/camel": {
+    "category": "agents",
+    "type": "library"
+  },
+  "career-ops-hq/career-ops": {
+    "category": "learning",
+    "type": "skill"
+  },
+  "cathrynlavery/diagram-design": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "cavi-au/Consent-O-Matic": {
+    "category": "security",
+    "type": "application"
+  },
+  "ccxt/ccxt": {
+    "category": "quant",
+    "type": "library"
+  },
+  "Chalarangelo/30-seconds-of-code": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "chaseai-yt/claudex-loop": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "chatfire-AI/huobao-drama": {
+    "category": "creative",
+    "type": "application"
+  },
+  "chenglou/pretext": {
+    "category": "web",
+    "type": "library"
+  },
+  "CherryHQ/cherry-studio": {
+    "category": "agents",
+    "type": "application"
+  },
+  "chiphuyen/aie-book": {
+    "category": "models",
+    "type": "resource"
+  },
+  "chiphuyen/stanford-tensorflow-tutorials": {
+    "category": "models",
+    "type": "resource"
+  },
+  "CMU-HKN/CMU-ECE-CS-Guide": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "CMU-Math/cmimc-online": {
+    "category": "learning",
+    "type": "application"
+  },
+  "cobusgreyling/loop-engineering": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "code-video-model/CodeVideoModel": {
+    "category": "creative",
+    "type": "model"
+  },
+  "code-yeongyu/lazycodex": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "codecrafters-io/build-your-own-x": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "CodecWang/opencv-python-tutorial": {
+    "category": "models",
+    "type": "resource"
+  },
+  "codewhale-hq/Codewhale": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "colbymchenry/codegraph": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "Companion-Inc/feynman": {
+    "category": "research",
+    "type": "cli"
+  },
+  "cookiecutter/cookiecutter": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "coqui-ai/TTS": {
+    "category": "creative",
+    "type": "library"
+  },
+  "CorentinJ/Real-Time-Voice-Cloning": {
+    "category": "creative",
+    "type": "model"
+  },
+  "coreyhaines31/marketingskills": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "crafter-station/petdex": {
+    "category": "creative",
+    "type": "application"
+  },
+  "Crosstalk-Solutions/project-nomad": {
+    "category": "learning",
+    "type": "application"
+  },
+  "Crypto-toolbox/HFT-Orderbook": {
+    "category": "quant",
+    "type": "library"
+  },
+  "CS-Edwards/textbooks": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "cs109/content": {
+    "category": "models",
+    "type": "resource"
+  },
+  "cu-sanjay/Amazon-ML-Summer-School-2026": {
+    "category": "models",
+    "type": "resource"
+  },
+  "cursor/plugins": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "cybergeekgyan/Quant-Developers-Resources": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "CyC2018/CS-Notes": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "cycleuser/Stanford-CS-229": {
+    "category": "models",
+    "type": "resource"
+  },
+  "d2l-ai/d2l-en": {
+    "category": "models",
+    "type": "resource"
+  },
+  "d2l-ai/d2l-zh": {
+    "category": "models",
+    "type": "resource"
+  },
+  "dair-ai/Prompt-Engineering-Guide": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "damon-chem-e/Gemini-Search": {
+    "category": "research",
+    "type": "application"
+  },
+  "dan-the-quant/DTQ-Portfolio_Management_Course": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "darkdevil3610/100-AI-Machine-learning-Deep-learning-Computer-vision-NLP": {
+    "category": "models",
+    "type": "resource"
+  },
+  "darkroomengineering/lenis": {
+    "category": "web",
+    "type": "library"
+  },
+  "data-flair/machine-learning-projects": {
+    "category": "models",
+    "type": "resource"
+  },
+  "DataExpert-io/ai-engineer-handbook": {
+    "category": "models",
+    "type": "resource"
+  },
+  "datawhalechina/easy-vibe": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "davebcn87/pi-autoresearch": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "DavidHDev/react-bits": {
+    "category": "web",
+    "type": "library"
+  },
+  "ddean2009/MoneyPrinterPlus": {
+    "category": "creative",
+    "type": "application"
+  },
+  "debpalash/VoiceStudio": {
+    "category": "creative",
+    "type": "application"
+  },
+  "deepfakes/faceswap": {
+    "category": "creative",
+    "type": "application"
+  },
+  "deeplearning-ai/machine-learning-yearning-cn": {
+    "category": "models",
+    "type": "resource"
+  },
+  "deepseek-ai/DeepSeek-Coder": {
+    "category": "models",
+    "type": "model"
+  },
+  "deepseek-ai/deepseek-harness": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "deepseek-ai/DeepSeek-R1": {
+    "category": "models",
+    "type": "model"
+  },
+  "deepseek-ai/DeepSeek-V3": {
+    "category": "models",
+    "type": "model"
+  },
+  "Developer-Y/cs-video-courses": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "Developer-Y/math-science-video-lectures": {
+    "category": "research",
+    "type": "resource"
+  },
+  "DigitalPlatDev/FreeDomain": {
+    "category": "systems",
+    "type": "resource"
+  },
+  "dingran/quant-notes": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "dipakkr/awesome-ai-engineering": {
+    "category": "models",
+    "type": "resource"
+  },
+  "dmlc/xgboost": {
+    "category": "models",
+    "type": "library"
+  },
+  "douyang/echodemo": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "DR-lin-eng/stock-scanner": {
+    "category": "quant",
+    "type": "application"
+  },
+  "dreammis/social-auto-upload": {
+    "category": "data",
+    "type": "cli"
+  },
+  "DSKSD/DeepNLP-models-Pytorch": {
+    "category": "models",
+    "type": "resource"
+  },
+  "Dujltqzv/Some-Many-Books": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "durgeshsamariya/awesome-github-profile-readme-templates": {
+    "category": "web",
+    "type": "resource"
+  },
+  "durgeshsamariya/Data-Science-Machine-Learning-Project-with-Source-Code": {
+    "category": "models",
+    "type": "resource"
+  },
+  "durgeshsamariya/data-science-roadmap": {
+    "category": "models",
+    "type": "resource"
+  },
+  "durgeshsamariya/kaggle": {
+    "category": "models",
+    "type": "resource"
+  },
+  "dwzhu-pku/PaperBanana": {
+    "category": "research",
+    "type": "application"
+  },
+  "dzhng/deep-research": {
+    "category": "research",
+    "type": "application"
+  },
+  "earendil-works/pi": {
+    "category": "agents",
+    "type": "library"
+  },
+  "easychen/howto-make-more-money": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "easychen/opc-methodology": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "Ebony-Vinyl/dsh-our-free-model": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "EbookFoundation/free-programming-books": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "Egonex-AI/Understand-Anything": {
+    "category": "devtools",
+    "type": "application"
+  },
+  "emeryberger/CSrankings": {
+    "category": "research",
+    "type": "application"
+  },
+  "emilkowalski/skills": {
+    "category": "web",
+    "type": "skill"
+  },
+  "enescingoz/awesome-n8n-templates": {
+    "category": "data",
+    "type": "resource"
+  },
+  "engineerapart/TheRemoteFreelancer": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "ericyangyu/PPO-for-Beginners": {
+    "category": "models",
+    "type": "resource"
+  },
+  "eternity4719/HowToLiveBetter": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "eugeneyan/applied-ml": {
+    "category": "models",
+    "type": "resource"
+  },
+  "EveryInc/compound-engineering-plugin": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "evidentlyai/evidently": {
+    "category": "models",
+    "type": "library"
+  },
+  "Evolink-AI/awesome-gpt-image-2-API-Prompts": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "EvoScientist/EvoScientist": {
+    "category": "research",
+    "type": "application"
+  },
+  "f/prompts.chat": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "facebook/prophet": {
+    "category": "models",
+    "type": "library"
+  },
+  "facebookresearch/Detectron": {
+    "category": "models",
+    "type": "library"
+  },
+  "facebookresearch/fairseq": {
+    "category": "models",
+    "type": "library"
+  },
+  "farion1231/cc-switch": {
+    "category": "agents",
+    "type": "application"
+  },
+  "fatedier/frp": {
+    "category": "systems",
+    "type": "cli"
+  },
+  "feast-dev/feast": {
+    "category": "data",
+    "type": "library"
+  },
+  "Fei-Away/Codex-Dream-Skin": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "FeijiangHan/PaperForge": {
+    "category": "research",
+    "type": "skill"
+  },
+  "fengdu78/Coursera-ML-AndrewNg-Notes": {
+    "category": "models",
+    "type": "resource"
+  },
+  "feremabraz/bloomberg-terminal": {
+    "category": "quant",
+    "type": "application"
+  },
+  "fighting41love/funNLP": {
+    "category": "models",
+    "type": "resource"
+  },
+  "Fincept-Corporation/FinceptTerminal": {
+    "category": "quant",
+    "type": "application"
+  },
+  "firecrawl/firecrawl": {
+    "category": "data",
+    "type": "library"
+  },
+  "firmai/financial-machine-learning": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "firmai/industry-machine-learning": {
+    "category": "models",
+    "type": "resource"
+  },
+  "firstcontributions/first-contributions": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "fivetran/great_expectations": {
+    "category": "data",
+    "type": "library"
+  },
+  "flipperdevices/flipperzero-firmware": {
+    "category": "security",
+    "type": "application"
+  },
+  "FlowiseAI/Flowise": {
+    "category": "agents",
+    "type": "application"
+  },
+  "fmhy/edit": {
+    "category": "creative",
+    "type": "resource"
+  },
+  "forthespada/Awsome-Courses": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "forthespada/CS-Books": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "FoundationVision/VAR": {
+    "category": "creative",
+    "type": "research"
+  },
+  "freeCodeCamp/freeCodeCamp": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "freecodexyz/free-code": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "freestylefly/awesome-gpt-image-2": {
+    "category": "creative",
+    "type": "resource"
+  },
+  "freqtrade/freqtrade": {
+    "category": "quant",
+    "type": "application"
+  },
+  "FujiwaraChoki/MoneyPrinterV2": {
+    "category": "data",
+    "type": "cli"
+  },
+  "funstory-ai/BabelDOC": {
+    "category": "research",
+    "type": "library"
+  },
+  "Future-House/paper-qa": {
+    "category": "research",
+    "type": "library"
+  },
+  "garrytan/gbrain": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "garrytan/gstack": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "garylab/MakeMoneyWithAI": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "geekjourneyx/md2wechat-skill": {
+    "category": "creative",
+    "type": "cli"
+  },
+  "ghostty-org/ghostty": {
+    "category": "devtools",
+    "type": "application"
+  },
+  "glanderness/BeefTV": {
+    "category": "creative",
+    "type": "application"
+  },
+  "GokuMohandas/Made-With-ML": {
+    "category": "models",
+    "type": "resource"
+  },
+  "goldmansachs/gs-quant": {
+    "category": "quant",
+    "type": "library"
+  },
+  "google-deepmind/deepmind-research": {
+    "category": "models",
+    "type": "research"
+  },
+  "google-deepmind/lab": {
+    "category": "models",
+    "type": "library"
+  },
+  "google-deepmind/science-skills": {
+    "category": "research",
+    "type": "skill"
+  },
+  "google-gemini/gemini-cli": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "google-research/google-research": {
+    "category": "models",
+    "type": "research"
+  },
+  "google-research/harness2": {
+    "category": "agents",
+    "type": "research"
+  },
+  "google-research/timesfm": {
+    "category": "models",
+    "type": "model"
+  },
+  "google/ax": {
+    "category": "agents",
+    "type": "library"
+  },
+  "google/tf-quant-finance": {
+    "category": "quant",
+    "type": "library"
+  },
+  "grananqvist/Awesome-Quant-Machine-Learning-Trading": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "Graphify-Labs/graphify": {
+    "category": "devtools",
+    "type": "skill"
+  },
+  "graysonpike/Parley": {
+    "category": "productivity",
+    "type": "application"
+  },
+  "greatghoul/remote-working": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "greensock/GSAP": {
+    "category": "web",
+    "type": "library"
+  },
+  "greensock/gsap-skills": {
+    "category": "web",
+    "type": "skill"
+  },
+  "gregorojstersek/resources-to-become-a-great-engineering-leader": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "greyhatguy007/Machine-Learning-Specialization-Coursera": {
+    "category": "models",
+    "type": "resource"
+  },
+  "GrindGold/pdf": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "guaguastandup/zotero-pdf2zh": {
+    "category": "research",
+    "type": "application"
+  },
+  "GXL-ai/paperclip": {
+    "category": "research",
+    "type": "cli"
+  },
+  "Hack-with-Github/Awesome-Hacking": {
+    "category": "security",
+    "type": "resource"
+  },
+  "hacksider/Deep-Live-Cam": {
+    "category": "creative",
+    "type": "application"
+  },
+  "hakimel/reveal.js": {
+    "category": "research",
+    "type": "library"
+  },
+  "HandsOnLLM/Hands-On-Large-Language-Models": {
+    "category": "models",
+    "type": "resource"
+  },
+  "haotian-liu/LLaVA": {
+    "category": "models",
+    "type": "model"
+  },
+  "hardikpandya/stop-slop": {
+    "category": "research",
+    "type": "skill"
+  },
+  "HarisIqbal88/PlotNeuralNet": {
+    "category": "research",
+    "type": "library"
+  },
+  "harry0703/MoneyPrinterTurbo": {
+    "category": "creative",
+    "type": "application"
+  },
+  "harvard-edge/cs249r_book": {
+    "category": "models",
+    "type": "resource"
+  },
+  "hashcat/hashcat": {
+    "category": "security",
+    "type": "cli"
+  },
+  "hazratali/awesome-ai-summerschool": {
+    "category": "models",
+    "type": "resource"
+  },
+  "HBAI-Ltd/Toonflow-app": {
+    "category": "creative",
+    "type": "application"
+  },
+  "hello245m/free-stockdb": {
+    "category": "quant",
+    "type": "library"
+  },
+  "helloianneo/ian-xiaohei-illustrations": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "hesreallyhim/awesome-claude-code": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "hexclave/hexclave": {
+    "category": "web",
+    "type": "application"
+  },
+  "HHHHHejia/Awesome-AgenticLLM-RL-Papers": {
+    "category": "models",
+    "type": "resource"
+  },
+  "higgsfield/RL-Adventure": {
+    "category": "models",
+    "type": "resource"
+  },
+  "himself65/finance-skills": {
+    "category": "quant",
+    "type": "skill"
+  },
+  "HKUDS/ClawWork": {
+    "category": "agents",
+    "type": "research"
+  },
+  "HKUDS/CLI-Anything": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "HKUDS/OpenSpace": {
+    "category": "agents",
+    "type": "application"
+  },
+  "HKUDS/Vibe-Trading": {
+    "category": "quant",
+    "type": "application"
+  },
+  "HKUSTDial/Supervisor-Skills": {
+    "category": "research",
+    "type": "skill"
+  },
+  "hotcoffeeshake/tong-jincheng-skill": {
+    "category": "learning",
+    "type": "skill"
+  },
+  "hsliuping/TradingAgents-CN": {
+    "category": "quant",
+    "type": "library"
+  },
+  "HUANGCHIHHUNGLeo/claude-real-video": {
+    "category": "creative",
+    "type": "cli"
+  },
+  "Huanshere/VideoLingo": {
+    "category": "creative",
+    "type": "application"
+  },
+  "huggingface/transformers": {
+    "category": "models",
+    "type": "library"
+  },
+  "hummingbot/hummingbot": {
+    "category": "quant",
+    "type": "application"
+  },
+  "huseinzol05/Stock-Prediction-Models": {
+    "category": "quant",
+    "type": "research"
+  },
+  "HVision-NKU/StoryDiffusion": {
+    "category": "creative",
+    "type": "research"
+  },
+  "iamsophie/deepseek-liang-wenfeng-investor-meeting": {
+    "category": "models",
+    "type": "resource"
+  },
+  "iamsrikanthnani/pluely": {
+    "category": "productivity",
+    "type": "application"
+  },
+  "ikostrikov/pytorch-a2c-ppo-acktr-gail": {
+    "category": "models",
+    "type": "research"
+  },
+  "Imbad0202/academic-research-skills": {
+    "category": "research",
+    "type": "skill"
+  },
+  "Imbad0202/academic-research-skills-codex": {
+    "category": "research",
+    "type": "skill"
+  },
+  "instructure/canvas-lms": {
+    "category": "learning",
+    "type": "application"
+  },
+  "isLinXu/Stanford-CS-Course": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "jackwener/xiaohongshu-cli": {
+    "category": "data",
+    "type": "cli"
+  },
+  "janishar/mit-deep-learning-book-pdf": {
+    "category": "models",
+    "type": "resource"
+  },
+  "je-suis-tm/quant-trading": {
+    "category": "quant",
+    "type": "research"
+  },
+  "JerBouma/FinanceDatabase": {
+    "category": "quant",
+    "type": "library"
+  },
+  "jiarui-liu/IdeaScientist": {
+    "category": "research",
+    "type": "research"
+  },
+  "JimLiu/baoyu-skills": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "jingyaogong/minimind": {
+    "category": "models",
+    "type": "resource"
+  },
+  "Jiyuan-Tan/CausalSmith": {
+    "category": "research",
+    "type": "research"
+  },
+  "JizhiXiang/Quant-Strategy": {
+    "category": "quant",
+    "type": "research"
+  },
+  "joeseesun/lexfridman-cn": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "Jon-Becker/prediction-market-analysis": {
+    "category": "quant",
+    "type": "library"
+  },
+  "js-cookie/js-cookie": {
+    "category": "web",
+    "type": "library"
+  },
+  "JuliusBrussee/caveman": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "JuneYaooo/nihaisha-nishi-tcm": {
+    "category": "learning",
+    "type": "skill"
+  },
+  "jupyter/notebook": {
+    "category": "devtools",
+    "type": "application"
+  },
+  "JushBJJ/Mr.-Ranedeer-AI-Tutor": {
+    "category": "learning",
+    "type": "skill"
+  },
+  "justjavac/free-programming-books-zh_CN": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "JustVugg/colibri": {
+    "category": "models",
+    "type": "cli"
+  },
+  "jwasham/coding-interview-university": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "K-Dense-AI/scientific-agent-skills": {
+    "category": "research",
+    "type": "skill"
+  },
+  "kabartay/openunivcourses": {
+    "category": "models",
+    "type": "resource"
+  },
+  "kaixindelele/ChatPaper": {
+    "category": "research",
+    "type": "application"
+  },
+  "karpathy/autoresearch": {
+    "category": "models",
+    "type": "research"
+  },
+  "karpathy/llm-council": {
+    "category": "agents",
+    "type": "application"
+  },
+  "karpathy/llm.c": {
+    "category": "models",
+    "type": "research"
+  },
+  "karpathy/LLM101n": {
+    "category": "models",
+    "type": "resource"
+  },
+  "karpathy/nanochat": {
+    "category": "models",
+    "type": "library"
+  },
+  "karpathy/nanoGPT": {
+    "category": "models",
+    "type": "library"
+  },
+  "karpathy/nn-zero-to-hero": {
+    "category": "models",
+    "type": "resource"
+  },
+  "kedro-org/kedro": {
+    "category": "data",
+    "type": "library"
+  },
+  "KellerJordan/modded-nanogpt": {
+    "category": "models",
+    "type": "research"
+  },
+  "KenneyNL/Adobe-Alternatives": {
+    "category": "creative",
+    "type": "resource"
+  },
+  "kepano/obsidian-skills": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "khoj-ai/khoj": {
+    "category": "agents",
+    "type": "application"
+  },
+  "kkk-bot/HowToGetAlong": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "KKKKhazix/AIHOT": {
+    "category": "data",
+    "type": "application"
+  },
+  "koala73/worldmonitor": {
+    "category": "data",
+    "type": "application"
+  },
+  "kourgeorge/arxiv-style": {
+    "category": "research",
+    "type": "library"
+  },
+  "krahets/hello-algo": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "krishnaik06/Complete-Data-Science-With-Machine-Learning-And-NLP-2024": {
+    "category": "models",
+    "type": "resource"
+  },
+  "krishnakumarsekar/awesome-quantum-machine-learning": {
+    "category": "models",
+    "type": "resource"
+  },
+  "kubai087/lumno-extension": {
+    "category": "productivity",
+    "type": "application"
+  },
+  "Kuberwastaken/claurst": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "Kuberwastaken/picogpt": {
+    "category": "models",
+    "type": "research"
+  },
+  "Kulbear/deep-learning-coursera": {
+    "category": "models",
+    "type": "resource"
+  },
+  "kxgallant/bwsi-comp-problem-solving": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "kxgallant/bwsi-intro-python": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "kyegomez/OpenMythos": {
+    "category": "models",
+    "type": "research"
+  },
+  "labmlai/annotated_deep_learning_paper_implementations": {
+    "category": "models",
+    "type": "resource"
+  },
+  "larashero3-dotcom/lieflat-charts": {
+    "category": "data",
+    "type": "skill"
+  },
+  "laurent22/joplin": {
+    "category": "productivity",
+    "type": "application"
+  },
+  "LearningCircuit/local-deep-research": {
+    "category": "research",
+    "type": "application"
+  },
+  "leestott/AI-For-Beginners": {
+    "category": "models",
+    "type": "resource"
+  },
+  "leestott/intro-Datascience": {
+    "category": "models",
+    "type": "resource"
+  },
+  "Leey21/awesome-ai-research-writing": {
+    "category": "research",
+    "type": "resource"
+  },
+  "Leonxlnx/taste-skill": {
+    "category": "web",
+    "type": "skill"
+  },
+  "letta-ai/claude-subconscious": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "lexfridman/mit-deep-learning": {
+    "category": "models",
+    "type": "resource"
+  },
+  "lfnovo/open-notebook": {
+    "category": "research",
+    "type": "application"
+  },
+  "linexjlin/GPTs": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "linshenkx/prompt-optimizer": {
+    "category": "agents",
+    "type": "application"
+  },
+  "linyqh/NarratoAI": {
+    "category": "creative",
+    "type": "application"
+  },
+  "liquidslr/system-design-notes": {
+    "category": "systems",
+    "type": "resource"
+  },
+  "liuhh02/game-theory-coursera": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "lixus7/Time-Series-Works-Conferences": {
+    "category": "models",
+    "type": "resource"
+  },
+  "lllyasviel/Fooocus": {
+    "category": "creative",
+    "type": "application"
+  },
+  "LLMQuant/quant-mind": {
+    "category": "quant",
+    "type": "library"
+  },
+  "londonappbrewery/Flutter-Course-Resources": {
+    "category": "web",
+    "type": "resource"
+  },
+  "Lordog/dive-into-llms": {
+    "category": "models",
+    "type": "resource"
+  },
+  "lukasz-madon/awesome-remote-job": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "luongnv89/claude-howto": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "luspr/awesome-ml-courses": {
+    "category": "models",
+    "type": "resource"
+  },
+  "LuxAlgo/Vela": {
+    "category": "quant",
+    "type": "library"
+  },
+  "lvy010/X-Plore": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "lwehbe/10606607_M20": {
+    "category": "models",
+    "type": "resource"
+  },
+  "madeleineudell/mse318": {
+    "category": "models",
+    "type": "resource"
+  },
+  "MahadMuhammad/FirstContributions": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "mahmoud/boltons": {
+    "category": "devtools",
+    "type": "library"
+  },
+  "manaflow-ai/cmux": {
+    "category": "devtools",
+    "type": "application"
+  },
+  "marin-community/marin": {
+    "category": "models",
+    "type": "library"
+  },
+  "marlesson/list_of_ml_competitions": {
+    "category": "models",
+    "type": "resource"
+  },
+  "Master-cai/Research-Paper-Writing-Skills": {
+    "category": "research",
+    "type": "skill"
+  },
+  "mattpocock/skills": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "max-sixty/worktrunk": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "maxim5/cs229-2018-autumn": {
+    "category": "models",
+    "type": "resource"
+  },
+  "maxim5/cs229-2019-summer": {
+    "category": "models",
+    "type": "resource"
+  },
+  "mcncarl/yichen-skills": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "mcp-use/mcp-use": {
+    "category": "agents",
+    "type": "library"
+  },
+  "MemPalace/mempalace": {
+    "category": "agents",
+    "type": "library"
+  },
+  "MeridianAlgo/Apex-Analysis": {
+    "category": "quant",
+    "type": "application"
+  },
+  "MeridianAlgo/Learn-Quant": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "mertizci/noai-watermark": {
+    "category": "creative",
+    "type": "cli"
+  },
+  "mezod/awesome-indie": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "microsoft/agent-lightning": {
+    "category": "models",
+    "type": "library"
+  },
+  "microsoft/ai-agents-for-beginners": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "microsoft/AI-For-Beginners": {
+    "category": "models",
+    "type": "resource"
+  },
+  "microsoft/autogen": {
+    "category": "agents",
+    "type": "library"
+  },
+  "microsoft/generative-ai-for-beginners": {
+    "category": "models",
+    "type": "resource"
+  },
+  "microsoft/markitdown": {
+    "category": "research",
+    "type": "cli"
+  },
+  "microsoft/ML-For-Beginners": {
+    "category": "models",
+    "type": "resource"
+  },
+  "microsoft/qlib": {
+    "category": "quant",
+    "type": "library"
+  },
+  "microsoft/QuantumKatas": {
+    "category": "research",
+    "type": "resource"
+  },
+  "microsoft/RD-Agent": {
+    "category": "research",
+    "type": "application"
+  },
+  "microsoft/tensorwatch": {
+    "category": "models",
+    "type": "library"
+  },
+  "microsoft/vscode": {
+    "category": "devtools",
+    "type": "application"
+  },
+  "mihail911/modern-software-dev-assignments": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "millengustavo/time-series-forecasting": {
+    "category": "models",
+    "type": "resource"
+  },
+  "MioMioOS/MioIsland": {
+    "category": "agents",
+    "type": "application"
+  },
+  "MisterBooo/LeetCodeAnimation": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "MIT-BWSI-CSS/bwsi-css-labs": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "MIT-MI/how2ai-course": {
+    "category": "models",
+    "type": "resource"
+  },
+  "miuuyy/codex-chatgpt-web": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "mlabonne/llm-course": {
+    "category": "models",
+    "type": "resource"
+  },
+  "mlc-ai/mlc-llm": {
+    "category": "models",
+    "type": "library"
+  },
+  "mlflow/mlflow": {
+    "category": "models",
+    "type": "application"
+  },
+  "mli/paper-reading": {
+    "category": "models",
+    "type": "resource"
+  },
+  "mml-book/mml-book.github.io": {
+    "category": "models",
+    "type": "resource"
+  },
+  "mohitzsh/ML-Interview": {
+    "category": "models",
+    "type": "resource"
+  },
+  "MoonshotAI/Kimi-K2.5": {
+    "category": "models",
+    "type": "model"
+  },
+  "morluto/rea": {
+    "category": "devtools",
+    "type": "skill"
+  },
+  "mostlygeek/llama-swap": {
+    "category": "models",
+    "type": "cli"
+  },
+  "motion-canvas/motion-canvas": {
+    "category": "creative",
+    "type": "library"
+  },
+  "mrdbourke/zero-to-mastery-ml": {
+    "category": "models",
+    "type": "resource"
+  },
+  "msitarzewski/agency-agents": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "multica-ai/andrej-karpathy-skills": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "MunGell/awesome-for-beginners": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "mvanhorn/last30days-skill": {
+    "category": "research",
+    "type": "skill"
+  },
+  "myhhub/stock": {
+    "category": "quant",
+    "type": "application"
+  },
+  "mynane/PDF": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "n8n-io/n8n": {
+    "category": "data",
+    "type": "application"
+  },
+  "NaiboWang/EasySpider": {
+    "category": "data",
+    "type": "application"
+  },
+  "NanmiCoder/MediaCrawler": {
+    "category": "data",
+    "type": "cli"
+  },
+  "nanocoai/nanoclaw": {
+    "category": "agents",
+    "type": "application"
+  },
+  "NationalSecurityAgency/ghidra": {
+    "category": "security",
+    "type": "application"
+  },
+  "nautechsystems/nautilus_trader": {
+    "category": "quant",
+    "type": "library"
+  },
+  "nayafia/lemonade-stand": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "Nearcyan/vibecraft": {
+    "category": "agents",
+    "type": "application"
+  },
+  "Neroued/ninfer": {
+    "category": "models",
+    "type": "library"
+  },
+  "Netflix/metaflow": {
+    "category": "models",
+    "type": "library"
+  },
+  "nextjs/saas-starter": {
+    "category": "web",
+    "type": "library"
+  },
+  "nextlevelbuilder/ui-ux-pro-max-skill": {
+    "category": "web",
+    "type": "skill"
+  },
+  "nexu-io/html-video": {
+    "category": "creative",
+    "type": "cli"
+  },
+  "nexu-io/open-design": {
+    "category": "web",
+    "type": "application"
+  },
+  "Nicolepcx/ai-agents-the-definitive-guide": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "nikhilbarhate99/PPO-PyTorch": {
+    "category": "models",
+    "type": "research"
+  },
+  "nilbuild/developer-roadmap": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "NirDiamant/agents-towards-production": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "NirDiamant/RAG_Techniques": {
+    "category": "models",
+    "type": "resource"
+  },
+  "nkaz001/hftbacktest": {
+    "category": "quant",
+    "type": "library"
+  },
+  "nodejs/node": {
+    "category": "devtools",
+    "type": "library"
+  },
+  "NoFxAiOS/nofx": {
+    "category": "quant",
+    "type": "application"
+  },
+  "Norman-bury/research-writing-skill": {
+    "category": "research",
+    "type": "skill"
+  },
+  "northwesternfintech/2027QuantInternships": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "NousResearch/hermes-agent": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "numerai/example-scripts": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "Nutlope/hallmark": {
+    "category": "web",
+    "type": "skill"
+  },
+  "NVIDIA/DeepLearningExamples": {
+    "category": "models",
+    "type": "research"
+  },
+  "NVIDIA/NemoClaw": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "NVIDIA/nvidia-docker": {
+    "category": "systems",
+    "type": "cli"
+  },
+  "NVIDIA/OpenShell": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "NVIDIA/SkillSpector": {
+    "category": "security",
+    "type": "cli"
+  },
+  "nvm-sh/nvm": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "nyldn/claude-octopus": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "obra/superpowers": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "Olanetsoft/awesome-hackathon-projects": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "Open-Dev-Society/OpenStock": {
+    "category": "quant",
+    "type": "application"
+  },
+  "open-multi-agent/open-multi-agent": {
+    "category": "agents",
+    "type": "library"
+  },
+  "openagents-org/openagents": {
+    "category": "agents",
+    "type": "application"
+  },
+  "openai/codex-plugin-cc": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "openai/evals": {
+    "category": "models",
+    "type": "library"
+  },
+  "openai/frontier-evals": {
+    "category": "models",
+    "type": "research"
+  },
+  "openai/openai-cookbook": {
+    "category": "models",
+    "type": "resource"
+  },
+  "openai/parameter-golf": {
+    "category": "models",
+    "type": "research"
+  },
+  "openai/php2shell-checker": {
+    "category": "security",
+    "type": "cli"
+  },
+  "openai/skills": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "openai/symphony": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "openai/whisper": {
+    "category": "creative",
+    "type": "model"
+  },
+  "OpenBMB/VoxCPM": {
+    "category": "creative",
+    "type": "model"
+  },
+  "openbq-org/OpenBB": {
+    "category": "quant",
+    "type": "library"
+  },
+  "openclaw/openclaw": {
+    "category": "agents",
+    "type": "application"
+  },
+  "OpenCut-app/OpenCut": {
+    "category": "creative",
+    "type": "application"
+  },
+  "opendilab/PPOxFamily": {
+    "category": "models",
+    "type": "resource"
+  },
+  "OpenHands/OpenHands": {
+    "category": "agents",
+    "type": "application"
+  },
+  "OpenPipe/ART": {
+    "category": "models",
+    "type": "library"
+  },
+  "Orchestra-Research/AI-Research-SKILLs": {
+    "category": "models",
+    "type": "skill"
+  },
+  "Osmantic/ODS": {
+    "category": "models",
+    "type": "application"
+  },
+  "ossamamehmood/Hacktoberfest": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "ossu/computer-science": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "p-e-w/heretic": {
+    "category": "models",
+    "type": "cli"
+  },
+  "pageman/sutskever-30-implementations": {
+    "category": "models",
+    "type": "resource"
+  },
+  "pallavi-shekhar/ai-engineering-interview-questions-company-wise": {
+    "category": "models",
+    "type": "resource"
+  },
+  "PandaAI-Tech/panda_factor": {
+    "category": "quant",
+    "type": "library"
+  },
+  "PandaAI-Tech/panda_quantflow": {
+    "category": "quant",
+    "type": "application"
+  },
+  "Panniantong/Agent-Reach": {
+    "category": "data",
+    "type": "cli"
+  },
+  "paperclipai/paperclip": {
+    "category": "agents",
+    "type": "application"
+  },
+  "PaperDebugger/paperdebugger": {
+    "category": "research",
+    "type": "skill"
+  },
+  "papers-we-love/papers-we-love": {
+    "category": "research",
+    "type": "resource"
+  },
+  "paperswithbacktest/awesome-systematic-trading": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "paperswithcode/ai-deadlines": {
+    "category": "research",
+    "type": "application"
+  },
+  "patchy631/ai-engineering-hub": {
+    "category": "models",
+    "type": "resource"
+  },
+  "PaulleDemon/Email-automation": {
+    "category": "data",
+    "type": "application"
+  },
+  "pbakaus/impeccable": {
+    "category": "web",
+    "type": "skill"
+  },
+  "pchandiwal-livongo/datascience_books": {
+    "category": "models",
+    "type": "resource"
+  },
+  "PDFMathTranslate/PDFMathTranslate": {
+    "category": "research",
+    "type": "application"
+  },
+  "pear-devs/pear-desktop": {
+    "category": "creative",
+    "type": "application"
+  },
+  "PennyLaneAI/pennylane": {
+    "category": "research",
+    "type": "library"
+  },
+  "PerfectlySoft/Perfect": {
+    "category": "web",
+    "type": "library"
+  },
+  "PeterGriffinJin/Search-R1": {
+    "category": "models",
+    "type": "research"
+  },
+  "petergyang/no-ai-slop": {
+    "category": "research",
+    "type": "skill"
+  },
+  "photon-hq/imessage-kit": {
+    "category": "productivity",
+    "type": "library"
+  },
+  "PKUFlyingPig/cs-self-learning": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "PKUFlyingPig/Self-learning-Computer-Science": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "PlamenStilyianov/FinMathematics": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "playcanvas/supersplat": {
+    "category": "creative",
+    "type": "application"
+  },
+  "PlexPt/awesome-chatgpt-prompts-zh": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "pliang279/awesome-multimodal-ml": {
+    "category": "models",
+    "type": "resource"
+  },
+  "pluja/awesome-privacy": {
+    "category": "security",
+    "type": "resource"
+  },
+  "pmndrs/react-three-fiber": {
+    "category": "web",
+    "type": "library"
+  },
+  "pmxt-dev/pmxt": {
+    "category": "quant",
+    "type": "library"
+  },
+  "Point72/csp": {
+    "category": "data",
+    "type": "library"
+  },
+  "Polymarket/py-clob-client": {
+    "category": "quant",
+    "type": "library"
+  },
+  "poteto/hiring-without-whiteboards": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "practical-tutorials/project-based-learning": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "probml/pml-book": {
+    "category": "models",
+    "type": "resource"
+  },
+  "Project-MONAI/MONAI": {
+    "category": "models",
+    "type": "library"
+  },
+  "prometheus/prometheus": {
+    "category": "systems",
+    "type": "application"
+  },
+  "promptfoo/promptfoo": {
+    "category": "models",
+    "type": "cli"
+  },
+  "ProsusAI/finBERT": {
+    "category": "quant",
+    "type": "model"
+  },
+  "public-apis/public-apis": {
+    "category": "devtools",
+    "type": "resource"
+  },
+  "PufferAI/PufferLib": {
+    "category": "models",
+    "type": "library"
+  },
+  "punkpeye/awesome-mcp-servers": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "PyPatel/Quant-Finance-Resources": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "pytorch/pytorch": {
+    "category": "models",
+    "type": "library"
+  },
+  "qeeqbox/social-analyzer": {
+    "category": "security",
+    "type": "cli"
+  },
+  "qiwsir/Math4ML_book": {
+    "category": "models",
+    "type": "resource"
+  },
+  "QuantConnect/Lean": {
+    "category": "quant",
+    "type": "library"
+  },
+  "quantopian/zipline": {
+    "category": "quant",
+    "type": "library"
+  },
+  "rajshah6/arXivisual": {
+    "category": "research",
+    "type": "application"
+  },
+  "ranaroussi/yfinance": {
+    "category": "quant",
+    "type": "library"
+  },
+  "rasbt/LLMs-from-scratch": {
+    "category": "models",
+    "type": "resource"
+  },
+  "ray-project/ray": {
+    "category": "models",
+    "type": "library"
+  },
+  "redis/redis": {
+    "category": "data",
+    "type": "application"
+  },
+  "remoteintech/remote-jobs": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "richards199999/Thinking-Claude": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "ripienaar/free-for-dev": {
+    "category": "systems",
+    "type": "resource"
+  },
+  "roboflow/supervision": {
+    "category": "models",
+    "type": "library"
+  },
+  "Rockyzsu/stock": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "rohitg00/agentmemory": {
+    "category": "agents",
+    "type": "library"
+  },
+  "rohitg00/ai-engineering-from-scratch": {
+    "category": "models",
+    "type": "resource"
+  },
+  "romanmichaelpaolucci/Quant-Guild-Library": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "rosemarycox5334-debug/AlphaMaster": {
+    "category": "quant",
+    "type": "application"
+  },
+  "rosemarycox5334-debug/Detect_support_and_resistance_levels": {
+    "category": "quant",
+    "type": "library"
+  },
+  "rosemarycox5334-debug/PA_Agent": {
+    "category": "quant",
+    "type": "application"
+  },
+  "router-for-me/CLIProxyAPI": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "rowboatlabs/rowboat": {
+    "category": "agents",
+    "type": "application"
+  },
+  "rtk-ai/rtk": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "ruucm/shadergradient": {
+    "category": "web",
+    "type": "library"
+  },
+  "ruvnet/ruflo": {
+    "category": "agents",
+    "type": "library"
+  },
+  "ruvnet/RuView": {
+    "category": "systems",
+    "type": "application"
+  },
+  "RyanCodrai/turbovec": {
+    "category": "data",
+    "type": "library"
+  },
+  "SakanaAI/AI-Scientist": {
+    "category": "research",
+    "type": "research"
+  },
+  "SakanaAI/AI-Scientist-v2": {
+    "category": "research",
+    "type": "research"
+  },
+  "SakanaAI/AI-Scientist-v3": {
+    "category": "research",
+    "type": "research"
+  },
+  "SakanaAI/AutoIllustrate": {
+    "category": "research",
+    "type": "application"
+  },
+  "sansan0/TrendRadar": {
+    "category": "data",
+    "type": "application"
+  },
+  "scaleapi/scale-agentex": {
+    "category": "agents",
+    "type": "library"
+  },
+  "scikit-learn/scikit-learn": {
+    "category": "models",
+    "type": "library"
+  },
+  "SciPhi-AI/R2R": {
+    "category": "models",
+    "type": "library"
+  },
+  "ScrapeGraphAI/Scrapegraph-ai": {
+    "category": "data",
+    "type": "library"
+  },
+  "sdmg15/Best-websites-a-programmer-should-visit": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "SeemSeam/claude_codex_bridge": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "shadcn/improve": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "ShadeAlsha/MathNet": {
+    "category": "models",
+    "type": "research"
+  },
+  "shanraisshan/claude-code-best-practice": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "shareAI-lab/learn-claude-code": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "SharifiZarchi/Introduction_to_Machine_Learning": {
+    "category": "models",
+    "type": "resource"
+  },
+  "shervinea/stanford-cme-102-ordinary-differential-equations": {
+    "category": "research",
+    "type": "resource"
+  },
+  "shervinea/stanford-cme-106-probability-and-statistics": {
+    "category": "research",
+    "type": "resource"
+  },
+  "shiyu-coder/Kronos": {
+    "category": "quant",
+    "type": "model"
+  },
+  "Shubhamsaboo/awesome-llm-apps": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "sickcodes/Docker-OSX": {
+    "category": "systems",
+    "type": "cli"
+  },
+  "sickn33/agentic-awesome-skills": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "Significant-Gravitas/AutoGPT": {
+    "category": "agents",
+    "type": "application"
+  },
+  "simonlin1212/Vibe-Research": {
+    "category": "quant",
+    "type": "application"
+  },
+  "simular-ai/Agent-S": {
+    "category": "agents",
+    "type": "library"
+  },
+  "sindresorhus/awesome": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "sipeed/picoclaw": {
+    "category": "agents",
+    "type": "application"
+  },
+  "sktime/pytorch-forecasting": {
+    "category": "models",
+    "type": "library"
+  },
+  "slidevjs/slidev": {
+    "category": "research",
+    "type": "cli"
+  },
+  "Snailclimb/JavaGuide": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "speedyapply/2027-AI-College-Jobs": {
+    "category": "models",
+    "type": "resource"
+  },
+  "stackedlol/ascii-sharks": {
+    "category": "web",
+    "type": "library"
+  },
+  "stanford-oval/storm": {
+    "category": "research",
+    "type": "application"
+  },
+  "stanfordmlgroup/ngboost": {
+    "category": "models",
+    "type": "library"
+  },
+  "stanfordnlp/stanza": {
+    "category": "models",
+    "type": "library"
+  },
+  "state-spaces/mamba": {
+    "category": "models",
+    "type": "library"
+  },
+  "statsmodels/statsmodels": {
+    "category": "models",
+    "type": "library"
+  },
+  "stefan-jansen/machine-learning-for-trading": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "Stirling-Tools/Stirling-PDF": {
+    "category": "research",
+    "type": "application"
+  },
+  "StockSharp/StockSharp": {
+    "category": "quant",
+    "type": "library"
+  },
+  "storytold/artcraft": {
+    "category": "creative",
+    "type": "application"
+  },
+  "storytold/photocraft": {
+    "category": "creative",
+    "type": "application"
+  },
+  "strib/scigen": {
+    "category": "research",
+    "type": "cli"
+  },
+  "strongloop/loopback": {
+    "category": "web",
+    "type": "library"
+  },
+  "SUFE-AIFLM-Lab/Fin-R1": {
+    "category": "quant",
+    "type": "model"
+  },
+  "Superalgos/Superalgos": {
+    "category": "quant",
+    "type": "application"
+  },
+  "superdesigndev/treg": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "SWE-agent/SWE-agent": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "TacoSkill/Skillbolt": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "tangyudi/Ai-Learn": {
+    "category": "models",
+    "type": "resource"
+  },
+  "tanweai/pua": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "TapXWorld/ChinaTextbook": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "tatsu-lab/stanford_alpaca": {
+    "category": "models",
+    "type": "library"
+  },
+  "TauricResearch/TradingAgents": {
+    "category": "quant",
+    "type": "library"
+  },
+  "Tencent/AI-Infra-Guard": {
+    "category": "security",
+    "type": "application"
+  },
+  "teng-lin/notebooklm-py": {
+    "category": "research",
+    "type": "library"
+  },
+  "tengbao/vanta": {
+    "category": "web",
+    "type": "library"
+  },
+  "tensorflow/tensorflow": {
+    "category": "models",
+    "type": "library"
+  },
+  "teresaz05/librarian-agents": {
+    "category": "agents",
+    "type": "research"
+  },
+  "TheAlgorithms/Python": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "TheBlewish/Automated-AI-Web-Researcher-Ollama": {
+    "category": "research",
+    "type": "application"
+  },
+  "thedotmack/claude-mem": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "therealXiaomanChu/ex-skill": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "thinkwee/AgentsMeetRL": {
+    "category": "models",
+    "type": "resource"
+  },
+  "thirdlayerinc/autoagent": {
+    "category": "agents",
+    "type": "library"
+  },
+  "THU-MAIC/OpenMAIC": {
+    "category": "learning",
+    "type": "application"
+  },
+  "thuml/Time-Series-Library": {
+    "category": "models",
+    "type": "library"
+  },
+  "timlrx/tailwind-nextjs-starter-blog": {
+    "category": "web",
+    "type": "library"
+  },
+  "tinyhumansai/openhuman": {
+    "category": "agents",
+    "type": "application"
+  },
+  "tirth8205/code-review-graph": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "titanwings/distilly": {
+    "category": "productivity",
+    "type": "skill"
+  },
+  "tmux/tmux": {
+    "category": "devtools",
+    "type": "cli"
+  },
+  "tobi/qmd": {
+    "category": "productivity",
+    "type": "cli"
+  },
+  "toeverything/AFFiNE": {
+    "category": "productivity",
+    "type": "application"
+  },
+  "tradingview/lightweight-charts": {
+    "category": "quant",
+    "type": "library"
+  },
+  "treeverse/dvc": {
+    "category": "data",
+    "type": "cli"
+  },
+  "TrenTorch/TrenTorch": {
+    "category": "models",
+    "type": "resource"
+  },
+  "trimstray/the-book-of-secret-knowledge": {
+    "category": "systems",
+    "type": "resource"
+  },
+  "trycua/cua": {
+    "category": "agents",
+    "type": "library"
+  },
+  "TryGhost/Ghost": {
+    "category": "web",
+    "type": "application"
+  },
+  "trykimu/videoeditor": {
+    "category": "creative",
+    "type": "application"
+  },
+  "tt-a1i/archify": {
+    "category": "web",
+    "type": "skill"
+  },
+  "tw93/Waza": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "typst/typst": {
+    "category": "research",
+    "type": "cli"
+  },
+  "uditgoenka/autoresearch": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "UFund-Me/Qbot": {
+    "category": "quant",
+    "type": "application"
+  },
+  "ujjwalkarn/Machine-Learning-Tutorials": {
+    "category": "models",
+    "type": "resource"
+  },
+  "ultraworkers/claw-code": {
+    "category": "agents",
+    "type": "application"
+  },
+  "undergroundwires/privacy.sexy": {
+    "category": "security",
+    "type": "application"
+  },
+  "unslothai/unsloth": {
+    "category": "models",
+    "type": "application"
+  },
+  "usestrix/strix": {
+    "category": "security",
+    "type": "cli"
+  },
+  "Vincentwei1021/video-shotcraft": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "virattt/ai-hedge-fund": {
+    "category": "quant",
+    "type": "application"
+  },
+  "virattt/dexter": {
+    "category": "quant",
+    "type": "application"
+  },
+  "Visualize-ML/Linear-Algebra-Made-Easy---Learn-with-Python-and-Visualization": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "VITA-Group/Open-L2O": {
+    "category": "models",
+    "type": "research"
+  },
+  "vllm-project/agentic-api": {
+    "category": "agents",
+    "type": "library"
+  },
+  "vnpy/vnpy": {
+    "category": "quant",
+    "type": "library"
+  },
+  "volcengine/OpenViking": {
+    "category": "agents",
+    "type": "library"
+  },
+  "VoltAgent/awesome-agent-skills": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "VoltAgent/awesome-design-md": {
+    "category": "web",
+    "type": "resource"
+  },
+  "VoltAgent/awesome-openclaw-skills": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "voyager-crew/voyager": {
+    "category": "agents",
+    "type": "application"
+  },
+  "vukrosic/become-elite-ai-researcher": {
+    "category": "models",
+    "type": "resource"
+  },
+  "vxcontrol/pentagi": {
+    "category": "security",
+    "type": "application"
+  },
+  "walkinglabs/hands-on-modern-rl": {
+    "category": "models",
+    "type": "resource"
+  },
+  "walkinglabs/learn-harness-engineering": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "walkinglabs/self-improving-agent-notebook": {
+    "category": "agents",
+    "type": "resource"
+  },
+  "walter201230/Python": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "wangzhe3224/awesome-systematic-trading": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "warpdotdev/warp": {
+    "category": "agents",
+    "type": "application"
+  },
+  "wasp-lang/open-saas": {
+    "category": "web",
+    "type": "library"
+  },
+  "Wei-Shaw/sub2api": {
+    "category": "agents",
+    "type": "application"
+  },
+  "wheresryan22/anatomy": {
+    "category": "creative",
+    "type": "skill"
+  },
+  "white0dew/XiaohongshuSkills": {
+    "category": "data",
+    "type": "skill"
+  },
+  "WHUFT/ML-Quantamental": {
+    "category": "quant",
+    "type": "research"
+  },
+  "wide-trace/open-higgsfield": {
+    "category": "creative",
+    "type": "application"
+  },
+  "wilsonfreitas/awesome-quant": {
+    "category": "quant",
+    "type": "resource"
+  },
+  "WUBING2023/PaperSpine": {
+    "category": "research",
+    "type": "application"
+  },
+  "x1xhlol/system-prompts-and-models-of-ai-tools": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "xai-org/grok-build": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "xdash/FDE-the-Guidance-Book-of-Forward-Deployed-Engineer": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "xdworks/naval": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "xiaolai/the-craft-of-selfteaching": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "XiaomingX/ai-money-maker-handbook": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "xingjian-bai/opal": {
+    "category": "models",
+    "type": "research"
+  },
+  "xiyuanzh/time-series-papers": {
+    "category": "models",
+    "type": "resource"
+  },
+  "xpzouying/xiaohongshu-mcp": {
+    "category": "data",
+    "type": "skill"
+  },
+  "yangshun/tech-interview-handbook": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "yanirs/established-remote": {
+    "category": "learning",
+    "type": "resource"
+  },
+  "yc-software/qm": {
+    "category": "agents",
+    "type": "application"
+  },
+  "Yeachan-Heo/gajae-code": {
+    "category": "agents",
+    "type": "cli"
+  },
+  "Yeachan-Heo/oh-my-codex": {
+    "category": "agents",
+    "type": "skill"
+  },
+  "yetone/magpie": {
+    "category": "agents",
+    "type": "application"
+  },
+  "yifanzhang-pro/recurrent-looped-tranformer": {
+    "category": "models",
+    "type": "research"
+  },
+  "yikart/AiToEarn": {
+    "category": "data",
+    "type": "application"
+  },
+  "YingfanWang/PaCMAP": {
+    "category": "models",
+    "type": "library"
+  },
+  "YishenTu/claudian": {
+    "category": "productivity",
+    "type": "application"
+  },
+  "yt-dlp/yt-dlp": {
+    "category": "creative",
+    "type": "cli"
+  },
+  "ytdl-org/youtube-dl": {
+    "category": "creative",
+    "type": "cli"
+  },
+  "Yuan1z0825/nature-skills": {
+    "category": "research",
+    "type": "skill"
+  },
+  "YuJunZhiXue/dsh-purge": {
+    "category": "security",
+    "type": "skill"
+  },
+  "yunjey/pytorch-tutorial": {
+    "category": "models",
+    "type": "resource"
+  },
+  "yutiansut/QUANTAXIS": {
+    "category": "quant",
+    "type": "application"
+  },
+  "zarazhangrui/frontend-slides": {
+    "category": "research",
+    "type": "skill"
+  },
+  "zeroclaw-labs/zeroclaw": {
+    "category": "agents",
+    "type": "application"
+  },
+  "zhouyuanzhe/machine_learning_beginner": {
+    "category": "models",
+    "type": "resource"
+  },
+  "ZhuLinsen/daily_stock_analysis": {
+    "category": "quant",
+    "type": "application"
+  },
+  "Zie619/n8n-workflows": {
+    "category": "data",
+    "type": "resource"
+  },
+  "zLanqing/codex-claude-academic-skills": {
+    "category": "research",
+    "type": "skill"
+  }
+}
