@@ -95,7 +95,10 @@ test('static route includes every repo without JavaScript and excludes authoring
   assert.equal([...html.matchAll(/class="repo-type-group"/g)].length,catalog.types.length);
   assert.match(html,/<h2 id="type-heading-application">Applications/);
   assert.match(html,/<h3 id="type-application-pile-[^"]+-heading">/);
-  assert.deepEqual((await readdir(resolve(target,'github/stars'))).sort(),['index.html','model.js','render.mjs','stars.css','stars.js','stars.json']);
+  const files=await readdir(resolve(target,'github/stars'));
+  for(const file of ['index.html','model.js','render.mjs','stars.css','stars.js','stars.json','research']) assert.ok(files.includes(file));
+  assert.ok(!files.some(file=>/^(?:data|scripts|tests|research-stack\.json|research-essentials\.json)$/.test(file)));
+  assert.match(html,/href="\/github\/stars\/research\/"/);
 });
 
 test('star library is discoverable from detail pages and both captured homepage menus', async () => {

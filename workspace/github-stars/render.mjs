@@ -19,9 +19,11 @@ export const TYPE_DESCRIPTIONS = Object.freeze({
   model:'Models and datasets, grouped by the problems they address.',
   research:'Research implementations and experiments, organized by field and purpose.',
 });
-export function repoRow(repo,types) {
+export function repoRow(repo,types,{research=false}={}) {
   const type = types.find(type => type.id === repo.type)?.label || repo.type;
-  return `<li class="repo-row"><div class="repo-copy"><a class="repo-name" href="${escape(repo.url)}" target="_blank" rel="noopener noreferrer"><span class="repo-owner">${escape(repo.full_name.split('/')[0])} / </span><span>${escape(repo.name)}</span>${arrow}</a><p dir="auto">${escape(repo.description || 'No description provided on GitHub.')}</p><div class="repo-meta"><span>${escape(repo.language || 'Language unspecified')}</span><span class="repo-stars">${star}${repo.stars.toLocaleString('en-US')}<span class="sr-only"> GitHub stars</span></span>${repo.archived ? '<span class="archived">Archived</span>' : ''}${repo.topics.slice(0,2).map(topic => `<span class="repo-topic">${escape(topic)}</span>`).join('')}</div></div><span class="repo-type">${escape(type)}</span></li>`;
+  const source=research?`<span class="research-source ${repo.source==='starred'?'is-starred':'is-essential'}">${repo.source==='starred'?'Starred':'Suggested essential'}</span>`:'';
+  const note=research&&repo.note?`<p class="research-use">${escape(repo.note)}</p>`:'';
+  return `<li class="repo-row"><div class="repo-copy"><a class="repo-name" href="${escape(repo.url)}" target="_blank" rel="noopener noreferrer"><span class="repo-owner">${escape(repo.full_name.split('/')[0])} / </span><span>${escape(repo.name)}</span>${arrow}</a><p dir="auto">${escape(repo.description || 'No description provided on GitHub.')}</p>${note}<div class="repo-meta">${source}<span>${escape(repo.language || 'Language unspecified')}</span><span class="repo-stars">${star}${repo.stars.toLocaleString('en-US')}<span class="sr-only"> GitHub stars</span></span>${repo.archived ? '<span class="archived">Archived</span>' : ''}${repo.topics.slice(0,2).map(topic => `<span class="repo-topic">${escape(topic)}</span>`).join('')}</div></div><span class="repo-type">${escape(type)}</span></li>`;
 }
 
 export function renderTypeGroups(groups,types,{overview=false,limits={},staticContent=false}={}) {

@@ -77,3 +77,19 @@ Repository rows are unboxed. Type badges and select fields have thin borders and
 - Extend the shared typography, navigation, colors, and backdrop when changing this route.
 - Preserve open rows, thin dividers, wrapping text, and complete static HTML.
 - Avoid turning repositories into image cards or adding a competing visual identity.
+
+## Research Stack extension
+
+All Stars remains the default collection. A ruled **All Stars / Research Stack** navigation marks the current view with lavender text and an underline. Research Stack extends the same local fonts, midnight-purple palette, open rows, and thin dividers; it adds no raster assets. Its directory tree, breadcrumbs, and child-folder rows link to 21 real HTML routes under `/github/stars/research/`: the root, three parent folders, and 17 leaf folders.
+
+- **General research:** Read papers & manage sources; Code & analyze data; Run experiments & reproduce results; Write, visualize & present.
+- **AI & machine learning:** Statistics & classical ML; Deep learning & training; Computer vision; Natural language processing; Transformers & architectures; Datasets & evaluation; Time series & forecasting; Reinforcement learning.
+- **Finance, econometrics & quant:** Market data & financial research; Econometrics; Portfolio construction & risk; Backtesting & trading; Financial machine learning.
+
+Folder membership may overlap. Counts show each repository once within a folder and its descendants, so sibling counts need not add to their parent. The initial collection has 326 unique tools: 317 starred repositories and nine suggested essentials. Rows retain their type badge and metadata, add a **Starred** or **Suggested essential** source badge, and show a lavender research-use note when one is supplied. The legend explains both sources; suggested essentials remain outside All Stars and its count.
+
+On desktop, a sticky, independently scrollable 255px directory sits beside the contents with a 50px gap. At 1180px the directory narrows to 230px and the gap to 30px. The root title reaches 96px; folder titles reach 64px. At 800px the layout becomes one column and the directory becomes a native **Browse folders** disclosure, collapsed initially after JavaScript loads. At 520px the introduction stacks, the root title is 72px, and folder titles are 36px; Type and Language share a row above Sort. Native branch disclosures support keyboard activation, visible focus, selected-ancestor emphasis, and links to each parent's complete contents. The selected branch opens initially; the root starts with General research open. Without JavaScript the outer directory remains open and every folder's complete tool list is available.
+
+Enhanced folder lists start with 36 tools; **Show more** adds up to 36 and focuses the first newly exposed repository. Search matches every term across names, descriptions, language, topics, and research-use notes. Type and Language filters accompany Recently starred, Most GitHub stars, Recently updated, and Name A–Z sorting. Non-default query state is stored in the URL and carried through folder links. Polite live counts, Clear search, Reset filters, and an empty-state recovery action support exploration; a loading failure leaves the complete static list visible. Reduced-motion preferences remove chevron transitions.
+
+Folder structure, membership, and research-use notes stay in the curated source manifest. The manual metadata refresh uses stable GitHub repository IDs for suggested essentials, preserves that manifest, and replaces the cache only after all requests succeed. Each page displays the metadata-check date and offers the research snapshot download.
