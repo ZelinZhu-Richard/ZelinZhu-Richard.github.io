@@ -18,7 +18,8 @@ EXPECTED = {
     'kun': {'side': (5, 194, 1254, 569), 'top': (1223, 21, 1632, 731), 'front': (1624, 190, 2067, 531)},
     'peng': {'top': (6, 14, 1760, 555), 'front': (0, 518, 1085, 849), 'side': (1118, 540, 1773, 852)},
 }
-THRESHOLDS = {'kun': {'side': .80, 'top': .75, 'front': .70}, 'peng': {'top': .75}}
+# Richard's recorded decision: Kun front is by eye only; no front score gate.
+THRESHOLDS = {'kun': {'side': .70, 'top': .75}, 'peng': {'top': .75}}
 BG = {'kun': (155, 156, 158), 'peng': (176, 175, 175)}
 
 
@@ -231,9 +232,13 @@ def render(asset, engine):
     links.new(fin_emission.outputs[0], mix.inputs[2])
     links.new(mix.outputs[0], fin_output.inputs['Surface'])
     # -X makes forward -Y read head-right. No score-tuned angle or projection.
-    orientations = {'side': Vector((-1, 0, 0)), 'top': Vector((0, 0, 1)), 'front': Vector((0, -1, 0))}
-    views = ['side', 'top', 'front'] if asset == 'kun' else ['top', 'side']
+    elevation = math.radians(25)
+    orientations = {'side': Vector((-1, 0, 0)), 'top': Vector((0, 0, 1)), 'front': Vector((0, -1, 0)),
+                    'three-quarter': Vector((-math.cos(elevation) / math.sqrt(2),
+                                             -math.cos(elevation) / math.sqrt(2), math.sin(elevation)))}
+    views = ['side', 'top', 'front', 'three-quarter'] if asset == 'kun' else ['top', 'side']
     for view in views:
+        camera_data.type = 'ORTHO'
         camera.location = center + orientations[view] * 30
         common.look_at(camera, center)
         if view == 'top':
@@ -242,6 +247,14 @@ def render(asset, engine):
         projected = [inverse @ (point - center) for point in points]
         extent = max(max(point[i] for point in projected) - min(point[i] for point in projected) for i in (0, 1))
         camera_data.ortho_scale = extent * 1.08
+        if view == 'three-quarter':
+            # Added by Richard: a by-eye perspective preview, never scored.
+            camera_data.type = 'PERSP'
+            camera_data.angle = math.radians(42)
+            tan_half = math.tan(camera_data.angle / 2)
+            distance = max(max(abs(point.x), abs(point.y)) / tan_half + point.z for point in projected) * 1.08
+            camera.location = center + orientations[view] * distance
+            common.look_at(camera, center)
         scene.render.film_transparent = False
         for obj in meshes:
             obj.data.materials.clear()
@@ -249,6 +262,9 @@ def render(asset, engine):
                 obj.data.materials.append(material)
         scene.render.filepath = str(OUT / 'raw' / f'{asset}-{view}-preview.png')
         bpy.ops.render.render(write_still=True)
+        if view == 'three-quarter':
+            bpy.data.images['Render Result'].save_render(str(OUT / f'{asset}-three-quarter.png'), scene=scene)
+            continue
         for obj in meshes:
             obj.data.materials.clear()
             is_fin = any(mat.name.startswith('kun_fin') for mat in original_materials[obj.name])
@@ -261,6 +277,8 @@ def render(asset, engine):
         'dirty': bool(git('status', '--porcelain')), 'engine': engine, 'exitCode': 0,
         'seconds': round(time.monotonic() - started, 3), 'views': views,
         'resolution': 1024, 'cameraFitPadding': 1.08,
+        'previewCameras': {'three-quarter': {'projection': 'perspective', 'azimuthFromFrontDegrees': -45,
+                                            'elevationDegrees': 25, 'fovDegrees': 42}} if asset == 'kun' else {},
     }
     (OUT / 'raw' / f'{asset}-render.json').write_text(json.dumps(entry, indent=2) + '\n')
     filename = ROOT / '_dev/build/asset-stats.json'

@@ -125,15 +125,14 @@ subdivision.levels = 1
 bpy.context.view_layer.objects.active = body
 bpy.ops.object.modifier_apply(modifier=subdivision.name)
 
-# A thin, low crest follows the spine. Its one slim spike is a local increase
-# in the crest height, not a volumetric bump in the body cross-section.
+# Only a thin, low crest follows the spine; no spike or displaced body hump.
 ridge_vertices, ridge_faces, ridge_uvs = [], [], []
 RIDGE_LOOPS = 81
 for i in range(RIDGE_LOOPS):
     y = -3.35 + 5.8 * i / (RIDGE_LOOPS - 1)
     _, top, _ = profile(y)
     taper = math.sin(math.pi * i / (RIDGE_LOOPS - 1)) ** .5
-    height = .055 * taper + .44 * math.exp(-((y + .95) / .12) ** 2)
+    height = .055 * taper
     half_width = .022 * taper + .002
     ridge_vertices.extend([
         (-half_width, y, top - .025), (half_width, y, top - .025),
@@ -150,40 +149,39 @@ common.mesh('kun_dorsal_ridge', ridge_vertices, ridge_faces, skin, ridge_uvs)
 
 
 def fin(name, sign, upper):
-    # s, leading y, trailing y. Preserve a broad chord while placing each
-    # pair in its own plane; dihedral is measured from the transverse horizontal.
-    sections = np.array([
-        [0, -2.20, -.10], [.18, -2.20, .20], [.38, -2.00, .75],
-        [.60, -1.30, 1.15], [.80, -.60, 1.60], [1, .80, 1.00],
-    ] if upper else [
-        [0, -1.96, .12], [.18, -1.65, .80], [.38, -1.20, 1.65],
-        [.60, -.60, 2.35], [.80, .25, 2.75], [1, 1.75, 1.92],
-    ])
+    # Broad, thin leaf sheets: the centerline sweeps toward the tail, with
+    # dihedral about the longitudinal axis rather than a deep downward paddle.
+    widths = np.array([[0, 1.04], [.20, 2.65], [.40, 3.40],
+                       [.60, 2.80], [.80, 1.50], [1, .03]])
     span, chord = 36, 14
     points, polygons, coordinates = [], [], []
-    reach = 2.14 if upper else 2.50
-    root = 1.05 if upper else 1.10
-    root_z = .62 if upper else -.62
-    dihedral = math.radians(30 if upper else -55)
+    root_x = 1.03 if upper else 1.00
+    root_y = -1.44 if upper else -.92  # 40% / 45%; chord roots ±5% L.
+    root_z = .66 if upper else -.65
+    aft_reach = 2.20 - root_y  # Ends near 75% L from the snout.
+    sweep = math.radians(60 if upper else 55)
+    transverse_reach = aft_reach / math.tan(sweep)
+    dihedral = math.radians(15 if upper else -20)
+    rise = transverse_reach * math.tan(dihedral)
+    axis = Vector((sign * transverse_reach, aft_reach, rise)).normalized()
     for i in range(span + 1):
         s = i / span
-        lead, trail = [float(np.interp(s, sections[:, 0], sections[:, col])) for col in (1, 2)]
+        width = float(np.interp(s, widths[:, 0], widths[:, 1]))
+        # Rodrigues rotation adds 25 degrees of twist from root to tip.
+        angle = sign * math.radians(25) * s
+        base_chord = Vector((0, 1, 0))
+        chord_direction = (base_chord * math.cos(angle) + axis.cross(base_chord) * math.sin(angle)
+                           + axis * axis.dot(base_chord) * (1 - math.cos(angle)))
+        normal = axis.cross(chord_direction).normalized()
+        if normal.z < 0:
+            normal = -normal
         for j in range(chord + 1):
             c = j / chord
             cut = (.065 * math.sin(49 * s) + .045 * math.sin(101 * s + .7)) * s ** .7 * c ** 6
-            x = sign * (root + reach * s * math.cos(dihedral))
-            y = lead * (1 - c) + trail * c + cut
-            z = root_z + reach * s * math.sin(dihedral)
-            camber = .10 * math.sin(math.pi * c) * math.sin(math.pi * s)
-            if upper:
-                # Outer third curls upward beyond the base 30-degree dihedral.
-                curl = .28 * max(0, (s - 2 / 3) * 3) ** 2
-                twist = -.40 * math.sin(math.pi * s) * c
-            else:
-                curl = 0
-                # Chordwise roll gives the steep lower fin a broad frontal fan.
-                twist = .75 * math.sin(math.pi * s) * (c - .5)
-            points.append((x, y, z + camber + twist + curl))
+            center = Vector((sign * (root_x + transverse_reach * s), root_y + aft_reach * s, root_z + rise * s))
+            camber = (.16 if upper else -.16) * math.sin(math.pi * c) * math.sin(math.pi * s)
+            point = center + chord_direction * ((c - .5) * width + cut) + normal * camber
+            points.append(tuple(point))
     for i in range(span):
         for j in range(chord):
             a = i * (chord + 1) + j
@@ -297,10 +295,13 @@ common.record('kun', {
     'engine': ARGS.engine, 'exitCode': 0, 'blenderVersion': bpy.app.version_string,
     'finAlpha': {'white': .43, 'ink': 1.0, 'edge': 'two-pixel alpha feather on geometry contour'},
     'geometryReview': {
-        'upperDihedralDegrees': 30, 'upperOuterThirdCurl': .28,
-        'lowerDihedralDegrees': -55, 'lowerRootBodyFractions': [.35, .55],
+        'upperDihedralDegrees': 15, 'upperSweepDegrees': 60,
+        'lowerDihedralDegrees': -20, 'lowerSweepDegrees': 55,
+        'upperRootBodyFractions': [.35, .45], 'lowerRootBodyFractions': [.40, .50],
+        'finTipBodyFraction': .75, 'finTwistDegrees': 25, 'finCupDepth': .16,
+        'finMaxChord': 3.40,
         'bodyLength': 10.4, 'dorsalRidgeHalfWidth': .022,
-        'dorsalRidgeHeight': .055, 'dorsalSpikeExtraHeight': .44,
+        'dorsalRidgeHeight': .055, 'dorsalSpikeExtraHeight': 0,
         'eyeY': -4.05, 'eyePhiDegrees': math.degrees(1.47),
     },
 })

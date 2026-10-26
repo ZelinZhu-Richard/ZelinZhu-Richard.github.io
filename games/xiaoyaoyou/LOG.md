@@ -112,3 +112,38 @@ One build and one three-view remeasurement for this correction pass, then stop a
 - Widen/rework the narrow landscape band on the body.
 
 The above are Richard's explicitly deferred M2 issues; they are not addressed by this geometry correction and do not imply M1 approval.
+
+## M1 one-pass remeasurement — awaiting Richard (2026-10-26, commit 991ac176e1078e140d6e3f7ecd2175cc4c850632)
+
+Exactly one geometry build and one side/top/front render set were run for Richard's five instructions. Stopped after measuring and opening all three overlays. M1 is **not approved and remains unticked**. No additional geometry or texture correction after seeing these results.
+
+| View | Previous IoU | New IoU | Threshold | Result | Evidence |
+|---|---:|---:|---:|---|---|
+| side | 0.6351 | **0.6259** | ≥0.80 | **FAIL** | `_dev/silhouette/kun-side.png` |
+| top | 0.7640 | **0.7662** | ≥0.75 | **PASS** | `_dev/silhouette/kun-top.png` |
+| front | 0.4556 | **0.4282** | ≥0.70 | **FAIL** | `_dev/silhouette/kun-front.png` |
+
+The new silhouette JSON and render metadata both identify clean commit 991ac17 with `dirty: false`. The unchanged `tools/silhouette.py` generated all evidence; no camera, reference, scoring, blur or normalization changes. Side and front scores declined; no pass claimed. Browser: n/a for M1.
+
+Geometry checks and observations:
+1. The former broad .80-unit Gaussian body hump is removed entirely. A separate thin spinal strip has base height .055 and half-width .022, with one localized .44-unit slim spike. The loft's dorsal dimensions are otherwise unchanged. The spike reads very thin in the front render; Richard must judge its shape.
+2. Upper fin dihedral is 30°, with .28-unit upward curl confined to the outer third. Transverse reach of each upper fin reduces from 2.14 to 1.853 units while retaining a broad longitudinal chord. The raised upper sheet is visible above the back in side view. Front projection still does not match the reference's broad upper fans.
+3. Lower roots are y=−1.96…+.12, exactly 35–55% of the 10.4-unit body length from y=−5.6 at the snout. Fin centerline dihedral is −55°, with aft sweep and a broad longitudinal sheet (midspan chord about 3 units). **Visual target remains unmet:** they still read too narrow/blade-like from the front, despite the broad axial chord. The side outline is still too deep.
+4. Ventral profile is locally deepened by .13–.28 units in the front-third pleat area; transverse widths and original dorsal loft profile are unchanged. No global body rescaling.
+5. Eye centers move from y=−4.38 / radial angle ±67.61° to y=−4.05 / ±84.22°, onto the lateral head surface closer to its horizontal midplane, near the mouth. Visual approval remains pending.
+
+Mesh budgets **PASS**: **30,112 triangles** (also verified from GLB index counts); **quadRatio 0.9915343915 (99.15%)**; **0 body non-manifold edges**; **loopSpacingRatio 1.0911**; **43 loft sections**; **max texture size 2048**; all six required nodes present. New ridge adds 644 triangles. Build 0.673 s, render set 2.283 s; both Cycles commands exited 0. Compare exited 2 as expected for misses.
+
+Texture preservation was independently checked using embedded GLB image SHA-256s before and after; both images are **byte-for-byte unchanged**:
+- `972194e57381308cf189bcdbd8aae81a8e617e3a84ffd9ca972ec545e44f3b4d`
+- `7afad749be9a48ae541d473a095fde4c62c85fcf9ad5d3dc90410276732368e3`
+
+Only blender/kun.py and LOG.md changed in this pass. Fluke, UV formulas, materials, texture generation, reference art, silhouette tool, PLAN.md and runtime files remain unchanged. The two texture issues are committed M2 to-dos above. Nothing pushed. Waiting for Richard's review; no further pass authorized yet.
+
+## M1 decision by Richard — fin authority and gates (2026-10-26; not approval)
+
+"The Kun sheet's side and front views disagree about the fins: the side view shows them trailing back along the body like flowing ribbons, while the front view shows them spread out like wings. No single model can match both. The key art (ref/key-north-sea.png) shows long fins trailing back, so the side view and the key art are the authority for the fins. Front IoU is no longer a gate; the front view is a by-eye reference only. The side IoU target is ≥0.70; top must stay ≥0.75."
+
+Recorded verbatim under Decisions in PLAN.md. The live PLAN criteria and silhouette tool adopt side ≥0.70, top ≥0.75, no front gate. This is Richard's explicit acceptance change, not an agent waiver. The original REVIEW_RUBRIC.md is preserved; its older Kun fin/gate statements are superseded by this decision, as noted in PLAN.md. Previous review records remain historical.
+
+One more geometry pass authorized: upper roots 35–45% of body length, lower roots 40–50%; strong aft sweep (upper 60°, lower 55°), dihedral +15°/−20°; broaden into leaf sheets with gentle cup and 25° spanwise twist; remove the ridge's spike. Preserve body, fluke, eyes, texture generation and materials. Add one by-eye front-left 45° azimuth, 25° elevation preview, perspective FOV 42°. Existing scored cameras and mask normalization remain fixed. Then render once, measure, show and wait; M1 stays unticked.

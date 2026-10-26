@@ -180,6 +180,7 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
   - *Pair*, for the show-and-wait step: `python3 games/xiaoyaoyou/tools/silhouette.py --pair <left.png> <right.png> <out.png>` writes a side-by-side image.
 - **Views and cameras** (image orientation as in the sheets):
   - Kun side: head to the right. Kun top: looking down, head at the top. Kun front: looking at the face.
+  - Kun three-quarter: from front-left (45° azimuth from the front), 25° above, perspective FOV 42°. Preview only; no IoU. This is the closest preview to the in-game camera.
   - Peng top: looking down, head at the top. Peng side: head to the left; preview only, with no IoU. Peng front: no camera and no IoU (see Decisions).
 - **Reference masks** (Richard's verified facts):
   - The background is a uniform grey: Kun ≈ rgb(155,156,158), Peng ≈ rgb(176,175,175), std < 1.2.
@@ -189,9 +190,9 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
     - Peng top (6, 14, 1760, 555), front (0, 518, 1085, 849), side (1118, 540, 1773, 852)
   - Peng also has about 11 small detached brush flecks; each joins the nearest view. The tool asserts that every view's box is within ±10 px of these numbers, so a broken mask fails loudly.
   - Authoritative views. Each view is judged only for what it shows reliably:
-    - Kun side: body profile and fin lengths
+    - Kun side: body profile and fin lengths; together with `key-north-sea.png`, authority for the fins (Richard's decision below)
     - Kun top: fluke and fin sweep
-    - Kun front: fin count and angles (two pairs: an upper pair raised outward, a lower pair angled down)
+    - Kun front: by-eye reference only; no IoU gate
     - Peng top: wing planform and wingspan
     - Peng front: wing dihedral, judged by eye only. It is not a true orthographic front.
     - Peng side: head, neck and plume profile only. It is not a true orthographic side.
@@ -199,7 +200,7 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
   - The views in each sheet are not at the same scale, so every mask, reference and render alike, is normalized to its own bounding box. Crop to the box, scale *uniformly* so the long side is 240 px, and center the result on a 256×256 canvas. Uniform scaling keeps proportion errors visible. Specks smaller than 0.2% of the view's area are ignored when finding the box.
   - Light blur: a Gaussian with σ = 1.5 px (at 256 px) on both masks, then a threshold at 0.5, so wispy brush edges don't dominate.
   - IoU = |A∩B| ÷ |A∪B| for each view. Also report both boxes' aspect ratios as a diagnostic.
-- **Thresholds:** Kun side ≥ 0.80, top ≥ 0.75, front ≥ 0.70. Peng top ≥ 0.75; Peng also needs Richard's visual approval of the side-by-side images.
+- **Thresholds:** Kun side ≥ 0.70, top ≥ 0.75; front and three-quarter are by eye only. Peng top ≥ 0.75; Peng also needs Richard's visual approval of the side-by-side images. Richard's Kun decision below supersedes the older Kun fin authority and thresholds in REVIEW_RUBRIC.md.
 - **Outputs:**
   - `_dev/silhouette/<asset>-<view>.png`: three panels, each 512 px wide: reference crop | Blender lit preview | overlay (both = grey, reference only = blue, render only = red).
   - `_dev/silhouette/<asset>.json`: `{ commit, asset, engine, views:{ <view>:{ iou, threshold, pass, refBox, refAspect, renderAspect } } }`, plus a printed table.
@@ -273,12 +274,12 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
     - The body is lofted from 16 or more cross-sections along a curved spine, then subdivided.
     - A horizontal whale fluke with two lobes and ink-wave trailing edges, as in the top view.
     - Two pairs of fins as thin sheets: an upper pair raised outward and a lower pair angled down (front view), with lengths from the side view and sweep from the top view.
-    - Details to match by eye: the eye behind the mouth line, the throat pleats from chin to mid-belly, and the dorsal ridge point at the top of the front view.
+    - Details to match by eye: the eye behind the mouth line, the throat pleats from chin to mid-belly, and a low ridge along the spine with no needle spike.
   - **Nodes:** `kun_body`, `kun_fluke`, `kun_fin_upper_L`, `kun_fin_upper_R`, `kun_fin_lower_L`, `kun_fin_lower_R`. Materials: `kun_skin` (landscape plus cream belly) and `kun_fin` (wave texture with baked alpha).
   - **Renderer gate:** try `--engine eevee` once. If it exits non-zero or crashes, use `--engine cycles` (CPU, 16 samples). Record `RENDERER: <engine>` in LOG for later runs.
   - Export `_dev/raw/kun.glb`, then run `silhouette.py` in render mode, then compare mode.
   - **Criteria:**
-    - `_dev/silhouette/kun.json`: side IoU ≥ 0.80, top ≥ 0.75, front ≥ 0.70.
+    - `_dev/silhouette/kun.json`: side IoU ≥ 0.70, top ≥ 0.75. Front and three-quarter are by-eye references, not IoU gates.
     - `_dev/silhouette/kun-side.png`, `kun-top.png` and `kun-front.png` exist, and the lit previews show:
       - the landscape on the back and upper flanks, not stretched or tiled
       - a plain cream belly and no visible seam in any view
@@ -286,7 +287,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
       - ragged ink-wave fin and fluke edges
       - a two-lobed horizontal fluke in the top view
     - `asset-stats.json` for `kun`: `triangles` ≤ 60,000, `quadRatio` ≥ 0.90, `loopSpacingRatio` ≤ 3, `bodyNonManifoldEdges` 0, `maxTextureSize` ≤ 2048, all six node names present, `exitCode` 0 for every Blender run, and `engine` and `seconds` recorded.
-  - Show and wait: the three silhouette images and the IoU table; browser n/a.
+  - Show and wait: side and top silhouette overlays and the IoU table, then front and front-left 25°-above three-quarter renders; browser n/a.
   - Fallback if stuck: set the body's cross-section widths from the side and top masks (per-column extents), trace the fin and fluke outlines from the reference masks, and drop subdivision to level 1.
 
 - [ ] Milestone 2: Kun in the browser — both textures, swim deformation, north-sea test scene
@@ -492,7 +493,8 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
 - **Peng's body length** (Richard, 2026-10-26): the torso, from the base of the neck to the base of the tail. Wingspan stays ≥ 5× the torso. In the sheet's top view, beak tip to tail tip is 541 px against a 1,754 px span, a ratio of only 3.2.
 - **Color arc** (Richard): the north sea is cold and dark (indigo, cream, red motes); the Peng beats and the southern sea are a warm sunset. This replaces "vermilion only as an accent" and "dawn has no warm hues". Palette tokens are sampled from the key art.
 - **Hero modeling** (Richard): Kun and Peng are modeled in Blender from code, never downloaded or AI-generated: lofted cross-sections, subdivision, and thin-sheet fins and feathers. Topology is quad-dominant, with ≤ 60k triangles per hero.
-- **Reference match** (Richard): `tools/silhouette.py` with per-view IoU thresholds: Kun side 0.80, top 0.75, front 0.70; Peng top 0.75 (no front score; see Peng's acceptance).
+- **Reference match** (Richard): `tools/silhouette.py` with per-view IoU thresholds: Kun side 0.70, top 0.75, front by eye only; Peng top 0.75 (no front score; see Peng's acceptance).
+- **Kun fin authority and gates** (Richard, 2026-10-26): "The Kun sheet's side and front views disagree about the fins: the side view shows them trailing back along the body like flowing ribbons, while the front view shows them spread out like wings. No single model can match both. The key art (ref/key-north-sea.png) shows long fins trailing back, so the side view and the key art are the authority for the fins. Front IoU is no longer a gate; the front view is a by-eye reference only. The side IoU target is ≥0.70; top must stay ≥0.75."
 - **Asset manifest** (Richard): every GLB loads through `assets.json`, and game code never hardcodes a GLB path.
 - **Milestone order** (Richard): M0 scaffold, M1 Kun model + silhouette match (Blender only), M2 Kun in the browser. The later milestones keep their order, renumbered M3–M10.
 - **Evidence:** a committed Playwright capture script writes screenshots, `console.json` and `metrics.json`, and `silhouette.py` writes the reference overlays and IoU (Richard, 2026-10-26).
