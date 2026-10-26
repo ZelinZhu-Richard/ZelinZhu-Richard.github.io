@@ -257,7 +257,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
 
 ## Milestones
 
-- [ ] Milestone 0: Scaffold, empty scene, capture tool
+- [x] Milestone 0: Scaffold, empty scene, capture tool
 
   Static page, vendored Three.js and LICENSE, title screen showing 逍遥游 and "Free and Easy Wandering" with a Begin button, loading bar, an empty scene after Begin (`deep` clear color and fog), all page globals and URL params, and `tools/capture.mjs` producing the full evidence set. Server checked or started per unattended rule 5.
   - `title-desktop.png` and `title-narrow.png` show the title, subtitle and Begin button fully visible on a paper or `deep` background. `textOverflow` is `[]` at both viewports. `loading-desktop.png` shows a visible progress bar, and `metrics.extra.readyDuringLoading === false`.
