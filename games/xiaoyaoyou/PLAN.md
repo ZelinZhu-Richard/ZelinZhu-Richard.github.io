@@ -102,7 +102,7 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
   - `?autoplay=1` turns on a scripted pilot that steers toward goals and holds forward.
   - `?timescale=N` runs N simulation steps per frame (evidence speed-up only).
   - `?seed=1` fixes the RNG seed.
-  - `?view=side|top|front` (only with `checkpoint=kun-test` or `peng-test`) shows the hero in its rest pose, deformation paused, through an orthographic camera matching `silhouette.py`'s, on the sheet's grey.
+  - `?view=side|top|front` (with `checkpoint=kun-test`) or `?view=side|top` (with `checkpoint=peng-test`) shows the hero in its rest pose, deformation paused, through an orthographic camera matching `silhouette.py`'s, on the sheet's grey.
   - `?phase=p` freezes the swim or flap cycle at phase p ∈ [0, 1) (evidence only).
 
 **Checkpoints** (each milestone adds its own):
@@ -180,7 +180,7 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
   - *Pair*, for the show-and-wait step: `python3 games/xiaoyaoyou/tools/silhouette.py --pair <left.png> <right.png> <out.png>` writes a side-by-side image.
 - **Views and cameras** (image orientation as in the sheets):
   - Kun side: head to the right. Kun top: looking down, head at the top. Kun front: looking at the face.
-  - Peng top: looking down, head at the top. Peng front: see Open question 1. Peng side: head to the left; preview only, with no IoU.
+  - Peng top: looking down, head at the top. Peng side: head to the left; preview only, with no IoU. Peng front: no camera and no IoU (see Decisions).
 - **Reference masks** (Richard's verified facts):
   - The background is a uniform grey: Kun ≈ rgb(155,156,158), Peng ≈ rgb(176,175,175), std < 1.2.
   - Mask = RGB distance from the background > 30, then fill holes. Pale body paint is close to the grey and leaves holes.
@@ -193,13 +193,13 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
     - Kun top: fluke and fin sweep
     - Kun front: fin count and angles (two pairs: an upper pair raised outward, a lower pair angled down)
     - Peng top: wing planform and wingspan
-    - Peng front: wing dihedral
+    - Peng front: wing dihedral, judged by eye only. It is not a true orthographic front.
     - Peng side: head, neck and plume profile only. It is not a true orthographic side.
 - **Normalize and compare:**
   - The views in each sheet are not at the same scale, so every mask, reference and render alike, is normalized to its own bounding box. Crop to the box, scale *uniformly* so the long side is 240 px, and center the result on a 256×256 canvas. Uniform scaling keeps proportion errors visible. Specks smaller than 0.2% of the view's area are ignored when finding the box.
   - Light blur: a Gaussian with σ = 1.5 px (at 256 px) on both masks, then a threshold at 0.5, so wispy brush edges don't dominate.
   - IoU = |A∩B| ÷ |A∪B| for each view. Also report both boxes' aspect ratios as a diagnostic.
-- **Thresholds:** Kun side ≥ 0.80, top ≥ 0.75, front ≥ 0.70. Peng top ≥ 0.75, front ≥ 0.70.
+- **Thresholds:** Kun side ≥ 0.80, top ≥ 0.75, front ≥ 0.70. Peng top ≥ 0.75; Peng also needs Richard's visual approval of the side-by-side images.
 - **Outputs:**
   - `_dev/silhouette/<asset>-<view>.png`: three panels, each 512 px wide: reference crop | Blender lit preview | overlay (both = grey, reference only = blue, render only = red).
   - `_dev/silhouette/<asset>.json`: `{ commit, asset, engine, views:{ <view>:{ iou, threshold, pass, refBox, refAspect, renderAspect } } }`, plus a printed table.
@@ -387,20 +387,21 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
     - wings of layered feather sheets in rows (primaries, secondaries, coverts), each feather an alpha-edged ink-stroke card. The feather texture is generated in code.
     - long trailing tail feathers
   - **Coloring** (from `peng-sheet.png`): ink-dark primaries with ragged brush tips, lighter cream feather bases along the inner wing and trailing edge, and a white neck and body flecked with ink.
-  - **Size and parts:** wingspan ≥ 5× body length (see Open question 2). Nodes `peng_body`, `peng_head`, `peng_wing_L`, `peng_wing_R`, `peng_tail` and `peng_plume_*`. The rest pose is the sheet's top-view pose.
+  - **Size and parts:** wingspan ≥ 5× the torso, measured from the base of the neck to the base of the tail. `peng.py` records that spine distance as `torsoLength`. Nodes `peng_body`, `peng_head`, `peng_wing_L`, `peng_wing_R`, `peng_tail` and `peng_plume_*`. The rest pose is the sheet's top-view pose.
   - **Flap:** vertex-shader deformation along the span: the root moves least, and the tip moves most, with a phase lag and a spanwise curl. Wingbeats are slow and heavy; Richard tunes the period by eye. The wing nodes also scale from 0 to 1 for the unfurl.
   - **The breach:** after mote 7, Kun rises and breaks the surface (a runtime water plane). Slow motion for about 3 s while an instanced ink-splash burst plays. Kun fades out as Peng's wings unfurl. The camera pulls back and up until the ocean lies far below.
   - **The color arc turns here.** Above the water the world is a warm sunset: a sky from violet dusk at the top through rose and coral to gold at the horizon, a low sun disc, warm fog, and a sea of clouds below with ink peaks. Peng's ink wings carry a warm rim light from the sun behind them.
   - **After it:** the total event lasts 8–15 s of `gameMs`. Controls then resume as Peng.
   - **Text and pacing:** `breach-1` and `breach-2` are shown. The temporary end card now appears about 30 s after the transformation.
   - **Criteria:**
-    - `_dev/silhouette/peng.json`: top IoU ≥ 0.75, front ≥ 0.70. `peng-top.png`, `peng-front.png` and `peng-side.png` exist; the side panel shows a long straight beak, a slender neck and the plumes matching the sheet's profile.
-    - `asset-stats.json` for `peng`: `triangles` ≤ 60,000, wingspan ÷ body length ≥ 5, `quadRatio` ≥ 0.90, `loopSpacingRatio` ≤ 3, `bodyNonManifoldEdges` 0, and nodes `peng_wing_L` and `peng_wing_R`. After optimization, meshopt is applied and the nodes survive. `assets.json` has `peng`.
+    - `_dev/silhouette/peng.json`: top IoU ≥ 0.75. There is no front score.
+    - Richard approves the side-by-side images `peng-top.png` and `peng-side.png`. The side panel must show a long straight beak, a slender neck and plumes matching the sheet's profile. An unattended run can't meet this criterion: it logs `NEEDS RICHARD: Peng visual approval` and leaves the box unticked.
+    - `asset-stats.json` for `peng`: `triangles` ≤ 60,000, wingspan ÷ `torsoLength` ≥ 5, `quadRatio` ≥ 0.90, `loopSpacingRatio` ≤ 3, `bodyNonManifoldEdges` 0, and nodes `peng_wing_L` and `peng_wing_R`. After optimization, meshopt is applied and the nodes survive. `assets.json` has `peng`.
     - `peng-view-*-desktop.png` (`?checkpoint=peng-test&view=`) match the Blender previews.
     - `metrics.extra.transformation = { triggerCount:1, durationGameMs in 8000–15000, kunVisibleAfter:false, pengVisibleAfter:true, controlsResumed:true }` from autoplay. Holding input during the event does not trigger it again.
     - At `breach-peak`, `measure.peng.inFrame` is true at both viewports, and the desktop `widthPx` is ≥ 0.4 × 1440. `measure.cameraAltitude` at `peng-flight` is ≥ 3× its value at `breach-peak`. `peng-flight-desktop.png` shows the sea far below the horizon.
     - `offPalette` ≤ 0.010 at `breach-peak` (cold + red + warm) and at `peng-flight` (warm). `warmShare` ≥ 0.25 at `peng-flight` (key art: 0.69). `drawCalls` ≤ 150, and the console is clean. No checkpoint shows Kun and Peng both fully visible after the event.
-  - Show and wait: the Peng silhouette images, `peng-view-*`, and `peng-flight-desktop.png` next to `key-peng-sunset.png`, plus the IoU table and palette numbers.
+  - Show and wait: the Peng side-by-side images for approval, `peng-view-*`, and `peng-flight-desktop.png` next to `key-peng-sunset.png`, plus the top IoU and palette numbers.
   - Fallback if stuck: replace the ink burst with a quick warm fade-through, and build each wing from fewer, larger feather cards.
 
 - [ ] Milestone 7: Southern sea at sunset and the full ending (REQUIRED; built before the ascent)
@@ -470,11 +471,6 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
   - Show and wait: the budget table, the final IoU tables, and a full screenshot set.
   - Fallback if stuck: audio drone plus chime only.
 
-## Open questions for Richard (decide before M6)
-
-1. **Peng's front camera.** The sheet's "front" view (lower left of `peng-sheet.png`) lays out the neck, body and tail as if seen from above, with the beak pointing up in the frame. A true orthographic front camera sees the neck end-on and the feather sheets nearly edge-on, so a correct model may not reach 0.70. Before modeling Peng, render the front camera once on a rough blockout and show Richard. He picks one of: a true front camera; one fixed pitched camera (angle recorded in `silhouette.py`, never tuned afterwards); or no front IoU.
-2. **Peng's "body length".** In the sheet's top view, beak tip to tail tip is 541 px against a 1,754 px span, a ratio of 3.2. So "wingspan ≥ 5× body length" holds only if body length means the torso, from the base of the neck to the base of the tail. This plan assumes the torso until Richard says otherwise.
-
 ## Assumptions
 
 - *(Unattended runs only.)* `run_night.sh` runs the grader between Codex runs, and the grader can append to LOG.md, untick boxes, and add the `BLOCKED` mark. The runner skips milestone lines ending in `BLOCKED (3 reviews)`, and stops when LOG ends with `NIGHT DONE` or `NIGHT STOPPED`.
@@ -491,10 +487,12 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
 - **Quality first, interactive** (Richard, 2026-10-26): built live with Richard present. Each milestone ends with the Blender preview next to the reference, the browser screenshots and the IoU numbers, and a box is ticked only after his OK. The grader and harness remain for unattended runs only.
 - **Reference art** (Richard, 2026-10-26): `ref/` holds two key arts (mood), two model sheets (shape) and two textures. The verified facts about them are in **Reference match** and **Kun textures**.
 - **Kun** (Richard): a white, whale-like creature with an ink-wash mountain-and-pine landscape across its back and flanks, broad translucent fins with ink-wave edges, a horizontal whale fluke, and slow vertical undulation.
-- **Peng** (Richard): crane-like, with a long straight beak, a slender neck and red ribbon plumes; not a raptor. Wingspan ≥ 5× body length.
+- **Peng** (Richard): crane-like, with a long straight beak, a slender neck and red ribbon plumes; not a raptor. Wingspan ≥ 5× the torso.
+- **Peng's acceptance** (Richard, 2026-10-26): no front-view score. The sheet's "front" view lays out the neck, body and tail as if seen from above, so it is not a true orthographic front. Peng passes on top-view IoU ≥ 0.75 plus Richard's visual approval of the side-by-side images.
+- **Peng's body length** (Richard, 2026-10-26): the torso, from the base of the neck to the base of the tail. Wingspan stays ≥ 5× the torso. In the sheet's top view, beak tip to tail tip is 541 px against a 1,754 px span, a ratio of only 3.2.
 - **Color arc** (Richard): the north sea is cold and dark (indigo, cream, red motes); the Peng beats and the southern sea are a warm sunset. This replaces "vermilion only as an accent" and "dawn has no warm hues". Palette tokens are sampled from the key art.
 - **Hero modeling** (Richard): Kun and Peng are modeled in Blender from code, never downloaded or AI-generated: lofted cross-sections, subdivision, and thin-sheet fins and feathers. Topology is quad-dominant, with ≤ 60k triangles per hero.
-- **Reference match** (Richard): `tools/silhouette.py` with per-view IoU thresholds: Kun side 0.80, top 0.75, front 0.70; Peng top 0.75, front 0.70.
+- **Reference match** (Richard): `tools/silhouette.py` with per-view IoU thresholds: Kun side 0.80, top 0.75, front 0.70; Peng top 0.75 (no front score; see Peng's acceptance).
 - **Asset manifest** (Richard): every GLB loads through `assets.json`, and game code never hardcodes a GLB path.
 - **Milestone order** (Richard): M0 scaffold, M1 Kun model + silhouette match (Blender only), M2 Kun in the browser. The later milestones keep their order, renumbered M3–M10.
 - **Evidence:** a committed Playwright capture script writes screenshots, `console.json` and `metrics.json`, and `silhouette.py` writes the reference overlays and IoU (Richard, 2026-10-26).

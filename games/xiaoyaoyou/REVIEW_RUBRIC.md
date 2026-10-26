@@ -76,7 +76,7 @@ Mood comes from the key art and shape from the sheets. Where they disagree on sh
   - ink-brushed wings of layered feathers with ragged brush tips and cream feather bases
   - a white neck and body flecked with ink, and a long trailing tail
   - a warm rim light on the wing edges and feather tips
-  - wingspan ≥ 5× body length (the torso; PLAN.md Open question 2)
+  - wingspan ≥ 5× the torso (base of neck to base of tail)
 - **Shading and line.** Shading is soft, painterly and driven by light: top light in the sea, back light from the sun in the sky. There is no glossy specular and no hard outline. Heroes read by value contrast and rim light: a light Kun on dark water, a dark Peng on a bright sky.
 - **Light and atmosphere.**
   - North: light shafts from the surface; water that brightens toward the surface and falls to near-black below; fog that swallows the distance; dark rock pillars with pines and misty bases.
@@ -105,7 +105,7 @@ Mood comes from the key art and shape from the sheets. Where they disagree on sh
   - raptor features: a hooked beak, a short thick neck, an eagle head
   - plumes missing or not red
   - wings made as single flat planes instead of layered feathers
-  - wingspan < 5× body length
+  - wingspan < 5× the torso
 - A hero IoU below its threshold (§4).
 - Bloom haze that washes out silhouettes. Grain heavy enough to make text hard to read.
 - Primitives shipped as creatures or props: a sphere or capsule fish, cone or plane wings, a cylinder-plus-ball tree, a cube rock.
@@ -145,7 +145,7 @@ Mood comes from the key art and shape from the sheets. Where they disagree on sh
 15. **New Peng failures.** Raptor features; missing or non-red plumes; single-plane wings.
 16. **New failure:** a hero IoU below its threshold (§4 is new).
 17. **Primitive check.** "Fins and tail, wing scallops" → "fluke lobes and both fin pairs; Peng's beak, neck, plumes and feather rows". Cloud-like scalloped trailing edges on Peng's wings are no longer required.
-18. **Peng's wingspan.** ≥ 4× → ≥ 5× body length.
+18. **Peng's wingspan.** ≥ 4× body length → ≥ 5× the torso (base of neck to base of tail).
 19. **Unchanged:** the default Three.js look, bloom haze, primitives, clipped framing, and empty-space composition.
 
 ## 4. Reference match (hero silhouettes)
@@ -159,8 +159,10 @@ Mood comes from the key art and shape from the sheets. Where they disagree on sh
   | Kun | top | fluke, fin sweep | 0.75 |
   | Kun | front | fin count and angles (two pairs: upper raised outward, lower angled down) | 0.70 |
   | Peng | top | wing planform, wingspan | 0.75 |
-  | Peng | front | wing dihedral (camera per PLAN.md Open question 1) | 0.70 |
+  | Peng | front | wing dihedral (not a true orthographic front) | by eye, no score |
   | Peng | side | head, neck and plume profile only | by eye |
+
+- Peng passes on its top IoU plus Richard's visual approval of the side-by-side images. An unattended run can't get that approval, so M6 can't PASS there: write `NEEDS RICHARD: Peng visual approval`.
 
 - Open every `_dev/silhouette/<asset>-<view>.png`. A passing IoU never excuses a feature that looks wrong in the overlay, such as a missing fin pair or a wrong fluke shape. In unattended runs, a failing IoU is never "close enough".
 - The browser's `?view=` screenshots must match the Blender previews: same orientation, same texture placement, translucent fins.
