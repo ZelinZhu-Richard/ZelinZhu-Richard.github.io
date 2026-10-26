@@ -45,3 +45,10 @@ The M0 criterion table and clean evidence above are accepted. Blender and IoU ta
 - Richard: "the title screen should eventually use ref/key-north-sea.png as a full-bleed background with a soft dark vignette behind the title, like a game key-art title screen."
 
 Next authorized work: M1 Kun model, per PLAN.md. Show side, top and front reference/render/overlay panels, IoU table, triangle count and quad ratio; wait for Richard's OK before ticking M1. Stop and show any remaining threshold miss after reasonable effort.
+
+## M1 build notes (2026-10-26; review pending)
+
+- The M0 approval commit initially hit the sandbox's Git index write restriction; the exact scoped commit then succeeded with Richard's approval as fc256d7.
+- First Blender command: `blender/kun.py --engine eevee`, exit code 1 before mesh creation. Exact cause: `enum "BLENDER_EEVEE_NEXT" not found in ('BLENDER_EEVEE', 'BLENDER_WORKBENCH', 'CYCLES')`. Blender is 5.2.1 LTS. Engine detection was corrected; per the renderer gate, switch to CPU Cycles rather than attempt Eevee again. This historical failure is disclosed; it is not reported as an exit-code-0 run.
+- RENDERER: cycles (fallback after the Eevee command exited nonzero).
+- The shell's python3 is Homebrew Python 3.14 without numpy. Use the plan's known `/opt/anaconda3/bin/python3` for silhouette comparison (numpy 2.3.5, Pillow 12.0.0, SciPy 1.16.3); no install.
