@@ -1,0 +1,3061 @@
+{
+  "version": 1,
+  "title": "Research Stack",
+  "description": "A curated research toolkit, organized by workflow and discipline. Starred repositories and suggested essentials can belong to several folders.",
+  "folders": [
+    {
+      "id": "",
+      "label": "Research Stack",
+      "description": "Reusable research tools, libraries, datasets, skills, and references across disciplines.",
+      "parent": null
+    },
+    {
+      "id": "general",
+      "label": "General research",
+      "description": "The shared workflow from finding sources to presenting reproducible work.",
+      "parent": ""
+    },
+    {
+      "id": "general/read-papers",
+      "label": "Read papers & manage sources",
+      "description": "Discover, read, translate, annotate, organize, and cite research sources.",
+      "parent": "general"
+    },
+    {
+      "id": "general/code-analysis",
+      "label": "Code & analyze data",
+      "description": "Prepare data, use notebooks, compute statistics, and build research analyses.",
+      "parent": "general"
+    },
+    {
+      "id": "general/experiments",
+      "label": "Run experiments & reproduce results",
+      "description": "Design, track, optimize, version, evaluate, and reproduce experiments.",
+      "parent": "general"
+    },
+    {
+      "id": "general/write-present",
+      "label": "Write, visualize & present",
+      "description": "Write papers, build figures and diagrams, and share research through slides.",
+      "parent": "general"
+    },
+    {
+      "id": "ai-ml",
+      "label": "AI & machine learning",
+      "description": "Methods and reusable tooling for machine learning research.",
+      "parent": ""
+    },
+    {
+      "id": "ai-ml/statistics",
+      "label": "Statistics & classical ML",
+      "description": "Statistical modeling, inference, causal methods, and classical machine learning.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "ai-ml/deep-learning",
+      "label": "Deep learning & training",
+      "description": "Neural network frameworks, optimization, and training systems.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "ai-ml/computer-vision",
+      "label": "Computer vision",
+      "description": "Image and video understanding, visual representations, and generative vision.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "ai-ml/nlp",
+      "label": "Natural language processing",
+      "description": "Text processing, language models, and language-centered research workflows.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "ai-ml/transformers",
+      "label": "Transformers & architectures",
+      "description": "Transformer implementations, architectural ideas, and model adaptation.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "ai-ml/datasets-evaluation",
+      "label": "Datasets & evaluation",
+      "description": "Research datasets, benchmarks, model evaluation, and data quality tooling.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "ai-ml/time-series",
+      "label": "Time series & forecasting",
+      "description": "Forecasting libraries, temporal models, and time-series research references.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "ai-ml/reinforcement-learning",
+      "label": "Reinforcement learning",
+      "description": "Reinforcement learning algorithms, environments, training, and evaluation.",
+      "parent": "ai-ml"
+    },
+    {
+      "id": "finance",
+      "label": "Finance, econometrics & quant",
+      "description": "Data, methods, and research infrastructure for quantitative finance and economics.",
+      "parent": ""
+    },
+    {
+      "id": "finance/market-data",
+      "label": "Market data & financial research",
+      "description": "Obtain financial data and investigate markets, securities, and economics.",
+      "parent": "finance"
+    },
+    {
+      "id": "finance/econometrics",
+      "label": "Econometrics",
+      "description": "Estimate economic relationships with statistical and causal models.",
+      "parent": "finance"
+    },
+    {
+      "id": "finance/portfolio-risk",
+      "label": "Portfolio construction & risk",
+      "description": "Study portfolio allocation, optimization, factor exposure, and risk.",
+      "parent": "finance"
+    },
+    {
+      "id": "finance/backtesting",
+      "label": "Backtesting & trading",
+      "description": "Implement and assess systematic trading ideas with reusable tooling.",
+      "parent": "finance"
+    },
+    {
+      "id": "finance/financial-ml",
+      "label": "Financial machine learning",
+      "description": "Apply machine learning and forecasting methods to financial problems.",
+      "parent": "finance"
+    }
+  ],
+  "members": [
+    {
+      "repo_id": 651517185,
+      "full_name": "NanmiCoder/MediaCrawler",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Collect public social-platform text and comments for data-analysis projects."
+    },
+    {
+      "repo_id": 1211139949,
+      "full_name": "tt-a1i/archify",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Generate editable diagrams from research ideas, plans, and code."
+    },
+    {
+      "repo_id": 1409360111,
+      "full_name": "teresaz05/librarian-agents",
+      "folders": [
+        "general/read-papers",
+        "general/experiments"
+      ],
+      "note": "Reusable corpus-organizing and answering-agent research harness."
+    },
+    {
+      "repo_id": 1428486097,
+      "full_name": "xingjian-bai/opal",
+      "folders": [
+        "general/experiments",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Experiment with reactive optimization while a model trains."
+    },
+    {
+      "repo_id": 455982203,
+      "full_name": "paperswithbacktest/awesome-systematic-trading",
+      "folders": [
+        "finance/backtesting",
+        "finance/portfolio-risk"
+      ],
+      "note": "Curated systematic-trading libraries, strategies, and research references."
+    },
+    {
+      "repo_id": 437352558,
+      "full_name": "wangzhe3224/awesome-systematic-trading",
+      "folders": [
+        "finance/backtesting",
+        "finance/portfolio-risk"
+      ],
+      "note": "Cross-market systematic-trading packages and curated resources."
+    },
+    {
+      "repo_id": 1011567289,
+      "full_name": "shiyu-coder/Kronos",
+      "folders": [
+        "finance/financial-ml",
+        "ai-ml/time-series"
+      ],
+      "note": "Foundation-model baseline for financial-market time series."
+    },
+    {
+      "repo_id": 1341532184,
+      "full_name": "TrenTorch/TrenTorch",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning",
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "First-principles ML, inference, and reinforcement-learning learning material."
+    },
+    {
+      "repo_id": 210702427,
+      "full_name": "typst/typst",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Prepare reproducible academic documents with markup-based typesetting."
+    },
+    {
+      "repo_id": 1363246184,
+      "full_name": "jiarui-liu/IdeaScientist",
+      "folders": [
+        "general/read-papers",
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Scientific-ideation harness with literature retrieval, proposal generation, and evaluation."
+    },
+    {
+      "repo_id": 1418512496,
+      "full_name": "SakanaAI/AutoIllustrate",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Generate editable research-method figures from a paper's methods section."
+    },
+    {
+      "repo_id": 282653872,
+      "full_name": "AI4Finance-Foundation/FinRL",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "finance/financial-ml",
+        "finance/backtesting"
+      ],
+      "note": "Financial reinforcement-learning framework and trading environments."
+    },
+    {
+      "repo_id": 1414362482,
+      "full_name": "SakanaAI/AI-Scientist-v3",
+      "folders": [
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Agent orchestration for reusable automated scientific discovery workflows."
+    },
+    {
+      "repo_id": 54972769,
+      "full_name": "yutiansut/QUANTAXIS",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "Local quantitative data, backtesting, simulation, and analysis workflow."
+    },
+    {
+      "repo_id": 188438191,
+      "full_name": "tradingview/lightweight-charts",
+      "folders": [
+        "finance/market-data",
+        "general/write-present"
+      ],
+      "note": "Reusable financial-chart components for analysis and reporting."
+    },
+    {
+      "repo_id": 594155488,
+      "full_name": "Stirling-Tools/Stirling-PDF",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Manipulate, convert, OCR, and organize research PDFs."
+    },
+    {
+      "repo_id": 853189791,
+      "full_name": "PDFMathTranslate/PDFMathTranslate",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Translate scientific papers while preserving mathematical formatting."
+    },
+    {
+      "repo_id": 887914303,
+      "full_name": "funstory-ai/BabelDOC",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Document-translation library for multilingual research workflows."
+    },
+    {
+      "repo_id": 99180492,
+      "full_name": "amirziai/learning",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning",
+        "ai-ml/reinforcement-learning",
+        "general/code-analysis"
+      ],
+      "note": "Runnable notebooks covering statistics, ML, deep learning, and RL."
+    },
+    {
+      "repo_id": 1212769188,
+      "full_name": "cathrynlavery/diagram-design",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Produce structured diagrams and data visualizations for explanations."
+    },
+    {
+      "repo_id": 1307059497,
+      "full_name": "Jiyuan-Tan/CausalSmith",
+      "folders": [
+        "finance/econometrics",
+        "ai-ml/statistics",
+        "general/experiments"
+      ],
+      "note": "Causal-inference research framework with formal grounding and iterative experiments."
+    },
+    {
+      "repo_id": 8307391,
+      "full_name": "mahmoud/boltons",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Python data structures and utilities for research-analysis scripts."
+    },
+    {
+      "repo_id": 1281510950,
+      "full_name": "Neroued/ninfer",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Single-GPU inference engine for supported model checkpoints."
+    },
+    {
+      "repo_id": 1318954310,
+      "full_name": "rosemarycox5334-debug/Detect_support_and_resistance_levels",
+      "folders": [
+        "finance/backtesting"
+      ],
+      "note": "Reusable candlestick support-and-resistance detector for strategy studies."
+    },
+    {
+      "repo_id": 1296375920,
+      "full_name": "rosemarycox5334-debug/AlphaMaster",
+      "folders": [
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "Factor mining, model training, and backtesting workflow for MT5 research."
+    },
+    {
+      "repo_id": 1299496901,
+      "full_name": "LuxAlgo/Vela",
+      "folders": [
+        "finance/market-data",
+        "general/write-present"
+      ],
+      "note": "Extensible financial-chart library for research interfaces."
+    },
+    {
+      "repo_id": 1323552500,
+      "full_name": "walkinglabs/self-improving-agent-notebook",
+      "folders": [
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Runnable curriculum and notebooks for self-improving agent experiments."
+    },
+    {
+      "repo_id": 953552618,
+      "full_name": "afshinea/stanford-cme-295-transformers-large-language-models",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/nlp"
+      ],
+      "note": "Stanford transformer and large-language-model reference cheatsheet."
+    },
+    {
+      "repo_id": 946484954,
+      "full_name": "SUFE-AIFLM-Lab/Fin-R1",
+      "folders": [
+        "finance/financial-ml",
+        "ai-ml/nlp"
+      ],
+      "note": "Open financial-reasoning model for comparative financial-ML experiments."
+    },
+    {
+      "repo_id": 775839592,
+      "full_name": "marin-community/marin",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Framework for researching and developing foundation models."
+    },
+    {
+      "repo_id": 746824024,
+      "full_name": "Point72/csp",
+      "folders": [
+        "general/code-analysis",
+        "finance/market-data"
+      ],
+      "note": "Reactive stream-processing library for time-sensitive analytical data."
+    },
+    {
+      "repo_id": 1209893338,
+      "full_name": "GXL-ai/paperclip",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Search, read, and analyze biomedical papers from a command-line interface."
+    },
+    {
+      "repo_id": 1238374602,
+      "full_name": "zLanqing/codex-claude-academic-skills",
+      "folders": [
+        "general/read-papers",
+        "general/code-analysis",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Academic-agent skills spanning paper review, scientific computing, writing, and presentations."
+    },
+    {
+      "repo_id": 280567579,
+      "full_name": "NaiboWang/EasySpider",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Visual crawler for collecting structured research data from websites."
+    },
+    {
+      "repo_id": 1042774256,
+      "full_name": "Nicolepcx/ai-agents-the-definitive-guide",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Agent-development reference covering benchmarks and evaluation frameworks."
+    },
+    {
+      "repo_id": 419991646,
+      "full_name": "mli/paper-reading",
+      "folders": [
+        "general/read-papers",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Detailed readings of foundational and contemporary deep-learning papers."
+    },
+    {
+      "repo_id": 1261663145,
+      "full_name": "alphaXiv/OpenResearch",
+      "folders": [
+        "general/read-papers",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Research-agent skills for literature, experiments, and scientific workflow support."
+    },
+    {
+      "repo_id": 571613891,
+      "full_name": "roboflow/supervision",
+      "folders": [
+        "ai-ml/computer-vision"
+      ],
+      "note": "Reusable computer-vision annotation, tracking, and processing tools."
+    },
+    {
+      "repo_id": 1302690078,
+      "full_name": "larashero3-dotcom/lieflat-charts",
+      "folders": [
+        "general/code-analysis",
+        "general/write-present"
+      ],
+      "note": "Turn analytical data into interactive explanatory charts."
+    },
+    {
+      "repo_id": 808907116,
+      "full_name": "KellerJordan/modded-nanogpt",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Compact reproducible GPT-training baseline for optimization experiments."
+    },
+    {
+      "repo_id": 918763904,
+      "full_name": "romanmichaelpaolucci/Quant-Guild-Library",
+      "folders": [
+        "finance/backtesting",
+        "finance/portfolio-risk",
+        "finance/econometrics"
+      ],
+      "note": "Quantitative-finance notebooks and corresponding technical lectures."
+    },
+    {
+      "repo_id": 1237911785,
+      "full_name": "google-deepmind/science-skills",
+      "folders": [
+        "general/read-papers",
+        "general/code-analysis",
+        "general/experiments"
+      ],
+      "note": "Scientific-agent skills grounded in domain databases and analysis tools."
+    },
+    {
+      "repo_id": 1286080397,
+      "full_name": "JustVugg/colibri",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Local MoE inference engine for model-running experiments on existing hardware."
+    },
+    {
+      "repo_id": 940058896,
+      "full_name": "DR-lin-eng/stock-scanner",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Stock-screening and quantitative-analysis application."
+    },
+    {
+      "repo_id": 916470121,
+      "full_name": "guaguastandup/zotero-pdf2zh",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Zotero plugin for translating research PDFs into Chinese."
+    },
+    {
+      "repo_id": 783833344,
+      "full_name": "karpathy/llm.c",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Transparent C/CUDA language-model training implementation for learning and experiments."
+    },
+    {
+      "repo_id": 1203657193,
+      "full_name": "BruceLanLan/augur",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Evidence-linked investment-research memory and analysis workspace."
+    },
+    {
+      "repo_id": 333850832,
+      "full_name": "JerBouma/FinanceDatabase",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Financial-instrument symbol database for market-data discovery."
+    },
+    {
+      "repo_id": 1232995828,
+      "full_name": "hello245m/free-stockdb",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting"
+      ],
+      "note": "Local equity and ETF data engine with caching, adjustment, indicators, and backtesting."
+    },
+    {
+      "repo_id": 978457668,
+      "full_name": "feremabraz/bloomberg-terminal",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Financial-terminal reference application using market APIs and labeled local simulations."
+    },
+    {
+      "repo_id": 407992948,
+      "full_name": "pchandiwal-livongo/datascience_books",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Collection of publicly released data-science books and references."
+    },
+    {
+      "repo_id": 232398830,
+      "full_name": "millengustavo/time-series-forecasting",
+      "folders": [
+        "ai-ml/time-series"
+      ],
+      "note": "Time-series forecasting study notes and methods references."
+    },
+    {
+      "repo_id": 898102196,
+      "full_name": "chiphuyen/aie-book",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "AI-engineering book resources for building and assessing model-backed systems."
+    },
+    {
+      "repo_id": 214485001,
+      "full_name": "Project-MONAI/MONAI",
+      "folders": [
+        "ai-ml/computer-vision",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Reusable toolkit for medical-imaging model research."
+    },
+    {
+      "repo_id": 396464620,
+      "full_name": "maxim5/cs229-2019-summer",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Stanford machine-learning course notes and materials."
+    },
+    {
+      "repo_id": 324201721,
+      "full_name": "probml/pml-book",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Probabilistic machine-learning textbook resources."
+    },
+    {
+      "repo_id": 1159483541,
+      "full_name": "DataExpert-io/ai-engineer-handbook",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/nlp",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Curated AI-engineering books and technical references."
+    },
+    {
+      "repo_id": 572364021,
+      "full_name": "qiwsir/Math4ML_book",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Mathematical foundations for machine-learning research."
+    },
+    {
+      "repo_id": 925270205,
+      "full_name": "trycua/cua",
+      "folders": [
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Computer-use drivers, sandboxes, and benchmarks for training and evaluation."
+    },
+    {
+      "repo_id": 1151825583,
+      "full_name": "rajshah6/arXivisual",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Convert arXiv papers into visual explanations and animated presentations."
+    },
+    {
+      "repo_id": 1214785164,
+      "full_name": "HKUSTDial/Supervisor-Skills",
+      "folders": [
+        "general/read-papers",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Research-supervision skills from ideation through manuscript preparation."
+    },
+    {
+      "repo_id": 615510678,
+      "full_name": "camel-ai/camel",
+      "folders": [
+        "ai-ml/nlp",
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Multi-agent framework suitable for reusable agent-research experiments."
+    },
+    {
+      "repo_id": 680120071,
+      "full_name": "microsoft/autogen",
+      "folders": [
+        "ai-ml/nlp",
+        "general/experiments"
+      ],
+      "note": "Framework for constructing and testing agentic AI workflows."
+    },
+    {
+      "repo_id": 1165056385,
+      "full_name": "anthropics/financial-services",
+      "folders": [
+        "finance/market-data",
+        "finance/portfolio-risk",
+        "general/write-present"
+      ],
+      "note": "Financial-services skills, market-research agents, and analyst work-product templates."
+    },
+    {
+      "repo_id": 1291783779,
+      "full_name": "petergyang/no-ai-slop",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Review prose for common machine-generated writing patterns."
+    },
+    {
+      "repo_id": 1132137660,
+      "full_name": "hardikpandya/stop-slop",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Writing-revision skill for removing formulaic prose patterns."
+    },
+    {
+      "repo_id": 537666394,
+      "full_name": "PufferAI/PufferLib",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "general/experiments"
+      ],
+      "note": "Reinforcement-learning environment and training toolkit."
+    },
+    {
+      "repo_id": 421138780,
+      "full_name": "xiyuanzh/time-series-papers",
+      "folders": [
+        "ai-ml/time-series",
+        "general/read-papers"
+      ],
+      "note": "Curated time-series papers from AI venues."
+    },
+    {
+      "repo_id": 473491411,
+      "full_name": "lixus7/Time-Series-Works-Conferences",
+      "folders": [
+        "ai-ml/time-series",
+        "general/read-papers"
+      ],
+      "note": "Conference-organized time-series research references."
+    },
+    {
+      "repo_id": 141200616,
+      "full_name": "kourgeorge/arxiv-style",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "LaTeX style and template for research preprints."
+    },
+    {
+      "repo_id": 943377535,
+      "full_name": "Visualize-ML/Linear-Algebra-Made-Easy---Learn-with-Python-and-Visualization",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Linear-algebra learning material with Python and visualization."
+    },
+    {
+      "repo_id": 1206501749,
+      "full_name": "walkinglabs/hands-on-modern-rl",
+      "folders": [
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Hands-on RL curriculum through model alignment and agentic systems."
+    },
+    {
+      "repo_id": 849406496,
+      "full_name": "Fincept-Corporation/FinceptTerminal",
+      "folders": [
+        "finance/market-data",
+        "finance/portfolio-risk"
+      ],
+      "note": "Financial analytics and economic-data exploration terminal."
+    },
+    {
+      "repo_id": 1180917769,
+      "full_name": "uditgoenka/autoresearch",
+      "folders": [
+        "general/experiments"
+      ],
+      "note": "Autonomous goal-directed experiment loop with explicit verify-and-keep decisions."
+    },
+    {
+      "repo_id": 1289743790,
+      "full_name": "simonlin1212/Vibe-Research",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting"
+      ],
+      "note": "Investment-research workspace covering reports, source data, and backtesting."
+    },
+    {
+      "repo_id": 292711796,
+      "full_name": "ericyangyu/PPO-for-Beginners",
+      "folders": [
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Readable PPO learning baseline with step-by-step implementation material."
+    },
+    {
+      "repo_id": 101081298,
+      "full_name": "ikostrikov/pytorch-a2c-ppo-acktr-gail",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "general/experiments"
+      ],
+      "note": "Reusable PyTorch implementations of several policy-gradient and imitation-learning baselines."
+    },
+    {
+      "repo_id": 150605839,
+      "full_name": "nikhilbarhate99/PPO-PyTorch",
+      "folders": [
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Minimal clipped-objective PPO baseline for small comparative experiments."
+    },
+    {
+      "repo_id": 565692172,
+      "full_name": "opendilab/PPOxFamily",
+      "folders": [
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "PPO and decision-intelligence tutorial course."
+    },
+    {
+      "repo_id": 1270316430,
+      "full_name": "FeijiangHan/PaperForge",
+      "folders": [
+        "general/read-papers",
+        "general/experiments"
+      ],
+      "note": "Paper-reading skill that reconstructs reasoning and proposes follow-up experiments."
+    },
+    {
+      "repo_id": 1143767804,
+      "full_name": "zarazhangrui/frontend-slides",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Create browser-based slides using coding-agent skills."
+    },
+    {
+      "repo_id": 1861458,
+      "full_name": "hakimel/reveal.js",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "HTML presentation framework for research talks and demonstrations."
+    },
+    {
+      "repo_id": 361044034,
+      "full_name": "slidevjs/slidev",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Markdown-oriented presentation tooling for technical and research talks."
+    },
+    {
+      "repo_id": 520955562,
+      "full_name": "motion-canvas/motion-canvas",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Programmatic animation tool for explaining research concepts."
+    },
+    {
+      "repo_id": 1110978260,
+      "full_name": "pageman/sutskever-30-implementations",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/nlp"
+      ],
+      "note": "Implementations of foundational papers from a curated ML reading list."
+    },
+    {
+      "repo_id": 916945194,
+      "full_name": "0xemmkty/QuantMuse",
+      "folders": [
+        "finance/market-data",
+        "finance/portfolio-risk",
+        "finance/backtesting"
+      ],
+      "note": "Quantitative-analysis system combining market data, risk controls, and trading studies."
+    },
+    {
+      "repo_id": 36836475,
+      "full_name": "tmux/tmux",
+      "folders": [
+        "general/experiments"
+      ],
+      "note": "Manage persistent terminal sessions for long-running experiments."
+    },
+    {
+      "repo_id": 126627662,
+      "full_name": "higgsfield/RL-Adventure",
+      "folders": [
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Collection of executable deep-RL baselines for comparative learning and experimentation."
+    },
+    {
+      "repo_id": 32689863,
+      "full_name": "3b1b/manim",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Programmatically animate mathematical concepts for research explanations."
+    },
+    {
+      "repo_id": 923261065,
+      "full_name": "MIT-MI/how2ai-course",
+      "folders": [
+        "ai-ml/deep-learning",
+        "general/code-analysis"
+      ],
+      "note": "Hands-on applied-AI course material and project references."
+    },
+    {
+      "repo_id": 592489166,
+      "full_name": "openai/evals",
+      "folders": [
+        "ai-ml/datasets-evaluation",
+        "general/experiments",
+        "ai-ml/nlp"
+      ],
+      "note": "Framework and benchmark registry for evaluating language models and model systems."
+    },
+    {
+      "repo_id": 1278930806,
+      "full_name": "benchflow-ai/awesome-evals",
+      "folders": [
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Curated references for evaluating AI agents and benchmarks."
+    },
+    {
+      "repo_id": 201978761,
+      "full_name": "Superalgos/Superalgos",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting"
+      ],
+      "note": "Visual data-mining and backtesting workflow for algorithmic-trading research."
+    },
+    {
+      "repo_id": 6297520,
+      "full_name": "quantopian/zipline",
+      "folders": [
+        "finance/backtesting"
+      ],
+      "note": "Python algorithmic-trading and backtesting library."
+    },
+    {
+      "repo_id": 151193107,
+      "full_name": "CodecWang/opencv-python-tutorial",
+      "folders": [
+        "ai-ml/computer-vision"
+      ],
+      "note": "OpenCV-Python image-processing tutorials and reusable examples."
+    },
+    {
+      "repo_id": 142187665,
+      "full_name": "HarisIqbal88/PlotNeuralNet",
+      "folders": [
+        "general/write-present",
+        "ai-ml/deep-learning"
+      ],
+      "note": "LaTeX tools for drawing neural-network architecture diagrams."
+    },
+    {
+      "repo_id": 616372661,
+      "full_name": "binary-husky/gpt_academic",
+      "folders": [
+        "general/read-papers",
+        "general/code-analysis",
+        "general/write-present"
+      ],
+      "note": "Academic assistant supporting paper reading, translation, scientific code, and manuscript work."
+    },
+    {
+      "repo_id": 1241325722,
+      "full_name": "WUBING2023/PaperSpine",
+      "folders": [
+        "general/read-papers",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Evidence-bound workspace for papers, research writing, figures, and review."
+    },
+    {
+      "repo_id": 1219596233,
+      "full_name": "Yuan1z0825/nature-skills",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Academic-writing and scientific-figure skills."
+    },
+    {
+      "repo_id": 1173309453,
+      "full_name": "Master-cai/Research-Paper-Writing-Skills",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Paper-writing skills specialized for ML, computer vision, and NLP."
+    },
+    {
+      "repo_id": 1172189879,
+      "full_name": "Norman-bury/research-writing-skill",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Research-writing assistance skill."
+    },
+    {
+      "repo_id": 1220899692,
+      "full_name": "Imbad0202/academic-research-skills-codex",
+      "folders": [
+        "general/read-papers",
+        "general/code-analysis",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Human-guided academic research skills spanning analysis through manuscript revision."
+    },
+    {
+      "repo_id": 1088558237,
+      "full_name": "Orchestra-Research/AI-Research-SKILLs",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/datasets-evaluation",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "AI research and engineering skills for running and documenting model experiments."
+    },
+    {
+      "repo_id": 1200204014,
+      "full_name": "brycewang-stanford/Auto-Empirical-Research-Skills",
+      "folders": [
+        "general/code-analysis",
+        "general/experiments",
+        "finance/econometrics"
+      ],
+      "note": "Empirical-research skills spanning social-science analysis and reproducibility."
+    },
+    {
+      "repo_id": 876286167,
+      "full_name": "lfnovo/open-notebook",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Notebook-style workspace for organizing and querying research sources."
+    },
+    {
+      "repo_id": 1165277268,
+      "full_name": "Panniantong/Agent-Reach",
+      "folders": [
+        "general/code-analysis",
+        "general/read-papers"
+      ],
+      "note": "Command-line collection and search across publicly available web sources."
+    },
+    {
+      "repo_id": 1185590488,
+      "full_name": "rohitg00/ai-engineering-from-scratch",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/nlp",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Hands-on AI-engineering curriculum with implementation examples."
+    },
+    {
+      "repo_id": 785180896,
+      "full_name": "darkdevil3610/100-AI-Machine-learning-Deep-learning-Computer-vision-NLP",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/computer-vision",
+        "ai-ml/nlp"
+      ],
+      "note": "Selected implementation examples across ML, vision, and NLP tasks."
+    },
+    {
+      "repo_id": 469784154,
+      "full_name": "bradleyboyuyang/ML-HFT",
+      "folders": [
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "Reusable ML-driven high-frequency futures research framework."
+    },
+    {
+      "repo_id": 98400312,
+      "full_name": "Crypto-toolbox/HFT-Orderbook",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting"
+      ],
+      "note": "Limit-order-book implementation for high-frequency-market research."
+    },
+    {
+      "repo_id": 528898425,
+      "full_name": "nkaz001/hftbacktest",
+      "folders": [
+        "finance/backtesting",
+        "finance/portfolio-risk"
+      ],
+      "note": "Tick-level trading and market-making backtests with queue and latency modeling."
+    },
+    {
+      "repo_id": 948264786,
+      "full_name": "LLMQuant/quant-mind",
+      "folders": [
+        "finance/market-data",
+        "ai-ml/nlp"
+      ],
+      "note": "Knowledge-extraction and retrieval framework for quantitative-finance sources."
+    },
+    {
+      "repo_id": 1192031521,
+      "full_name": "0xSero/turboquant",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/deep-learning"
+      ],
+      "note": "KV-cache quantization implementation for efficient language-model inference."
+    },
+    {
+      "repo_id": 78592938,
+      "full_name": "5harad/intro-stats",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Introductory statistics course material for research foundations."
+    },
+    {
+      "repo_id": 1117172748,
+      "full_name": "madeleineudell/mse318",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Course references on constrained and safe AI methods."
+    },
+    {
+      "repo_id": 69684935,
+      "full_name": "5harad/css",
+      "folders": [
+        "ai-ml/statistics",
+        "finance/econometrics",
+        "general/code-analysis"
+      ],
+      "note": "Computational-social-science course material and analysis references."
+    },
+    {
+      "repo_id": 51041998,
+      "full_name": "PlamenStilyianov/FinMathematics",
+      "folders": [
+        "finance/portfolio-risk"
+      ],
+      "note": "Financial-mathematics book references."
+    },
+    {
+      "repo_id": 1192555574,
+      "full_name": "RyanCodrai/turbovec",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/nlp"
+      ],
+      "note": "Vector index with Python bindings for retrieval-oriented research systems."
+    },
+    {
+      "repo_id": 919443098,
+      "full_name": "deepseek-ai/DeepSeek-R1",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/nlp"
+      ],
+      "note": "Open reasoning-model baseline for NLP comparisons and experiments."
+    },
+    {
+      "repo_id": 908531752,
+      "full_name": "deepseek-ai/DeepSeek-V3",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/nlp"
+      ],
+      "note": "Open language-model baseline for architecture and NLP experiments."
+    },
+    {
+      "repo_id": 62436640,
+      "full_name": "atinesh/Coursera-Machine-Learning-Stanford",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Stanford machine-learning course study materials."
+    },
+    {
+      "repo_id": 1167300963,
+      "full_name": "Imbad0202/academic-research-skills",
+      "folders": [
+        "general/read-papers",
+        "general/code-analysis",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Academic research skills covering research, writing, review, and revision."
+    },
+    {
+      "repo_id": 634081686,
+      "full_name": "mlc-ai/mlc-llm",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Portable language-model inference and deployment engine."
+    },
+    {
+      "repo_id": 70746484,
+      "full_name": "apache/tvm",
+      "folders": [
+        "ai-ml/deep-learning",
+        "general/experiments"
+      ],
+      "note": "Machine-learning compiler framework for model-performance experimentation."
+    },
+    {
+      "repo_id": 1231148626,
+      "full_name": "antirez/ds4",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Local inference engine for supported DeepSeek model checkpoints."
+    },
+    {
+      "repo_id": 1131797886,
+      "full_name": "axtonliu/axton-obsidian-visual-skills",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Obsidian skills for organizing notes and generating visual research diagrams."
+    },
+    {
+      "repo_id": 707265118,
+      "full_name": "playcanvas/supersplat",
+      "folders": [
+        "ai-ml/computer-vision"
+      ],
+      "note": "Editor for examining and refining 3D Gaussian-splat representations."
+    },
+    {
+      "repo_id": 749126547,
+      "full_name": "ScrapeGraphAI/Scrapegraph-ai",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "AI-assisted scraper for turning web content into analyzable research data."
+    },
+    {
+      "repo_id": 1203670949,
+      "full_name": "AgriciDaniel/claude-obsidian",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Source-linked knowledge-graph and note-organization skills."
+    },
+    {
+      "repo_id": 1112365301,
+      "full_name": "tobi/qmd",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Local document and knowledge-base search engine."
+    },
+    {
+      "repo_id": 476314415,
+      "full_name": "AccumulateMore/CV",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/computer-vision",
+        "ai-ml/nlp"
+      ],
+      "note": "Deep-learning notes covering vision and NLP foundations."
+    },
+    {
+      "repo_id": 783730789,
+      "full_name": "Lordog/dive-into-llms",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/nlp"
+      ],
+      "note": "Programming tutorials for understanding and experimenting with large language models."
+    },
+    {
+      "repo_id": 781022269,
+      "full_name": "anthropics/prompt-eng-interactive-tutorial",
+      "folders": [
+        "ai-ml/nlp"
+      ],
+      "note": "Interactive prompt-engineering tutorials for model-based experiments."
+    },
+    {
+      "repo_id": 579082810,
+      "full_name": "dair-ai/Prompt-Engineering-Guide",
+      "folders": [
+        "ai-ml/nlp",
+        "general/read-papers"
+      ],
+      "note": "Curated papers and guides for prompts, context engineering, and retrieval-augmented systems."
+    },
+    {
+      "repo_id": 1198306812,
+      "full_name": "HKUDS/Vibe-Trading",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "Agent-assisted quantitative-trading research and backtesting workflow."
+    },
+    {
+      "repo_id": 60024365,
+      "full_name": "alshedivat/al-folio",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Academic website theme for presenting publications and research outputs."
+    },
+    {
+      "repo_id": 68287594,
+      "full_name": "academicpages/academicpages.github.io",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Academic portfolio template for sharing publications and research projects."
+    },
+    {
+      "repo_id": 1166347447,
+      "full_name": "ShadeAlsha/MathNet",
+      "folders": [
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Reusable multimodal mathematical-reasoning benchmark and dataset implementation."
+    },
+    {
+      "repo_id": 707551301,
+      "full_name": "deepseek-ai/DeepSeek-Coder",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/nlp"
+      ],
+      "note": "Code-focused language-model baseline for research comparisons."
+    },
+    {
+      "repo_id": 914316754,
+      "full_name": "Alibaba-NLP/DeepResearch",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Open deep-research agent for multi-step information seeking."
+    },
+    {
+      "repo_id": 926861272,
+      "full_name": "dzhng/deep-research",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Simple research-agent implementation combining web retrieval and iterative synthesis."
+    },
+    {
+      "repo_id": 1145786318,
+      "full_name": "Leey21/awesome-ai-research-writing",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Curated AI research-writing tools and references."
+    },
+    {
+      "repo_id": 1179229480,
+      "full_name": "davebcn87/pi-autoresearch",
+      "folders": [
+        "general/experiments"
+      ],
+      "note": "Experiment-loop extension for systematic autonomous iteration."
+    },
+    {
+      "repo_id": 1126947080,
+      "full_name": "kepano/obsidian-skills",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Obsidian-agent skills for research notes, Markdown, and visual canvases."
+    },
+    {
+      "repo_id": 1110782890,
+      "full_name": "YishenTu/claudian",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Coding-agent integration inside an Obsidian research-notes vault."
+    },
+    {
+      "repo_id": 75325926,
+      "full_name": "Developer-Y/math-science-video-lectures",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/statistics"
+      ],
+      "note": "Mathematics and science lecture collection for research-method foundations."
+    },
+    {
+      "repo_id": 582432706,
+      "full_name": "brianpetro/obsidian-smart-connections",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Local semantic search and related-note discovery for a research knowledge base."
+    },
+    {
+      "repo_id": 1186559664,
+      "full_name": "Companion-Inc/feynman",
+      "folders": [
+        "general/read-papers",
+        "general/experiments"
+      ],
+      "note": "Command-line AI research agent with literature-review support."
+    },
+    {
+      "repo_id": 1128123594,
+      "full_name": "volcengine/OpenViking",
+      "folders": [
+        "general/read-papers",
+        "ai-ml/nlp"
+      ],
+      "note": "Context database and retrieval infrastructure for source-grounded agent workflows."
+    },
+    {
+      "repo_id": 633927609,
+      "full_name": "promptfoo/promptfoo",
+      "folders": [
+        "ai-ml/datasets-evaluation",
+        "general/experiments"
+      ],
+      "note": "Declarative testing and comparison of prompts, agents, and retrieval systems."
+    },
+    {
+      "repo_id": 165826654,
+      "full_name": "google-deepmind/deepmind-research",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Collection of research implementations and illustrative model baselines."
+    },
+    {
+      "repo_id": 265612440,
+      "full_name": "coqui-ai/TTS",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Reusable speech-synthesis toolkit for language and audio research."
+    },
+    {
+      "repo_id": 1130657894,
+      "full_name": "pmxt-dev/pmxt",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Unified client API for collecting prediction-market prices and trading data."
+    },
+    {
+      "repo_id": 1102015506,
+      "full_name": "Jon-Becker/prediction-market-analysis",
+      "folders": [
+        "finance/market-data",
+        "general/code-analysis"
+      ],
+      "note": "Prediction-market datasets and analysis framework for empirical market research."
+    },
+    {
+      "repo_id": 179163124,
+      "full_name": "hummingbot/hummingbot",
+      "folders": [
+        "finance/backtesting"
+      ],
+      "note": "Strategy-development and execution framework for studying systematic crypto trading."
+    },
+    {
+      "repo_id": 91629816,
+      "full_name": "freqtrade/freqtrade",
+      "folders": [
+        "finance/backtesting"
+      ],
+      "note": "Open-source trading framework with reusable strategy research and backtesting workflows."
+    },
+    {
+      "repo_id": 91253698,
+      "full_name": "ccxt/ccxt",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Unified exchange APIs for collecting cross-market cryptocurrency data."
+    },
+    {
+      "repo_id": 1131513930,
+      "full_name": "ZhuLinsen/daily_stock_analysis",
+      "folders": [
+        "finance/market-data",
+        "finance/financial-ml"
+      ],
+      "note": "LLM-assisted multi-market analysis combining prices and news sources."
+    },
+    {
+      "repo_id": 91948540,
+      "full_name": "ranaroussi/yfinance",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Python access to historical market data for financial analysis."
+    },
+    {
+      "repo_id": 138227534,
+      "full_name": "stanfordmlgroup/ngboost",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Probabilistic gradient boosting for statistical prediction and uncertainty modeling."
+    },
+    {
+      "repo_id": 137935980,
+      "full_name": "deeplearning-ai/machine-learning-yearning-cn",
+      "folders": [
+        "ai-ml/datasets-evaluation",
+        "general/experiments"
+      ],
+      "note": "Reference on structuring ML experiments, error analysis, and dataset decisions."
+    },
+    {
+      "repo_id": 982835425,
+      "full_name": "analyticalrohit/AI-ML-Cheatsheets",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning",
+        "ai-ml/transformers"
+      ],
+      "note": "Compact mathematical and algorithmic references spanning ML, statistics, and transformers."
+    },
+    {
+      "repo_id": 104854615,
+      "full_name": "stanfordnlp/stanza",
+      "folders": [
+        "ai-ml/nlp"
+      ],
+      "note": "Reusable multilingual NLP pipeline for tokenization, named entities, and parsing."
+    },
+    {
+      "repo_id": 72945141,
+      "full_name": "chiphuyen/stanford-tensorflow-tutorials",
+      "folders": [
+        "ai-ml/deep-learning"
+      ],
+      "note": "Archived TensorFlow teaching examples retained as a historical deep-learning reference."
+    },
+    {
+      "repo_id": 612427246,
+      "full_name": "tatsu-lab/stanford_alpaca",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Instruction-tuning code and data-generation baseline for language-model experiments."
+    },
+    {
+      "repo_id": 908108028,
+      "full_name": "Tencent/AI-Infra-Guard",
+      "folders": [
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Red-teaming and jailbreak-evaluation tooling for assessing AI systems."
+    },
+    {
+      "repo_id": 1194770015,
+      "full_name": "caiovicentino/eoq-quantization",
+      "folders": [
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "LLM quantization implementation for model-compression experiments."
+    },
+    {
+      "repo_id": 1181272477,
+      "full_name": "himself65/finance-skills",
+      "folders": [
+        "finance/market-data",
+        "finance/financial-ml"
+      ],
+      "note": "Agent skills dedicated to financial analysis workflows."
+    },
+    {
+      "repo_id": 1130564872,
+      "full_name": "koala73/worldmonitor",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "News and geopolitical monitoring dashboard for gathering market-research context."
+    },
+    {
+      "repo_id": 101138315,
+      "full_name": "d2l-ai/d2l-zh",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/computer-vision",
+        "ai-ml/nlp"
+      ],
+      "note": "Chinese interactive deep-learning reference with executable model examples."
+    },
+    {
+      "repo_id": 65600975,
+      "full_name": "pytorch/pytorch",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/computer-vision",
+        "ai-ml/nlp",
+        "general/experiments"
+      ],
+      "note": "Core tensor and automatic-differentiation framework for training and comparing research models."
+    },
+    {
+      "repo_id": 787076358,
+      "full_name": "firecrawl/firecrawl",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Web acquisition and extraction library for building research datasets."
+    },
+    {
+      "repo_id": 156283359,
+      "full_name": "grananqvist/Awesome-Quant-Machine-Learning-Trading",
+      "folders": [
+        "finance/financial-ml",
+        "finance/backtesting"
+      ],
+      "note": "Curated resources connecting machine learning with quantitative trading experiments."
+    },
+    {
+      "repo_id": 867433720,
+      "full_name": "mostlygeek/llama-swap",
+      "folders": [
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Local model-server switching for comparing inference runs across language models."
+    },
+    {
+      "repo_id": 669879380,
+      "full_name": "rasbt/LLMs-from-scratch",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/nlp",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Step-by-step transformer and language-model implementations in PyTorch."
+    },
+    {
+      "repo_id": 1129786550,
+      "full_name": "teng-lin/notebooklm-py",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Python, CLI, and agent access to Notebook-style source analysis and research features."
+    },
+    {
+      "repo_id": 834369920,
+      "full_name": "jingyaogong/minimind",
+      "folders": [
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Small language-model training codebase for accessible from-scratch experiments."
+    },
+    {
+      "repo_id": 1008857871,
+      "full_name": "hsliuping/TradingAgents-CN",
+      "folders": [
+        "finance/financial-ml",
+        "finance/market-data"
+      ],
+      "note": "Chinese-language adaptation of a multi-agent financial-analysis framework."
+    },
+    {
+      "repo_id": 909213664,
+      "full_name": "TauricResearch/TradingAgents",
+      "folders": [
+        "finance/financial-ml",
+        "finance/market-data"
+      ],
+      "note": "Reusable LLM multi-agent framework for financial research and market analysis."
+    },
+    {
+      "repo_id": 1140843380,
+      "full_name": "mvanhorn/last30days-skill",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Research skill for collecting and synthesizing recent information across web sources."
+    },
+    {
+      "repo_id": 1079456184,
+      "full_name": "K-Dense-AI/scientific-agent-skills",
+      "folders": [
+        "general/read-papers",
+        "general/code-analysis",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Scientific skills and database integrations spanning the academic research workflow."
+    },
+    {
+      "repo_id": 1142406715,
+      "full_name": "EvoScientist/EvoScientist",
+      "folders": [
+        "general/experiments"
+      ],
+      "note": "Research-agent platform for investigating self-evolving scientific workflows."
+    },
+    {
+      "repo_id": 1145749657,
+      "full_name": "dwzhu-pku/PaperBanana",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Academic-illustration tool for producing figures for scientific communication."
+    },
+    {
+      "repo_id": 842172831,
+      "full_name": "business-science/awesome-generative-ai-data-scientist",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Curated generative-AI data-science references, tools, and learning resources."
+    },
+    {
+      "repo_id": 962431643,
+      "full_name": "SakanaAI/AI-Scientist-v2",
+      "folders": [
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Automated-discovery research workflow with experiment and paper-generation components."
+    },
+    {
+      "repo_id": 841376583,
+      "full_name": "SakanaAI/AI-Scientist",
+      "folders": [
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "End-to-end scientific-discovery baseline for experiments and research writeups."
+    },
+    {
+      "repo_id": 1074385053,
+      "full_name": "MeridianAlgo/Apex-Analysis",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Open financial-analysis workspace for exploring stocks and research data."
+    },
+    {
+      "repo_id": 956639757,
+      "full_name": "openai/frontier-evals",
+      "folders": [
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Evaluation code and tasks for studying frontier model capabilities."
+    },
+    {
+      "repo_id": 1153302402,
+      "full_name": "openai/parameter-golf",
+      "folders": [
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Constrained language-model training benchmark for reproducible architecture experiments."
+    },
+    {
+      "repo_id": 1174820787,
+      "full_name": "karpathy/autoresearch",
+      "folders": [
+        "general/experiments",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Automated single-GPU training experiments and an inspectable optimization loop."
+    },
+    {
+      "repo_id": 1182108611,
+      "full_name": "aiming-lab/AutoResearchClaw",
+      "folders": [
+        "general/read-papers",
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Idea-to-paper research-agent workflow for studying automated scientific work."
+    },
+    {
+      "repo_id": 1076426995,
+      "full_name": "virattt/dexter",
+      "folders": [
+        "finance/market-data",
+        "finance/financial-ml"
+      ],
+      "note": "Autonomous financial-research agent for gathering and analyzing financial evidence."
+    },
+    {
+      "repo_id": 896144595,
+      "full_name": "virattt/ai-hedge-fund",
+      "folders": [
+        "finance/market-data",
+        "finance/financial-ml"
+      ],
+      "note": "Experimental agent-based financial-analysis baseline."
+    },
+    {
+      "repo_id": 979115477,
+      "full_name": "bytedance/deer-flow",
+      "folders": [
+        "general/read-papers",
+        "general/code-analysis"
+      ],
+      "note": "Extensible research-and-coding harness for multi-step source analysis workflows."
+    },
+    {
+      "repo_id": 1136666433,
+      "full_name": "blader/humanizer",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Editing skill for identifying formulaic AI-generated prose in research drafts."
+    },
+    {
+      "repo_id": 129936360,
+      "full_name": "PennyLaneAI/pennylane",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Scientific computing library for quantum algorithms and quantum machine-learning experiments."
+    },
+    {
+      "repo_id": 87536046,
+      "full_name": "janishar/mit-deep-learning-book-pdf",
+      "folders": [
+        "ai-ml/deep-learning"
+      ],
+      "note": "Deep-learning textbook reference covering mathematical foundations and model methods."
+    },
+    {
+      "repo_id": 78313173,
+      "full_name": "lexfridman/mit-deep-learning",
+      "folders": [
+        "ai-ml/deep-learning"
+      ],
+      "note": "MIT deep-learning teaching materials, assignments, and experiment references."
+    },
+    {
+      "repo_id": 136380207,
+      "full_name": "microsoft/QuantumKatas",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Archived quantum-programming exercises retained as a scientific-computing learning reference."
+    },
+    {
+      "repo_id": 891365119,
+      "full_name": "TheBlewish/Automated-AI-Web-Researcher-Ollama",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Local-model research assistant for web searching, source extraction, and saved findings."
+    },
+    {
+      "repo_id": 75190475,
+      "full_name": "google-deepmind/lab",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "general/experiments"
+      ],
+      "note": "Customizable 3D environment for studying and evaluating reinforcement-learning agents."
+    },
+    {
+      "repo_id": 15204860,
+      "full_name": "papers-we-love/papers-we-love",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Curated computer-science papers for literature discovery and reading groups."
+    },
+    {
+      "repo_id": 611305072,
+      "full_name": "kaixindelele/ChatPaper",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Paper summarization, translation, and academic editing assistant."
+    },
+    {
+      "repo_id": 1120304511,
+      "full_name": "alexzhang13/rlm",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/transformers"
+      ],
+      "note": "Inference library for experimenting with recursive language-model execution."
+    },
+    {
+      "repo_id": 286032881,
+      "full_name": "YingfanWang/PaCMAP",
+      "folders": [
+        "ai-ml/statistics",
+        "general/code-analysis"
+      ],
+      "note": "Dimensionality-reduction library for exploring high-dimensional datasets."
+    },
+    {
+      "repo_id": 537603333,
+      "full_name": "openai/whisper",
+      "folders": [
+        "ai-ml/nlp"
+      ],
+      "note": "Speech-recognition model and tooling for transcription-based language research."
+    },
+    {
+      "repo_id": 1148088086,
+      "full_name": "arpitrage/ai-in-finance",
+      "folders": [
+        "finance/financial-ml"
+      ],
+      "note": "University course materials on applying AI methods in finance."
+    },
+    {
+      "repo_id": 1046985950,
+      "full_name": "HHHHHejia/Awesome-AgenticLLM-RL-Papers",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "general/read-papers"
+      ],
+      "note": "Reading collection for research at the intersection of language-model agents and RL."
+    },
+    {
+      "repo_id": 946178371,
+      "full_name": "OpenPipe/ART",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "general/experiments"
+      ],
+      "note": "Reinforcement-learning training library for multi-step agents."
+    },
+    {
+      "repo_id": 1004147641,
+      "full_name": "microsoft/agent-lightning",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "general/experiments"
+      ],
+      "note": "Agent-training framework for reinforcement-learning experiments."
+    },
+    {
+      "repo_id": 998903307,
+      "full_name": "thinkwee/AgentsMeetRL",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "general/read-papers"
+      ],
+      "note": "Curated references connecting agentic systems with reinforcement learning."
+    },
+    {
+      "repo_id": 942373331,
+      "full_name": "AgentR1/Agent-R1",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "ai-ml/nlp",
+        "general/experiments"
+      ],
+      "note": "End-to-end agent-training research baseline for language-model reinforcement learning."
+    },
+    {
+      "repo_id": 940662305,
+      "full_name": "PeterGriffinJin/Search-R1",
+      "folders": [
+        "ai-ml/reinforcement-learning",
+        "ai-ml/nlp",
+        "general/experiments"
+      ],
+      "note": "Reusable RL training framework for language-model reasoning and search-tool use."
+    },
+    {
+      "repo_id": 1097352498,
+      "full_name": "MeridianAlgo/Learn-Quant",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting"
+      ],
+      "note": "Commented quantitative-finance examples for learning data and strategy workflows."
+    },
+    {
+      "repo_id": 1096643442,
+      "full_name": "vukrosic/become-elite-ai-researcher",
+      "folders": [
+        "general/experiments",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Research-oriented curriculum for developing AI experimentation skills."
+    },
+    {
+      "repo_id": 57929326,
+      "full_name": "emeryberger/CSrankings",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Directory for discovering active research areas, departments, and faculty."
+    },
+    {
+      "repo_id": 16587283,
+      "full_name": "dmlc/xgboost",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Gradient-boosted tree library for statistical-learning baselines and prediction."
+    },
+    {
+      "repo_id": 468576060,
+      "full_name": "openai/openai-cookbook",
+      "folders": [
+        "ai-ml/nlp"
+      ],
+      "note": "Worked API examples for language-model applications and reproducible prototypes."
+    },
+    {
+      "repo_id": 149113514,
+      "full_name": "dipakkr/awesome-ai-engineering",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Curated AI-engineering references covering language models, fine-tuning, and evaluation."
+    },
+    {
+      "repo_id": 881458615,
+      "full_name": "browser-use/browser-use",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Browser-automation library for collecting web information in data workflows."
+    },
+    {
+      "repo_id": 965174143,
+      "full_name": "PaperDebugger/paperdebugger",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "In-editor tools for academic drafting, review, and revision."
+    },
+    {
+      "repo_id": 780522250,
+      "full_name": "FoundationVision/VAR",
+      "folders": [
+        "ai-ml/computer-vision",
+        "ai-ml/transformers"
+      ],
+      "note": "Reusable visual-autoregressive image-generation implementation and research baseline."
+    },
+    {
+      "repo_id": 629102662,
+      "full_name": "haotian-liu/LLaVA",
+      "folders": [
+        "ai-ml/computer-vision",
+        "ai-ml/nlp",
+        "ai-ml/transformers"
+      ],
+      "note": "Vision-language instruction-tuning baseline for multimodal research."
+    },
+    {
+      "repo_id": 330062213,
+      "full_name": "kabartay/openunivcourses",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Searchable university ML course references for statistical and deep-learning foundations."
+    },
+    {
+      "repo_id": 601044104,
+      "full_name": "thuml/Time-Series-Library",
+      "folders": [
+        "ai-ml/time-series",
+        "general/experiments"
+      ],
+      "note": "Reusable deep time-series models and a shared experimentation library."
+    },
+    {
+      "repo_id": 762224673,
+      "full_name": "amazon-science/chronos-forecasting",
+      "folders": [
+        "ai-ml/time-series",
+        "ai-ml/transformers"
+      ],
+      "note": "Pretrained forecasting models for time-series baseline comparisons."
+    },
+    {
+      "repo_id": 41881900,
+      "full_name": "microsoft/vscode",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Code editor and notebook-oriented development environment for research projects."
+    },
+    {
+      "repo_id": 725205304,
+      "full_name": "unslothai/unsloth",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/deep-learning",
+        "general/experiments"
+      ],
+      "note": "Local model training and fine-tuning workspace for LLM and diffusion experiments."
+    },
+    {
+      "repo_id": 828268839,
+      "full_name": "NirDiamant/RAG_Techniques",
+      "folders": [
+        "ai-ml/nlp",
+        "general/experiments"
+      ],
+      "note": "Notebook implementations for comparing retrieval-augmented generation methods."
+    },
+    {
+      "repo_id": 876064934,
+      "full_name": "patchy631/ai-engineering-hub",
+      "folders": [
+        "ai-ml/nlp"
+      ],
+      "note": "Code-first references for LLM, retrieval, and agent application techniques."
+    },
+    {
+      "repo_id": 290091948,
+      "full_name": "labmlai/annotated_deep_learning_paper_implementations",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/transformers",
+        "ai-ml/computer-vision",
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Annotated implementations of reusable deep-learning, transformer, vision, and RL methods."
+    },
+    {
+      "repo_id": 793784055,
+      "full_name": "google-research/timesfm",
+      "folders": [
+        "ai-ml/time-series",
+        "ai-ml/transformers"
+      ],
+      "note": "Pretrained time-series foundation model for forecasting experiments."
+    },
+    {
+      "repo_id": 1885237,
+      "full_name": "statsmodels/statsmodels",
+      "folders": [
+        "ai-ml/statistics",
+        "finance/econometrics",
+        "general/code-analysis"
+      ],
+      "note": "Statistical modeling and econometric estimation library for data analysis."
+    },
+    {
+      "repo_id": 843222,
+      "full_name": "scikit-learn/scikit-learn",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/datasets-evaluation",
+        "general/code-analysis"
+      ],
+      "note": "Classical ML estimators, preprocessing, and evaluation utilities."
+    },
+    {
+      "repo_id": 145553672,
+      "full_name": "fighting41love/funNLP",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Chinese NLP tools, corpora, datasets, and task-baseline references."
+    },
+    {
+      "repo_id": 45717250,
+      "full_name": "tensorflow/tensorflow",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/computer-vision",
+        "ai-ml/nlp",
+        "general/experiments"
+      ],
+      "note": "General machine-learning framework for building and training research models."
+    },
+    {
+      "repo_id": 725839295,
+      "full_name": "state-spaces/mamba",
+      "folders": [
+        "ai-ml/transformers",
+        "ai-ml/nlp"
+      ],
+      "note": "State-space sequence architecture for comparisons with transformer models."
+    },
+    {
+      "repo_id": 756142546,
+      "full_name": "SciPhi-AI/R2R",
+      "folders": [
+        "general/read-papers",
+        "ai-ml/nlp"
+      ],
+      "note": "Retrieval library for building source-grounded document-analysis systems."
+    },
+    {
+      "repo_id": 33653601,
+      "full_name": "jupyter/notebook",
+      "folders": [
+        "general/code-analysis",
+        "general/experiments"
+      ],
+      "note": "Interactive notebooks for analysis, executable methods, and experiment records."
+    },
+    {
+      "repo_id": 74173698,
+      "full_name": "paperswithcode/ai-deadlines",
+      "folders": [
+        "general/write-present"
+      ],
+      "note": "Conference-deadline tracker for planning AI research submissions."
+    },
+    {
+      "repo_id": 958236743,
+      "full_name": "dan-the-quant/DTQ-Portfolio_Management_Course",
+      "folders": [
+        "finance/portfolio-risk"
+      ],
+      "note": "Portfolio-management course and workshop materials."
+    },
+    {
+      "repo_id": 326295386,
+      "full_name": "VITA-Group/Open-L2O",
+      "folders": [
+        "ai-ml/deep-learning",
+        "general/experiments"
+      ],
+      "note": "Reproducible benchmark for comparing learned optimization algorithms."
+    },
+    {
+      "repo_id": 531653392,
+      "full_name": "SharifiZarchi/Introduction_to_Machine_Learning",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "University course reference for machine-learning methods and foundations."
+    },
+    {
+      "repo_id": 42360601,
+      "full_name": "ujjwalkarn/Machine-Learning-Tutorials",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Curated machine-learning and deep-learning tutorials and method references."
+    },
+    {
+      "repo_id": 188356619,
+      "full_name": "afshinea/stanford-cs-221-artificial-intelligence",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Concise reference for foundational AI methods and decision-making concepts."
+    },
+    {
+      "repo_id": 144102473,
+      "full_name": "shervinea/stanford-cme-106-probability-and-statistics",
+      "folders": [
+        "ai-ml/statistics",
+        "finance/econometrics"
+      ],
+      "note": "Probability and statistics reference for empirical analysis."
+    },
+    {
+      "repo_id": 144672564,
+      "full_name": "shervinea/stanford-cme-102-ordinary-differential-equations",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Differential-equations reference for mathematical modeling and scientific analysis."
+    },
+    {
+      "repo_id": 956321082,
+      "full_name": "JizhiXiang/Quant-Strategy",
+      "folders": [
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "Quantitative strategy examples combining ML and Qlib-oriented experimentation."
+    },
+    {
+      "repo_id": 781261349,
+      "full_name": "microsoft/RD-Agent",
+      "folders": [
+        "general/experiments",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Agent-based research-and-development workflows for data and model experiments."
+    },
+    {
+      "repo_id": 172184786,
+      "full_name": "WHUFT/ML-Quantamental",
+      "folders": [
+        "finance/financial-ml",
+        "finance/portfolio-risk"
+      ],
+      "note": "Quantamental investing baseline using machine-learning signals."
+    },
+    {
+      "repo_id": 276901861,
+      "full_name": "sktime/pytorch-forecasting",
+      "folders": [
+        "ai-ml/time-series",
+        "ai-ml/deep-learning"
+      ],
+      "note": "PyTorch library for training and evaluating time-series forecasting models."
+    },
+    {
+      "repo_id": 12310747,
+      "full_name": "cs109/content",
+      "folders": [
+        "ai-ml/statistics",
+        "general/code-analysis"
+      ],
+      "note": "Harvard data-science course materials for statistical analysis and reproducible notebooks."
+    },
+    {
+      "repo_id": 888092115,
+      "full_name": "microsoft/markitdown",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Convert source documents and office files to Markdown for research workflows."
+    },
+    {
+      "repo_id": 218500041,
+      "full_name": "ProsusAI/finBERT",
+      "folders": [
+        "finance/financial-ml",
+        "ai-ml/nlp",
+        "ai-ml/transformers"
+      ],
+      "note": "Financial-language BERT model for sentiment-analysis baselines."
+    },
+    {
+      "repo_id": 912962041,
+      "full_name": "damon-chem-e/Gemini-Search",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Search-and-grounding application for gathering and synthesizing web evidence."
+    },
+    {
+      "repo_id": 337105949,
+      "full_name": "maxim5/cs229-2018-autumn",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Stanford CS229 notes and course materials for ML foundations."
+    },
+    {
+      "repo_id": 100433896,
+      "full_name": "DSKSD/DeepNLP-models-Pytorch",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Inspectable PyTorch implementations of core NLP models."
+    },
+    {
+      "repo_id": 88576008,
+      "full_name": "cycleuser/Stanford-CS-229",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Chinese translation of Stanford machine-learning lecture notes."
+    },
+    {
+      "repo_id": 159279531,
+      "full_name": "afshinea/stanford-cs-230-deep-learning",
+      "folders": [
+        "ai-ml/deep-learning"
+      ],
+      "note": "Concise Stanford deep-learning reference sheets."
+    },
+    {
+      "repo_id": 131881622,
+      "full_name": "NVIDIA/DeepLearningExamples",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/computer-vision",
+        "ai-ml/nlp",
+        "general/experiments"
+      ],
+      "note": "Reproducible training and deployment examples across common deep-learning model families."
+    },
+    {
+      "repo_id": 73872834,
+      "full_name": "facebook/prophet",
+      "folders": [
+        "ai-ml/time-series"
+      ],
+      "note": "Time-series forecasting library with trend and seasonality models."
+    },
+    {
+      "repo_id": 821372392,
+      "full_name": "HandsOnLLM/Hands-On-Large-Language-Models",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/transformers"
+      ],
+      "note": "Executable large-language-model book examples and technique references."
+    },
+    {
+      "repo_id": 113564448,
+      "full_name": "mml-book/mml-book.github.io",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Mathematical foundations reference for machine learning."
+    },
+    {
+      "repo_id": 156157055,
+      "full_name": "GokuMohandas/Made-With-ML",
+      "folders": [
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "End-to-end ML development practices for iteration, evaluation, and reproducibility."
+    },
+    {
+      "repo_id": 600544354,
+      "full_name": "AI4Finance-Foundation/FinGPT",
+      "folders": [
+        "finance/financial-ml",
+        "ai-ml/nlp",
+        "ai-ml/transformers"
+      ],
+      "note": "Open financial language-model resources for finance-focused NLP experiments."
+    },
+    {
+      "repo_id": 1065936302,
+      "full_name": "Open-Dev-Society/OpenStock",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Open market-data and company-information exploration application."
+    },
+    {
+      "repo_id": 127918080,
+      "full_name": "je-suis-tm/quant-trading",
+      "folders": [
+        "finance/backtesting",
+        "finance/portfolio-risk"
+      ],
+      "note": "Quantitative strategy, options, volatility, and Monte Carlo research examples."
+    },
+    {
+      "repo_id": 27703983,
+      "full_name": "StockSharp/StockSharp",
+      "folders": [
+        "finance/backtesting"
+      ],
+      "note": "Algorithmic-trading development platform for implementing and studying strategies."
+    },
+    {
+      "repo_id": 138552196,
+      "full_name": "nautechsystems/nautilus_trader",
+      "folders": [
+        "finance/backtesting"
+      ],
+      "note": "Deterministic event-driven trading engine for strategy research and testing."
+    },
+    {
+      "repo_id": 27251463,
+      "full_name": "QuantConnect/Lean",
+      "folders": [
+        "finance/backtesting"
+      ],
+      "note": "Reusable algorithmic-trading engine for backtesting research strategies."
+    },
+    {
+      "repo_id": 182067506,
+      "full_name": "kedro-org/kedro",
+      "folders": [
+        "general/code-analysis",
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Modular, reproducible data-science pipelines and project structure."
+    },
+    {
+      "repo_id": 209120637,
+      "full_name": "Netflix/metaflow",
+      "folders": [
+        "general/experiments",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Workflow framework for managing data-science and ML experiments."
+    },
+    {
+      "repo_id": 136202695,
+      "full_name": "mlflow/mlflow",
+      "folders": [
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Experiment tracking, model evaluation, and ML workflow management."
+    },
+    {
+      "repo_id": 103071520,
+      "full_name": "fivetran/great_expectations",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Data-quality checks for validating research datasets and pipeline assumptions."
+    },
+    {
+      "repo_id": 315977578,
+      "full_name": "evidentlyai/evidently",
+      "folders": [
+        "ai-ml/datasets-evaluation",
+        "general/experiments"
+      ],
+      "note": "Metrics, testing, and monitoring for comparing ML and LLM systems."
+    },
+    {
+      "repo_id": 161133770,
+      "full_name": "feast-dev/feast",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Feature-store infrastructure for sharing reproducible model inputs."
+    },
+    {
+      "repo_id": 178976529,
+      "full_name": "bentoml/BentoML",
+      "folders": [
+        "general/experiments"
+      ],
+      "note": "Model-serving and inference APIs for testing trained models in reusable workflows."
+    },
+    {
+      "repo_id": 83878269,
+      "full_name": "treeverse/dvc",
+      "folders": [
+        "general/experiments",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Data versioning and experiment management for reproducible ML work."
+    },
+    {
+      "repo_id": 71932349,
+      "full_name": "ray-project/ray",
+      "folders": [
+        "general/experiments",
+        "ai-ml/deep-learning",
+        "ai-ml/reinforcement-learning"
+      ],
+      "note": "Distributed compute and training libraries for scaling ML and RL experiments."
+    },
+    {
+      "repo_id": 597583114,
+      "full_name": "Future-House/paper-qa",
+      "folders": [
+        "general/read-papers",
+        "ai-ml/nlp"
+      ],
+      "note": "Question answering over scientific sources with citations."
+    },
+    {
+      "repo_id": 188919037,
+      "full_name": "pliang279/awesome-multimodal-ml",
+      "folders": [
+        "ai-ml/computer-vision",
+        "ai-ml/nlp",
+        "general/read-papers"
+      ],
+      "note": "Research reading collection for multimodal machine learning."
+    },
+    {
+      "repo_id": 143568533,
+      "full_name": "afshinea/stanford-cs-229-machine-learning",
+      "folders": [
+        "ai-ml/statistics"
+      ],
+      "note": "Stanford ML method and mathematics reference sheets."
+    },
+    {
+      "repo_id": 152166877,
+      "full_name": "d2l-ai/d2l-en",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/computer-vision",
+        "ai-ml/nlp"
+      ],
+      "note": "Interactive deep-learning reference with executable multi-framework examples."
+    },
+    {
+      "repo_id": 776854298,
+      "full_name": "stanford-oval/storm",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Source-backed knowledge curation and report-writing research system."
+    },
+    {
+      "repo_id": 396569538,
+      "full_name": "khoj-ai/khoj",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Self-hosted document and web knowledge workspace for source-based research."
+    },
+    {
+      "repo_id": 84533158,
+      "full_name": "yunjey/pytorch-tutorial",
+      "folders": [
+        "ai-ml/deep-learning",
+        "general/experiments"
+      ],
+      "note": "PyTorch examples for understanding and reproducing deep-learning methods."
+    },
+    {
+      "repo_id": 639835356,
+      "full_name": "assafelovic/gpt-researcher",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Research-agent workflow for collecting sources and generating grounded reports."
+    },
+    {
+      "repo_id": 822604462,
+      "full_name": "666ghj/BettaFish",
+      "folders": [
+        "finance/market-data",
+        "finance/financial-ml"
+      ],
+      "note": "Multi-agent public-opinion and sentiment analysis workflow for research context."
+    },
+    {
+      "repo_id": 79162682,
+      "full_name": "laurent22/joplin",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Local notes and source organization for keeping a research knowledge base."
+    },
+    {
+      "repo_id": 519859998,
+      "full_name": "toeverything/AFFiNE",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Knowledge-base and visual workspace for organizing research notes and explanations."
+    },
+    {
+      "repo_id": 11407242,
+      "full_name": "cookiecutter/cookiecutter",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Project-template generator for starting consistent analysis and software projects."
+    },
+    {
+      "repo_id": 199168346,
+      "full_name": "marlesson/list_of_ml_competitions",
+      "folders": [
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Directory of data-science competition platforms and benchmark opportunities."
+    },
+    {
+      "repo_id": 534397970,
+      "full_name": "karpathy/nn-zero-to-hero",
+      "folders": [
+        "ai-ml/deep-learning",
+        "ai-ml/nlp",
+        "ai-ml/transformers"
+      ],
+      "note": "Neural-network and language-model implementations for foundational experiments."
+    },
+    {
+      "repo_id": 186783422,
+      "full_name": "microsoft/tensorwatch",
+      "folders": [
+        "general/experiments",
+        "general/write-present"
+      ],
+      "note": "Debugging, monitoring, and visualization tools for Python ML experiments."
+    },
+    {
+      "repo_id": 184701688,
+      "full_name": "firmai/industry-machine-learning",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/statistics"
+      ],
+      "note": "Curated applied-ML notebooks and libraries across research-relevant industries."
+    },
+    {
+      "repo_id": 277168957,
+      "full_name": "eugeneyan/applied-ml",
+      "folders": [
+        "general/read-papers"
+      ],
+      "note": "Curated papers and technical case studies on applied machine learning."
+    },
+    {
+      "repo_id": 461147335,
+      "full_name": "ageron/handson-ml3",
+      "folders": [
+        "ai-ml/statistics",
+        "ai-ml/deep-learning",
+        "general/code-analysis"
+      ],
+      "note": "Executable notebooks for statistical-learning and deep-learning methods."
+    },
+    {
+      "repo_id": 155220641,
+      "full_name": "huggingface/transformers",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/computer-vision",
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Model definitions, training, and inference across text, vision, and multimodal transformers."
+    },
+    {
+      "repo_id": 688164459,
+      "full_name": "harvard-edge/cs249r_book",
+      "folders": [
+        "ai-ml/deep-learning",
+        "general/experiments"
+      ],
+      "note": "ML-systems reference covering model scaling, training infrastructure, and experimental practice."
+    },
+    {
+      "repo_id": 177023075,
+      "full_name": "firmai/financial-machine-learning",
+      "folders": [
+        "finance/financial-ml",
+        "finance/backtesting"
+      ],
+      "note": "Curated practical financial-ML tools and application references."
+    },
+    {
+      "repo_id": 569509049,
+      "full_name": "UFund-Me/Qbot",
+      "folders": [
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "Local quantitative-investment platform for strategy and AI research workflows."
+    },
+    {
+      "repo_id": 132754148,
+      "full_name": "stefan-jansen/machine-learning-for-trading",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "End-to-end financial-ML notebooks from data sourcing to strategy testing."
+    },
+    {
+      "repo_id": 616738094,
+      "full_name": "myhhub/stock",
+      "folders": [
+        "finance/market-data",
+        "finance/backtesting"
+      ],
+      "note": "Stock-data, signal, and strategy-validation application."
+    },
+    {
+      "repo_id": 1075431749,
+      "full_name": "karpathy/nanochat",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Compact language-model training and evaluation codebase for reproducible experiments."
+    },
+    {
+      "repo_id": 26898879,
+      "full_name": "awesomedata/awesome-public-datasets",
+      "folders": [
+        "ai-ml/datasets-evaluation",
+        "general/code-analysis"
+      ],
+      "note": "Curated directory of public datasets for building empirical research projects."
+    },
+    {
+      "repo_id": 655099582,
+      "full_name": "mlabonne/llm-course",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/transformers"
+      ],
+      "note": "Language-model curriculum with executable notebooks and technique references."
+    },
+    {
+      "repo_id": 582822129,
+      "full_name": "karpathy/nanoGPT",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/transformers",
+        "general/experiments"
+      ],
+      "note": "Minimal language-model training and fine-tuning implementation."
+    },
+    {
+      "repo_id": 89471385,
+      "full_name": "krishnakumarsekar/awesome-quantum-machine-learning",
+      "folders": [
+        "general/code-analysis"
+      ],
+      "note": "Curated algorithms, materials, and projects for quantum machine-learning research."
+    },
+    {
+      "repo_id": 78245673,
+      "full_name": "numerai/example-scripts",
+      "folders": [
+        "finance/financial-ml",
+        "ai-ml/datasets-evaluation"
+      ],
+      "note": "Scripts and notebooks for financial prediction experiments using Numerai data."
+    },
+    {
+      "repo_id": 287463830,
+      "full_name": "microsoft/qlib",
+      "folders": [
+        "finance/financial-ml",
+        "finance/backtesting",
+        "finance/market-data"
+      ],
+      "note": "Quantitative ML research platform supporting data, modeling, and strategy testing."
+    },
+    {
+      "repo_id": 31522041,
+      "full_name": "vnpy/vnpy",
+      "folders": [
+        "finance/backtesting",
+        "finance/market-data"
+      ],
+      "note": "Python trading-development framework for market-data and strategy workflows."
+    },
+    {
+      "repo_id": 323048702,
+      "full_name": "openbq-org/OpenBB",
+      "folders": [
+        "finance/market-data"
+      ],
+      "note": "Open data platform for financial and quantitative analysis."
+    },
+    {
+      "repo_id": 198669252,
+      "full_name": "google/tf-quant-finance",
+      "folders": [
+        "finance/financial-ml",
+        "finance/portfolio-risk"
+      ],
+      "note": "TensorFlow-based quantitative-finance algorithms and financial modeling utilities."
+    },
+    {
+      "repo_id": 161840815,
+      "full_name": "goldmansachs/gs-quant",
+      "folders": [
+        "finance/portfolio-risk",
+        "finance/market-data"
+      ],
+      "note": "Quantitative-finance toolkit for risk, instruments, and market analysis."
+    },
+    {
+      "repo_id": 43425480,
+      "full_name": "wilsonfreitas/awesome-quant",
+      "folders": [
+        "finance/market-data",
+        "finance/econometrics",
+        "finance/portfolio-risk",
+        "finance/backtesting",
+        "finance/financial-ml"
+      ],
+      "note": "Cross-domain directory of quantitative-finance libraries, tools, and references."
+    },
+    {
+      "repo_id": 753750990,
+      "full_name": "aishwaryanr/awesome-generative-ai-guide",
+      "folders": [
+        "ai-ml/nlp",
+        "ai-ml/transformers",
+        "general/read-papers"
+      ],
+      "note": "Curated generative-AI research updates, notebooks, and method references."
+    },
+    {
+      "repo_id": 929868765,
+      "full_name": "LearningCircuit/local-deep-research",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Local or cloud model research assistant with academic search engines and source synthesis."
+    }
+  ],
+  "essentials": [
+    {
+      "full_name": "numpy/numpy",
+      "type": "library",
+      "category": "data",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/statistics",
+        "ai-ml/deep-learning"
+      ],
+      "note": "Numerical arrays and linear algebra underpin scientific analyses and model implementations.",
+      "repo_id": 908607
+    },
+    {
+      "full_name": "scipy/scipy",
+      "type": "library",
+      "category": "research",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/statistics",
+        "finance/econometrics",
+        "finance/portfolio-risk"
+      ],
+      "note": "Scientific algorithms support optimization, statistical methods, and quantitative analyses.",
+      "repo_id": 1460385
+    },
+    {
+      "full_name": "pandas-dev/pandas",
+      "type": "library",
+      "category": "data",
+      "folders": [
+        "general/code-analysis",
+        "finance/market-data",
+        "finance/econometrics"
+      ],
+      "note": "Tabular and time-indexed data preparation is shared across empirical research workflows.",
+      "repo_id": 858127
+    },
+    {
+      "full_name": "huggingface/datasets",
+      "type": "library",
+      "category": "models",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/datasets-evaluation",
+        "ai-ml/nlp",
+        "ai-ml/computer-vision"
+      ],
+      "note": "Dataset loading and processing support reusable model-training and evaluation workflows.",
+      "repo_id": 250213286
+    },
+    {
+      "full_name": "optuna/optuna",
+      "type": "library",
+      "category": "models",
+      "folders": [
+        "general/experiments",
+        "ai-ml/deep-learning",
+        "ai-ml/statistics"
+      ],
+      "note": "Hyperparameter optimization makes model-search experiments systematic and reproducible.",
+      "repo_id": 122299416
+    },
+    {
+      "full_name": "zotero/zotero",
+      "type": "application",
+      "category": "research",
+      "folders": [
+        "general/read-papers",
+        "general/write-present"
+      ],
+      "note": "Manage research sources, annotations, bibliographies, and citations in one reference library.",
+      "repo_id": 2656556
+    },
+    {
+      "full_name": "matplotlib/matplotlib",
+      "type": "library",
+      "category": "research",
+      "folders": [
+        "general/code-analysis",
+        "general/write-present"
+      ],
+      "note": "Scientific plotting supports exploratory analysis and publication figures.",
+      "repo_id": 1385122
+    },
+    {
+      "full_name": "mwaskom/seaborn",
+      "type": "library",
+      "category": "research",
+      "folders": [
+        "general/code-analysis",
+        "general/write-present",
+        "ai-ml/statistics"
+      ],
+      "note": "Statistical visualization helps inspect distributions, relationships, and model results.",
+      "repo_id": 4704710
+    },
+    {
+      "full_name": "bashtage/linearmodels",
+      "type": "library",
+      "category": "quant",
+      "folders": [
+        "general/code-analysis",
+        "ai-ml/statistics",
+        "finance/econometrics"
+      ],
+      "note": "Panel-data and instrumental-variable models complement a general econometrics toolkit.",
+      "repo_id": 82291672
+    }
+  ]
+}

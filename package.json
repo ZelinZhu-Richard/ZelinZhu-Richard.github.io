@@ -15,6 +15,7 @@
     "test:db": "node --test workspace/daily/supabase/tests/*.test.mjs",
     "verify": "node tools/verify.mjs dist",
     "manifest": "node tools/manifest.mjs",
-    "stars:sync": "node workspace/github-stars/scripts/sync-stars.mjs"
+    "stars:sync": "node workspace/github-stars/scripts/sync-stars.mjs",
+    "research:sync": "node workspace/github-stars/scripts/sync-research.mjs"
   }
 }
