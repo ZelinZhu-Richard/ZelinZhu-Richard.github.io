@@ -8,6 +8,7 @@ import math
 import sys
 from pathlib import Path
 
+sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bpy
 import bmesh
@@ -92,7 +93,7 @@ def skin_point(y, phi, offset=0):
     x = (width + offset) * math.sin(phi)
     z = mid + (radius + offset) * cosine
     # Narrow dorsal ridge grows naturally from the body surface, no extra cone.
-    ridge = .45 * math.exp(-((y + .3) / 1.0) ** 2) * math.exp(-(min(phi, TAU - phi) / .17) ** 2)
+    ridge = .80 * math.exp(-((y + .3) / 1.0) ** 2) * math.exp(-(min(phi, TAU - phi) / .17) ** 2)
     return (x, y, z + ridge)
 
 
@@ -150,7 +151,10 @@ def fin(name, sign, upper):
             x = sign * (root + reach * s)
             y = lead * (1 - c) + trail * c + cut
             camber = .15 * math.sin(math.pi * c) * math.sin(math.pi * s)
-            points.append((x, y, z + camber - .09 * c))
+            # Real chordwise twist: broad fans are visible from the front too.
+            twist = (-.90 if upper else .95) * math.sin(math.pi * s) * c
+            droop = 0 if upper else -.30 * s
+            points.append((x, y, z + camber + twist + droop - .09 * c))
     for i in range(span):
         for j in range(chord):
             a = i * (chord + 1) + j
@@ -171,13 +175,17 @@ for i in range(SPAN + 1):
     t = -1 + 2 * i / SPAN
     s = abs(t)
     x = t * 3.35
-    leading = 3.73 + .95 * s + .25 * s ** 2
-    trailing = 5.22 + 1.29 * math.sin(math.pi * s * .73) - 1.03 * s ** 5
+    fluke_sections = np.array([
+        [0, 3.40, 4.90], [.2, 3.55, 5.35], [.4, 3.80, 5.85],
+        [.6, 4.25, 6.60], [.8, 4.90, 6.45], [1, 6.10, 6.15],
+    ])
+    leading = float(np.interp(s, fluke_sections[:, 0], fluke_sections[:, 1]))
+    trailing = float(np.interp(s, fluke_sections[:, 0], fluke_sections[:, 2]))
     for j in range(CHORD + 1):
         c = j / CHORD
         ragged = (.055 * math.sin(63 * t) + .035 * math.sin(137 * t)) * c ** 7
         y = leading * (1 - c) + trailing * c + ragged
-        z = .02 + .24 * s + .13 * math.sin(math.pi * c) - .08 * c
+        z = .10 + .65 * math.sin(math.pi * s * .72) + .13 * math.sin(math.pi * c) - .08 * c
         points.append((x, y, z))
 for i in range(SPAN):
     for j in range(CHORD):

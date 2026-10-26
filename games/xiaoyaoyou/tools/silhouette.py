@@ -11,6 +11,7 @@ import sys
 import time
 from pathlib import Path
 
+sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / '_dev/silhouette'
 EXPECTED = {
@@ -128,7 +129,11 @@ def compare(asset):
         }
         # 512 px panels. Both are fitted uniformly to the same square, preserving
         # proportions; the overlay is exactly the two 256 px masks scored above.
-        ref_preview = fitted_image(original, ref_crop, BG[asset])
+        # The boxes overlap; show only the assigned component in this preview.
+        # The scored reference masks and the source image are unchanged.
+        isolated = np.array(original)
+        isolated[~mask] = BG[asset]
+        ref_preview = fitted_image(Image.fromarray(isolated), ref_crop, BG[asset])
         lit = Image.open(OUT / 'raw' / f'{asset}-{view}-preview.png')
         render_preview = fitted_image(lit, render_crop, BG[asset])
         overlay = np.full((256, 256, 3), 245, dtype=np.uint8)
@@ -225,7 +230,8 @@ def render(asset, engine):
     links.new(transparent.outputs[0], mix.inputs[1])
     links.new(fin_emission.outputs[0], mix.inputs[2])
     links.new(mix.outputs[0], fin_output.inputs['Surface'])
-    orientations = {'side': Vector((1, 0, 0)), 'top': Vector((0, 0, 1)), 'front': Vector((0, -1, 0))}
+    # -X makes forward -Y read head-right. No score-tuned angle or projection.
+    orientations = {'side': Vector((-1, 0, 0)), 'top': Vector((0, 0, 1)), 'front': Vector((0, -1, 0))}
     views = ['side', 'top', 'front'] if asset == 'kun' else ['top', 'side']
     for view in views:
         camera.location = center + orientations[view] * 30
