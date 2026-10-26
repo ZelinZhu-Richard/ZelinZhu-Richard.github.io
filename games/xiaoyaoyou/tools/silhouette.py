@@ -212,25 +212,27 @@ def render(asset, engine):
     mask_material.node_tree.links.new(emission.outputs[0], output.inputs['Surface'])
     # Interior translucency counts solid. Only the independent two-pixel
     # feather at the geometry boundary may cut the silhouette.
-    fin_mask = mask_material.copy()
-    nodes = fin_mask.node_tree.nodes
-    links = fin_mask.node_tree.links
-    fin_output = next(node for node in nodes if node.type == 'OUTPUT_MATERIAL')
-    fin_emission = next(node for node in nodes if node.type == 'EMISSION')
-    fin_original = next(mat for mats in original_materials.values() for mat in mats if mat.name.startswith('kun_fin'))
-    fin_image = next(node.image for node in fin_original.node_tree.nodes if node.type == 'TEX_IMAGE')
-    tex = nodes.new('ShaderNodeTexImage')
-    tex.image = fin_image
-    threshold = nodes.new('ShaderNodeMath')
-    threshold.operation = 'GREATER_THAN'
-    threshold.inputs[1].default_value = .1
-    links.new(tex.outputs['Alpha'], threshold.inputs[0])
-    transparent = nodes.new('ShaderNodeBsdfTransparent')
-    mix = nodes.new('ShaderNodeMixShader')
-    links.new(threshold.outputs[0], mix.inputs[0])
-    links.new(transparent.outputs[0], mix.inputs[1])
-    links.new(fin_emission.outputs[0], mix.inputs[2])
-    links.new(mix.outputs[0], fin_output.inputs['Surface'])
+    fin_masks = {}
+    for original in {mat for mats in original_materials.values() for mat in mats if mat.name.startswith('kun_fin')}:
+        fin_mask = mask_material.copy()
+        nodes = fin_mask.node_tree.nodes
+        links = fin_mask.node_tree.links
+        fin_output = next(node for node in nodes if node.type == 'OUTPUT_MATERIAL')
+        fin_emission = next(node for node in nodes if node.type == 'EMISSION')
+        fin_image = next(node.image for node in original.node_tree.nodes if node.type == 'TEX_IMAGE')
+        tex = nodes.new('ShaderNodeTexImage')
+        tex.image = fin_image
+        threshold = nodes.new('ShaderNodeMath')
+        threshold.operation = 'GREATER_THAN'
+        threshold.inputs[1].default_value = .1
+        links.new(tex.outputs['Alpha'], threshold.inputs[0])
+        transparent = nodes.new('ShaderNodeBsdfTransparent')
+        mix = nodes.new('ShaderNodeMixShader')
+        links.new(threshold.outputs[0], mix.inputs[0])
+        links.new(transparent.outputs[0], mix.inputs[1])
+        links.new(fin_emission.outputs[0], mix.inputs[2])
+        links.new(mix.outputs[0], fin_output.inputs['Surface'])
+        fin_masks[original.name] = fin_mask
     # -X makes forward -Y read head-right. No score-tuned angle or projection.
     elevation = math.radians(25)
     gameplay_elevation = math.radians(30)
@@ -268,6 +270,31 @@ def render(asset, engine):
         bpy.ops.render.render(write_still=True)
         if view in ('three-quarter', 'gameplay'):
             bpy.data.images['Render Result'].save_render(str(OUT / f'{asset}-{view}.png'), scene=scene)
+            if view == 'gameplay':
+                from bpy_extras.object_utils import world_to_camera_view
+                closeup_metadata = {}
+                for object_name, label in [('kun_fin_upper_L', 'pectoral'), ('kun_fluke', 'fluke')]:
+                    target = next(obj for obj in meshes if obj.name == object_name)
+                    projected_target = [world_to_camera_view(scene, camera, target.matrix_world @ vertex.co)
+                                        for vertex in target.data.vertices]
+                    x0 = min(point.x for point in projected_target)
+                    x1 = max(point.x for point in projected_target)
+                    y0 = min(point.y for point in projected_target)
+                    y1 = max(point.y for point in projected_target)
+                    margin = max(x1 - x0, y1 - y0) * .12
+                    border = [max(0, x0 - margin), max(0, y0 - margin), min(1, x1 + margin), min(1, y1 + margin)]
+                    scene.render.resolution_x = scene.render.resolution_y = 4096
+                    scene.render.use_border = True
+                    scene.render.use_crop_to_border = True
+                    scene.render.border_min_x, scene.render.border_min_y = border[:2]
+                    scene.render.border_max_x, scene.render.border_max_y = border[2:]
+                    scene.render.filepath = str(OUT / f'{asset}-gameplay-{label}-closeup.png')
+                    bpy.ops.render.render(write_still=True)
+                    closeup_metadata[label] = {'cameraUnchanged': True, 'fullFrameResolution': 4096, 'border': border}
+                scene.render.use_border = False
+                scene.render.use_crop_to_border = False
+                scene.render.resolution_x = scene.render.resolution_y = 1024
+                preview_measurements['gameplayCloseups'] = closeup_metadata
             if view == 'three-quarter':
                 from bpy_extras.object_utils import world_to_camera_view
                 body_obj = next(obj for obj in meshes if obj.name == 'kun_body')
@@ -284,8 +311,8 @@ def render(asset, engine):
             continue
         for obj in meshes:
             obj.data.materials.clear()
-            is_fin = any(mat.name.startswith('kun_fin') for mat in original_materials[obj.name])
-            obj.data.materials.append(fin_mask if is_fin else mask_material)
+            for original in original_materials[obj.name]:
+                obj.data.materials.append(fin_masks.get(original.name, mask_material))
         scene.render.film_transparent = True
         scene.render.filepath = str(OUT / 'raw' / f'{asset}-{view}-mask.png')
         bpy.ops.render.render(write_still=True)
@@ -300,6 +327,9 @@ def render(asset, engine):
                                        'elevationDegrees': 30, 'fovDegrees': 42}} if asset == 'kun' else {},
         'previewMeasurements': preview_measurements,
     }
+    validation_file = ROOT / '_dev/build/kun-validation.json'
+    if asset == 'kun' and validation_file.exists():
+        entry['buildValidation'] = json.loads(validation_file.read_text())
     (OUT / 'raw' / f'{asset}-render.json').write_text(json.dumps(entry, indent=2) + '\n')
     filename = ROOT / '_dev/build/asset-stats.json'
     stats = json.loads(filename.read_text())

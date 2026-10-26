@@ -73,8 +73,48 @@ def patch(outline_record, spacing_px=9):
     }
 
 
-def uv_coordinates(points, faces):
-    minimum = points.min(axis=0)
-    extent = np.maximum(points.max(axis=0) - minimum, 1e-6)
+def uv_coordinates(points, faces, reference_crop=None):
+    minimum = points.min(axis=0) if reference_crop is None else np.array(reference_crop[:2])
+    maximum = points.max(axis=0) if reference_crop is None else np.array(reference_crop[2:])
+    extent = np.maximum(maximum - minimum, 1e-6)
     uv = (points - minimum) / extent
+    uv[:, 1] = 1 - uv[:, 1]  # Reference image top-left -> normalized texture bottom-left.
     return [[tuple(uv[index]) for index in face] for face in faces]
+
+
+def topology(faces):
+    parent, edges = {}, {}
+
+    def find(index):
+        parent.setdefault(index, index)
+        while parent[index] != index:
+            parent[index] = parent[parent[index]]
+            index = parent[index]
+        return index
+
+    for face in faces:
+        for a, b in zip(face, face[1:] + face[:1]):
+            parent[find(a)] = find(b)
+            edge = tuple(sorted((a, b)))
+            edges[edge] = edges.get(edge, 0) + 1
+    components = len({find(index) for index in parent})
+    boundary = [edge for edge, count in edges.items() if count == 1]
+    graph = {}
+    for a, b in boundary:
+        graph.setdefault(a, set()).add(b)
+        graph.setdefault(b, set()).add(a)
+    seen, boundary_loops = set(), 0
+    for start in graph:
+        if start in seen:
+            continue
+        boundary_loops += 1
+        stack = [start]
+        while stack:
+            current = stack.pop()
+            if current in seen:
+                continue
+            seen.add(current)
+            stack.extend(graph[current] - seen)
+    return {'connectedComponents': components, 'boundaryLoops': boundary_loops,
+            'boundaryDegreesTwo': all(len(neighbors) == 2 for neighbors in graph.values()),
+            'interiorNonManifoldEdges': sum(count > 2 for count in edges.values())}

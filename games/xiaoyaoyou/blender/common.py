@@ -15,6 +15,7 @@ STARTED = time.monotonic()
 def arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--engine', choices=['eevee', 'cycles'], required=True)
+    parser.add_argument('--fin-scale', type=float, default=None, help='Kun-only UV invariance verification override')
     return parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
 
 
