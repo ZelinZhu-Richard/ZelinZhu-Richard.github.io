@@ -329,7 +329,10 @@ ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img
     checks.diffuseOnly=metrics.extra.swim.materials.every(m=>m.type==='MeshLambertMaterial');
     checks.swim=metrics.extra.swim.periodMs>=3000&&metrics.extra.swim.periodMs<=5000&&metrics.extra.swim.flukeAmpFrac>=.08&&metrics.extra.swim.flukeAmpFrac<=.15&&metrics.extra.swim.headAmpFrac<=metrics.extra.swim.flukeAmpFrac*.25&&metrics.extra.swim.sidewaysDisplacement===0;
     checks.mapping=metrics.extra.mapping.pass;
-    checks.frozenGeometry=metrics.extra.frozenGeometry.frozenGeometryIdentical&&metrics.extra.frozenGeometry.finFlukeUVIdentical&&metrics.extra.frozenGeometry.finFlukeTexturesIdentical;
+    const frozen=metrics.extra.frozenGeometry;
+    const materialOnly=frozen.materialOnlyValidation;
+    checks.frozenGeometry=frozen.frozenGeometryIdentical&&frozen.finFlukeUVIdentical&&
+      (materialOnly ? materialOnly.allExportGeometryIdentical&&materialOnly.allUVIdentical&&materialOnly.swimShaderIdentical : frozen.finFlukeTexturesIdentical);
     checks.silhouetteFresh=metrics.silhouette.kun?.commit===commit&&metrics.silhouette.kun?.dirty===false;
   }
   await writeFile(path.join(out, 'checks.json'), JSON.stringify(checks, null, 2) + '\n');

@@ -47,7 +47,7 @@ PAINT = json.loads((ROOT / '_dev/build/kun-paint.json').read_text())
 
 def painted_material(name, image_path, translucent=False):
     image = bpy.data.images.load(str(ROOT / image_path), check_existing=False)
-    material = common.plain_material(name, '#F6ECDC')
+    material = common.plain_material(name, '#F1F7F8')
     shader = material.node_tree.nodes.get('Principled BSDF')
     node = material.node_tree.nodes.new('ShaderNodeTexImage')
     node.image = image
@@ -66,8 +66,8 @@ fin_material, fin_image = painted_material('kun_fin', PAINT['pectoral']['path'],
 fluke_material, fluke_image = painted_material('kun_fin_fluke', PAINT['fluke']['path'], True)
 
 ink = common.plain_material('kun_eye_ink', '#2B3746')
-pleat_material = common.plain_material('kun_pleat', '#ACAFA8')
-eye_rim = common.plain_material('kun_eye_rim', '#D9CFBB')
+pleat_material = common.plain_material('kun_pleat', '#9FAFB8')
+eye_rim = common.plain_material('kun_eye_rim', '#C8D4DA')
 
 # Uniform longitudinal spacing is retained for future vertex-shader swimming.
 # y, half-width, dorsal z, ventral z. The curved midline falls toward the tail.
@@ -360,7 +360,7 @@ common.record('kun', {
     'maxTextureSize': max(max(image.size) for image in [skin_image, fin_image, fluke_image]),
     'bbox': bbox, 'nodeNames': [obj.name for obj in objects],
     'engine': ARGS.engine, 'exitCode': 0, 'blenderVersion': bpy.app.version_string,
-    'finAlpha': {'white': .43, 'ink': 1.0, 'edge': 'filled reference paint and subtle aft ink line on traced geometry'},
+    'finAlpha': {'white': PAINT['pectoral']['lightAlpha'], 'ink': 1.0, 'edge': 'filled reference paint and subtle aft ink line on traced geometry'},
     'geometryReview': {
         'planformSource': 'blender/kun-planforms.json',
         'upperDihedralDegrees': UPPER_FIN_DIHEDRAL_DEGREES, 'lowerDihedralDegrees': LOWER_FIN_DIHEDRAL_DEGREES,

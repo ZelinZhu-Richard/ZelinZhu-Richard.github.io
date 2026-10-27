@@ -14,7 +14,7 @@ from scipy import ndimage as ndi
 from skimage.measure import approximate_polygon, find_contours
 from silhouette import ROOT, reference_views
 
-PAPER = np.array([246, 236, 220], dtype=np.float32) / 255
+SOURCE_PAPER = np.array([246, 236, 220], dtype=np.float32) / 255
 INK = np.array([43, 55, 70], dtype=np.float32) / 255
 OUT = ROOT / '_dev/raw'
 
@@ -22,6 +22,37 @@ OUT = ROOT / '_dev/raw'
 def smoothstep(lo, hi, value):
     value = np.clip((value - lo) / (hi - lo), 0, 1)
     return value * value * (3 - 2 * value)
+
+
+def sample_keyart_palette():
+    image = np.array(Image.open(ROOT / 'ref/key-north-sea.png').convert('RGB'), dtype=np.float32)
+    samples = {}
+    for name, box in [('lit', (870, 235, 1250, 310)), ('shadow', (1370, 350, 1470, 425))]:
+        x0, y0, x1, y1 = box
+        pixels = image[y0:y1, x0:x1].reshape(-1, 3)
+        luma = pixels @ np.array([.2126, .7152, .0722])
+        if name == 'lit':
+            selected = pixels[luma >= np.percentile(luma, 85)]
+        else:
+            selected = pixels[(luma >= np.percentile(luma, 50)) & (luma < np.percentile(luma, 70))]
+        samples[name] = {'boxXYXY': list(box), 'medianRGB': np.median(selected, axis=0).tolist()}
+    lit = np.array(samples['lit']['medianRGB'])
+    shadow = np.array(samples['shadow']['medianRGB'])
+    # The illustrated upper light is warm. Retain its luminous value, remove
+    # that illumination cast, and use a quarter of the shadow's cool chroma.
+    value = float(lit @ np.array([.2126, .7152, .0722]))
+    paper = np.round(np.clip(value * (1 + .25 * (shadow / shadow.mean() - 1)), 0, 255))
+    return paper / 255, {'source': 'ref/key-north-sea.png', 'samples': samples,
+        'paperRGB': paper.tolist(), 'method': 'lit luminance; warm illumination neutralized; 25% blue-grey shadow chroma'}
+
+
+PAPER, PALETTE = sample_keyart_palette()
+
+
+def cool_reference_paper(paint):
+    # Keep indigo-grey ink intact; shift only the paper and lighter washes.
+    weight = smoothstep(.30, .90, paint.mean(axis=2))
+    return np.clip(paint + (PAPER - SOURCE_PAPER) * weight[..., None], 0, 1)
 
 
 def continuous_fluke(plan):
@@ -72,7 +103,7 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     filled = raw[nearest[0], nearest[1]]
     factor = min(2048 / width, 2048 / height)
     size = (max(1, round(width * factor)), max(1, round(height * factor)))
-    base = np.array(Image.fromarray(filled).resize(size, Image.Resampling.LANCZOS), dtype=np.float32) / 255
+    base = cool_reference_paper(np.array(Image.fromarray(filled).resize(size, Image.Resampling.LANCZOS), dtype=np.float32) / 255)
     yy, xx = np.mgrid[0:size[1], 0:size[0]].astype(np.float32)
     px = x0 + xx / max(size[0] - 1, 1) * (x1 - x0)
     py = y0 + yy / max(size[1] - 1, 1) * (y1 - y0)
@@ -83,7 +114,7 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     radius = np.hypot(px - root[0], py - root[1]) / np.linalg.norm(tip - root)
     root_fade = smoothstep(.04, .30, radius)
     base = PAPER + (base - PAPER) * root_fade[..., None]
-    dark = (.06 + .15 * span + .06 * smoothstep(root[1], y1, py)) * root_fade
+    dark = (.015 + .13 * smoothstep(.55, .98, span)) * root_fade
     base = base * (1 - dark[..., None]) + INK * dark[..., None]
     # High-pass wave layer adds detail without replacing the reference layout.
     wave = np.array(waves.convert('RGB'), dtype=np.float32) / 255
@@ -102,7 +133,7 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
         end = ((target[0] - x0) / (x1 - x0) * (size[0] - 1), (target[1] - y0) / (y1 - y0) * (size[1] - 1))
         middle = (root_uv[0] * .45 + end[0] * .55 + 4 * math.sin(i), root_uv[1] * .45 + end[1] * .55)
         draw.line([root_uv, middle, end], fill=255, width=1)
-    ray = np.array(rays.filter(ImageFilter.GaussianBlur(.6)), dtype=np.float32) / 255 * .19
+    ray = np.array(rays.filter(ImageFilter.GaussianBlur(.6)), dtype=np.float32) / 255 * .0475
     base = base * (1 - ray[..., None]) + INK * ray[..., None]
     # Slightly darker ink on the traced wavy aft edge; fill remains beneath it.
     edge = ((inside <= 1.5) & mask & (np.arange(height)[:, None] + y0 > root[1]))
@@ -110,8 +141,8 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     edge_ink = edge_image * .24
     base = base * (1 - edge_ink[..., None]) + INK * edge_ink[..., None]
     base = np.clip(base, 0, 1)
-    whiteness = base.min(axis=2)
-    alpha = .43 + .57 * np.clip((.94 - whiteness) / .70, 0, 1)
+    ink_density = np.clip((.91 - base.mean(axis=2)) / .60, 0, 1)
+    alpha = .38 + .62 * smoothstep(.28, .68, ink_density)
     if is_fluke:
         # The stock/bridge must not become a transparent visual seam.
         stock = np.exp(-((px - root[0]) / 20) ** 2) * (1 - smoothstep(y0 + 35, y0 + 95, py))
@@ -123,12 +154,14 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     return {'path': str(filename.relative_to(ROOT)), 'size': list(size),
             'referenceCrop': [int(x0), int(y0), int(x1), int(y1)],
             'referenceInsetPx': 2, 'outwardFill': 'nearest safe interior paint',
-            'waveHighPassWeight': .32, 'rayOpacity': .19, 'aftEdgeOpacity': .24,
-            'nativeReferenceCropSize': [int(width), int(height)]}
+            'waveHighPassWeight': .32, 'rayOpacity': .0475, 'aftEdgeOpacity': .24,
+            'nativeReferenceCropSize': [int(width), int(height)],
+            'lightAlpha': .38, 'inkAlpha': 1.0, 'palette': PALETTE,
+            'darkening': 'tip-weighted; no whole-fin dark overlay'}
 
 
 def body_texture():
-    source = np.array(Image.open(ROOT / 'ref/tex-kun-landscape.png').convert('RGB'), dtype=np.float32) / 255
+    source = cool_reference_paper(np.array(Image.open(ROOT / 'ref/tex-kun-landscape.png').convert('RGB'), dtype=np.float32) / 255)
     width, height = 2048, 2048
     vv, uu = np.mgrid[0:height, 0:width].astype(np.float32)
     uu /= width - 1
@@ -141,8 +174,11 @@ def body_texture():
     sy = (.30 + .66 * tt) * (source.shape[0] - 1)
     paint = np.stack([ndi.map_coordinates(source[..., c], [sy, sx], order=1, mode='nearest') for c in range(3)], axis=2)
     ventral = smoothstep(.62, .80, tt)
-    behind_eyes = smoothstep(.205, .275, uu)
-    head_gate = behind_eyes * (1 - ventral) + smoothstep(.06, .14, uu) * ventral
+    snout_fade = smoothstep(0, .10, uu)
+    head_zone = 1 - smoothstep(.20, .25, uu)
+    # In the head, stop the new painting above the lip (mouth angle >=109deg).
+    # Arc fraction .59 is a conservative upper-side limit, feathered gently.
+    head_gate = snout_fade * (1 - head_zone * smoothstep(.46, .59, tt))
     result = PAPER + (paint - PAPER) * ((1 - .60 * ventral) * head_gate)[..., None]
     # Both independent paintings fade into one continuous, low-frequency mist
     # at the spine. The common wash has distant peaks but no mirrored trees.
@@ -151,7 +187,7 @@ def body_texture():
     mist_y = (.40 + .25 * tt) * (source.shape[0] - 1)
     distant = np.stack([ndi.map_coordinates(soft[..., c], [mist_y, mist_x], order=1, mode='nearest') for c in range(3)], axis=2)
     mist = .78 * distant + .22 * INK
-    mist = PAPER + (mist - PAPER) * behind_eyes[..., None]
+    mist = PAPER + (mist - PAPER) * snout_fade[..., None]
     ridge_blend = (1 - smoothstep(.0, .085, tt))
     result = result * (1 - ridge_blend[..., None]) + mist * ridge_blend[..., None]
     # Same gentle wash at the belly seam, retaining the accepted 40% painting.
@@ -167,7 +203,8 @@ def body_texture():
             'sourceOffsetFraction': .32, 'sourceWidthFraction': .68,
             'sourceVerticalRange': [.30, .96], 'uv': 'full circumference; ellipse arc distance',
             'flankMeanAbsoluteRGBDifference': float(flank_difference),
-            'ventralStrength': .40, 'headPaintStartBodyFraction': .205,
+            'ventralStrength': .40, 'headPaintStartBodyFraction': 0,
+            'snoutFadeBodyFraction': .10, 'headPaintAboveMouth': True, 'palette': PALETTE,
             'dorsalReferenceWash': True, 'dorsalSeamSharedSample': True,
             'seams': 'continuous soft mist at spine and belly; no mirrored flank artwork'}
 
@@ -175,6 +212,7 @@ def body_texture():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--body-only', action='store_true')
+    parser.add_argument('--textures-only', action='store_true', help='Repaint existing traced crops without retracing or rewriting planforms')
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     if args.body_only:
@@ -186,8 +224,9 @@ def main():
         return
     filename = ROOT / 'blender/kun-planforms.json'
     plan = json.loads(filename.read_text())
-    combined = continuous_fluke(plan)
-    filename.write_text(json.dumps(plan, indent=2) + '\n')
+    combined = plan['outlines']['fluke-combined'] if args.textures_only else continuous_fluke(plan)
+    if not args.textures_only:
+        filename.write_text(json.dumps(plan, indent=2) + '\n')
     sheet = Image.open(ROOT / 'ref/kun-sheet.png').convert('RGB')
     waves = Image.open(ROOT / 'ref/tex-fin-waves.png')
     report = {'generator': 'tools/paint_kun.py',

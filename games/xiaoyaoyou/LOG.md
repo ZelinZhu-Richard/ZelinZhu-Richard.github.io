@@ -351,3 +351,51 @@ After inspecting the corrected browser images against the key art, narrowed the 
 ### M2 evidence freshness
 
 The browser and Blender captures are individually clean, but the browser harness can finish before a parallel Blender comparison writes its new JSON. Added an explicit same-commit/clean silhouette check and read IoU numbers from silhouette.py's measured report, with Richard's waiver annotated separately. Final verification order is Blender render → silhouette comparison → browser capture, so the browser metrics cannot carry a stale silhouette snapshot.
+
+## M2 evidence — awaiting Richard (2026-10-27, commit ec55d2e2b6cf52382f07b75ee0ab2469b086deab)
+
+**M2 remains unticked.** Final Blender render, silhouette comparison and browser capture all report the same clean implementation commit above. Commands completed in dependency order. `silhouette.py --compare kun` returns 2 for the two real numeric misses below; Richard's M1 waiver applies, and the numbers have not been relabeled as numeric passes. `capture.mjs --milestone 2` exits 0 with **20/20 automated checks true**.
+
+### Evidence, in review order
+
+1. Reference | Blender | mask overlay: `_dev/silhouette/kun-side.png`, `kun-top.png`, `kun-front.png`. Side/top overview: `kun-M2-reference-overlays.png`.
+2. Blender | browser rest views: `_dev/silhouette/kun-M2-side-browser.png`, `kun-M2-top-browser.png`, `kun-M2-front-browser.png`. Key art | browser scene: `kun-M2-key-art-browser.png`.
+3. Full browser gallery with references: `_dev/evidence/M2/review.html`. New review views: `kun-view-rear-desktop.png` (directly behind on the heading axis, elevated 30°), `kun-view-gameplay-desktop.png`, `kun-view-three-quarter-desktop.png`, plus side/top/front. `kun-camera-review.png` has top / rear on its first row, three-quarter / gameplay on its second row. `kun-test-desktop.png` and `kun-test-narrow.png` show the north-sea composition. `kun-swim-desktop.png` is the four-phase strip; individual phase PNGs remain alongside it.
+4. Measurements: `_dev/evidence/M2/metrics.json`, `checks.json`, `console.json`; `_dev/silhouette/kun.json`; `_dev/build/kun-mapping.json`, `kun-validation.json`, `runtime-assets.json`.
+
+I inspected all named Blender/reference overlays, the three Blender/browser comparisons, the key-art/browser pair, all six browser camera views, desktop/narrow test scenes, all four swim phases, and M0 title/north-start/loading screenshots. The browser retains both texture types, broad transparent fin sheets and the continuous fluke; the forehead stays clear. Left/right landscapes differ, ridge colors blend through mist, and the browser head has diffuse shading with no chrome rim. Remaining exact-crop fin/fluke softness is the existing deferred AI-upscale polish item. Visual approval belongs to Richard.
+
+| Criterion | Result / evidence |
+|---|---|
+| Side silhouette regression | **MISS, WAIVED by Richard at M1:** 0.6914 vs 0.70. Frozen geometry, unchanged measured result. |
+| Top silhouette regression | **MISS, WAIVED by Richard at M1:** 0.7191 vs 0.75. Frozen geometry, unchanged measured result. |
+| Front / three-quarter / gameplay | By eye only; fresh renders and browser views supplied. |
+| Asymmetric back and soft ridge join | **PASS builder check, pending Richard:** independent source regions offset 32%; shared narrow mist transition. Direct-rear/top/three-quarter images supplied. |
+| Upper-back stretch ≤~1.5× | **PASS:** source-pixel max 1.209×, p95 1.206×; actual atlas texel max 1.443× over 1,292 upper-back triangles, both flanks including ridge-adjacent triangles. |
+| Frozen approved asset | **PASS:** 30 objects checked; body quad position/topology fingerprints unchanged; fin/fluke UVs and embedded reference-paint image hashes unchanged. 42,094 triangles, quad ratio 0.9939368, fluke one connected component and one boundary loop. |
+| Manifest / optimized asset | **PASS:** kun path/scale/anchor in assets.json; only assets.js loads it; zero `.glb` literals in src/index. EXT_meshopt_compression and EXT_texture_webp present; six required nodes and normalized fin metadata retained. Runtime asset 8,773,032 bytes; three WebP textures, max dimension 2048. |
+| Test atmosphere | **PASS builder check, pending Richard:** sea→abyss gradient, deep FogExp2 0.018, soft upper key light, 4 visible shafts, 6 static red motes. |
+| Desktop / narrow framing | **PASS:** inFrame=true for both. Conservative animated bounds 913.06×510.63 px at 1440×900 (63.4% frame width), 325.27×158.91 px at 390×844. Actual silhouette is somewhat smaller than the bounds; all fins/fluke remain visible. |
+| Texture/export placement | **PASS builder check, pending Richard:** same orientation and painted placement in orthographic side/top/front comparisons, preserved fin alpha. The accepted reference-crop fins/full-flank wash carry forward the logged M2 texture to-dos. |
+| No glossy specular / mirror rim | **PASS:** all 30 Kun material instances are MeshLambertMaterial; no specular/reflection/rim term. Latest Richard instruction supersedes the old Fresnel suggestion. |
+| Transparent fin sheets | **PASS:** DoubleSide, transparent, depthWrite=false, renderOrder=2 after the body. Cream lets water through; ink stays dense. |
+| Swim cycle | **PASS config + builder visual check:** period 4200 gameMs, fluke amplitude 10% body length, head 1.2% (12% of fluke), vertical Y only; normalized local fin weights delay tips, Jacobian bends normals. Four phases show the fluke down/up with a relatively steady head; no observed root cracks or vanishing sheets. |
+| Normal browser audit | **PASS:** 0 page errors, 0 console errors, 0 failed requests, 0 external requests; all 393 recorded responses status 200, including runtime Kun and local meshopt decoder. Four GPU ReadPixels performance warnings remain recorded. Retry fault injection's expected HTTP 503 is separately recorded. |
+| Runtime budgets | **PASS:** max 46 draw calls; max 60,050 frame triangles (includes transparent-sheet passes); pixel ratio desktop 1 / narrow 2; runtime HTTP bodies 11,155,325 bytes <20,000,000. READY max 956 ms <10 s. |
+| M0 / text regressions | **PASS:** title/north-start at both sizes, real Begin screenshot matches direct north-start, loading and error/retry, fixed-clock/seed/debug hooks, no text overflow. 5 text lines; sourceExact/allDraft/sourceVerify true; missing glyphs 0 in both fonts. |
+| Clean evidence / scope | **PASS:** browser and silhouette commit ec55d2e, dirty=false; 20 checks true. Changed paths only inside games/xiaoyaoyou; ref untouched. No push. This post-capture result entry is the only pending worktree change. |
+
+Browser: Chromium 156.0.8078.4 / ANGLE SwiftShader. Built-in iab is unavailable; no external personal browser was used. Review URL: `http://127.0.0.1:8101/games/xiaoyaoyou/_dev/evidence/M2/review.html`. Live swim: `http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=kun-test&seed=1`; directly behind: add `&view=rear`.
+
+Stop here and wait for Richard's review. Do not tick M2 or start M3 without his OK.
+
+## M2 material review correction — implementation (2026-10-27)
+
+Richard has **not approved M2**. His review accepts the running swim and fixed back, and requests four material/texture corrections. This supersedes the earlier head-clear rule and the prior builder visual-pass claims; those entries remain history, not approval.
+
+1. Head: remove the clear-forehead gate. Landscape now reaches the top and upper sides of the head, fading over body fraction 0–0.10 toward the snout. On the head, feather the paint out above the mouth line; lower-head lip/pleat area stays unpainted. The accepted asymmetric flank and ridge mapping stays fixed.
+2. Paper/base: sampled the key art's back-lit region (870,235)–(1250,310), bright-pixel median [252,246,221], and the shaded head region (1370,350)–(1470,425), mid-shadow median [106,119,121]. The illustrated upper light is warm; retain its luminous value, neutralize that illumination cast, and mix 25% of the blue-grey shadow chroma. New paper RGB is **[241,247,248]**. Shift the lighter reference washes toward that paper while keeping indigo-grey ink. Add a cool ambient diffuse wash in Kun's material to lift dim shadows; no scene, camera or light changes.
+3. Sheets: added ray opacity **0.19→0.0475**, exactly one quarter. Remove the broad whole-fin dark overlay; concentrate its replacement near the tips, preserving painted reference composition and the subtle wavy-edge ink. Light pectoral texture pixels measure alpha **0.3804–0.3882**, with dense ink alpha 1.0. Fluke light median alpha is 0.3804; only the existing stock/bridge remains opaque to keep its merge into the tail seamless. Add subtle directional back-light transmission proportional to (1−alpha), only on the fin/fluke sheets. This is a diffuse thin-sheet term; it adds no specular, reflection or view-dependent rim.
+4. Frozen: all **30 exported mesh position/normal fingerprints and all UV arrays match the pre-pass asset exactly**. The `SWIM` configuration and vertex shader SHA-256 match exactly. `kun-planforms.json` unchanged. Repaint via `paint_kun.py --textures-only` so no outlines are regenerated. Material-only validation permits the explicitly authorized texture changes while continuing to freeze geometry, UVs and swim.
+
+Raw and optimized exports still have **42,094 triangles**, 2048 maximum texture dimension, both required Meshopt/WebP extensions and all six required nodes. Optimized asset is **8,671,720 bytes**. Upper-back mapping remains source max 1.209× / atlas max 1.443×, below 1.5×. Built-in iab still reports unavailable; the prescribed live server returns 200. Next: clean-commit Blender comparison then browser capture, inspect all requested views and wait. M2 remains unticked. Nothing pushed.

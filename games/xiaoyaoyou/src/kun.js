@@ -57,6 +57,9 @@ function finCoordinates(mesh) {
   geometry.setAttribute('kunSpanGradient',new THREE.BufferAttribute(gradients,3));
 }
 
+const DIFFUSE_FILL = [.12, .16, .19];
+const SHEET_TRANSMISSION = .50;
+
 export function prepareKun(root) {
   root.updateMatrixWorld(true);
   const meshes=[];
@@ -97,13 +100,28 @@ export function prepareKun(root) {
     // Lambert has no specular lobe, metalness, environment reflection or rim.
     material.onBeforeCompile=shader=>{
       Object.assign(shader.uniforms,uniforms);
+      shader.uniforms.kunDiffuseFill={value:new THREE.Vector3(...DIFFUSE_FILL)};
+      shader.uniforms.kunTransmission={value:sheet?SHEET_TRANSMISSION:0};
+      shader.fragmentShader='uniform vec3 kunDiffuseFill;\nuniform float kunTransmission;\n'+shader.fragmentShader;
+      shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_end>', `
+        #include <lights_fragment_end>
+        // Cool ambient diffuse wash lifts the paper without adding a highlight.
+        reflectedLight.indirectDiffuse += diffuseColor.rgb * kunDiffuseFill;
+        #if NUM_DIR_LIGHTS > 0
+          // Thin-sheet back lighting is strongest in the translucent paper.
+          // Dense ink blocks transmission; neither term is specular or a rim.
+          float backLight=max(0.0,dot(-normal,directionalLights[0].direction));
+          reflectedLight.directDiffuse += diffuseColor.rgb * directionalLights[0].color *
+            (RECIPROCAL_PI * kunTransmission * (1.0-diffuseColor.a) * backLight);
+        #endif
+      `);
       shader.vertexShader=waveGLSL+shader.vertexShader;
       shader.vertexShader=shader.vertexShader.replace('#include <beginnormal_vertex>',
         '#include <beginnormal_vertex>\nobjectNormal=kunBentNormal(position,objectNormal,kunSpan,kunSpanGradient);');
       shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
         '#include <begin_vertex>\ntransformed.y+=kunHeight(position,kunSpan);');
     };
-    material.customProgramCacheKey=()=> 'kun-vertical-swim-v1';
+    material.customProgramCacheKey=()=> 'kun-vertical-swim-v1-matte-sheet-v2';
     mesh.material=material; mesh.renderOrder=sheet?2:0;
     // Rest bounds do not include the shader's displacement.
     mesh.frustumCulled=false;
@@ -117,7 +135,8 @@ export function prepareKun(root) {
   return {root,bounds,restBox,materials,
     update(gameMs,phase,rest) { uniforms.kunCycle.value=phase??gameMs/SWIM.periodMs; uniforms.kunEnabled.value=rest?0:1; },
     inspect:()=>({ ...SWIM, verticalAxis:'Y', sidewaysDisplacement:0,
-      materials:materials.map(m=>({name:m.name,type:m.type,transparent:m.transparent,depthWrite:m.depthWrite,side:m.side,map:!!m.map})),
+      materials:materials.map(m=>({name:m.name,type:m.type,transparent:m.transparent,depthWrite:m.depthWrite,side:m.side,map:!!m.map,
+        diffuseFill:DIFFUSE_FILL,transmissionStrength:m.transparent?SHEET_TRANSMISSION:0,specular:0})),
       finWeights:'normalized reference UV root-to-tip projection; independent of fin scale',
       normalDeformation:'inverse-transpose height-field Jacobian, including fin span gradient',
       nose:uniforms.kunNose.value,tail:uniforms.kunTail.value }),
