@@ -289,7 +289,9 @@ try {
   metrics.text = JSON.parse(execFileSync('/Users/richardzhu/game-assets/.venv/bin/python', [path.join(root, 'tools/check_text.py')], { encoding: 'utf8' }));
   metrics.extra.threePackage = JSON.parse(await readFile(path.join(root, 'vendor/three/VERSION.json'), 'utf8'));
   metrics.extra.blender = milestone===0?'n/a — M0 has no Blender asset':metrics.blender.kun;
-  metrics.extra.iou = milestone===0?'n/a — M0 has no hero':{side:.691,top:.719,status:'M1 approved by Richard with side/top IoU waiver; geometry frozen'};
+  metrics.extra.iou = milestone===0?'n/a — M0 has no hero':{
+    views:metrics.silhouette.kun?.views,waivedViews:['side','top'],
+    waiverApprovalCommit:'2260733',status:'M1 approved by Richard; geometry frozen; numeric misses remain reported'};
   await writeFile(path.join(out, 'console.json'), JSON.stringify(audit, null, 2) + '\n');
   await writeFile(path.join(out, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n');
 
@@ -328,6 +330,7 @@ ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img
     checks.swim=metrics.extra.swim.periodMs>=3000&&metrics.extra.swim.periodMs<=5000&&metrics.extra.swim.flukeAmpFrac>=.08&&metrics.extra.swim.flukeAmpFrac<=.15&&metrics.extra.swim.headAmpFrac<=metrics.extra.swim.flukeAmpFrac*.25&&metrics.extra.swim.sidewaysDisplacement===0;
     checks.mapping=metrics.extra.mapping.pass;
     checks.frozenGeometry=metrics.extra.frozenGeometry.frozenGeometryIdentical&&metrics.extra.frozenGeometry.finFlukeUVIdentical&&metrics.extra.frozenGeometry.finFlukeTexturesIdentical;
+    checks.silhouetteFresh=metrics.silhouette.kun?.commit===commit&&metrics.silhouette.kun?.dirty===false;
   }
   await writeFile(path.join(out, 'checks.json'), JSON.stringify(checks, null, 2) + '\n');
   console.log(JSON.stringify({ commit, dirty, checks, readyMs: metrics.readyMs, runtimeBytes: metrics.runtimeBytes, out }, null, 2));

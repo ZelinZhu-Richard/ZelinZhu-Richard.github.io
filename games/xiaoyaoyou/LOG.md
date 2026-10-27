@@ -347,3 +347,7 @@ The first capture on a94894c caught distorted browser geometry: Meshopt normaliz
 ### M2 presentation check
 
 After inspecting the corrected browser images against the key art, narrowed the common ridge blend and cropped more empty source sky; the wash now samples distant peaks lower in the landscape strip. Upper-back source-pixel stretch is max **1.209×** (p95 1.206×); actual atlas texel stretch is max **1.443×**, both ≤1.5× across 1,292 measured triangles. Geometry and fin/fluke texture/UV checks still pass. Adjusted the test framing toward 60% actual silhouette width, lifted diffuse top illumination, and made the four soft light shafts visible. Updated runtime GLB is 8,773,032 bytes. Capture fresh evidence from this presentation commit before review.
+
+### M2 evidence freshness
+
+The browser and Blender captures are individually clean, but the browser harness can finish before a parallel Blender comparison writes its new JSON. Added an explicit same-commit/clean silhouette check and read IoU numbers from silhouette.py's measured report, with Richard's waiver annotated separately. Final verification order is Blender render → silhouette comparison → browser capture, so the browser metrics cannot carry a stale silhouette snapshot.
