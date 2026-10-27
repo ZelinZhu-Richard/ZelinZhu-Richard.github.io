@@ -324,3 +324,18 @@ The exact-crop AI upscale is recorded in the deferred polish list above and was 
 | front / three-quarter / gameplay | by eye | Accepted by Richard |
 
 M1 ticked only after this approval. Next authorized work is M2, beginning with asymmetric flank/ridge paint, upper-back texel density ≤~1.5× stretch, and browser shading without specular or a mirror-like rim. Carry forward the logged M2 texture to-dos and show browser evidence including a directly-behind camera. Keep M2 unticked until Richard's next OK.
+
+## M2 implementation — awaiting browser evidence (2026-10-27)
+
+M1 approval is committed as 2260733. M2 remains unticked.
+
+- Body paint uses separate 68%-wide landscape regions offset by 32% on the two flanks, blended through a shared mist wash at the spine and belly. Full-circumference UVs measure elliptical surface arc distance. Upper-back source-pixel stretch, measured from the exported triangles behind the head (including ridge-adjacent triangles), is max 1.111× / p95 1.095×, below Richard's ~1.5× limit.
+- All 30 approved objects are frozen, including the corrected mouth, eyes, fin sheets and continuous fluke. The body's original quad position/topology fingerprints match. Fin/fluke UVs and embedded paint images are unchanged. Existing 1.35/1.5 fin-local UV invariance proof still matches.
+- The earlier M2 streaky-fin and narrow-landscape-band to-dos were superseded by Richard's approved reference-crop fins and full-flank painting during M1. M2 carries that accepted paint into the browser, retaining the lighter 40% ventral wash. Exact-crop AI upscaling remains a separate deferred polish item, as Richard requested “not now.”
+- Added manifest loading, geometry-preserving Meshopt/WebP optimization and node/texture validation. Optimization must compress textures before Meshopt: the initial reversed pipeline decoded Meshopt on its second write; the extension check caught this and the corrected order retains both required extensions. Runtime asset: 8,797,440 bytes, 42,094 triangles, 2048 maximum texture dimension, all six required nodes and normalized fin root/tip metadata retained.
+- Browser material is MeshLambertMaterial: diffuse only, no specular lobe, environment reflection or Fresnel rim. This follows Richard's latest no mirror-like rim instruction over the earlier cream-Fresnel suggestion. Fin sheets are DoubleSide, transparent, depthWrite=false and render after the body.
+- Vertex-shader swim uses the fixed game clock, period 4.2 s, fluke amplitude 10% of body length, head amplitude 1.2% (12% of fluke), and no lateral displacement. Fin-local normalized UV weights delay the tips. Normals use the height-field inverse-transpose Jacobian, including the fin-weight gradient.
+- kun-test has the sea-to-abyss gradient, deep FogExp2, top light, four soft shafts and six red motes. Added reference side/top/front, front-left, gameplay and directly-behind evidence cameras. M0 title/Begin/north-start remain regression checkpoints. No M3 play logic.
+- The built-in iab browser reported “Browser is not available: iab.” The existing prescribed 127.0.0.1:8101 server returns 200; use the authorized headless capture harness and inspect its screenshots. No personal-browser fallback.
+
+Next: capture M2 on the implementation commit, render fresh Blender/reference comparisons, inspect all evidence, report measured passes/misses and wait for Richard. No M2 approval presumed.

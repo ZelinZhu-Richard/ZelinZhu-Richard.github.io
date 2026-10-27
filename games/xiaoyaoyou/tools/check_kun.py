@@ -49,6 +49,7 @@ def main():
     parser.add_argument('--baseline', action='store_true')
     parser.add_argument('--scale', type=float)
     parser.add_argument('--body-mouth-only', action='store_true', help='Explicitly authorized mouth exception; freeze all other geometry')
+    parser.add_argument('--all-geometry', action='store_true', help='Freeze all approved meshes; UV changes only')
     args = parser.parse_args()
     current = inspect()
     if args.baseline:
@@ -56,7 +57,9 @@ def main():
         print('Saved pre-pass geometry fingerprints (UV excluded).')
         return
     before = json.loads(BASELINE.read_text())
-    if args.body_mouth_only:
+    if args.all_geometry:
+        frozen_names = list(before['geometry'])
+    elif args.body_mouth_only:
         frozen_names = [name for name in before['geometry'] if not name.startswith('kun_mouth_')]
     else:
         frozen_names = [name for name in before['geometry'] if not name.startswith('kun_fin_') and name != 'kun_fluke']
@@ -74,6 +77,10 @@ def main():
                 'localCoordinateHashes': {name: value['localCoordinateHash'] for name, value in stats['tracedSheets'].items() if name.startswith('kun_fin_')},
                 'exportedTriangles': sum(current['triangleCounts'].values()),
                 'flukeTopology': stats['flukeTopology']}
+    if args.all_geometry:
+        fin_images = {name: value for name, value in before['images'].items() if 'pectoral' in name or 'fluke' in name}
+        snapshot['finFlukeTexturesIdentical'] = len(fin_images) == 2 and all(current['images'].get(name) == value for name, value in fin_images.items())
+        snapshot['finFlukeUVIdentical'] = all(before['uv'][name] == current['uv'][name] for name in before['uv'] if name.startswith('kun_fin_') or name == 'kun_fluke')
     if args.body_mouth_only:
         fin_images = {name: value for name, value in before['images'].items() if 'pectoral' in name or 'fluke' in name}
         snapshot['authorizedGeometryExceptions'] = [name for name in before['geometry'] if name.startswith('kun_mouth_')]

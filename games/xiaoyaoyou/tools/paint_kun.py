@@ -129,45 +129,47 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
 
 def body_texture():
     source = np.array(Image.open(ROOT / 'ref/tex-kun-landscape.png').convert('RGB'), dtype=np.float32) / 255
-    width, height = 2048, 1024
-    tt, uu = np.mgrid[0:height, 0:width].astype(np.float32)
+    width, height = 2048, 2048
+    vv, uu = np.mgrid[0:height, 0:width].astype(np.float32)
     uu /= width - 1
-    tt /= height - 1  # 0=dorsal ridge, 1=belly midline; mirrored on both flanks.
-    sx = (.05 + .90 * uu) * (source.shape[1] - 1)
-    # Compress empty sky only near the spine; leave lower-flank/ventral layout
-    # unchanged. Flat slope at t=0 makes the mirrored ridge join continuous.
-    dorsal_t = tt * smoothstep(0, .025, tt)
-    sky_crop = .20 * (1 - smoothstep(.015, .35, dorsal_t))
-    sy = (.025 + .845 * np.sin(dorsal_t * math.pi / 2) + sky_crop) * (source.shape[0] - 1)
+    vv /= height - 1
+    # Atlas center is the spine; edges are the belly seam. UVs measure arc
+    # distance, not angle. Linear source sampling has no compressed-sky fold.
+    tt = np.abs(2 * vv - 1)
+    offset = np.where(vv < .5, .0, .32)
+    sx = (offset + .68 * uu) * (source.shape[1] - 1)
+    sy = (.20 + .78 * tt) * (source.shape[0] - 1)
     paint = np.stack([ndi.map_coordinates(source[..., c], [sy, sx], order=1, mode='nearest') for c in range(3)], axis=2)
     ventral = smoothstep(.62, .80, tt)
-    strength = 1 - .60 * ventral
-    # Keep forehead and eye area cream; painting starts behind the eyes.
     behind_eyes = smoothstep(.205, .275, uu)
-    pleat_head = smoothstep(.06, .14, uu)
-    head_gate = behind_eyes * (1 - ventral) + pleat_head * ventral
-    strength *= head_gate
-    result = PAPER + (paint - PAPER) * strength[..., None]
-    # A soft blue-ink atmosphere and faint peaks, sampled from the reference
-    # itself, fill longitudinal valleys without leaving a cream spinal stripe.
-    distant_source = ndi.gaussian_filter(source, (2.2, 2.2, 0))
-    distant_x = (.10 + .80 * uu) * (source.shape[1] - 1)
-    distant_y = (.28 + .45 * np.clip(dorsal_t / .32, 0, 1)) * (source.shape[0] - 1)
-    distant = np.stack([ndi.map_coordinates(distant_source[..., c], [distant_y, distant_x], order=1, mode='nearest') for c in range(3)], axis=2)
-    dorsal_mask = (1 - smoothstep(.12, .34, dorsal_t)) * behind_eyes
-    peak_ink = np.clip((.92 - distant.mean(axis=2)) / .65, 0, 1)
-    wash = (.10 + .04 * peak_ink) * dorsal_mask
-    result = result * (1 - wash[..., None]) + INK * wash[..., None]
-    distant_strength = .20 * dorsal_mask
-    result = result * (1 - distant_strength[..., None]) + distant * distant_strength[..., None]
+    head_gate = behind_eyes * (1 - ventral) + smoothstep(.06, .14, uu) * ventral
+    result = PAPER + (paint - PAPER) * ((1 - .60 * ventral) * head_gate)[..., None]
+    # Both independent paintings fade into one continuous, low-frequency mist
+    # at the spine. The common wash has distant peaks but no mirrored trees.
+    soft = ndi.gaussian_filter(source, (9, 9, 0))
+    mist_x = (.17 + .64 * uu) * (source.shape[1] - 1)
+    mist_y = (.27 + .30 * tt) * (source.shape[0] - 1)
+    distant = np.stack([ndi.map_coordinates(soft[..., c], [mist_y, mist_x], order=1, mode='nearest') for c in range(3)], axis=2)
+    mist = .80 * distant + .20 * INK
+    mist = PAPER + (mist - PAPER) * behind_eyes[..., None]
+    ridge_blend = (1 - smoothstep(.0, .13, tt))
+    result = result * (1 - ridge_blend[..., None]) + mist * ridge_blend[..., None]
+    # Same gentle wash at the belly seam, retaining the accepted 40% painting.
+    belly_blend = smoothstep(.92, 1, tt)
+    belly = PAPER + .40 * (distant - PAPER) * head_gate[..., None]
+    result = result * (1 - belly_blend[..., None]) + belly * belly_blend[..., None]
     output = OUT / 'kun-body-landscape.png'
-    Image.fromarray(np.round(np.clip(result, 0, 1) * 255).astype(np.uint8)).save(output)
+    pixels = np.round(np.clip(result, 0, 1) * 255).astype(np.uint8)
+    Image.fromarray(pixels).save(output)
+    flank_difference = np.abs(pixels[height // 2 + 80:height // 2 + 350].astype(float) - pixels[height // 2 - 350:height // 2 - 80][::-1]).mean()
     return {'path': str(output.relative_to(ROOT)), 'size': [width, height],
-            'flanks': 'mirrored; upright peaks toward dorsal line; 90% source width once per flank',
+            'flanks': 'independent source regions [0,.68] and [.32,1]; upright peaks; no repeat',
+            'sourceOffsetFraction': .32, 'sourceWidthFraction': .68,
+            'sourceVerticalRange': [.20, .98], 'uv': 'full circumference; ellipse arc distance',
+            'flankMeanAbsoluteRGBDifference': float(flank_difference),
             'ventralStrength': .40, 'headPaintStartBodyFraction': .205,
-            'dorsalSkyCropFraction': .20, 'dorsalReferenceWash': True,
-            'dorsalSeamSharedSample': True,
-            'seams': 'mirrored at dorsal ridge and belly midline'}
+            'dorsalReferenceWash': True, 'dorsalSeamSharedSample': True,
+            'seams': 'continuous soft mist at spine and belly; no mirrored flank artwork'}
 
 
 def main():

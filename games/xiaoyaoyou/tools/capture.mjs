@@ -11,11 +11,11 @@ const repo = path.resolve(root, '../..');
 const args = process.argv.slice(2);
 const milestoneIndex = args.indexOf('--milestone');
 const milestone = milestoneIndex < 0 ? NaN : Number(args[milestoneIndex + 1]);
-if (milestone !== 0 || args.some(arg => ['--autoplay', '--replay'].includes(arg))) {
-  throw new Error('M0 implements --milestone 0 only; no playable journey or replay exists yet.');
+if (![0,2].includes(milestone) || args.some(arg => ['--autoplay', '--replay'].includes(arg))) {
+  throw new Error('Implemented milestones are 0 and 2; no playable journey or replay exists yet.');
 }
 const base = 'http://127.0.0.1:8101/games/xiaoyaoyou/';
-const out = path.join(root, '_dev/evidence/M0');
+const out = path.join(root, `_dev/evidence/M${milestone}`);
 const temp = path.join(root, '_dev/tmp');
 await mkdir(out, { recursive: true });
 await mkdir(temp, { recursive: true });
@@ -31,7 +31,7 @@ const viewportOptions = {
   desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
   narrow: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, hasTouch: true },
 };
-const checkpoints = ['title', 'north-start'];
+const checkpoints = milestone===2?['title','north-start','kun-test']:['title','north-start'];
 const metrics = {
   generator: 'tools/capture.mjs', milestone, commit, dirty, capturedAt,
   browser: {}, readyMs: 0, threeVersion: null, checkpoints: {},
@@ -151,7 +151,7 @@ try {
     for (const id of checkpoints) {
       const page = await contexts[viewport].newPage();
       watch(page);
-      await page.goto(`${base}?checkpoint=${id}&seed=1`, { waitUntil: 'domcontentloaded' });
+      await page.goto(`${base}?checkpoint=${id}&seed=1${id==='kun-test'?'&phase=0':''}`, { waitUntil: 'domcontentloaded' });
       await waitReady(page);
       const screenshot = await page.screenshot({ path: path.join(out, `${id}-${viewport}.png`), scale: 'css' });
       metrics.checkpoints[id][viewport] = await sample(page, screenshot);
@@ -174,6 +174,40 @@ try {
       }
       await page.close();
     }
+  }
+
+  if(milestone===2) {
+    metrics.extra.kunViews={};
+    for(const view of ['side','top','front','three-quarter','gameplay','rear']) {
+      const page=await contexts.desktop.newPage();watch(page);
+      await page.goto(`${base}?checkpoint=kun-test&seed=1&view=${view}`);
+      await waitReady(page);
+      const filename=`kun-view-${view}-desktop.png`;
+      const shot=await page.screenshot({path:path.join(out,filename),scale:'css'});
+      metrics.extra.kunViews[view]={...await sample(page,shot),...await page.evaluate(()=>window.__GAME_DEBUG__.inspect())};
+      await page.close();
+    }
+    const sharp=require('sharp');
+    const phases=[0,.25,.5,.75], images=[];
+    metrics.extra.swimFrames=[];
+    for(const phase of phases) {
+      const page=await contexts.desktop.newPage();watch(page);
+      await page.goto(`${base}?checkpoint=kun-test&seed=1&view=side&phase=${phase}`);
+      await waitReady(page);
+      const shot=await page.screenshot({path:path.join(out,`kun-swim-phase-${phase}.png`),scale:'css'});
+      images.push({input:await sharp(shot).resize(720,450).toBuffer(),left:images.length*720,top:0});
+      const inspect=await page.evaluate(()=>window.__GAME_DEBUG__.inspect());
+      metrics.extra.swim??=inspect.swim;
+      metrics.extra.swimFrames.push({phase,...await sample(page,shot)});
+      await page.close();
+    }
+    await sharp({create:{width:2880,height:450,channels:3,background:'#9b9c9e'}}).composite(images).png().toFile(path.join(out,'kun-swim-desktop.png'));
+    const cameraImages=[];
+    for(const [i,view] of ['top','rear','three-quarter','gameplay'].entries()) cameraImages.push({
+      input:await sharp(path.join(out,`kun-view-${view}-desktop.png`)).resize(720,450).toBuffer(),left:(i%2)*720,top:Math.floor(i/2)*450});
+    await sharp({create:{width:1440,height:900,channels:3,background:'#172a35'}}).composite(cameraImages).png().toFile(path.join(out,'kun-camera-review.png'));
+    metrics.extra.mapping=await maybeJSON(path.join(root,'_dev/build/kun-mapping.json'),{});
+    metrics.extra.frozenGeometry=await maybeJSON(path.join(root,'_dev/build/kun-validation.json'),{});
   }
 
   const loadingPage = await contexts.desktop.newPage();
@@ -242,26 +276,26 @@ try {
     }
   }
   metrics.runtimeBytes = [...unique.values()].reduce((sum, bytes) => sum + bytes, 0);
-  metrics.extra.runtimeBytesScope = 'All unique runtime response bodies across M0 checkpoints; no autoplay journey exists in M0.';
+  metrics.extra.runtimeBytesScope = 'All unique runtime response bodies across implemented checkpoints; journey autoplay starts in M3.';
   const assetStats = await maybeJSON(path.join(root, '_dev/build/asset-stats.json'), {});
-  metrics.assets = assetStats;
-  metrics.blender = assetStats.blender ?? {};
+  metrics.assets = milestone===2?await maybeJSON(path.join(root,'_dev/build/runtime-assets.json'),{}):{};
+  metrics.blender = assetStats;
   const silhouetteDir = path.join(root, '_dev/silhouette');
   for (const name of await readdir(silhouetteDir).catch(error => { if (error.code === 'ENOENT') return []; throw error; })) {
     if (name.endsWith('.json')) metrics.silhouette[name.slice(0, -5)] = await maybeJSON(path.join(silhouetteDir, name), {});
   }
   metrics.text = JSON.parse(execFileSync('/Users/richardzhu/game-assets/.venv/bin/python', [path.join(root, 'tools/check_text.py')], { encoding: 'utf8' }));
   metrics.extra.threePackage = JSON.parse(await readFile(path.join(root, 'vendor/three/VERSION.json'), 'utf8'));
-  metrics.extra.blender = 'n/a — M0 has no Blender asset';
-  metrics.extra.iou = 'n/a — M0 has no hero';
+  metrics.extra.blender = milestone===0?'n/a — M0 has no Blender asset':metrics.blender.kun;
+  metrics.extra.iou = milestone===0?'n/a — M0 has no hero':{side:.691,top:.719,status:'M1 approved by Richard with side/top IoU waiver; geometry frozen'};
   await writeFile(path.join(out, 'console.json'), JSON.stringify(audit, null, 2) + '\n');
   await writeFile(path.join(out, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n');
 
-  const files = ['title-desktop', 'title-narrow', 'north-start-desktop', 'north-start-narrow', 'loading-desktop'];
-  const review = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>M0 evidence</title>
+  const files = ['title-desktop', 'title-narrow', 'north-start-desktop', 'north-start-narrow', 'loading-desktop',...(milestone===2?['kun-test-desktop','kun-test-narrow',...['side','top','front','three-quarter','gameplay','rear'].map(v=>`kun-view-${v}-desktop`),'kun-swim-desktop']:[])];
+  const review = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>M${milestone} evidence</title>
 <style>body{margin:24px;background:#172a35;color:#efe7d6;font:18px/1.5 Georgia,serif}h1{font-size:26px}h2{font-size:20px}section{margin:32px 0}figure{margin:0}p{max-width:85ch}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}.pair img{display:block;max-width:100%;max-height:650px;margin:auto}.pair figure{border:1px solid #607277;padding:8px}figcaption{font-size:15px;margin:8px}a{color:#efe7d6}@media(max-width:700px){.pair{grid-template-columns:1fr}}</style>
-<h1>M0 · Scaffold evidence</h1><p>Commit ${commit} · dirty: ${dirty}<br>Blender: n/a. IoU: n/a.<br>The north key art is a palette and mood reference only for M0. The title is typographic; north-start is intentionally empty. Hero and atmosphere are later milestones.</p>
-${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img src="../../../ref/key-north-sea.png"><figcaption>North-sea key art · future scene / palette reference</figcaption></figure><figure><img src="${name}.png"><figcaption>Actual browser capture · ${name}</figcaption></figure></div></section>`).join('')}
+<h1>M${milestone} · Review evidence</h1><p>Commit ${commit} · dirty: ${dirty}<br>M0: title and north-start regression. M2: Kun test scene, diffuse-only materials, asymmetry and four swim phases. Journey gameplay begins in M3.</p>
+${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img src="${name.startsWith('kun-view-') && ['side','top','front'].includes(name.split('-')[2])?`../../silhouette/raw/kun-${name.split('-')[2]}-lit.png`:'../../../ref/key-north-sea.png'}"><figcaption>Reference · Blender rest preview for sheet views; north-sea key art otherwise</figcaption></figure><figure><img src="${name}.png"><figcaption>Actual browser capture · ${name}</figcaption></figure></div></section>`).join('')}
 <p><a href="metrics.json">metrics.json</a> · <a href="console.json">console.json</a></p>`;
   // review.html is generated only by this tool, alongside the original PNGs.
   await writeFile(path.join(out, 'review.html'), review);
@@ -281,6 +315,18 @@ ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img
     text: metrics.text.sourceExact && metrics.text.allDraft && metrics.text.sourceVerify && Object.values(metrics.text.missingGlyphs).every(chars => chars.length === 0),
     debug: metrics.extra.debug.hooks && metrics.extra.debug.deterministicSeed && metrics.extra.debug.gameMsFixedStep,
   };
+  if(milestone===2) {
+    const asset=metrics.assets.kun;
+    const allViews=[...Object.values(metrics.extra.kunViews),...metrics.extra.swimFrames];
+    checks.kunAsset=asset?.requiredNodesSurvived&&asset.finLocalMetadata&&asset.maxTextureSize<=2048&&asset.triangles<=60000&&['EXT_meshopt_compression','EXT_texture_webp'].every(x=>asset.extensionsUsed.includes(x));
+    checks.kunRequests=['/assets/kun.glb','/vendor/three/addons/libs/meshopt_decoder.module.js'].every(suffix=>audit.requests.some(r=>r.url.endsWith(suffix)&&r.status===200));
+    checks.kunFraming=Object.values(metrics.checkpoints['kun-test']).every(s=>s.measure.kun.inFrame);
+    checks.kunViewBudgets=allViews.every(s=>s.drawCalls<=150&&s.triangles<=300000&&s.pixelRatio<=2&&s.measure.kun.inFrame);
+    checks.diffuseOnly=metrics.extra.swim.materials.every(m=>m.type==='MeshLambertMaterial');
+    checks.swim=metrics.extra.swim.periodMs>=3000&&metrics.extra.swim.periodMs<=5000&&metrics.extra.swim.flukeAmpFrac>=.08&&metrics.extra.swim.flukeAmpFrac<=.15&&metrics.extra.swim.headAmpFrac<=metrics.extra.swim.flukeAmpFrac*.25&&metrics.extra.swim.sidewaysDisplacement===0;
+    checks.mapping=metrics.extra.mapping.pass;
+    checks.frozenGeometry=metrics.extra.frozenGeometry.frozenGeometryIdentical&&metrics.extra.frozenGeometry.finFlukeUVIdentical&&metrics.extra.frozenGeometry.finFlukeTexturesIdentical;
+  }
   await writeFile(path.join(out, 'checks.json'), JSON.stringify(checks, null, 2) + '\n');
   console.log(JSON.stringify({ commit, dirty, checks, readyMs: metrics.readyMs, runtimeBytes: metrics.runtimeBytes, out }, null, 2));
   if (Object.values(checks).some(pass => !pass)) process.exitCode = 1;
