@@ -45,7 +45,9 @@ function watch(page) {
   page.on('requestfailed', request => audit.failedRequests.push({ url: request.url(), error: request.failure()?.errorText }));
   page.on('request', request => {
     const url = new URL(request.url());
-    if (url.hostname !== '127.0.0.1' || url.port !== '8101') audit.externalRequests.push(request.url());
+    // Embedded GLB images use same-origin blob URLs; those are local decodes,
+    // not network egress. Origin checks still reject any foreign blob origin.
+    if (url.origin !== new URL(base).origin) audit.externalRequests.push(request.url());
   });
   page.on('response', response => {
     const task = (async () => {
@@ -271,7 +273,7 @@ try {
   const unique = new Map();
   for (const request of audit.requests) {
     const url = new URL(request.url);
-    if (request.status === 200 && !url.pathname.includes('/_dev/')) {
+    if (request.status === 200 && url.protocol === 'http:' && !url.pathname.includes('/_dev/')) {
       unique.set(url.pathname, Math.max(unique.get(url.pathname) ?? 0, request.bytes));
     }
   }
@@ -295,7 +297,7 @@ try {
   const review = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>M${milestone} evidence</title>
 <style>body{margin:24px;background:#172a35;color:#efe7d6;font:18px/1.5 Georgia,serif}h1{font-size:26px}h2{font-size:20px}section{margin:32px 0}figure{margin:0}p{max-width:85ch}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}.pair img{display:block;max-width:100%;max-height:650px;margin:auto}.pair figure{border:1px solid #607277;padding:8px}figcaption{font-size:15px;margin:8px}a{color:#efe7d6}@media(max-width:700px){.pair{grid-template-columns:1fr}}</style>
 <h1>M${milestone} · Review evidence</h1><p>Commit ${commit} · dirty: ${dirty}<br>M0: title and north-start regression. M2: Kun test scene, diffuse-only materials, asymmetry and four swim phases. Journey gameplay begins in M3.</p>
-${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img src="${name.startsWith('kun-view-') && ['side','top','front'].includes(name.split('-')[2])?`../../silhouette/raw/kun-${name.split('-')[2]}-lit.png`:'../../../ref/key-north-sea.png'}"><figcaption>Reference · Blender rest preview for sheet views; north-sea key art otherwise</figcaption></figure><figure><img src="${name}.png"><figcaption>Actual browser capture · ${name}</figcaption></figure></div></section>`).join('')}
+${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img src="${name.startsWith('kun-view-') && ['side','top','front'].includes(name.split('-')[2])?`../../silhouette/raw/kun-${name.split('-')[2]}-preview.png`:'../../../ref/key-north-sea.png'}"><figcaption>Reference · Blender rest preview for sheet views; north-sea key art otherwise</figcaption></figure><figure><img src="${name}.png"><figcaption>Actual browser capture · ${name}</figcaption></figure></div></section>`).join('')}
 <p><a href="metrics.json">metrics.json</a> · <a href="console.json">console.json</a></p>`;
   // review.html is generated only by this tool, alongside the original PNGs.
   await writeFile(path.join(out, 'review.html'), review);

@@ -3,9 +3,6 @@ import * as THREE from 'three';
 export function createNorth() {
   const group=new THREE.Group();
   group.name='north-test-atmosphere';
-  group.add(new THREE.HemisphereLight('#D4D6CA','#283B48',2.0));
-  const key=new THREE.DirectionalLight('#FFF1D5',2.0);
-  key.position.set(-5,12,6); group.add(key);
   const canvas=document.createElement('canvas'); canvas.width=1;canvas.height=512;
   const ctx=canvas.getContext('2d');
   const gradient=ctx.createLinearGradient(0,0,0,512);

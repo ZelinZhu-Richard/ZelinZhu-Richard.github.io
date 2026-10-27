@@ -339,3 +339,7 @@ M1 approval is committed as 2260733. M2 remains unticked.
 - The built-in iab browser reported “Browser is not available: iab.” The existing prescribed 127.0.0.1:8101 server returns 200; use the authorized headless capture harness and inspect its screenshots. No personal-browser fallback.
 
 Next: capture M2 on the implementation commit, render fresh Blender/reference comparisons, inspect all evidence, report measured passes/misses and wait for Richard. No M2 approval presumed.
+
+### M2 first capture integration corrections
+
+The first capture on a94894c caught distorted browser geometry: Meshopt normalized integer buffers were being transformed in place and overflowed. Decode position/normal attributes to Float32 before baking node transforms. This is an integration correction, not an asset geometry edit. Also removed duplicate test-scene lights so the ink wash is not overexposed. The console check initially classified embedded same-origin blob image URLs as external requests; compare their origin correctly, retain them in the audit, and count only real HTTP response bodies in the runtime-byte budget. There were zero page errors, failed requests or HTTP errors. Recapture all evidence after these corrections; the initial screenshots are not review evidence.

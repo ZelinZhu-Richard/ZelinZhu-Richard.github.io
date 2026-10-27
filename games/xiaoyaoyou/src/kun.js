@@ -64,7 +64,18 @@ export function prepareKun(root) {
   // Meshopt's quantization may add node transforms. Bake those and the manifest
   // anchor into one entity space, so the shader field is continuous at joins.
   for(const mesh of meshes) {
-    mesh.geometry=mesh.geometry.clone().applyMatrix4(mesh.matrixWorld);
+    mesh.geometry=mesh.geometry.clone();
+    // Quantized normalized integer buffers cannot store the world coordinates
+    // produced by a matrix bake. Decode first, including transformed normals.
+    for(const name of ['position','normal']) {
+      const source=mesh.geometry.attributes[name];
+      const values=new Float32Array(source.count*3);
+      for(let i=0;i<source.count;i++) {
+        values[i*3]=source.getX(i);values[i*3+1]=source.getY(i);values[i*3+2]=source.getZ(i);
+      }
+      mesh.geometry.setAttribute(name,new THREE.BufferAttribute(values,3));
+    }
+    mesh.geometry.applyMatrix4(mesh.matrixWorld);
     mesh.matrixAutoUpdate=true;
     mesh.position.set(0,0,0); mesh.rotation.set(0,0,0); mesh.scale.set(1,1,1);
   }
