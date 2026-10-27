@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import struct
 from pathlib import Path
 
 import numpy as np
@@ -33,13 +34,21 @@ def inspect():
         geometry[name] = hashlib.sha256(b''.join(sorted(rows))).hexdigest()
         uv[name] = hashlib.sha256(b''.join(uv_parts)).hexdigest()
         counts[name] = triangles
-    return {'geometry': geometry, 'uv': uv, 'triangleCounts': counts}
+    data = (ROOT / '_dev/raw/kun.glb').read_bytes()
+    binary_start = 28 + struct.unpack_from('<I', data, 12)[0]
+    image_hashes = {}
+    for image in document.get('images', []):
+        view = document['bufferViews'][image['bufferView']]
+        start = binary_start + view.get('byteOffset', 0)
+        image_hashes[image.get('name', str(image['bufferView']))] = hashlib.sha256(data[start:start + view['byteLength']]).hexdigest()
+    return {'geometry': geometry, 'uv': uv, 'triangleCounts': counts, 'images': image_hashes}
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--baseline', action='store_true')
     parser.add_argument('--scale', type=float)
+    parser.add_argument('--body-mouth-only', action='store_true', help='Explicitly authorized mouth exception; freeze all other geometry')
     args = parser.parse_args()
     current = inspect()
     if args.baseline:
@@ -47,7 +56,10 @@ def main():
         print('Saved pre-pass geometry fingerprints (UV excluded).')
         return
     before = json.loads(BASELINE.read_text())
-    frozen_names = [name for name in before['geometry'] if not name.startswith('kun_fin_') and name != 'kun_fluke']
+    if args.body_mouth_only:
+        frozen_names = [name for name in before['geometry'] if not name.startswith('kun_mouth_')]
+    else:
+        frozen_names = [name for name in before['geometry'] if not name.startswith('kun_fin_') and name != 'kun_fluke']
     stats = json.loads((BUILD / 'asset-stats.json').read_text())['kun']
     actual_scale = stats['geometryReview']['upperFinScale']
     if args.scale is None or abs(actual_scale - args.scale) > 1e-9:
@@ -62,6 +74,11 @@ def main():
                 'localCoordinateHashes': {name: value['localCoordinateHash'] for name, value in stats['tracedSheets'].items() if name.startswith('kun_fin_')},
                 'exportedTriangles': sum(current['triangleCounts'].values()),
                 'flukeTopology': stats['flukeTopology']}
+    if args.body_mouth_only:
+        fin_images = {name: value for name, value in before['images'].items() if 'pectoral' in name or 'fluke' in name}
+        snapshot['authorizedGeometryExceptions'] = [name for name in before['geometry'] if name.startswith('kun_mouth_')]
+        snapshot['finFlukeTexturesIdentical'] = len(fin_images) == 2 and all(current['images'].get(name) == value for name, value in fin_images.items())
+        snapshot['finFlukeUVIdentical'] = all(before['uv'][name] == current['uv'][name] for name in before['uv'] if name.startswith('kun_fin_') or name == 'kun_fluke')
     destination = BUILD / f'kun-scale-{args.scale:g}.json'
     if destination.exists():
         previous = json.loads(destination.read_text())
@@ -75,7 +92,7 @@ def main():
         snapshot['localCoordinatesInvariantAcross135And150'] = other['localCoordinateHashes'] == snapshot['localCoordinateHashes']
     (BUILD / 'kun-validation.json').write_text(json.dumps(snapshot, indent=2) + '\n')
     print(json.dumps(snapshot, indent=2))
-    if not frozen or snapshot.get('uvInvariantAcross135And150') is False or snapshot.get('restoredUVIdentical') is False:
+    if not frozen or snapshot.get('uvInvariantAcross135And150') is False or snapshot.get('restoredUVIdentical') is False or snapshot.get('finFlukeTexturesIdentical') is False or snapshot.get('finFlukeUVIdentical') is False:
         raise SystemExit(1)
 
 

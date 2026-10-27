@@ -164,6 +164,12 @@ for i in range(RIDGE_LOOPS - 1):
 ridge_faces.extend([(3, 2, 1, 0), tuple((RIDGE_LOOPS - 1) * 4 + j for j in range(4))])
 ridge_uvs.extend([[(.2, .985)] * 4, [(.75, .985)] * 4])
 common.mesh('kun_dorsal_ridge', ridge_vertices, ridge_faces, skin, ridge_uvs)
+# The low ridge samples exactly the spine's longitudinal color. Only UVs
+# change here; its geometry stays frozen and the mirrored seam stays aligned.
+ridge = bpy.data.objects['kun_dorsal_ridge']
+for loop in ridge.data.loops:
+    y = ridge.data.vertices[loop.vertex_index].co.y
+    ridge.data.uv_layers.active.data[loop.index].uv = ((y + 5.6) / 10.4, 1.0)
 
 
 
@@ -289,7 +295,9 @@ for i in range(17):
         positions.append(skin_point(-5.25 + 3.25 * t, phi_start * (1 - t) + phi_end * t, .012))
     stroke(f'kun_throat_pleat_{i:02}', positions, .009, pleat_material)
 for sign in [-1, 1]:
-    positions = [skin_point(-5.5 + t * 1.75, sign * (.94 + .37 * t), .018) for t in np.linspace(0, 1, 32)]
+    # Lower lateral lip, not the former upper-head/"eyebrow" arc. The corner
+    # ends 0.22 units behind the fixed eye and below it (109° vs eye 98.55°).
+    positions = [skin_point(-5.58 + t * 2.08, sign * (2.45 - .55 * t), .018) for t in np.linspace(0, 1, 32)]
     stroke(f'kun_mouth_{sign}', positions, .016, pleat_material)
     # Elliptical eye plate on the skin, with concentric quad rings and a pupil.
     # Move back onto the lateral head surface, close to the mouth line. The
@@ -342,6 +350,10 @@ common.record('kun', {
         'bodyLength': 10.4, 'flukeAnchor': [0, 3.40, .10],
         'dorsalRidgeHeight': .055, 'dorsalSpikeExtraHeight': 0,
         'eyeY': -3.72, 'eyePhiDegrees': math.degrees(1.72), 'eyeSizeScale': .5,
+        'mouthPhiDegrees': [math.degrees(2.45), math.degrees(1.90)],
+        'mouthCorner': list(skin_point(-3.50, 1.90, .018)),
+        'fixedEyeCenter': list(skin_point(-3.72, 1.72, .030)),
+        'eyeAboveMouthCorner': skin_point(-3.72, 1.72, .030)[2] > skin_point(-3.50, 1.90, .018)[2],
     },
     'tracedSheets': SHEET_STATS, 'flukeTopology': FLUKE_TOPOLOGY, 'paint': PAINT,
     'frozenBodyQuadGeometry': {'referenceCommit': '05d0664', 'identical': FROZEN_BODY_CURRENT == FROZEN_BODY_REFERENCE,

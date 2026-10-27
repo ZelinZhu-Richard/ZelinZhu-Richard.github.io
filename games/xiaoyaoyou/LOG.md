@@ -234,3 +234,55 @@ Richard explicitly authorizes fin/fluke and texture changes now, while body geom
 - Texture baking initially reached PNG output but JSON metadata serialization hit a numpy int64; converted crop-size values to Python ints and regenerated successfully. No Blender or reference files were modified by that metadata failure.
 - The first 1.35 export succeeded, but changing UVs before subdivision caused the body's geometric fingerprint to differ. The first 1.5 verification build stopped at the direct frozen-quad assertion before export. Corrected the pipeline to reuse the original post-subdivision body mesh from committed generator 05d0664 and apply only the new UV layer afterward. This guarantees identical vertex positions and quad indices by construction. All other 24 body/detail objects already matched. The premature validator invocation after the stopped build read the previous GLB; its generated 1.5 snapshot is invalid and discarded, not counted as the requested test. The validator now rejects a scale label that differs from the actual exported build scale.
 - Actual scale-1.5 build and validation then succeeded; all four exported fin TEXCOORD_0 buffers match the initial 1.35 build byte-for-byte, and all normalized local coordinate hashes match. Restored default 1.35 with a further successful build; UVs still identical, all 25 frozen body/detail geometry fingerprints match, and original body positions/quad faces are exactly retained. `kun-validation.json` records actual final scale 1.35, `uvInvariantAcross135And150: true`, `localCoordinatesInvariantAcross135And150: true`, `restoredUVIdentical: true`, `frozenGeometryIdentical: true`. The final fluke is one connected component and one outer boundary with no internal non-manifold edges. The final source constants remain 1.35 / 1.08.
+
+## M1 continuous-fluke/paint evidence — awaiting Richard (2026-10-26, commit 32663f9a9c04b8f77285af13384838e20f21544a)
+
+Final asset restored to **pectoral scale 1.35**, lower pair **1.08**. All five full previews, both true gameplay-camera border close-ups, and side/top overlays were opened and inspected. **M1 remains unticked and not approved**. No further tuning after this capture.
+
+Richard's requested show order and paths (under `_dev/silhouette/`):
+1. `kun-gameplay.png` (behind-left 30°), then `kun-three-quarter.png` (front-left 25°). Presentation pair `kun-gameplay-and-three-quarter.png` is left gameplay / right three-quarter.
+2. `raw/kun-side-preview.png`, `raw/kun-top-preview.png`; presentation pair `kun-side-and-top-previews.png`. Reference/render/overlay panels remain `kun-side.png` and `kun-top.png`.
+3. `raw/kun-front-preview.png` (by eye only).
+4. `kun-gameplay-pectoral-closeup.png` (**842×841**) and `kun-gameplay-fluke-closeup.png` (**1830×1344**). Presentation pair `kun-gameplay-closeups.png` is left pectoral / right fluke. These are actual 4096-frame border renders through the same gameplay camera position, orientation and lens, not enlarged 1024 screenshots; border coordinates are recorded in `raw/kun-render.json`.
+5. IoU table and mesh/build verification below. All pairs were produced by silhouette.py --pair. Browser n/a for M1.
+
+| View | Previous IoU | New IoU | Reference target | Result |
+|---|---:|---:|---:|---|
+| side | 0.6170 | **0.6915** | ≥0.70 | **FAIL**, misses by 0.0085; no waiver presumed |
+| top | 0.7870 | **0.7191** | ≥0.75 | **BELOW TARGET**, accepted larger-fin exception per Richard's exact quote above; number is not called a pass |
+| front / three-quarter / gameplay | n/a | n/a | by eye | **Await Richard** |
+
+| Requested constraint / mesh criterion | Result and measured evidence |
+|---|---|
+| Continuous fluke | **PASS for construction and observed continuity** — one combined traced contour with 179 boundary points, center stock and notch; one quad patch with **1 connected component**, **1 boundary loop**, degree-2 perimeter, **0 internal non-manifold edges**. Root embedded inside the frozen stock. No background gap between the lobes/stock was visible in the gameplay view or its close-up. Richard judges the final seam appearance. |
+| Named fin constants and larger sheets | **PASS** — top of blender/kun.py exposes per-pair scale, sweep, dihedral, twist and camber. Upper **1.35 / +20°**, lower **1.08 / −30°**, sweep **55°**, twist **25°**, camber **±0.12**. All four sheets retain the traced pointed perimeter and 1,392 quads each. |
+| Fin-local UVs and future local coordinates | **PASS** — actual successful builds at 1.35 and 1.5 have byte-identical exported UV arrays for every fin. Restored 1.35 matches again. All four UV SHA-256s `48d2af3245dff840b931be6d2b3b0d3246f673ff18f39497cb724591035a9cdd`; normalized local coordinate hashes `6d46856b0919e62058b93667ff7620c9405153f1cf6192445bc81821f785d99f`. `_dev/build/kun-validation.json` and the copied renderer buildValidation block report all invariance/restoration flags true. |
+| Body geometry frozen | **PASS** — reuse original post-subdivision mesh from 05d0664, then rewrap only its UV layer. **8,162 vertex positions and 8,160 polygon faces** match exactly, including ordered hashes. All **25 body/detail objects** also match canonical exported geometry. Final `bodyExportTriangleRepresentationChangedWithUVs: false`. No head, spine, pleat, mouth, eye or body proportions changed. |
+| Reference-derived fin/fluke paint | **Implemented; visual approval pending** — pectoral source crop `[1263,214,1365,473]` (103×260 native), fluke `[1228,511,1627,726]` (400×216 native). Inset 2 px and nearest-fill outward; high-pass waves .32 weight, ray opacity .19, aft-edge line opacity .24; cream roots and indigo concentration aft/tips. Same texture on both faces, double-sided alpha blend. Less unpainted fin area is visible than previously. |
+| Body landscape coverage | **Implemented; visual approval pending** — mirrored upright flanks use 90% source width once per flank; coverage now reaches below fin roots/lower flank. Ventral blend **0.40**. Forehead/eye-area painting is removed, with full flank paint fading in behind body fraction .205–.275. Dorsal and ventral midline samples are mirrored, so no UV color discontinuity; no visible UV stripe/seam found during preview inspection. Original frozen mouth strokes remain geometry, distinct from the removed forehead paint. |
+| Texture sharpness | At normal gameplay framing, paint layout/rays remain readable. The enlarged close-ups visibly reveal softness in the low-resolution reference crop, especially the pectoral's **103×260** native color layout. The added rays/wave detail are sharper; they do not restore missing source resolution. This limitation is shown and reported, not hidden. |
+| Hero triangle budget | **PASS** — **42,094 ≤60,000**, independently counted from GLB indices. |
+| Quad ratio | **PASS** — **0.9939368102 (99.39%) ≥0.90**, before export triangulation. |
+| Body topology and loop spacing | **PASS** — **0 non-manifold body edges**, **43 body loops**, spacing ratio **1.0910588969 ≤3**. |
+| Texture budget | **PASS** — body **2048×1024**, pectoral **811×2048**, fluke **2048×1106**; maximum axis **2048**. |
+| Raw size / nodes | Raw GLB **10,738,644 bytes** (not yet M2-optimized); all six required nodes present. |
+| Prior rise constraint | **PASS numerically** — front-left preview fin rise **0.2955425 body depth ≤0.3**, through the same projection measurement as the previous pass. |
+| Engines and evidence | Successful final default build **3.008 s**, five views + two close-ups **7.038 s**, Cycles CPU 16 samples, denoising off, both exit 0. Failed/stopped verification attempts are recorded above. Comparison exits 2 for misses. Both renderer and silhouette JSON identify **32663f9, dirty:false**. Side/top masks, cameras, normalization and blur unchanged; only material-specific mask selection was needed for the separate pectoral/fluke atlases. |
+
+Visual summary: the continuous tail now reads through the stock in gameplay view, the fin paint is darker/more detailed aft, and the side flank painting extends well below its former narrow band. The forehead paint is clear. The side silhouette is closer but still fails its numerical gate; the top miss is reported under Richard's explicit larger-fin acceptance. These observations do not approve M1.
+
+Reference art and REVIEW_RUBRIC.md were not edited; the new decision/texture requirements are recorded in PLAN.md. Runtime/M0 files untouched. No installs, downloads, push or branch/config/hook changes. The implementation is committed as 32663f9; this evidence/result record is left pending review. Wait for Richard before ticking M1 or starting another milestone.
+
+## M1 dorsal paint and lower mouth correction authorized (2026-10-26; not approved)
+
+Richard's latest review accepts the improvement in the continuous fluke, reference-painted fins and lower-flank coverage, but **does not yet approve M1**. He will consider approval with side/top IoU waiver only after this correction looks right; no new approval or side waiver is presumed.
+
+- Texture-only dorsal correction: compress/crop the empty sky near the ridge, bring reference mountain tops and pines toward the spine, and layer a soft reference-derived ink wash with faint distant peaks/mist. Preserve lower-flank/ventral layout beyond the dorsal region, head-clear fade, mirrored ridge seam, and body geometry. New --body-only bake option deliberately never regenerates either fin/fluke atlas or planform file.
+- Explicit geometry exception: move only the kun_mouth strokes from the former 54–75° upper-head arcs to the lower-side head, starting at the snout and ending at y=−3.50 / radial angle 109°, just below and 0.22 units behind the fixed eye at y=−3.72 / 98.55°. Keep the eye and all other geometry fixed. Show front/side views and same-camera head close-ups to judge absence of eyebrow arcs and eye-above-corner placement.
+- The preservation validator now has an explicit --body-mouth-only mode: freeze ALL other objects including fins/fluke/eyes, compare fin/fluke UVs and embedded image hashes, and list only the two mouth nodes as authorized geometry exceptions. This is narrower than the previous art pass.
+
+### Polish list — deferred AI upscale (not now)
+
+Richard: "the fin/fluke color comes from the small reference crop and looks soft and blocky in close-ups. Later, upscale those exact crops to high resolution with an AI upscaler, so the composition and UV layout stay identical and it's a texture swap only."
+
+No upscale, repaint, UV-layout change or fin/fluke texture change is performed in this pass.

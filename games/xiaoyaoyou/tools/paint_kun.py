@@ -5,6 +5,7 @@ fin later must never change its UV arrays, paint layout, or local span weights.
 """
 import json
 import math
+import argparse
 from pathlib import Path
 
 import numpy as np
@@ -133,7 +134,11 @@ def body_texture():
     uu /= width - 1
     tt /= height - 1  # 0=dorsal ridge, 1=belly midline; mirrored on both flanks.
     sx = (.05 + .90 * uu) * (source.shape[1] - 1)
-    sy = (.025 + .845 * np.sin(tt * math.pi / 2)) * (source.shape[0] - 1)
+    # Compress empty sky only near the spine; leave lower-flank/ventral layout
+    # unchanged. Flat slope at t=0 makes the mirrored ridge join continuous.
+    dorsal_t = tt * smoothstep(0, .025, tt)
+    sky_crop = .20 * (1 - smoothstep(.015, .35, dorsal_t))
+    sy = (.025 + .845 * np.sin(dorsal_t * math.pi / 2) + sky_crop) * (source.shape[0] - 1)
     paint = np.stack([ndi.map_coordinates(source[..., c], [sy, sx], order=1, mode='nearest') for c in range(3)], axis=2)
     ventral = smoothstep(.62, .80, tt)
     strength = 1 - .60 * ventral
@@ -141,18 +146,42 @@ def body_texture():
     behind_eyes = smoothstep(.205, .275, uu)
     pleat_head = smoothstep(.06, .14, uu)
     head_gate = behind_eyes * (1 - ventral) + pleat_head * ventral
-    strength *= head_gate * smoothstep(0, .045, tt)
+    strength *= head_gate
     result = PAPER + (paint - PAPER) * strength[..., None]
+    # A soft blue-ink atmosphere and faint peaks, sampled from the reference
+    # itself, fill longitudinal valleys without leaving a cream spinal stripe.
+    distant_source = ndi.gaussian_filter(source, (2.2, 2.2, 0))
+    distant_x = (.10 + .80 * uu) * (source.shape[1] - 1)
+    distant_y = (.28 + .45 * np.clip(dorsal_t / .32, 0, 1)) * (source.shape[0] - 1)
+    distant = np.stack([ndi.map_coordinates(distant_source[..., c], [distant_y, distant_x], order=1, mode='nearest') for c in range(3)], axis=2)
+    dorsal_mask = (1 - smoothstep(.12, .34, dorsal_t)) * behind_eyes
+    peak_ink = np.clip((.92 - distant.mean(axis=2)) / .65, 0, 1)
+    wash = (.10 + .04 * peak_ink) * dorsal_mask
+    result = result * (1 - wash[..., None]) + INK * wash[..., None]
+    distant_strength = .20 * dorsal_mask
+    result = result * (1 - distant_strength[..., None]) + distant * distant_strength[..., None]
     output = OUT / 'kun-body-landscape.png'
     Image.fromarray(np.round(np.clip(result, 0, 1) * 255).astype(np.uint8)).save(output)
     return {'path': str(output.relative_to(ROOT)), 'size': [width, height],
             'flanks': 'mirrored; upright peaks toward dorsal line; 90% source width once per flank',
             'ventralStrength': .40, 'headPaintStartBodyFraction': .205,
+            'dorsalSkyCropFraction': .20, 'dorsalReferenceWash': True,
+            'dorsalSeamSharedSample': True,
             'seams': 'mirrored at dorsal ridge and belly midline'}
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--body-only', action='store_true')
+    args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    if args.body_only:
+        filename = ROOT / '_dev/build/kun-paint.json'
+        report = json.loads(filename.read_text())
+        report['body'] = body_texture()
+        filename.write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps({'bodyOnly': True, 'body': report['body']}, indent=2))
+        return
     filename = ROOT / 'blender/kun-planforms.json'
     plan = json.loads(filename.read_text())
     combined = continuous_fluke(plan)

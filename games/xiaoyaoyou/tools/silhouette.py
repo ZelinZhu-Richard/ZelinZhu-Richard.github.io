@@ -268,6 +268,27 @@ def render(asset, engine):
                 obj.data.materials.append(material)
         scene.render.filepath = str(OUT / 'raw' / f'{asset}-{view}-preview.png')
         bpy.ops.render.render(write_still=True)
+        if asset == 'kun' and view in ('side', 'front'):
+            from bpy_extras.object_utils import world_to_camera_view
+            head_obj = next(obj for obj in meshes if obj.name == 'kun_body')
+            head = [head_obj.matrix_world @ vertex.co for vertex in head_obj.data.vertices
+                    if (head_obj.matrix_world @ vertex.co).y < -3.1]
+            projected_head = [world_to_camera_view(scene, camera, point) for point in head]
+            x0, x1 = min(point.x for point in projected_head), max(point.x for point in projected_head)
+            y0, y1 = min(point.y for point in projected_head), max(point.y for point in projected_head)
+            margin = max(x1 - x0, y1 - y0) * .12
+            border = [max(0, x0 - margin), max(0, y0 - margin), min(1, x1 + margin), min(1, y1 + margin)]
+            scene.render.resolution_x = scene.render.resolution_y = 4096
+            scene.render.use_border = True
+            scene.render.use_crop_to_border = True
+            scene.render.border_min_x, scene.render.border_min_y = border[:2]
+            scene.render.border_max_x, scene.render.border_max_y = border[2:]
+            scene.render.filepath = str(OUT / f'{asset}-{view}-head-closeup.png')
+            bpy.ops.render.render(write_still=True)
+            scene.render.use_border = False
+            scene.render.use_crop_to_border = False
+            scene.render.resolution_x = scene.render.resolution_y = 1024
+            preview_measurements[f'{view}HeadCloseup'] = {'cameraUnchanged': True, 'fullFrameResolution': 4096, 'border': border}
         if view in ('three-quarter', 'gameplay'):
             bpy.data.images['Render Result'].save_render(str(OUT / f'{asset}-{view}.png'), scene=scene)
             if view == 'gameplay':
