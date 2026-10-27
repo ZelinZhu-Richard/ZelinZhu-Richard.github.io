@@ -13,7 +13,7 @@ export function createNorth() {
   const shaftMaterial=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     uniforms:{ink:{value:new THREE.Color('#708B91')}},
     vertexShader:'varying vec2 st; void main(){st=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:'uniform vec3 ink; varying vec2 st; void main(){float edge=pow(max(0.,1.-abs(st.x*2.-1.)),2.);float fade=smoothstep(0.,.4,st.y);gl_FragColor=vec4(ink,edge*fade*.055);}' });
+    fragmentShader:'uniform vec3 ink; varying vec2 st; void main(){float edge=pow(max(0.,1.-abs(st.x*2.-1.)),2.);float fade=smoothstep(0.,.75,st.y);gl_FragColor=vec4(ink,edge*fade*.15);\n#include <colorspace_fragment>\n}' });
   for(let i=0;i<4;i++) {
     const shaft=new THREE.Mesh(new THREE.PlaneGeometry(2.8+i*.4,40),shaftMaterial);
     shaft.userData.index=i;shaft.renderOrder=-1;group.add(shaft);shafts.push(shaft);

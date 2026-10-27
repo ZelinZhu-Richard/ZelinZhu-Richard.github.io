@@ -138,7 +138,7 @@ def body_texture():
     tt = np.abs(2 * vv - 1)
     offset = np.where(vv < .5, .0, .32)
     sx = (offset + .68 * uu) * (source.shape[1] - 1)
-    sy = (.20 + .78 * tt) * (source.shape[0] - 1)
+    sy = (.30 + .66 * tt) * (source.shape[0] - 1)
     paint = np.stack([ndi.map_coordinates(source[..., c], [sy, sx], order=1, mode='nearest') for c in range(3)], axis=2)
     ventral = smoothstep(.62, .80, tt)
     behind_eyes = smoothstep(.205, .275, uu)
@@ -148,11 +148,11 @@ def body_texture():
     # at the spine. The common wash has distant peaks but no mirrored trees.
     soft = ndi.gaussian_filter(source, (9, 9, 0))
     mist_x = (.17 + .64 * uu) * (source.shape[1] - 1)
-    mist_y = (.27 + .30 * tt) * (source.shape[0] - 1)
+    mist_y = (.40 + .25 * tt) * (source.shape[0] - 1)
     distant = np.stack([ndi.map_coordinates(soft[..., c], [mist_y, mist_x], order=1, mode='nearest') for c in range(3)], axis=2)
-    mist = .80 * distant + .20 * INK
+    mist = .78 * distant + .22 * INK
     mist = PAPER + (mist - PAPER) * behind_eyes[..., None]
-    ridge_blend = (1 - smoothstep(.0, .13, tt))
+    ridge_blend = (1 - smoothstep(.0, .085, tt))
     result = result * (1 - ridge_blend[..., None]) + mist * ridge_blend[..., None]
     # Same gentle wash at the belly seam, retaining the accepted 40% painting.
     belly_blend = smoothstep(.92, 1, tt)
@@ -165,7 +165,7 @@ def body_texture():
     return {'path': str(output.relative_to(ROOT)), 'size': [width, height],
             'flanks': 'independent source regions [0,.68] and [.32,1]; upright peaks; no repeat',
             'sourceOffsetFraction': .32, 'sourceWidthFraction': .68,
-            'sourceVerticalRange': [.20, .98], 'uv': 'full circumference; ellipse arc distance',
+            'sourceVerticalRange': [.30, .96], 'uv': 'full circumference; ellipse arc distance',
             'flankMeanAbsoluteRGBDifference': float(flank_difference),
             'ventralStrength': .40, 'headPaintStartBodyFraction': .205,
             'dorsalReferenceWash': True, 'dorsalSeamSharedSample': True,

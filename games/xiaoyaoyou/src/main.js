@@ -110,7 +110,7 @@ export async function createRuntime(text, onProgress) {
       const height=Math.max(extent,size.x*1.08/aspect);
       camera.left=-height*aspect/2;camera.right=height*aspect/2;camera.top=height/2;camera.bottom=-height/2;
     } else {
-      const fill=aspect<.8?.84:.60;
+      const fill=aspect<.8?.84:.70;
       const tan=Math.tan(THREE.MathUtils.degToRad(42/2));
       let distance=0;
       for(const point of corners) {
@@ -168,8 +168,8 @@ export async function createRuntime(text, onProgress) {
     north=createNorth();
     scene.add(kun.root,north.group);
     // Lighting remains available in the grey reference views as well.
-    scene.add(new THREE.HemisphereLight('#D4D6CA','#283B48',1.25));
-    const referenceLight=new THREE.DirectionalLight('#FFF1D5',1.5);
+    scene.add(new THREE.HemisphereLight('#D4D6CA','#283B48',1.7));
+    const referenceLight=new THREE.DirectionalLight('#FFF1D5',1.8);
     referenceLight.position.set(-5,12,6);scene.add(referenceLight);
     renderer = new THREE.WebGLRenderer({ canvas: document.querySelector('#world'), antialias: true });
     renderer.info.autoReset = false;

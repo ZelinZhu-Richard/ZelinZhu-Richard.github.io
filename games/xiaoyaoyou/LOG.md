@@ -343,3 +343,7 @@ Next: capture M2 on the implementation commit, render fresh Blender/reference co
 ### M2 first capture integration corrections
 
 The first capture on a94894c caught distorted browser geometry: Meshopt normalized integer buffers were being transformed in place and overflowed. Decode position/normal attributes to Float32 before baking node transforms. This is an integration correction, not an asset geometry edit. Also removed duplicate test-scene lights so the ink wash is not overexposed. The console check initially classified embedded same-origin blob image URLs as external requests; compare their origin correctly, retain them in the audit, and count only real HTTP response bodies in the runtime-byte budget. There were zero page errors, failed requests or HTTP errors. Recapture all evidence after these corrections; the initial screenshots are not review evidence.
+
+### M2 presentation check
+
+After inspecting the corrected browser images against the key art, narrowed the common ridge blend and cropped more empty source sky; the wash now samples distant peaks lower in the landscape strip. Upper-back source-pixel stretch is max **1.209×** (p95 1.206×); actual atlas texel stretch is max **1.443×**, both ≤1.5× across 1,292 measured triangles. Geometry and fin/fluke texture/UV checks still pass. Adjusted the test framing toward 60% actual silhouette width, lifted diffuse top illumination, and made the four soft light shafts visible. Updated runtime GLB is 8,773,032 bytes. Capture fresh evidence from this presentation commit before review.

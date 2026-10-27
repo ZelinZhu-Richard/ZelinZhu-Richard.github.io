@@ -12,7 +12,10 @@ from trace_kun import read_glb
 ROOT=Path(__file__).resolve().parents[1]
 doc,accessor=read_glb(ROOT/'_dev/raw/kun.glb')
 node=next(n for n in doc['nodes'] if n.get('name')=='kun_body')
+paint=json.loads((ROOT/'_dev/build/kun-paint.json').read_text())['body']
+source_scale=np.array([paint['sourceWidthFraction']*2171, 2*(paint['sourceVerticalRange'][1]-paint['sourceVerticalRange'][0])*723])
 ratios=[]
+atlas_ratios=[]
 for primitive in doc['meshes'][node['mesh']]['primitives']:
     pos=accessor(primitive['attributes']['POSITION'])
     uv=accessor(primitive['attributes']['TEXCOORD_0']).astype(float)
@@ -22,7 +25,7 @@ for primitive in doc['meshes'][node['mesh']]['primitives']:
         c=p.mean(axis=0)
         # Blender y=-glTF z, dorsal height ~1.18, midline ~0 in this ROI.
         if not (.7<=c[2]<=3.1 and c[1]>=.58): continue
-        q=uv[triangle]*np.array([.68*2171,2*.78*723])
+        q=uv[triangle]*source_scale
         a,b=p[1]-p[0],p[2]-p[0]
         length=np.linalg.norm(a)
         x=np.dot(a,b)/length
@@ -32,11 +35,15 @@ for primitive in doc['meshes'][node['mesh']]['primitives']:
         jacobian=np.column_stack([q[1]-q[0],q[2]-q[0]])@np.linalg.inv(basis)
         sv=np.linalg.svd(jacobian,compute_uv=False)
         ratios.append(float(sv[0]/sv[1]))
+        atlas_q=uv[triangle]*np.array(paint['size'])
+        atlas_jacobian=np.column_stack([atlas_q[1]-atlas_q[0],atlas_q[2]-atlas_q[0]])@np.linalg.inv(basis)
+        atlas_sv=np.linalg.svd(atlas_jacobian,compute_uv=False)
+        atlas_ratios.append(float(atlas_sv[0]/atlas_sv[1]))
 paint=json.loads((ROOT/'_dev/build/kun-paint.json').read_text())['body']
 result={'generator':'tools/check_kun_mapping.py','metric':'surface-to-source-pixel Jacobian singular-value ratio',
         'roi':'upper back behind head: glTF z .7..3.1, y >= .58; both flanks; includes ridge triangles',
         'trianglesMeasured':len(ratios),'maxStretch':max(ratios),'p95Stretch':float(np.percentile(ratios,95)),
-        'threshold':1.5,'pass':max(ratios)<=1.5,'bodyPaint':paint}
+        'maxAtlasTexelStretch':max(atlas_ratios),'threshold':1.5,'pass':max(ratios)<=1.5 and max(atlas_ratios)<=1.5,'bodyPaint':paint}
 (ROOT/'_dev/build/kun-mapping.json').write_text(json.dumps(result,indent=2)+'\n')
 print(json.dumps({k:v for k,v in result.items() if k!='bodyPaint'},indent=2))
 if not result['pass']: raise SystemExit(1)
