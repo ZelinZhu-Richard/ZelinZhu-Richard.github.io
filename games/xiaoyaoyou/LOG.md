@@ -286,3 +286,41 @@ Richard's latest review accepts the improvement in the continuous fluke, referen
 Richard: "the fin/fluke color comes from the small reference crop and looks soft and blocky in close-ups. Later, upscale those exact crops to high resolution with an AI upscaler, so the composition and UV layout stay identical and it's a texture swap only."
 
 No upscale, repaint, UV-layout change or fin/fluke texture change is performed in this pass.
+
+## M1 dorsal/mouth evidence — awaiting Richard (2026-10-26, commit c948bc8088b469f543dfb07b24c0138947a7fb42)
+
+Requested correction is built and captured. **M1 remains unticked; approval and the proposed side/top waiver are still pending Richard's visual review.** No further texture or geometry changes after this capture.
+
+Fresh requested views, opened and inspected:
+- Top: `_dev/silhouette/raw/kun-top-preview.png`.
+- Gameplay: `_dev/silhouette/kun-gameplay.png`.
+- Side: `_dev/silhouette/raw/kun-side-preview.png`.
+- Front mouth check: `_dev/silhouette/raw/kun-front-preview.png`.
+- Same-camera 4096-border head close-ups: `kun-side-head-closeup.png`, `kun-front-head-closeup.png` under `_dev/silhouette/`. The side image clearly places the eye above the corner; the former paired upper-head arcs are absent from the front image. The mouth now descends from the snout onto the lower head and ends below/behind the eye.
+- Presentation pairs, generated only by silhouette.py --pair: `kun-top-and-gameplay.png`, `kun-side-and-front.png`, `kun-mouth-side-and-front.png` (first named view on left).
+
+| Check | Result and evidence |
+|---|---|
+| Dorsal coverage | **Implemented; await Richard's by-eye approval.** Empty-sky sampling is cropped by up to 20% of source height near the ridge, returning to the original mapping by the lower-flank region. A blurred, reference-derived distant-peak layer and soft ink wash fill dorsal valleys. The broad plain cream back stripe is no longer visible in top/gameplay inspection; only a narrow ridge highlight remains. The head-clear fade is retained. |
+| Texture stripe diagnostic | Behind head, u=.30… .95: largest contiguous plain-paper spinal band was **0.0 body-width fraction** under RGB distance<8 from #F6ECDC, versus Richard's approximate 0.05 visual limit. This is a construction diagnostic, not a substitute for judging the rendered wash. |
+| Ridge seam / lower body | Ridge UV longitudinal positions now match the body's spine samples; no ridge geometry change. Back samples are mirrored with a flat derivative at the seam. Lower-flank/ventral atlas rows beyond 36% height are **pixel-identical** to the pre-pass image. No visible UV seam found in the inspected previews. |
+| Mouth position | **PASS for placement.** Eye fixed at `[1.2780052, -3.72, -0.2012150]`; corner `[1.2437824, -3.50, -0.3997754]`. Eye is **0.19856 units above** the corner; corner is **0.22 units behind** the eye. Mouth radial angle 140.37°→108.86°, below eye 98.55°. The two kun_mouth nodes are the only geometry exceptions. |
+| Preservation | **PASS.** Validator checks **28 unchanged objects**, including frozen body, eyes, fins, fluke, ridge, and pleats. Both embedded fin/fluke textures, their UV arrays and the traced-planform JSON remain byte-identical. Only the body/ridge paint mapping and the two mouth strokes change visually. The previous 1.35/1.5 UV-invariance hashes remain valid; scale is still 1.35 / lower 1.08. |
+| Mesh / assets | Unchanged **42,094 triangles**, **quadRatio .9939368102 (99.39%)**, **0 body non-manifold edges**, loop spacing **1.0911**, maximum texture axis **2048**. Fluke remains one connected sheet / one boundary. |
+| Evidence integrity | Renderer and silhouette JSON identify **c948bc8, dirty:false**. Build **2.903 s**, render set **10.285 s**, Cycles CPU 16 samples, exit 0. Scored cameras, mask procedure, normalization and blur unchanged. Browser n/a. |
+
+Fresh numerical results: side **0.6914 <0.70**, top **0.7191 <0.75**, front by eye only. Side remains a numerical miss (tiny mask change from the mouth); top remains below its reference target under the enlarged-fin exception. Richard's latest message is an intent to approve with waiver if these corrected previews look right, not approval already granted.
+
+The exact-crop AI upscale is recorded in the deferred polish list above and was not attempted. Changes stay inside games/xiaoyaoyou; reference art, fin/fluke paint, PLAN criteria, rubric and runtime files untouched. Nothing pushed. The correction and polish note are committed as c948bc8; this result entry remains pending Richard. Stop and wait.
+
+## M1 APPROVED by Richard (2026-10-26, commit c948bc8088b469f543dfb07b24c0138947a7fb42)
+
+"Approved by Richard. The shape, continuous fluke, reference-style fins, painted body and corrected mouth/eye are accepted. Side IoU 0.691 and top IoU 0.719 are waived: the remaining gaps come from fin choices I made deliberately (key art over sheet). Remaining texture issues move to M2."
+
+| View | Captured IoU | Approval |
+|---|---:|---|
+| side | 0.6914 | Waived by Richard in the exact words above |
+| top | 0.7191 | Waived by Richard in the exact words above |
+| front / three-quarter / gameplay | by eye | Accepted by Richard |
+
+M1 ticked only after this approval. Next authorized work is M2, beginning with asymmetric flank/ridge paint, upper-back texel density ≤~1.5× stretch, and browser shading without specular or a mirror-like rim. Carry forward the logged M2 texture to-dos and show browser evidence including a directly-behind camera. Keep M2 unticked until Richard's next OK.

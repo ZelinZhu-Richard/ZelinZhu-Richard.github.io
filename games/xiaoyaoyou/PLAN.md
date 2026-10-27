@@ -268,7 +268,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
   - Show and wait: browser screenshots; Blender and IoU n/a.
   - Fallback if stuck: if Chromium cannot launch with WebGL, try the SwiftShader args. If it still fails, write `NEEDS RICHARD: chromium launch` in LOG with the exact error.
 
-- [ ] Milestone 1: Kun model + silhouette match (Blender previews only)
+- [x] Milestone 1: Kun model + silhouette match (Blender previews only)
 
   `blender/common.py`, `blender/kun.py` and `tools/silhouette.py`. No browser work. Kun follows **Hero modeling** and **Kun textures**.
   - **Shape:**
