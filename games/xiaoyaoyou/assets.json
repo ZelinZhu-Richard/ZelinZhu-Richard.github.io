@@ -1,3 +1,4 @@
 {
-  "kun": { "path": "assets/kun.glb", "scale": 1, "anchor": [0, 1.18, 1.5] }
+  "kun": { "path": "assets/kun.glb", "scale": 1, "anchor": [0, 1.18, 1.5] },
+  "sea": { "path": "assets/sea.glb", "scale": 1, "anchor": [0, 0, 0] }
 }

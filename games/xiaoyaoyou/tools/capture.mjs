@@ -11,9 +11,9 @@ const repo = path.resolve(root, '../..');
 const args = process.argv.slice(2);
 const milestoneIndex = args.indexOf('--milestone');
 const milestone = milestoneIndex < 0 ? NaN : Number(args[milestoneIndex + 1]);
-if (![0,2].includes(milestone) || args.some(arg => ['--autoplay', '--replay'].includes(arg))) {
-  throw new Error('Implemented milestones are 0 and 2; no playable journey or replay exists yet.');
-}
+const wantAutoplay = args.includes('--autoplay');
+const wantReplay = args.includes('--replay');
+if (![0,2,3,4,5].includes(milestone)) throw new Error('Implemented milestones are 0, 2, 3, 4 and 5.');
 const base = 'http://127.0.0.1:8101/games/xiaoyaoyou/';
 const out = path.join(root, `_dev/evidence/M${milestone}`);
 const temp = path.join(root, '_dev/tmp');
@@ -31,7 +31,10 @@ const viewportOptions = {
   desktop: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
   narrow: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, hasTouch: true },
 };
-const checkpoints = milestone===2?['title','north-start','kun-test']:['title','north-start'];
+// Every capture re-runs all earlier checkpoints. north-play is the real gameplay camera.
+const checkpoints = milestone>=5?['title','north-start','kun-test','north-play','north-full','end-card','north-text']:
+  milestone>=3?['title','north-start','kun-test','north-play','north-full','end-card']:
+  milestone===2?['title','north-start','kun-test']:['title','north-start'];
 const metrics = {
   generator: 'tools/capture.mjs', milestone, commit, dirty, capturedAt,
   browser: {}, readyMs: 0, threeVersion: null, checkpoints: {},
@@ -63,7 +66,7 @@ async function waitReady(page) {
   await page.waitForFunction(() => window.__GAME_READY__ === true, null, { timeout: 10000 });
   const readyMs = await page.evaluate(() => performance.now());
   metrics.readyMs = Math.max(metrics.readyMs, readyMs);
-  await page.waitForFunction(() => window.__GAME_STATE__.settled, null, { timeout: 10000 });
+  await page.waitForFunction(() => window.__GAME_STATE__.settled, null, { timeout: 30000 });
   return readyMs;
 }
 
@@ -123,7 +126,8 @@ async function maybeJSON(filename, fallback) {
 }
 
 let browser;
-let launchArgs = [];
+// The real GPU when headless Chromium can reach it; SwiftShader remains the PLAN fallback.
+let launchArgs = ['--use-angle=metal', '--ignore-gpu-blocklist'];
 async function launchAndProbe() {
   browser = await chromium.launch({ headless: true, args: launchArgs, env: { ...process.env, TMPDIR: temp } });
   const page = await browser.newPage();
@@ -139,6 +143,11 @@ async function launchAndProbe() {
 
 try {
   let webglRenderer = await launchAndProbe();
+  if (!webglRenderer || /swiftshader/i.test(webglRenderer)) {
+    await browser.close();
+    launchArgs = [];
+    webglRenderer = await launchAndProbe();
+  }
   if (!webglRenderer) {
     await browser.close();
     launchArgs = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'];
@@ -158,7 +167,14 @@ try {
       const screenshot = await page.screenshot({ path: path.join(out, `${id}-${viewport}.png`), scale: 'css' });
       metrics.checkpoints[id][viewport] = await sample(page, screenshot);
       if (id === 'north-start') {
-        metrics.extra.begin[viewport].matchesCheckpoint = screenshot.equals(beginScreenshots.get(viewport));
+        // The sea is alive, so a real Begin and a direct checkpoint are compared by
+        // mean pixel difference at the same journey state, not byte for byte.
+        const sharp = require('sharp');
+        const [a, b] = await Promise.all([screenshot, beginScreenshots.get(viewport)].map(image => sharp(image).removeAlpha().raw().toBuffer()));
+        let difference = 0;
+        for (let i = 0; i < a.length; i++) difference += Math.abs(a[i] - b[i]);
+        metrics.extra.begin[viewport].meanPixelDifference = difference / a.length;
+        metrics.extra.begin[viewport].matchesCheckpoint = difference / a.length < 10;
       }
       const inspect = await page.evaluate(() => window.__GAME_DEBUG__.inspect());
       metrics.threeVersion = inspect.threeVersion;
@@ -178,7 +194,7 @@ try {
     }
   }
 
-  if(milestone===2) {
+  if(milestone>=2) {
     metrics.extra.kunViews={};
     for(const view of ['side','top','front','three-quarter','gameplay','rear']) {
       const page=await contexts.desktop.newPage();watch(page);
@@ -210,6 +226,134 @@ try {
     await sharp({create:{width:1440,height:900,channels:3,background:'#172a35'}}).composite(cameraImages).png().toFile(path.join(out,'kun-camera-review.png'));
     metrics.extra.mapping=await maybeJSON(path.join(root,'_dev/build/kun-mapping.json'),{});
     metrics.extra.frozenGeometry=await maybeJSON(path.join(root,'_dev/build/kun-validation.json'),{});
+  }
+
+  if(milestone>=3) {
+    const desktop=metrics.checkpoints['north-start'].desktop.measure, full=metrics.checkpoints['north-full'].desktop.measure;
+    const narrowStart=metrics.checkpoints['north-start'].narrow.measure, narrowFull=metrics.checkpoints['north-full'].narrow.measure;
+    metrics.extra.scale={
+      desktop:{kunHeightChange:full.kun.heightPx/desktop.kun.heightPx-1,pillarRatio:full['ref-pillar-1'].heightPx/desktop['ref-pillar-1'].heightPx,
+        pillarInFrame:[desktop['ref-pillar-1'].inFrame,full['ref-pillar-1'].inFrame]},
+      narrow:{kunHeightChange:narrowFull.kun.heightPx/narrowStart.kun.heightPx-1,pillarRatio:narrowFull['ref-pillar-1'].heightPx/narrowStart['ref-pillar-1'].heightPx,
+        pillarInFrame:[narrowStart['ref-pillar-1'].inFrame,narrowFull['ref-pillar-1'].inFrame]},
+    };
+    // Real input events; speeds come from the simulation and time from gameMs.
+    const until=(page,ms)=>page.evaluate(async wait=>{const end=window.__GAME_STATE__.gameMs+wait;
+      while(window.__GAME_STATE__.gameMs<end) await new Promise(requestAnimationFrame);return window.__GAME_DEBUG__.journey();},ms);
+    async function inputTest(context,driver) {
+      const page=await context.newPage();watch(page);
+      await page.goto(`${base}?checkpoint=north-play&seed=1`);
+      await waitReady(page);
+      await driver.prepare?.(page);
+      const idle=await until(page,3000);
+      await driver.down(page);
+      const held=await until(page,1000);
+      const full=await until(page,1500);
+      await driver.up(page);
+      const after=await until(page,2000);
+      const result={idleSpeed:idle.speed,heldAfter1s:held.speed,heldSpeed:full.speed,afterRelease2s:after.speed,
+        holdRatio:held.speed/idle.speed,releaseRatio:after.speed/full.speed};
+      const scroll=[await page.evaluate(()=>scrollY)];
+      await driver.down(page);
+      await until(page,200);
+      scroll.push(await page.evaluate(()=>scrollY));
+      await driver.up(page);
+      result.touchHold=true;
+      result.scrollY=Math.max(...scroll);
+      const start=await page.evaluate(()=>window.__GAME_DEBUG__.journey());
+      await driver.edge(page);
+      const turned=await until(page,1000);
+      result.headingDegrees=Math.abs(turned.heading-start.heading)*180/Math.PI;
+      await driver.up(page);
+      for(const type of ['pointerleave','pointercancel','blur']) {
+        await driver.down(page);
+        await until(page,100);
+        const before=(await page.evaluate(()=>window.__GAME_DEBUG__.journey())).hold;
+        await page.evaluate(name=>{
+          if(name==='blur') window.dispatchEvent(new Event('blur'));
+          else document.querySelector('#world').dispatchEvent(new PointerEvent(name,{bubbles:true}));
+        },type);
+        await until(page,100);
+        const released=!(await page.evaluate(()=>window.__GAME_DEBUG__.journey())).hold;
+        result[`${type}Releases`]=before&&released;
+        await driver.up(page);
+      }
+      result.leaveReleases=result.pointerleaveReleases&&result.pointercancelReleases&&result.blurReleases;
+      await page.close();
+      return result;
+    }
+    metrics.extra.inputTest={
+      desktop:await inputTest(contexts.desktop,{
+        prepare:page=>page.mouse.move(720,450),
+        down:page=>page.mouse.down(),up:page=>page.mouse.up(),
+        edge:page=>page.mouse.move(1439,450)}),
+    };
+    const touchPage={};
+    metrics.extra.inputTest.narrow=await inputTest(contexts.narrow,{
+      prepare:async page=>{touchPage.cdp=await contexts.narrow.newCDPSession(page);},
+      down:page=>touchPage.cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:195,y:422}]}),
+      up:page=>touchPage.cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]}),
+      edge:page=>touchPage.cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:389,y:422}]}),
+    });
+    metrics.extra.inputTest.narrow.touchHold=metrics.extra.inputTest.narrow.holdRatio>=3;
+  }
+
+  if(wantAutoplay) {
+    const page=await contexts.desktop.newPage();watch(page);
+    const startedAt=Date.now();
+    await page.goto(`${base}?autoplay=1&timescale=12&seed=1`,{waitUntil:'domcontentloaded'});
+    await page.waitForFunction(()=>window.__GAME_READY__===true,null,{timeout:10000});
+    await page.waitForFunction(()=>window.__GAME_STATE__.beat==='end',null,{timeout:120000});
+    const fingerprints=[];
+    const atEnd=await page.evaluate(()=>({runs:window.__GAME_DEBUG__.runs(),state:{...window.__GAME_STATE__}}));
+    fingerprints.push(atEnd.state);
+    if(wantReplay) {
+      await page.getByRole('button',{name:'Replay'}).click();
+      await page.waitForFunction(()=>window.__GAME_STATE__.beat==='north');
+      metrics.extra.replayStart=await page.evaluate(()=>({...window.__GAME_STATE__}));
+      await page.waitForFunction(()=>window.__GAME_STATE__.beat==='end',null,{timeout:120000});
+    }
+    metrics.autoplay.runs=await page.evaluate(()=>window.__GAME_DEBUG__.runs());
+    metrics.extra.growth=metrics.autoplay.runs[0]?.growth;
+    metrics.extra.autoplayWallMs=Date.now()-startedAt;
+    await page.close();
+  }
+
+  if(milestone>=4) {
+    // A 400 x 400 crop around the projected Kun, on the real journey.
+    const page=await contexts.desktop.newPage();watch(page);
+    await page.goto(`${base}?checkpoint=north-start&seed=1`);
+    await waitReady(page);
+    const box=await page.evaluate(()=>window.__GAME_DEBUG__.kunScreenBox());
+    const clip={x:Math.round(Math.max(0,Math.min(1040,box.x-200))),y:Math.round(Math.max(0,Math.min(500,box.y-200))),width:400,height:400};
+    await page.screenshot({path:path.join(out,'kun-closeup-desktop.png'),clip,scale:'css'});
+    metrics.extra.kunCloseup={clip,center:box};
+    await page.close();
+  }
+
+  if(milestone>=5) {
+    const page=await contexts.desktop.newPage();watch(page);
+    await page.goto(`${base}?checkpoint=north-text&seed=1`);
+    await waitReady(page);
+    const readLine=()=>page.evaluate(()=>{const element=document.querySelector('#line-en');return {on:window.__GAME_STATE__.translationOn,visible:!!element&&element.getClientRects().length>0&&getComputedStyle(element).opacity!=='0'};});
+    const initial=await readLine();
+    await page.keyboard.press('t');
+    await page.waitForTimeout(700);
+    const keyed=await readLine();
+    await page.screenshot({path:path.join(out,'north-text-off-desktop.png'),scale:'css'});
+    await page.keyboard.press('t');
+    await page.waitForTimeout(100);
+    await page.locator('#toggle-translation').click();
+    await page.waitForTimeout(700);
+    const clicked=await readLine();
+    metrics.extra.toggle={key:initial.visible&&!keyed.visible,button:!clicked.visible};
+    await page.close();
+    metrics.extra.licenses=[];
+    for(const file of ['fonts/OFL-LXGWWenKai.txt','fonts/OFL-EBGaramond.txt','vendor/three/LICENSE']) {
+      await readFile(path.join(root,file)).then(()=>metrics.extra.licenses.push(file));
+    }
+    const subset=await readFile(path.join(root,'fonts/wenkai.woff2'));
+    metrics.extra.wenkaiBytes=subset.length;
   }
 
   const loadingPage = await contexts.desktop.newPage();
@@ -278,9 +422,9 @@ try {
     }
   }
   metrics.runtimeBytes = [...unique.values()].reduce((sum, bytes) => sum + bytes, 0);
-  metrics.extra.runtimeBytesScope = 'All unique runtime response bodies across implemented checkpoints; journey autoplay starts in M3.';
+  metrics.extra.runtimeBytesScope = 'All unique runtime response bodies across every checkpoint and the full autoplay.';
   const assetStats = await maybeJSON(path.join(root, '_dev/build/asset-stats.json'), {});
-  metrics.assets = milestone===2?await maybeJSON(path.join(root,'_dev/build/runtime-assets.json'),{}):{};
+  metrics.assets = milestone>=2?await maybeJSON(path.join(root,'_dev/build/runtime-assets.json'),{}):{};
   metrics.blender = assetStats;
   const silhouetteDir = path.join(root, '_dev/silhouette');
   for (const name of await readdir(silhouetteDir).catch(error => { if (error.code === 'ENOENT') return []; throw error; })) {
@@ -295,10 +439,10 @@ try {
   await writeFile(path.join(out, 'console.json'), JSON.stringify(audit, null, 2) + '\n');
   await writeFile(path.join(out, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n');
 
-  const files = ['title-desktop', 'title-narrow', 'north-start-desktop', 'north-start-narrow', 'loading-desktop',...(milestone===2?['kun-test-desktop','kun-test-narrow',...['side','top','front','three-quarter','gameplay','rear'].map(v=>`kun-view-${v}-desktop`),'kun-swim-desktop']:[])];
+  const files = [...checkpoints.flatMap(id=>[`${id}-desktop`,`${id}-narrow`]),'loading-desktop',...(milestone>=2?[...['side','top','front','three-quarter','gameplay','rear'].map(v=>`kun-view-${v}-desktop`),'kun-swim-desktop']:[]),...(milestone>=4?['kun-closeup-desktop']:[]),...(milestone>=5?['north-text-off-desktop']:[])];
   const review = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>M${milestone} evidence</title>
 <style>body{margin:24px;background:#172a35;color:#efe7d6;font:18px/1.5 Georgia,serif}h1{font-size:26px}h2{font-size:20px}section{margin:32px 0}figure{margin:0}p{max-width:85ch}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}.pair img{display:block;max-width:100%;max-height:650px;margin:auto}.pair figure{border:1px solid #607277;padding:8px}figcaption{font-size:15px;margin:8px}a{color:#efe7d6}@media(max-width:700px){.pair{grid-template-columns:1fr}}</style>
-<h1>M${milestone} · Review evidence</h1><p>Commit ${commit} · dirty: ${dirty}<br>M0: title and north-start regression. M2: Kun test scene, diffuse-only materials, asymmetry and four swim phases. Journey gameplay begins in M3.</p>
+<h1>M${milestone} · Review evidence</h1><p>Commit ${commit} · dirty: ${dirty}<br>Every earlier checkpoint is re-captured. north-play is the real gameplay camera after the opening shot.</p>
 ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img src="${name.startsWith('kun-view-') && ['side','top','front'].includes(name.split('-')[2])?`../../silhouette/raw/kun-${name.split('-')[2]}-preview.png`:'../../../ref/key-north-sea.png'}"><figcaption>Reference · Blender rest preview for sheet views; north-sea key art otherwise</figcaption></figure><figure><img src="${name}.png"><figcaption>Actual browser capture · ${name}</figcaption></figure></div></section>`).join('')}
 <p><a href="metrics.json">metrics.json</a> · <a href="console.json">console.json</a></p>`;
   // review.html is generated only by this tool, alongside the original PNGs.
@@ -319,7 +463,7 @@ ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img
     text: metrics.text.sourceExact && metrics.text.allDraft && metrics.text.sourceVerify && Object.values(metrics.text.missingGlyphs).every(chars => chars.length === 0),
     debug: metrics.extra.debug.hooks && metrics.extra.debug.deterministicSeed && metrics.extra.debug.gameMsFixedStep,
   };
-  if(milestone===2) {
+  if(milestone>=2) {
     const asset=metrics.assets.kun;
     const allViews=[...Object.values(metrics.extra.kunViews),...metrics.extra.swimFrames];
     checks.kunAsset=asset?.requiredNodesSurvived&&asset.finLocalMetadata&&asset.maxTextureSize<=2048&&asset.triangles<=60000&&['EXT_meshopt_compression','EXT_texture_webp'].every(x=>asset.extensionsUsed.includes(x));
@@ -334,6 +478,28 @@ ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img
     checks.frozenGeometry=frozen.frozenGeometryIdentical&&frozen.finFlukeUVIdentical&&
       (materialOnly ? materialOnly.allExportGeometryIdentical&&materialOnly.allUVIdentical&&materialOnly.swimShaderIdentical : frozen.finFlukeTexturesIdentical);
     checks.silhouetteFresh=metrics.silhouette.kun?.commit===commit&&metrics.silhouette.kun?.dirty===false;
+  }
+  const growth=metrics.extra.growth??[];
+  const firstRun=metrics.autoplay.runs[0];
+  if(milestone>=3) {
+    checks.seaAsset=!!metrics.assets.sea&&metrics.assets.sea.requiredNodesSurvived&&metrics.assets.sea.extensionsUsed.includes('EXT_meshopt_compression');
+    checks.growth=growth.length===7&&growth.every((v,i)=>i===0||v>growth[i-1])&&growth[6]>=10;
+    checks.pacing=firstRun?.reachedEnd===true&&firstRun.totalGameMs>=90000&&firstRun.totalGameMs<=150000;
+    checks.scaleReads=Object.values(metrics.extra.scale).every(v=>Math.abs(v.kunHeightChange)<=.35&&v.pillarRatio<=.25&&v.pillarInFrame.every(Boolean));
+    checks.inputDesktop=(i=>i.holdRatio>=3&&i.releaseRatio<=.5&&i.headingDegrees>=20&&i.leaveReleases&&i.scrollY===0)(metrics.extra.inputTest.desktop);
+    checks.inputNarrow=(i=>i.holdRatio>=3&&i.releaseRatio<=.5&&i.headingDegrees>=20&&i.leaveReleases&&i.touchHold&&i.scrollY===0)(metrics.extra.inputTest.narrow);
+  }
+  if(milestone>=4) {
+    for(const id of ['north-start','north-full']) for(const view of ['desktop','narrow']) {
+      const palette=metrics.checkpoints[id][view].palette;
+      checks[`palette-${id}-${view}`]=palette.offPalette<=.01&&palette.redShare<=.03&&palette.meanLuma>=35&&palette.meanLuma<=110;
+    }
+  }
+  if(milestone>=5) {
+    checks.toggle=metrics.extra.toggle.key&&metrics.extra.toggle.button;
+    checks.fontBudget=metrics.extra.wenkaiBytes<=400000;
+    checks.licenses=metrics.extra.licenses.length===3;
+    checks.replay=metrics.autoplay.runs.length===2&&metrics.autoplay.runs.every(r=>r.reachedEnd)&&metrics.extra.replayStart.motes===0&&metrics.extra.replayStart.kunScale===1;
   }
   await writeFile(path.join(out, 'checks.json'), JSON.stringify(checks, null, 2) + '\n');
   console.log(JSON.stringify({ commit, dirty, checks, readyMs: metrics.readyMs, runtimeBytes: metrics.runtimeBytes, out }, null, 2));

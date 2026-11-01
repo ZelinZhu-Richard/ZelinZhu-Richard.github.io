@@ -76,46 +76,92 @@ class Sheet:
         return start
 
 
-def column(sheet, seed, height, radius, center, rings, segments, reach=1.0):
-    """A leaning rock column: stacked irregular rings with ribs, strata and ledges."""
+def section(rng):
+    """A jittered polygon, so the column reads as fractured block rather than a turned bottle."""
+    sides = rng.choice([4, 4, 5, 5, 6])
+    corners = []
+    for side in range(sides):
+        angle = (side + rng.uniform(-.22, .22)) * TAU / sides
+        corners.append((angle, rng.uniform(.84, 1.2)))
+    return corners
+
+
+def polygon_radius(corners, angle):
+    sides = len(corners)
+    for index in range(sides):
+        a0, r0 = corners[index]
+        a1, r1 = corners[(index + 1) % sides]
+        span = (a1 - a0) % TAU
+        offset = (angle - a0) % TAU
+        if offset <= span:
+            x0, y0 = r0, 0
+            x1, y1 = r1 * math.cos(span), r1 * math.sin(span)
+            dx, dy = math.cos(offset), math.sin(offset)
+            denominator = dx * (y1 - y0) - dy * (x1 - x0)
+            return (x0 * (y1 - y0) - y0 * (x1 - x0)) / denominator
+    return corners[0][1]
+
+
+def column(sheet, seed, height, radius, center, bands, segments, reach=1.0, rings_per_band=3):
+    """A rock column built as stacked fractured blocks: flat faces, ledges, vertical fissures."""
     rng = random.Random(seed)
-    harmonics = [(k, rng.uniform(.05, .17) / math.sqrt(k), rng.uniform(0, TAU)) for k in range(2, 7)]
-    rib_count = rng.choice([7, 8, 9, 11, 13])
-    rib_phase = rng.uniform(0, TAU)
-    steps = sorted((rng.uniform(.12, .9), rng.uniform(-.09, .12)) for _ in range(rng.randint(3, 6)))
-    lean = (rng.uniform(-.09, .09), rng.uniform(-.09, .09))
-    points, paints, crowns = [], [], []
-    for ring in range(rings):
-        t = ring / (rings - 1)
+    corners = section(rng)
+    fissures = [(rng.uniform(0, TAU), rng.uniform(.05, .13), rng.uniform(.14, .34), rng.uniform(-.5, .5))
+                for _ in range(rng.randint(5, 9))]
+    heights = [rng.uniform(.6, 1.5) for _ in range(bands)]
+    total = sum(heights)
+    levels, inset, spin = [], 1.02, rng.uniform(0, TAU)
+    level = 0
+    drift = [0, 0]
+    for band in range(bands):
+        fraction = band / max(1, bands - 1)
+        # Slow overall taper with random terraces; the crown may flare back out.
+        inset = max(.5, inset * rng.uniform(.9, 1.0) + (.09 if rng.random() < .22 else 0))
+        drift[0] += rng.uniform(-.05, .05) * radius * reach
+        drift[1] += rng.uniform(-.05, .05) * radius * reach
+        levels.append((level, level + heights[band] / total, inset * (1 + .75 * math.exp(-fraction * 7)),
+                       spin + rng.uniform(-.16, .16), drift[0], drift[1]))
+        level += heights[band] / total
+    points, paints = [], []
+    rows = []
+    for band, (start, stop, scale, twist, dx, dy) in enumerate(levels):
+        # A tight lip of two rings at each band start gives a crisp ledge.
+        spacing = [start + .006 + (stop - start - .012) * i / (rings_per_band - 1) for i in range(rings_per_band)]
+        rows += [(t, scale, twist, dx, dy) for t in spacing]
+    rows.append((1.0, levels[-1][2] * .9, levels[-1][3], levels[-1][4], levels[-1][5]))
+    rings = len(rows)
+    top_center = None
+    for ring, (t, scale, twist, dx, dy) in enumerate(rows):
         z = height * t
-        # Flared foot, slow taper, abrupt ledges, and a rounded broken crown.
-        profile = (1 + .62 * math.exp(-t * 11)) * (1 - .36 * t ** 1.25)
-        for where, amount in steps:
-            profile += amount * smooth(where - .012, where + .012, t)
-        profile *= 1 - .86 * smooth(.9, 1.0, t) ** 2.2
-        strata = .045 * math.sin(z * .19 + 3 * fbm(z * .021, seed * .3, seed)) ** 2
-        cx = center[0] + lean[0] * z + 5 * reach * math.sin(t * 2.3 + seed)
-        cy = center[1] + lean[1] * z + 5 * reach * math.cos(t * 1.9 + seed)
+        cx, cy = center[0] + dx, center[1] + dy
         for segment in range(segments):
             angle = segment * TAU / segments
-            wobble = sum(amp * math.sin(k * angle + phase + t * 1.7) for k, amp, phase in harmonics)
-            rib = abs(math.sin(rib_count * angle / 2 + rib_phase + .9 * fbm(t * 3, angle, seed))) ** .62
-            crack = fbm(angle * 2.4, z * .03, seed + 5)
-            r = radius * max(.04, profile) * (1 + wobble + .17 * (rib - .6) + .22 * (crack - .5) - strata)
+            r = polygon_radius(corners, (angle - twist) % TAU)
+            r = r * .86 + .14
+            cut = 0
+            for where, width, depth, wander in fissures:
+                delta = (angle - where - wander * t + math.pi) % TAU - math.pi
+                cut = max(cut, depth * math.exp(-(delta / width) ** 2) * (.55 + .9 * fbm(where * 3, z * .02, seed + 2)))
+            texture = .1 * (fbm(angle * 3.2, z * .018, seed) - .5) + .07 * (fbm(angle * 9.3, z * .07, seed + 9) - .5)
+            r = radius * scale * r * (1 - cut + texture)
             points.append((cx + r * math.cos(angle), cy + r * math.sin(angle), z))
-            crevice = min(1, max(0, 1.1 - rib * 1.05 + .9 * (.5 - crack)))
-            paints.append((crevice, 0, t))
+            paints.append((min(1, cut * 3.6 + max(0, -texture) * 2.5), 0, t))
         if ring == rings - 1:
-            crowns.append((cx, cy, z))
+            top_center = (cx, cy, z)
     faces = []
     for ring in range(rings - 1):
         for segment in range(segments):
             next_segment = (segment + 1) % segments
             faces.append((ring * segments + segment, ring * segments + next_segment,
                           (ring + 1) * segments + next_segment, (ring + 1) * segments + segment))
-    faces.append(tuple((rings - 1) * segments + segment for segment in range(segments)))
-    sheet.add(points, paints, faces)
-    return crowns[0], radius * .46
+    start = sheet.add(points, paints, faces)
+    # Broken flat top: a slightly domed fan so the crown never reads as a clean lid.
+    hub = len(sheet.vertices)
+    sheet.vertices.append((top_center[0], top_center[1], height + radius * .05))
+    sheet.paint.append((.4, 0, 1))
+    base = start + (rings - 1) * segments
+    sheet.faces += [(base + segment, base + (segment + 1) % segments, hub) for segment in range(segments)]
+    return top_center, radius * levels[-1][2] * .62
 
 
 def pad(sheet, center, radius, seed, thickness):
@@ -177,35 +223,42 @@ def pine(sheet, base, size, lean, seed):
 def hero_pillar(seed, height, radius, sides, pines):
     rng = random.Random(seed)
     sheet = Sheet()
-    crowns = [column(sheet, seed, height, radius, (0, 0), 34, 26)]
+    crowns = [column(sheet, seed, height, radius, (0, 0), 9, 40)]
     for side in range(sides):
         angle = rng.uniform(0, TAU)
-        offset = radius * rng.uniform(.62, 1.2)
-        crowns.append(column(sheet, seed + 31 * (side + 1), height * rng.uniform(.34, .78), radius * rng.uniform(.34, .58),
-                             (offset * math.cos(angle), offset * math.sin(angle)), 18, 13, .4))
+        offset = radius * rng.uniform(.7, 1.3)
+        crowns.append(column(sheet, seed + 31 * (side + 1), height * rng.uniform(.3, .76), radius * rng.uniform(.34, .6),
+                             (offset * math.cos(angle), offset * math.sin(angle)), 5, 18, .5))
+    # Tops carry dense low foliage, then a few taller pines that break the outline.
+    for index, ((cx, cy, cz), crown) in enumerate(crowns):
+        for tuft in range(5 if index == 0 else 3):
+            angle = rng.uniform(0, TAU)
+            spread = crown * math.sqrt(rng.random()) * .85
+            pad(sheet, (cx + spread * math.cos(angle), cy + spread * math.sin(angle), cz + rng.uniform(.5, 4)),
+                rng.uniform(.4, .75) * max(9, crown * .6), seed + 200 + index * 11 + tuft, rng.uniform(4, 8))
     for index in range(pines):
         (cx, cy, cz), crown = crowns[index % len(crowns)]
         angle = rng.uniform(0, TAU)
-        spread = rng.uniform(.1, 1)
-        base = (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz - rng.uniform(1, 5))
-        size = rng.uniform(12, 25) * (1.2 if index < 3 else 1)
-        lean = (math.cos(angle) * spread * .35, math.sin(angle) * spread * .35)
+        spread = rng.uniform(.25, 1.05)
+        base = (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz - rng.uniform(0, 4))
+        size = rng.uniform(13, 24) * (1.25 if index < 3 else 1)
+        lean = (math.cos(angle) * spread * .4, math.sin(angle) * spread * .4)
         pine(sheet, base, size, lean, seed + index * 13)
     return sheet
 
 
 def far_pillar(seed, height, radius):
-    """A lighter pillar for the deep field; its crown keeps a tufted pine silhouette."""
+    """A lighter pillar for the deep field; its crown keeps a tufted foliage silhouette."""
     rng = random.Random(seed)
     sheet = Sheet()
-    column(sheet, seed, height, radius, (0, 0), 11, 9)
+    top, crown = column(sheet, seed, height, radius, (0, 0), 4, 10, rings_per_band=2)
     second = rng.uniform(0, TAU)
-    column(sheet, seed + 3, height * .62, radius * .5, (radius * .9 * math.cos(second), radius * .9 * math.sin(second)), 7, 7, .4)
+    column(sheet, seed + 3, height * .6, radius * .5, (radius * 1.1 * math.cos(second), radius * 1.1 * math.sin(second)), 3, 7, .5, 2)
     for tuft in range(5):
         angle = tuft * TAU / 5 + rng.uniform(-.3, .3)
-        reach = radius * .3 * rng.uniform(.2, 1)
-        pad(sheet, (reach * math.cos(angle), reach * math.sin(angle), height + rng.uniform(1, 9)),
-            rng.uniform(8, 14), seed + tuft, rng.uniform(4, 7))
+        reach = crown * rng.uniform(.2, .9)
+        pad(sheet, (top[0] + reach * math.cos(angle), top[1] + reach * math.sin(angle), height + rng.uniform(1, 7)),
+            rng.uniform(.5, .9) * max(9, crown * .7), seed + tuft, rng.uniform(4, 7))
     return sheet
 
 
@@ -233,6 +286,8 @@ def build(name, sheet, material):
     for point, paint in zip(layer.data, sheet.paint):
         point.color = (*paint, 1)
     obj.data.color_attributes.active_color_index = 0
+    # Fracture lines stay crisp; shallow surface variation stays smooth.
+    obj.data.set_sharp_from_angle(angle=math.radians(38))
     return obj
 
 
@@ -268,10 +323,10 @@ for index, obj in enumerate(objects[:len(HERO_PILLARS)]):
         obj.hide_render = True
 world = bpy.data.worlds.new('sea')
 world.use_nodes = True
-world.node_tree.nodes['Background'].inputs[0].default_value = common.color('#607277')
+world.node_tree.nodes['Background'].inputs[0].default_value = common.color('#30444E')
 SCENE.world = world
 sun = bpy.data.lights.new('sun', 'SUN')
-sun.energy = 3.2
+sun.energy = 7
 sun.angle = math.radians(14)
 sun_object = bpy.data.objects.new('sun', sun)
 bpy.context.collection.objects.link(sun_object)

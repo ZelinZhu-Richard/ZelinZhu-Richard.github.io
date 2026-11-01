@@ -9,4 +9,8 @@ mkdir -p "$GAME/assets" "$TMPDIR" "$GAME/_dev/build"
 "$CLI" optimize "$GAME/_dev/tmp/kun-webp.glb" "$GAME/assets/kun.glb" \
   --compress meshopt --simplify false --flatten false --join false \
   --instance false --palette false --texture-compress false --texture-size 2048
+# Props have no textures; meshopt alone, with every named pillar kept separate.
+"$CLI" optimize "$GAME/_dev/raw/sea.glb" "$GAME/assets/sea.glb" \
+  --compress meshopt --simplify false --flatten false --join false \
+  --instance false --palette false --texture-compress false
 node "$GAME/tools/inspect_assets.mjs"

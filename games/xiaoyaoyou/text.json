@@ -4,6 +4,7 @@
     {"id":"begin","beat":"title","kind":"ui","zh":"启程","en":"Begin","draft":true,"verify":false},
     {"id":"loading","beat":"title","kind":"ui","zh":"正在准备旅程","en":"Preparing the journey","draft":true,"verify":false},
     {"id":"load-error","beat":"title","kind":"ui","zh":"旅程未能载入，请重试。","en":"The journey could not load. Please try again.","draft":true,"verify":false},
+    {"id":"replay","beat":"end","kind":"ui","zh":"再游一次","en":"Replay","draft":true,"verify":false},
     {"id":"retry","beat":"title","kind":"ui","zh":"重试","en":"Retry","draft":true,"verify":false}
   ]
 }
