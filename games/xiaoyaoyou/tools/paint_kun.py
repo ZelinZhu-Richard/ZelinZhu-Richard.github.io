@@ -86,6 +86,19 @@ def continuous_fluke(plan):
     return record
 
 
+def upscaled_region(name, x0, y0, x1, y1, size):
+    # The high-resolution paint is a generated upscale of this exact crop, padded
+    # 6 reference pixels on a fixed canvas, so it lands on the same UVs.
+    source = Image.open(ROOT / f'blender/paint/{name}-up.png').convert('RGB')
+    pad = 6
+    crop_width, crop_height = x1 - x0 + 1 + 2 * pad, y1 - y0 + 1 + 2 * pad
+    factor = min(source.width / crop_width, source.height / crop_height) * .96
+    placed_width, placed_height = round(crop_width * factor), round(crop_height * factor)
+    left, top = (source.width - placed_width) // 2, (source.height - placed_height) // 2
+    box = (left + pad * factor, top + pad * factor, left + placed_width - pad * factor, top + placed_height - pad * factor)
+    return np.array(source.resize(size, Image.Resampling.LANCZOS, box=box), dtype=np.float32) / 255
+
+
 def sheet_texture(name, record, sheet, waves, is_fluke=False):
     outline = np.array(record['pixelsXY'])
     x0, y0 = np.floor(outline.min(axis=0)).astype(int)
@@ -94,16 +107,17 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     mask_image = Image.new('L', sheet.size)
     ImageDraw.Draw(mask_image).polygon([tuple(point) for point in outline], fill=255)
     mask = np.array(mask_image)[y0:y1 + 1, x0:x1 + 1] > 127
-    inside = ndi.distance_transform_edt(mask)
-    # Sample only two pixels inside the paint, then nearest-fill outward. Grey
-    # background cannot bleed into the polygon, even at its thin pointed tips.
-    safe = inside >= 2.0
-    raw = np.array(sheet)[y0:y1 + 1, x0:x1 + 1, :3]
-    nearest = ndi.distance_transform_edt(~safe, return_distances=False, return_indices=True)
-    filled = raw[nearest[0], nearest[1]]
     factor = min(2048 / width, 2048 / height)
     size = (max(1, round(width * factor)), max(1, round(height * factor)))
-    base = cool_reference_paper(np.array(Image.fromarray(filled).resize(size, Image.Resampling.LANCZOS), dtype=np.float32) / 255)
+    # Sample only two reference pixels inside the paint, then nearest-fill outward.
+    # Grey background cannot bleed into the polygon, even at its thin pointed tips.
+    fine_mask = Image.new('L', size)
+    ImageDraw.Draw(fine_mask).polygon([((x - x0) * factor, (y - y0) * factor) for x, y in outline], fill=255)
+    inside = ndi.distance_transform_edt(np.array(fine_mask) > 127)
+    safe = inside >= 2.0 * factor
+    painted = upscaled_region(name, x0, y0, x1, y1, size)
+    nearest = ndi.distance_transform_edt(~safe, return_distances=False, return_indices=True)
+    base = cool_reference_paper(painted[nearest[0], nearest[1]])
     yy, xx = np.mgrid[0:size[1], 0:size[0]].astype(np.float32)
     px = x0 + xx / max(size[0] - 1, 1) * (x1 - x0)
     py = y0 + yy / max(size[1] - 1, 1) * (y1 - y0)
@@ -116,13 +130,6 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     base = PAPER + (base - PAPER) * root_fade[..., None]
     dark = (.015 + .13 * smoothstep(.55, .98, span)) * root_fade
     base = base * (1 - dark[..., None]) + INK * dark[..., None]
-    # High-pass wave layer adds detail without replacing the reference layout.
-    wave = np.array(waves.convert('RGB'), dtype=np.float32) / 255
-    detail = wave - ndi.gaussian_filter(wave, (6, 6, 0))
-    sy = yy / max(size[1] - 1, 1) * (wave.shape[0] - 1) * 3.7
-    sx = xx / max(size[0] - 1, 1) * (wave.shape[1] - 1) * 3.7
-    high = np.stack([ndi.map_coordinates(detail[..., channel], [sy, sx], order=1, mode='mirror') for channel in range(3)], axis=2)
-    base += .32 * high * root_fade[..., None]
     # Fine rays radiate from root to actual traced edge points. Their opacity
     # is low; this is internal ink detail, not a hard silhouette outline.
     rays = Image.new('L', size)
@@ -136,9 +143,8 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     ray = np.array(rays.filter(ImageFilter.GaussianBlur(.6)), dtype=np.float32) / 255 * .0475
     base = base * (1 - ray[..., None]) + INK * ray[..., None]
     # Slightly darker ink on the traced wavy aft edge; fill remains beneath it.
-    edge = ((inside <= 1.5) & mask & (np.arange(height)[:, None] + y0 > root[1]))
-    edge_image = np.array(Image.fromarray((edge * 255).astype(np.uint8)).resize(size, Image.Resampling.BILINEAR), dtype=np.float32) / 255
-    edge_ink = edge_image * .24
+    edge = (inside <= 1.5 * factor) & (inside > 0) & (py > root[1])
+    edge_ink = ndi.gaussian_filter(edge.astype(np.float32), factor * .4) * .24
     base = base * (1 - edge_ink[..., None]) + INK * edge_ink[..., None]
     base = np.clip(base, 0, 1)
     ink_density = np.clip((.91 - base.mean(axis=2)) / .60, 0, 1)
@@ -154,7 +160,8 @@ def sheet_texture(name, record, sheet, waves, is_fluke=False):
     return {'path': str(filename.relative_to(ROOT)), 'size': list(size),
             'referenceCrop': [int(x0), int(y0), int(x1), int(y1)],
             'referenceInsetPx': 2, 'outwardFill': 'nearest safe interior paint',
-            'waveHighPassWeight': .32, 'rayOpacity': .0475, 'aftEdgeOpacity': .24,
+            'paintSource': f'blender/paint/{name}-up.png, generated upscale of this exact crop',
+            'waveHighPassWeight': 0, 'rayOpacity': .0475, 'aftEdgeOpacity': .24,
             'nativeReferenceCropSize': [int(width), int(height)],
             'lightAlpha': .38, 'inkAlpha': 1.0, 'palette': PALETTE,
             'darkening': 'tip-weighted; no whole-fin dark overlay'}
@@ -186,8 +193,8 @@ def body_texture():
     mist_x = (.17 + .64 * uu) * (source.shape[1] - 1)
     mist_y = (.40 + .25 * tt) * (source.shape[0] - 1)
     distant = np.stack([ndi.map_coordinates(soft[..., c], [mist_y, mist_x], order=1, mode='nearest') for c in range(3)], axis=2)
-    mist = .78 * distant + .22 * INK
-    mist = PAPER + (mist - PAPER) * snout_fade[..., None]
+    # Held close to the paper: the spine reads as lit, never as a dark stripe.
+    mist = PAPER + .34 * (distant - PAPER) * snout_fade[..., None]
     ridge_blend = (1 - smoothstep(.0, .085, tt))
     result = result * (1 - ridge_blend[..., None]) + mist * ridge_blend[..., None]
     # Same gentle wash at the belly seam, retaining the accepted 40% painting.

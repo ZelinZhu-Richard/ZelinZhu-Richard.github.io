@@ -474,9 +474,10 @@ ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img
     checks.swim=metrics.extra.swim.periodMs>=3000&&metrics.extra.swim.periodMs<=5000&&metrics.extra.swim.flukeAmpFrac>=.08&&metrics.extra.swim.flukeAmpFrac<=.15&&metrics.extra.swim.headAmpFrac<=metrics.extra.swim.flukeAmpFrac*.25&&metrics.extra.swim.sidewaysDisplacement===0;
     checks.mapping=metrics.extra.mapping.pass;
     const frozen=metrics.extra.frozenGeometry;
-    const materialOnly=frozen.materialOnlyValidation;
+    const materialOnly=frozen.materialOnlyValidation, finPass=frozen.finConstantPass;
     checks.frozenGeometry=frozen.frozenGeometryIdentical&&frozen.finFlukeUVIdentical&&
-      (materialOnly ? materialOnly.allExportGeometryIdentical&&materialOnly.allUVIdentical&&materialOnly.swimShaderIdentical : frozen.finFlukeTexturesIdentical);
+      (finPass ? finPass.allUVIdentical&&finPass.swimShaderIdentical&&finPass.changedMeshes.every(name=>name.startsWith('kun_fin_')) :
+       materialOnly ? materialOnly.allExportGeometryIdentical&&materialOnly.allUVIdentical&&materialOnly.swimShaderIdentical : frozen.finFlukeTexturesIdentical);
     checks.silhouetteFresh=metrics.silhouette.kun?.commit===commit&&metrics.silhouette.kun?.dirty===false;
   }
   const growth=metrics.extra.growth??[];

@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import { prepareAssets } from './assets.js';
 import { prepareKun } from './kun.js';
-import { createWorld } from './world.js';
-import { createJourney, GROWTH } from './journey.js';
+import { createWorld, mulberry, FOG_DENSITY } from './world.js';
+import { createJourney, GROWTH, WORLD } from './journey.js';
+import { createPost, createGobo } from './post.js';
 
 const STEP_SECONDS = 1 / 60;
 const CHECKPOINTS = new Map([['title', 'title'], ['north-start', 'north'], ['north-play', 'north'],
   ['north-full', 'north'], ['end-card', 'end'], ['kun-test', 'test']]);
-const FOG_START = .0032;
 const SHEET_VIEWS = ['side', 'top', 'front'];
 
 export async function createRuntime(text, onProgress) {
@@ -34,8 +34,8 @@ export async function createRuntime(text, onProgress) {
   const first = new Promise(resolve => { resolveFirst = resolve; });
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#172A35');
-  scene.fog = new THREE.FogExp2('#172A35', FOG_START);
-  let kun, world, journey;
+  scene.fog = new THREE.FogExp2('#172A35', FOG_DENSITY);
+  let kun, world, journey, post;
   let camera = new THREE.PerspectiveCamera(42, 1, 0.1, 2000);
   camera.position.set(0, 3, 12);
   camera.lookAt(0, 0, 0);
@@ -106,7 +106,7 @@ export async function createRuntime(text, onProgress) {
     world.group.visible = (state.beat === 'test' && !sheet) || state.beat === 'north';
     world.props.visible = state.beat === 'north';
     scene.background = state.beat === 'test' && sheet ? new THREE.Color('rgb(155,156,158)') : new THREE.Color('#172A35');
-    scene.fog.density = state.beat === 'test' ? (sheet ? 0 : .018) : FOG_START;
+    scene.fog.density = state.beat === 'test' ? (sheet ? 0 : .018) : FOG_DENSITY;
     kun.root.position.set(0, 0, 0);
     kun.root.rotation.set(0, 0, 0);
     kun.root.scale.setScalar(1);
@@ -157,15 +157,23 @@ export async function createRuntime(text, onProgress) {
       for (let i = 0; i < timescale && (state.beat === 'title' || state.beat === 'test' || state.beat === 'north'); i++) simulate();
       accumulator -= STEP_SECONDS;
     }
-    kun.update(state.gameMs, config.phase, state.beat === 'title' || (SHEET_VIEWS.includes(config.view) && config.phase === null));
+    const sheet = SHEET_VIEWS.includes(config.view);
+    const sized = state.beat === 'north' || state.beat === 'end' ? journey.j.scale : 1;
+    kun.update(state.gameMs, config.phase, state.beat === 'title' || (sheet && config.phase === null), !(sheet && state.beat === 'test'), sized);
     if (state.beat === 'north' || state.beat === 'end') {
       poseKun();
-      scene.fog.density = FOG_START / Math.pow(journey.j.scale, .92);
+      scene.fog.density = FOG_DENSITY / Math.pow(journey.j.scale, .92);
       world.update(camera, state.gameMs, journey.j.scale);
       world.showMote(journey.j.mote, journey.j.scale, state.gameMs);
     } else if (state.beat === 'test') world.update(camera, state.gameMs, 1);
     renderer.info.reset();
-    renderer.render(scene, camera);
+    if (state.beat === 'title' || (sheet && state.beat === 'test')) {
+      renderer.setRenderTarget(null);
+      renderer.render(scene, camera);
+    } else {
+      configureVolume(sized);
+      post.render(scene, camera, state.gameMs / 1000);
+    }
     Object.assign(stats, {
       drawCalls: renderer.info.render.calls,
       triangles: renderer.info.render.triangles,
@@ -174,6 +182,23 @@ export async function createRuntime(text, onProgress) {
     if (++framesSinceJump >= 30) state.settled = true;
     resolveFirst();
     animation = requestAnimationFrame(render);
+  }
+  function configureVolume(scale) {
+    const u = post.uniforms;
+    const octave = Math.log(scale) / Math.log(4);
+    u.uLayers.value.set(Math.max(0, 1 - octave), Math.max(0, 1 - Math.abs(octave - 1)), Math.max(0, octave - 1));
+    u.uScale.value = scale;
+    u.uLight.value.copy(world.light);
+    const j = journey.j, climb = (WORLD.surface - j.y) / world.light.y, climb0 = WORLD.surface / world.light.y;
+    if (state.beat === 'test') u.uHero.value.set(world.light.x * climb0, world.light.z * climb0, 13);
+    else u.uHero.value.set(j.x + world.light.x * climb, j.z + world.light.z * climb, 13 * scale);
+    u.uSurface.value = WORLD.surface;
+    u.uReach.value = 460 * Math.pow(scale, .9);
+    const inSea = state.beat !== 'test';
+    u.uMistGain.value = inSea ? .03 / Math.pow(scale, .7) : 0;
+    u.tMistMap.value = world.mistMap;
+    u.uMistTop.value = 34 + 30 * Math.sqrt(scale);
+    u.uMistBottom.value = -30;
   }
   function frameKun() {
     const ratio = aspect();
@@ -212,6 +237,7 @@ export async function createRuntime(text, onProgress) {
   function resize() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(innerWidth, innerHeight);
+    post?.setSize(renderer.domElement.width, renderer.domElement.height);
     if (kun && state.beat === 'test') frameKun();
     else {
       camera = new THREE.PerspectiveCamera(42, aspect(), .1, 2000);
@@ -272,6 +298,7 @@ export async function createRuntime(text, onProgress) {
     canvas.removeEventListener('pointerleave', onPointerLeave);
     kun?.dispose();
     world?.dispose();
+    post?.dispose();
     renderer?.dispose();
   }
 
@@ -284,16 +311,22 @@ export async function createRuntime(text, onProgress) {
     ]);
     onProgress(0.5);
     const assets = await prepareAssets(value => onProgress(0.5 + value / 2));
-    kun = prepareKun(assets.get('kun'));
-    world = createWorld(assets.get('sea'));
+    const gobo = createGobo(mulberry(4242));
+    const rockTexture = await new THREE.TextureLoader().loadAsync('assets/rock.webp');
+    rockTexture.colorSpace = THREE.SRGBColorSpace;
+    rockTexture.wrapS = rockTexture.wrapT = THREE.RepeatWrapping;
+    rockTexture.anisotropy = 8;
+    world = createWorld(assets.get('sea'), gobo, rockTexture);
+    kun = prepareKun(assets.get('kun'), gobo, world.heroLight);
     journey = createJourney(world.colliders);
     scene.add(kun.root, world.group);
     // Lighting remains available in the grey reference views as well.
     scene.add(new THREE.HemisphereLight('#D4D6CA', '#283B48', 1.7));
     const referenceLight = new THREE.DirectionalLight('#FFF1D5', 1.8);
     referenceLight.position.set(-5, 12, 6); scene.add(referenceLight);
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
     renderer.info.autoReset = false;
+    post = createPost(renderer, gobo, mulberry(9001));
     resize();
     jump('title');
     window.__GAME_DEBUG__ = {

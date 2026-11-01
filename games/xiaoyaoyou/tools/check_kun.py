@@ -51,6 +51,7 @@ def main():
     parser.add_argument('--body-mouth-only', action='store_true', help='Explicitly authorized mouth exception; freeze all other geometry')
     parser.add_argument('--all-geometry', action='store_true', help='Freeze all approved meshes; UV changes only')
     parser.add_argument('--material-pass', action='store_true', help='Authorized texture/material changes; freeze all exported geometry, UVs and swim shader')
+    parser.add_argument('--fin-constants', action='store_true', help='Overnight brief: fin scale, sweep and dihedral may change; freeze every other mesh, all UVs and the swim shader')
     args = parser.parse_args()
     current = inspect()
     if args.baseline:
@@ -60,6 +61,8 @@ def main():
     before = json.loads(BASELINE.read_text())
     if args.all_geometry or args.material_pass:
         frozen_names = list(before['geometry'])
+    elif args.fin_constants:
+        frozen_names = [name for name in before['geometry'] if not name.startswith('kun_fin_')]
     elif args.body_mouth_only:
         frozen_names = [name for name in before['geometry'] if not name.startswith('kun_mouth_')]
     else:
@@ -94,6 +97,19 @@ def main():
         }
         if not all(snapshot['materialOnlyValidation'][key] for key in ['allExportGeometryIdentical','allUVIdentical','swimShaderIdentical']):
             raise SystemExit('Material-only freeze failed')
+    if args.fin_constants:
+        baseline = json.loads((ROOT / '_dev/tmp/M2-material-freeze.json').read_text())
+        source = (ROOT / 'src/kun.js').read_text()
+        wave = source[source.index('export const SWIM'):source.index('function finCoordinates')]
+        snapshot['finConstantPass'] = {
+            'allUVIdentical': before['uv'] == current['uv'],
+            'swimShaderIdentical': hashlib.sha256(wave.encode()).hexdigest() == baseline['swimShaderSHA256'],
+            'changedMeshes': [name for name in before['geometry'] if before['geometry'][name] != current['geometry'][name]],
+            'triangleCountsIdentical': before['triangleCounts'] == current['triangleCounts'],
+        }
+        snapshot['finFlukeUVIdentical'] = snapshot['finConstantPass']['allUVIdentical']
+        if not (snapshot['finConstantPass']['allUVIdentical'] and snapshot['finConstantPass']['swimShaderIdentical']):
+            raise SystemExit('Fin constant freeze failed')
     if args.body_mouth_only:
         fin_images = {name: value for name, value in before['images'].items() if 'pectoral' in name or 'fluke' in name}
         snapshot['authorizedGeometryExceptions'] = [name for name in before['geometry'] if name.startswith('kun_mouth_')]
@@ -112,7 +128,7 @@ def main():
         snapshot['localCoordinatesInvariantAcross135And150'] = other['localCoordinateHashes'] == snapshot['localCoordinateHashes']
     (BUILD / 'kun-validation.json').write_text(json.dumps(snapshot, indent=2) + '\n')
     print(json.dumps(snapshot, indent=2))
-    if not frozen or snapshot.get('uvInvariantAcross135And150') is False or snapshot.get('restoredUVIdentical') is False or (snapshot.get('finFlukeTexturesIdentical') is False and not args.material_pass) or snapshot.get('finFlukeUVIdentical') is False:
+    if not frozen or snapshot.get('uvInvariantAcross135And150') is False or snapshot.get('restoredUVIdentical') is False or (snapshot.get('finFlukeTexturesIdentical') is False and not (args.material_pass or args.fin_constants)) or snapshot.get('finFlukeUVIdentical') is False:
         raise SystemExit(1)
 
 
