@@ -499,3 +499,23 @@ Frame rate, measured on the real GPU (Apple M4 Pro) in headless Chromium at thre
 - Replay resets `motes` to 0 and `kunScale` to 1 without a reload.
 - End card: vertical title, paper colored seal reading 逍遥 cut from a vermilion block, on a generated xuan paper texture.
 - `index.html` now carries real metadata, written to match `tools/verify.mjs`: canonical, Open Graph, description. `og:image` points at `making-of/img/og.jpg`, which exists only if the stretch page is built; this is flagged in MORNING.md if it is not.
+
+### Codex M4 round 1: FIX; M5 round 1: FIX (2026-11-01, commit 4428012)
+
+M4: 3 of 4 criteria PASS; the key-art comparison FAILS. Critical: a pale fog blanket instead of dark lower water and localized mist; dense noise across the frame. Major: comb-like shafts; wire pleats. M5: all 4 of its own criteria PASS, but it was returned FIX on the same shared look issues plus umbrella-shaped pines (M3 scope). I agreed with every item.
+
+Fix round 1, with causes found rather than guessed:
+
+| Issue | Cause | Fix |
+|---|---|---|
+| Colored stipple | Grain was added in linear light before sRGB, so dark pixels amplified it about 13×, red most of all. Measured chroma noise was 2.5× the key art's | Grain and dither now run in display space, mono, at half the strength |
+| Fog blanket | Summed pool map saturated across dense far pillars; fog density scaled with Kun's growth until distance had no effect | Strongest-pool-wins map, drifting banks with gaps, slower density law, dark seabed that only reaches the dome at the horizon |
+| Comb shafts | One high-frequency streak term over everything | Separate groups, bands and strands; each ray ends at its own depth; a shared source region near the surface |
+| Hard patch in shafts (found by me) | First blamed the march overrunning the surface; capping it did not help. Real cause: a light column meeting the surface plane at a distance | Columns fade in below the surface. The cap stayed, since it is also correct |
+| Wire pleats | The rim term lit the tube normals | Pleats take no rim and no key light, and stay translucent in every view |
+| Umbrella pines | One cone per limb; a drooping rim seen from below reads as a hat | Lens-shaped needle clumps, six or seven per limb, starting near the trunk; crooked trunk with wind bias |
+| Goblet row of far pillars (found by me) | All far pillars shared a foot at the same height | They sink by varied depths |
+
+Mistakes in this round, all caught before review: a shader name clash on `depth` (reported by the harness), and a zsh loop that passed `--autoplay --replay` as one argument, so one M5 capture ran without autoplay. That capture failed visibly and was redone; no evidence from it was used.
+
+M3 changed after its PASS at 32efe2b, so that verdict no longer covers the current code. All three milestones were recaptured on 8cdcb48 and sent for review, including M3.
