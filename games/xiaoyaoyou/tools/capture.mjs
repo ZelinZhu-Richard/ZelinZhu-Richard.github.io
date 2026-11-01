@@ -240,6 +240,22 @@ try {
       narrow:{kunHeightChange:narrowFull.kun.heightPx/narrowStart.kun.heightPx-1,pillarRatio:narrowFull['ref-pillar-1'].heightPx/narrowStart['ref-pillar-1'].heightPx,
         pillarInFrame:[narrowStart['ref-pillar-1'].inFrame,narrowFull['ref-pillar-1'].inFrame]},
     };
+    // Kun stays in frame across the real journey, not only at the posed checkpoints.
+    metrics.extra.framing={};
+    for(const [viewport,context] of Object.entries(contexts)) {
+      const page=await context.newPage();watch(page);
+      await page.goto(`${base}?seed=1`);
+      await page.waitForFunction(()=>window.__GAME_READY__===true,null,{timeout:10000});
+      metrics.extra.framing[viewport]=[];
+      for(const seconds of [1,5,8,13,20,30,45,60,75,90,100,106,110]) {
+        await page.evaluate(value=>window.__GAME_DEBUG__.seek(value),seconds);
+        await page.waitForFunction(()=>window.__GAME_STATS__.frame>0);
+        await page.waitForTimeout(150);
+        const kun=await page.evaluate(()=>window.__GAME_DEBUG__.measure().kun);
+        metrics.extra.framing[viewport].push({seconds,inFrame:kun.inFrame,widthPx:kun.widthPx,heightPx:kun.heightPx,centerX:kun.centerX,centerY:kun.centerY});
+      }
+      await page.close();
+    }
     // Real input events; speeds come from the simulation and time from gameMs.
     const until=(page,ms)=>page.evaluate(async wait=>{const end=window.__GAME_STATE__.gameMs+wait;
       while(window.__GAME_STATE__.gameMs<end) await new Promise(requestAnimationFrame);return window.__GAME_DEBUG__.journey();},ms);
@@ -489,6 +505,7 @@ ${files.map(name => `<section><h2>${name}.png</h2><div class="pair"><figure><img
     checks.seaAsset=!!metrics.assets.sea&&metrics.assets.sea.requiredNodesSurvived&&metrics.assets.sea.extensionsUsed.includes('EXT_meshopt_compression');
     checks.growth=growth.length===7&&growth.every((v,i)=>i===0||v>growth[i-1])&&growth[6]>=10;
     checks.pacing=firstRun?.reachedEnd===true&&firstRun.totalGameMs>=90000&&firstRun.totalGameMs<=150000;
+    checks.playFraming=Object.values(metrics.extra.framing).every(rows=>rows.every(row=>row.inFrame));
     checks.scaleReads=Object.values(metrics.extra.scale).every(v=>Math.abs(v.kunHeightChange)<=.35&&v.pillarRatio<=.25&&v.pillarInFrame.every(Boolean));
     checks.inputDesktop=(i=>i.holdRatio>=3&&i.releaseRatio<=.5&&i.headingDegrees>=20&&i.leaveReleases&&i.scrollY===0)(metrics.extra.inputTest.desktop);
     checks.inputNarrow=(i=>i.holdRatio>=3&&i.releaseRatio<=.5&&i.headingDegrees>=20&&i.leaveReleases&&i.touchHold&&i.scrollY===0)(metrics.extra.inputTest.narrow);

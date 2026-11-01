@@ -9,8 +9,8 @@ export const PILLAR_CENTER = Object.freeze({ x: 0, z: 0, radius: 58, height: 240
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 // Behind and to one side, looking ahead of Kun, so the heading and the next mote stay in frame.
-const CAMERA_PLAY = Object.freeze({ azimuth: 2.62, elevation: .07, distance: 3.2, aimAhead: 2.3, aimLift: .3 });
-const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.74, aimAhead: 1.1 });
+const CAMERA_PLAY = Object.freeze({ azimuth: 2.62, elevation: .07, distance: 3.2, aimAhead: 2.1, aimLift: .22 });
+const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.74, aimAhead: .16 });
 const CAMERA_ART = Object.freeze({ azimuth: .97, elevation: -.12, distance: 2.02, aimAhead: 0, aimLift: -.16 });
 const CAMERA_MIX = Object.freeze({ introHold: 2.4, introEase: 4.4, finaleEase: 5.5, finaleHold: 4 });
 const SPEED = Object.freeze({ held: 1.2, idleFraction: .25, rise: .34, fall: 1 });
@@ -191,9 +191,11 @@ export function createJourney(pillars) {
     const lookYaw = forward(j.yaw, 0);
     // The camera stays anchored to Kun; only its aim looks ahead.
     const baseY = j.y + blend('aimLift') * size;
-    const aimX = j.x + lookYaw[0] * blend('aimAhead') * size;
+    // Look-ahead waits for the camera to swing behind Kun, or it pushes Kun out of frame.
+    const ahead = a.aimAhead * (1 - mix) * (1 - mix);
+    const aimX = j.x + lookYaw[0] * ahead * size;
     const aimY = baseY;
-    const aimZ = j.z + lookYaw[2] * blend('aimAhead') * size;
+    const aimZ = j.z + lookYaw[2] * ahead * size;
     const follow = j.cam.ready ? Math.min(1, dt * 4) : 1;
     const cam = j.cam;
     cam.x += (j.x + c[0] * distance - cam.x) * follow;
