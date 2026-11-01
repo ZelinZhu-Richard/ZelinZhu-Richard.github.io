@@ -6,8 +6,10 @@ import { createJourney, GROWTH, WORLD } from './journey.js';
 import { createPost, createGobo } from './post.js';
 
 const STEP_SECONDS = 1 / 60;
-const CHECKPOINTS = new Map([['title', 'title'], ['north-start', 'north'], ['north-play', 'north'],
+const CHECKPOINTS = new Map([['title', 'title'], ['north-start', 'north'], ['north-text', 'north'], ['north-play', 'north'],
   ['north-full', 'north'], ['end-card', 'end'], ['kun-test', 'test']]);
+// When each source line shows, in journey seconds. Fixed to the simulation, never to the wall clock.
+const LINE_TIMES = { first: [1.8, 10.5], second: 9 };
 const SHEET_VIEWS = ['side', 'top', 'front'];
 
 export async function createRuntime(text, onProgress) {
@@ -16,6 +18,13 @@ export async function createRuntime(text, onProgress) {
   const canvas = document.querySelector('#world');
   const endCard = document.querySelector('#end-card');
   const replayButton = document.querySelector('#replay');
+  const hud = document.querySelector('#hud');
+  const lineBox = document.querySelector('#line');
+  const lineZh = document.querySelector('#line-zh');
+  const lineEn = document.querySelector('#line-en');
+  const hint = document.querySelector('#hint');
+  const toggle = document.querySelector('#toggle-translation');
+  const lines = new Map(text.lines.map(line => [line.id, line]));
   const state = window.__GAME_STATE__;
   const stats = window.__GAME_STATS__;
   const params = new URLSearchParams(location.search);
@@ -45,6 +54,7 @@ export async function createRuntime(text, onProgress) {
   let previousTime;
   let timescale = 1;
   let autoplayOn = false;
+  let shownLine = null;
   const runs = [];
   let run = null;
   const projected = new THREE.Vector3();
@@ -70,6 +80,7 @@ export async function createRuntime(text, onProgress) {
   function finish() {
     state.beat = 'end';
     endCard.hidden = false;
+    hud.hidden = true;
     if (run && !run.reachedEnd) {
       run.reachedEnd = true;
       run.totalGameMs = state.gameMs;
@@ -88,7 +99,7 @@ export async function createRuntime(text, onProgress) {
     Object.assign(j, { hold: false, steerX: 0, steerY: 0 });
     syncState();
   }
-  function jump(id) {
+  function jump(id, crossfade = false) {
     if (!CHECKPOINTS.has(id)) throw new Error(`Checkpoint not available: ${id}`);
     steps = 0;
     accumulator = 0;
@@ -98,9 +109,15 @@ export async function createRuntime(text, onProgress) {
     Object.assign(state, { beat: CHECKPOINTS.get(id), motes: 0, kunScale: 1, gameMs: 0, settled: false });
     journey.reset(aspect());
     journey.j.autoplay = autoplayOn;
-    title.hidden = state.beat !== 'title';
+    if (state.beat === 'title') { title.hidden = false; title.classList.remove('leaving'); }
+    else if (crossfade && !title.hidden) title.classList.add('leaving');
+    else title.hidden = true;
     begin.disabled = false;
     endCard.hidden = true;
+    hud.hidden = state.beat === 'title' || state.beat === 'test' || state.beat === 'end';
+    shownLine = null;
+    lineBox.classList.remove('showing');
+    hint.classList.remove('showing');
     const sheet = SHEET_VIEWS.includes(config.view);
     kun.root.visible = state.beat === 'test' || state.beat === 'north';
     world.group.visible = (state.beat === 'test' && !sheet) || state.beat === 'north';
@@ -112,12 +129,14 @@ export async function createRuntime(text, onProgress) {
     kun.root.scale.setScalar(1);
     run = null;
     if (id === 'north-start') beginRun();
-    if (id === 'north-play') replayJourney(j => j.t >= 9);
+    if (id === 'north-text') replayJourney(j => j.t >= 3.4);
+    if (id === 'north-play') replayJourney(j => j.t >= 13);
     if (id === 'north-full') replayJourney(j => j.phase === 'finale' && j.phaseT > 6.2);
     if (id === 'end-card') { replayJourney(j => j.ended); finish(); }
     resize();
   }
-  const start = () => jump('north-start');
+  // A real Begin dissolves the painting into the live sea behind it.
+  const start = () => jump('north-start', true);
   function replay() {
     const auto = journey.j.autoplay;
     jump('north-start');
@@ -135,6 +154,27 @@ export async function createRuntime(text, onProgress) {
     journey.step(aspect());
     syncState();
     if (journey.j.ended) finish();
+  }
+  function updateText() {
+    if (state.beat !== 'north') return;
+    const j = journey.j;
+    const fourth = j.moteTimes[3];
+    const id = j.t >= LINE_TIMES.first[0] && j.t < LINE_TIMES.first[1] ? 'north-1'
+      : fourth !== undefined && j.t >= fourth + 1 && j.t < fourth + 1 + LINE_TIMES.second ? 'north-2' : null;
+    if (id !== shownLine) {
+      shownLine = id;
+      if (id) { lineZh.textContent = lines.get(id).zh; lineEn.textContent = lines.get(id).en; }
+      lineBox.classList.toggle('showing', Boolean(id));
+    }
+    hint.classList.toggle('showing', j.t > 11.5 && j.t < 18 && !j.autoplay);
+  }
+  function applyTranslation() {
+    lineBox.classList.toggle('no-translation', !state.translationOn);
+    toggle.setAttribute('aria-pressed', String(state.translationOn));
+  }
+  function toggleTranslation() {
+    state.translationOn = !state.translationOn;
+    applyTranslation();
   }
   function poseKun() {
     const j = journey.j;
@@ -166,6 +206,7 @@ export async function createRuntime(text, onProgress) {
       world.update(camera, state.gameMs, journey.j.scale);
       world.showMote(journey.j.mote, journey.j.scale, state.gameMs);
     } else if (state.beat === 'test') world.update(camera, state.gameMs, 1);
+    updateText();
     renderer.info.reset();
     if (state.beat === 'title' || (sheet && state.beat === 'test')) {
       renderer.setRenderTarget(null);
@@ -267,7 +308,7 @@ export async function createRuntime(text, onProgress) {
   }
   function onKey(event) {
     if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
-    if (event.key.toLowerCase() === 't') state.translationOn = !state.translationOn;
+    if (event.key.toLowerCase() === 't') toggleTranslation();
     if (event.key.toLowerCase() === 'm') state.muted = !state.muted;
   }
   function release() { if (journey) journey.j.hold = false; }
@@ -283,6 +324,7 @@ export async function createRuntime(text, onProgress) {
   }
   function onPointerUp() { release(); if (journey) { journey.j.steerX = journey.j.steerY = 0; } }
   function onPointerLeave() { onPointerUp(); }
+  function hideTitle(event) { if (event.target === title && title.classList.contains('leaving')) title.hidden = true; }
   function dispose() {
     disposed = true;
     cancelAnimationFrame(animation);
@@ -291,6 +333,8 @@ export async function createRuntime(text, onProgress) {
     window.removeEventListener('blur', onPointerUp);
     begin.removeEventListener('click', start);
     replayButton.removeEventListener('click', replay);
+    toggle.removeEventListener('click', toggleTranslation);
+    title.removeEventListener('transitionend', hideTitle);
     canvas.removeEventListener('pointerdown', onPointerDown);
     canvas.removeEventListener('pointermove', pointerSteer);
     canvas.removeEventListener('pointerup', onPointerUp);
@@ -341,6 +385,8 @@ export async function createRuntime(text, onProgress) {
       journey: () => { const j = journey.j; return { t: j.t, phase: j.phase, yaw: j.yaw, heading: j.heading, speed: j.speed, heldSpeed: journey.held(),
         hold: j.hold, steerX: j.steerX, motes: j.motes, scale: j.scale, targetScale: j.targetScale, ended: j.ended, position: [j.x, j.y, j.z] }; },
       runs: () => runs,
+      // Replays the real journey to a time, for evidence and contact sheets.
+      seek(seconds) { jump('north-start'); replayJourney(j => j.t >= seconds || j.ended); return journey.j.t; },
       kunScreenBox: () => { const box = measure().kun; return { x: box.centerX, y: box.centerY }; },
       growthTarget: GROWTH,
     };
@@ -349,6 +395,8 @@ export async function createRuntime(text, onProgress) {
     window.addEventListener('blur', onPointerUp);
     begin.addEventListener('click', start);
     replayButton.addEventListener('click', replay);
+    toggle.addEventListener('click', toggleTranslation);
+    title.addEventListener('transitionend', hideTitle);
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', pointerSteer);
     canvas.addEventListener('pointerup', onPointerUp);

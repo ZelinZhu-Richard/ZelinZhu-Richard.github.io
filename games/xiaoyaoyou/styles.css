@@ -15,6 +15,8 @@
   --paper: #efe7d6;
   --paper-shade: #d9cfbb;
   --haze: #607277;
+  --ink: #17171c;
+  --vermilion: #d4432c;
   background: var(--deep);
   color: var(--paper);
   font-family: "EB Garamond", serif;
@@ -25,19 +27,42 @@ body { min-width: 240px; }
 ::selection { background: var(--paper); color: var(--deep); }
 [hidden] { display: none !important; }
 #world { position: fixed; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
-.title-screen { position: fixed; inset: 0; display: grid; place-items: center; padding: 32px; text-align: center; }
-.title-group { display: flex; flex-direction: column; align-items: center; width: 100%; transform: translateY(-12px); }
-h1 { margin: 0; font-family: "LXGW WenKai", serif; font-size: clamp(64px, 8vw, 108px); font-weight: 400; line-height: 1.4; letter-spacing: .13em; text-indent: .13em; }
-.subtitle { margin: 14px 0 0; font-size: clamp(22px, 2.1vw, 30px); font-weight: 400; line-height: 1.4; color: var(--paper-shade); }
-.title-rule { width: 1px; height: 46px; margin: 38px 0 26px; background: var(--haze); }
+.title-screen { position: fixed; inset: 0; display: grid; align-items: end; justify-items: start; padding: clamp(32px, 7vw, 96px); background: var(--deep); opacity: 1; transition: opacity 1400ms ease-in-out; }
+.title-screen.leaving { opacity: 0; pointer-events: none; }
+.title-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 74% 42%; }
+/* The painting stays quiet behind the title and dark at its edges. */
+.title-screen::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 72% 78% at 16% 86%, rgba(11, 22, 28, .9), rgba(11, 22, 28, .55) 46%, rgba(11, 22, 28, 0) 74%), radial-gradient(ellipse at 50% 42%, rgba(11, 22, 28, 0) 56%, rgba(11, 22, 28, .55) 100%); }
+.title-group { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
+h1 { margin: 0; font-family: "LXGW WenKai", serif; font-size: clamp(64px, 7.4vw, 104px); font-weight: 400; line-height: 1.3; letter-spacing: .13em; }
+.subtitle { margin: 8px 0 0; font-size: clamp(22px, 1.9vw, 28px); font-weight: 400; line-height: 1.4; color: var(--paper-shade); }
+.title-rule { width: 64px; height: 1px; margin: 26px 0 16px; background: var(--paper-shade); opacity: .6; }
 button { display: inline-flex; align-items: center; justify-content: center; gap: 22px; min-width: 132px; min-height: 48px; padding: 10px 16px; border: 1px solid transparent; border-radius: 0; background: transparent; color: var(--paper); font: 400 22px/1.2 "EB Garamond", serif; cursor: pointer; transition: border-color 180ms ease-out, color 180ms ease-out; }
 button:hover { border-color: var(--haze); }
 button:focus-visible { outline: 2px solid var(--paper); outline-offset: 6px; }
 button:disabled { color: var(--haze); cursor: wait; }
 svg { fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
-.end-card { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 32px; background: var(--deep); text-align: center; }
-.end-card h2 { margin: 0; font-family: "LXGW WenKai", serif; font-size: clamp(48px, 6vw, 80px); font-weight: 400; letter-spacing: .13em; text-indent: .13em; }
-.status { position: fixed; bottom: max(50px, env(safe-area-inset-bottom)); left: 50%; width: min(280px, calc(100vw - 64px)); transform: translateX(-50%); text-align: center; }
+.hud { position: fixed; inset: 0; pointer-events: none; }
+.toggle { position: absolute; top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right)); min-width: 44px; min-height: 44px; padding: 8px 12px; color: var(--paper); font-size: 18px; opacity: .78; pointer-events: auto; transition: opacity 180ms ease-out; }
+.toggle:hover { border-color: transparent; opacity: 1; }
+.toggle[aria-pressed="false"] { opacity: .5; text-decoration: line-through; text-decoration-thickness: 1px; }
+.line, .hint { position: absolute; left: 50%; width: min(760px, calc(100vw - 40px)); transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity 900ms ease-in-out; }
+.line { bottom: max(9vh, 64px); }
+.line.showing, .hint.showing { opacity: 1; }
+.hint { bottom: 22px; margin: 0; color: var(--paper-shade); font-size: 18px; line-height: 1.4; text-shadow: 0 0 14px rgba(11, 22, 28, .9); }
+.line-zh { margin: 0; font-family: "LXGW WenKai", serif; font-size: clamp(25px, 3.1vw, 40px); line-height: 1.5; letter-spacing: .1em; text-indent: .1em; color: var(--paper); text-shadow: 0 0 22px rgba(11, 22, 28, .95), 0 0 6px rgba(11, 22, 28, .7); }
+.line-en { margin: 8px 0 0; font-size: clamp(18px, 1.55vw, 23px); line-height: 1.4; color: var(--paper-shade); text-shadow: 0 0 16px rgba(11, 22, 28, .95), 0 0 5px rgba(11, 22, 28, .7); transition: opacity 500ms ease-in-out; }
+.line.no-translation .line-en { opacity: 0; }
+.end-card { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: var(--paper) url("./assets/paper.webp") center / cover; color: var(--ink); text-align: center; animation: end-in 1800ms ease-in-out; }
+@keyframes end-in { from { opacity: 0; } to { opacity: 1; } }
+.colophon { display: flex; align-items: flex-end; gap: clamp(18px, 2.4vw, 30px); padding-left: clamp(70px, 8.6vw, 112px); }
+.end-card h2 { margin: 0; writing-mode: vertical-rl; font-family: "LXGW WenKai", serif; font-size: clamp(66px, 7.6vw, 104px); font-weight: 400; line-height: 1.1; letter-spacing: .14em; }
+.seal { width: clamp(52px, 5.8vw, 78px); height: clamp(52px, 5.8vw, 78px); fill: var(--vermilion); stroke: none; }
+.seal-glyph { font-family: "LXGW WenKai", serif; font-size: 42px; fill: #000; stroke: none; }
+.end-subtitle { margin: 30px 0 0; font-size: clamp(21px, 1.9vw, 27px); line-height: 1.4; color: var(--ink); }
+.end-card button { margin-top: 18px; color: var(--ink); }
+.end-card button:hover { border-color: var(--ink); }
+.end-card button:focus-visible { outline-color: var(--ink); }
+.status { position: fixed; z-index: 2; bottom: max(50px, env(safe-area-inset-bottom)); left: 50%; width: min(280px, calc(100vw - 64px)); transform: translateX(-50%); text-align: center; }
 .status p { margin: 0 0 14px; color: var(--paper-shade); font-size: 19px; line-height: 1.45; }
 progress { display: block; width: 100%; height: 3px; border: none; appearance: none; background: var(--haze); accent-color: var(--paper); }
 progress::-webkit-progress-bar { background: var(--haze); }
@@ -46,8 +71,10 @@ progress::-moz-progress-bar { background: var(--paper); }
 .error-symbol { margin-bottom: 12px; }
 .error button { border-color: var(--haze); }
 @media (max-width: 480px) {
-  .title-screen { padding: 24px; }
-  .title-rule { margin-top: 32px; }
+  .title-screen { padding: 26px 24px 40px; }
+  .title-art { object-position: 90% 50%; }
+  .title-screen::after { background: linear-gradient(to top, rgba(11, 22, 28, .94), rgba(11, 22, 28, .6) 34%, rgba(11, 22, 28, 0) 62%); }
+  .line { bottom: 76px; }
 }
 @media (max-height: 500px) {
   h1 { font-size: 56px; }
@@ -55,4 +82,7 @@ progress::-moz-progress-bar { background: var(--paper); }
   .title-rule { height: 20px; margin: 16px 0 8px; }
   .status { bottom: 16px; }
 }
-@media (prefers-reduced-motion: reduce) { button { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  button, .title-screen, .line, .hint, .line-en { transition: none; }
+  .end-card { animation: none; }
+}

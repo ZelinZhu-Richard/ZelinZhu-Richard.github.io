@@ -28,6 +28,8 @@ async function boot() {
       element.textContent = lines.get(element.dataset.text)[element.dataset.lang];
     }
     document.title = lines.get('title').zh + ' · ' + lines.get('title').en;
+    document.querySelector('[data-text-first="seal"]').textContent = lines.get('seal').zh[0];
+    document.querySelector('[data-text-second="seal"]').textContent = lines.get('seal').zh[1];
     progress.setAttribute('aria-label', lines.get('loading').en);
     document.querySelector('#retry').setAttribute('aria-label', lines.get('retry').en);
     progress.value = 0.22;
@@ -36,6 +38,7 @@ async function boot() {
     runtime?.dispose();
     runtime = await createRuntime(text, value => { progress.value = 0.6 + value * 0.35; });
     await runtime.firstFrame();
+    await document.querySelector('#title-art').decode().catch(() => {});
     progress.value = 1;
     loading.hidden = true;
     const begin = document.querySelector('#begin');

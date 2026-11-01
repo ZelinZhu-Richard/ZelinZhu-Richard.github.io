@@ -100,9 +100,12 @@ export function prepareKun(root, gobo, light) {
   for(const mesh of meshes) {
     const old=mesh.material;
     const sheet=mesh.name.startsWith('kun_fin_')||mesh.name==='kun_fluke';
+    if(old.map) old.map.anisotropy=8;
+    // Pleats are about a pixel wide in play, so they blend in rather than alias.
+    const pleat=old.name==='kun_pleat';
     const material=new THREE.MeshLambertMaterial({ name:old.name,
-      color:old.color, map:old.map, transparent:sheet, opacity:old.opacity,
-      side:sheet?THREE.DoubleSide:THREE.FrontSide, depthWrite:!sheet });
+      color:old.color, map:old.map, transparent:sheet||pleat, opacity:old.opacity,
+      side:sheet?THREE.DoubleSide:THREE.FrontSide, depthWrite:!sheet&&!pleat });
     // Lambert has no specular lobe, metalness, environment reflection or rim.
     material.onBeforeCompile=shader=>{
       Object.assign(shader.uniforms,uniforms);
@@ -144,7 +147,8 @@ export function prepareKun(root, gobo, light) {
           // Strong top light lifts the ink toward the paper, as it does in the key art.
           vec3 painted=mix(diffuseColor.rgb,vec3(.94,.93,.89),lit*lit*.46*(1.-kunSheet*.8));
           // Pleats read as soft grooves, and the ridge strip melts into the back.
-          painted*=1.-kunPleat*.42;
+          painted*=1.-kunPleat*.16;
+          diffuseColor.a*=1.-kunPleat*.66;
           painted=mix(painted,vec3(.9,.92,.92),kunRidge*.72);
           vec3 fill=mix(kunShadow,kunSky,n.y*.5+.5);
           reflectedLight.directDiffuse=painted*key*(1.-kunSheet*.3);
@@ -170,7 +174,7 @@ export function prepareKun(root, gobo, light) {
         '#include <project_vertex>\nvKunWorld=(modelMatrix*vec4(transformed,1.)).xyz;\nvKunNormal=mat3(modelMatrix)*objectNormal;');
     };
     material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v4-${sheet?1:0}`;
-    mesh.material=material; mesh.renderOrder=sheet?2:0;
+    mesh.material=material; mesh.renderOrder=sheet?2:pleat?1:0;
     // Rest bounds do not include the shader's displacement.
     mesh.frustumCulled=false;
     finCoordinates(mesh);

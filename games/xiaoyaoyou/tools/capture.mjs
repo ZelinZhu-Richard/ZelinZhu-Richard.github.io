@@ -164,6 +164,9 @@ try {
       watch(page);
       await page.goto(`${base}?checkpoint=${id}&seed=1${id==='kun-test'?'&phase=0':''}`, { waitUntil: 'domcontentloaded' });
       await waitReady(page);
+      // A checkpoint is judged at rest: CSS fades finish before the shutter.
+      await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)));
+      if (id === 'north-text') await page.waitForTimeout(1100);
       const screenshot = await page.screenshot({ path: path.join(out, `${id}-${viewport}.png`), scale: 'css' });
       metrics.checkpoints[id][viewport] = await sample(page, screenshot);
       if (id === 'north-start') {
@@ -181,7 +184,7 @@ try {
       if (id === 'north-start') metrics.extra.emptyScene = { fog: inspect.fog, objectCount: inspect.objectCount };
       if (id === 'title') {
         await page.getByRole('button', { name: 'Begin' }).click();
-        await page.waitForFunction(() => window.__GAME_STATE__.beat === 'north' && window.__GAME_STATE__.settled);
+        await page.waitForFunction(() => window.__GAME_STATE__.beat === 'north' && window.__GAME_STATE__.settled && document.querySelector('#title-screen').hidden);
         metrics.extra.begin ??= {};
         metrics.extra.begin[viewport] = await page.evaluate(() => ({
           beat: window.__GAME_STATE__.beat, titleHidden: document.querySelector('#title-screen').hidden,

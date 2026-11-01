@@ -1,10 +1,15 @@
 {
   "lines": [
     {"id":"title","beat":"title","kind":"source","zh":"逍遥游","en":"Free and Easy Wandering","draft":true,"verify":true},
+    {"id":"north-1","beat":"north","kind":"source","zh":"北冥有鱼，其名为鲲。","en":"In the dark sea of the far north lives a fish. It is called Kun.","draft":true,"verify":true},
+    {"id":"north-2","beat":"north","kind":"source","zh":"鲲之大，不知其几千里也。","en":"How vast is Kun? No one can say how many thousand li.","draft":true,"verify":true},
     {"id":"begin","beat":"title","kind":"ui","zh":"启程","en":"Begin","draft":true,"verify":false},
     {"id":"loading","beat":"title","kind":"ui","zh":"正在准备旅程","en":"Preparing the journey","draft":true,"verify":false},
     {"id":"load-error","beat":"title","kind":"ui","zh":"旅程未能载入，请重试。","en":"The journey could not load. Please try again.","draft":true,"verify":false},
+    {"id":"retry","beat":"title","kind":"ui","zh":"重试","en":"Retry","draft":true,"verify":false},
     {"id":"replay","beat":"end","kind":"ui","zh":"再游一次","en":"Replay","draft":true,"verify":false},
-    {"id":"retry","beat":"title","kind":"ui","zh":"重试","en":"Retry","draft":true,"verify":false}
+    {"id":"seal","beat":"end","kind":"ui","zh":"逍遥","en":"Xiaoyao","draft":true,"verify":false},
+    {"id":"translation","beat":"north","kind":"ui","zh":"译文","en":"Translation","draft":true,"verify":false},
+    {"id":"hint","beat":"north","kind":"ui","zh":"按住前行，移动转向","en":"Hold to swim. Move to steer.","draft":true,"verify":false}
   ]
 }

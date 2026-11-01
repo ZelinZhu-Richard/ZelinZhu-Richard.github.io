@@ -8,7 +8,7 @@ export const PILLAR_CENTER = Object.freeze({ x: 0, z: 0, radius: 58, height: 240
 
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
-const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: .1, distance: 3.2, aimAhead: .32, aimLift: .28 });
+const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: .06, distance: 3.3, aimAhead: .3, aimLift: .54 });
 const CAMERA_ART = Object.freeze({ azimuth: .97, elevation: -.12, distance: 2.4, aimAhead: 0, aimLift: -.16 });
 const CAMERA_MIX = Object.freeze({ introHold: 2.4, introEase: 4.4, finaleEase: 5.5, finaleHold: 4 });
 const SPEED = Object.freeze({ held: 1.2, idleFraction: .25, rise: .34, fall: 1 });
@@ -32,7 +32,7 @@ export function createJourney(pillars) {
     Object.assign(j, {
       t: 0, phase: 'intro', phaseT: 0, ended: false, autoplay: false,
       x: 0, y: altitude(1), z: 0, yaw: 0, pitch: 0, roll: 0, speed: 0, heading: 0,
-      scale: 1, targetScale: 1, motes: 0, growth: [], pulse: 0,
+      scale: 1, targetScale: 1, motes: 0, growth: [], moteTimes: [], pulse: 0,
       steerX: 0, steerY: 0, hold: false, steerActive: false,
       mote: { active: false, x: 0, y: 0, z: 0, wait: MOTE.delay, age: 0, fade: 0 },
       cam: { x: 0, y: 0, z: 0, aimX: 0, aimY: 0, aimZ: 0, mix: 0, ready: false },
@@ -160,6 +160,7 @@ export function createJourney(pillars) {
       j.targetScale *= GROWTH.factor;
       j.pulse = 1;
       j.growth.push(j.targetScale);
+      j.moteTimes.push(j.t);
       Object.assign(m, { active: false, wait: MOTE.delay });
       if (j.motes >= GROWTH.motes) { j.phase = 'finale'; j.phaseT = 0; }
       return;

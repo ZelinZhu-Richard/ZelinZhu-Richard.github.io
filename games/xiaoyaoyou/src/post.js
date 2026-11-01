@@ -115,7 +115,8 @@ uniform sampler2D tDepth, tGobo, tMistMap;
 uniform sampler3D tMist;
 uniform mat4 uInverse;
 uniform vec3 uCamera, uLight, uShaft, uMist, uLayers, uHero;
-uniform float uTime, uSurface, uScale, uReach, uShaftGain, uMistGain, uMistTop, uMistBottom;
+uniform vec2 uVanish;
+uniform float uTime, uSurface, uScale, uReach, uShaftGain, uMistGain, uMistTop, uMistBottom, uAspect;
 varying vec2 vUv;
 float ign(vec2 p){return fract(52.9829189*fract(dot(p,vec2(.06711056,.00583715))));}
 vec3 worldAt(vec2 uv,float depth){vec4 w=uInverse*vec4(uv*2.-1.,depth*2.-1.,1.);return w.xyz/w.w;}
@@ -157,7 +158,13 @@ void main(){
   shafts/=float(STEPS);
   // Light scatters forward: shafts brighten as the view turns toward the surface.
   float phase=.42+1.3*pow(max(dot(ray,uLight),0.),2.);
-  vec3 scatter=uShaft*shafts*(reach/uReach)*phase*uShaftGain*22.;
+  // Parallel light converges on one vanishing point, so the fine streaks radiate from it.
+  vec2 fromSun=(vUv-uVanish)*vec2(uAspect,1.);
+  float angle=atan(fromSun.x,-fromSun.y);
+  float streak=texture2D(tGobo,vec2(angle*1.6+uTime*.0035,.31)).a*.6+texture2D(tGobo,vec2(angle*4.7-uTime*.005,.67)).a*.5;
+  // Rays die away with distance from the surface, leaving the depths dark.
+  float fall=max(exp(-max(length(fromSun)-.7,0.)*1.5),.85*smoothstep(.15,1.,vUv.y));
+  vec3 scatter=uShaft*shafts*(reach/uReach)*phase*uShaftGain*22.*(.1+2.2*streak*streak*streak)*fall;
   // Mist hugs the seabed: march only the slab of water it lives in.
   float transmit=1.;
   float t0=0.,t1=min(dist,uReach*2.4);
@@ -301,9 +308,9 @@ export function createPost(renderer, gobo, seedRandom) {
   const volume = pass(volumeFragment, {
     tDepth: { value: depthTexture }, tGobo: { value: gobo }, tMist: { value: mist }, tMistMap: { value: null },
     uInverse: { value: new THREE.Matrix4() }, uCamera: { value: new THREE.Vector3() }, uLight: { value: new THREE.Vector3(0, 1, 0) },
-    uShaft: { value: new THREE.Color('#A9B4AC') }, uMist: { value: new THREE.Color('#7C9199') }, uLayers: { value: new THREE.Vector3(1, 0, 0) }, uHero: { value: new THREE.Vector3(0, 0, 30) },
+    uShaft: { value: new THREE.Color('#A9B4AC') }, uMist: { value: new THREE.Color('#7C9199') }, uLayers: { value: new THREE.Vector3(1, 0, 0) }, uHero: { value: new THREE.Vector3(0, 0, 30) }, uVanish: { value: new THREE.Vector2(.7, 1.6) }, uAspect: { value: 1.6 },
     uTime: { value: 0 }, uSurface: { value: 640 }, uScale: { value: 1 }, uReach: { value: 300 },
-    uShaftGain: { value: .62 }, uMistGain: { value: .012 }, uMistTop: { value: 120 }, uMistBottom: { value: -40 },
+    uShaftGain: { value: .46 }, uMistGain: { value: .012 }, uMistTop: { value: 120 }, uMistBottom: { value: -40 },
   });
   const blur = pass(blurFragment, { tSource: { value: null }, tDepth: { value: depthTexture }, uStep: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() } });
   const downPass = pass(downFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() }, uThreshold: { value: 0 } });
@@ -319,7 +326,7 @@ export function createPost(renderer, gobo, seedRandom) {
     renderer.render(quadScene, quadCamera);
   }
   let width = 4, height = 4;
-  const inverse = new THREE.Matrix4();
+  const inverse = new THREE.Matrix4(), vanish = new THREE.Vector3();
   return {
     uniforms: volume.uniforms, grade: composite.uniforms, sceneTarget,
     setSize(w, h) {
@@ -339,6 +346,9 @@ export function createPost(renderer, gobo, seedRandom) {
       inverse.multiplyMatrices(camera.matrixWorld, camera.projectionMatrixInverse);
       volume.uniforms.uInverse.value.copy(inverse);
       volume.uniforms.uCamera.value.copy(camera.position);
+      vanish.copy(camera.position).addScaledVector(volume.uniforms.uLight.value, 1e4).project(camera);
+      volume.uniforms.uVanish.value.set(vanish.x * .5 + .5, vanish.y * .5 + .5);
+      volume.uniforms.uAspect.value = width / height;
       volume.uniforms.uTime.value = time;
       draw(volume, volumeA);
       const near = camera.near, far = camera.far;
