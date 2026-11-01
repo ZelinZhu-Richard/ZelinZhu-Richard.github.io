@@ -11,7 +11,7 @@ const STEP = 1 / 60;
 // Behind and to one side, looking ahead of Kun, so the heading and the next mote stay in frame.
 const CAMERA_PLAY = Object.freeze({ azimuth: 2.62, elevation: .07, distance: 3.2, aimAhead: 2.3, aimLift: .3 });
 const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.92, aimAhead: 1.1 });
-const CAMERA_ART = Object.freeze({ azimuth: .97, elevation: -.12, distance: 2.4, aimAhead: 0, aimLift: -.16 });
+const CAMERA_ART = Object.freeze({ azimuth: .97, elevation: -.12, distance: 2.02, aimAhead: 0, aimLift: -.16 });
 const CAMERA_MIX = Object.freeze({ introHold: 2.4, introEase: 4.4, finaleEase: 5.5, finaleHold: 4 });
 const SPEED = Object.freeze({ held: 1.2, idleFraction: .25, rise: .34, fall: 1 });
 const TURN = Object.freeze({ yawRate: 1.0, pitchLimit: .55, yawFollow: 5, pitchFollow: 2.2, bank: .5 });
@@ -184,7 +184,7 @@ export function createJourney(pillars) {
     const b = CAMERA_ART;
     const blend = key => a[key] + (b[key] - a[key]) * mix;
     const size = BODY_LENGTH * j.scale;
-    const fit = aspect < 1 ? 1 + (1 - aspect) * 1.9 : 1;
+    const fit = aspect < 1 ? 1 + (1 - aspect) * 2.5 : 1;
     const azimuth = blend('azimuth'), elevation = blend('elevation');
     const distance = blend('distance') * size * fit;
     const c = forward(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth)), elevation);

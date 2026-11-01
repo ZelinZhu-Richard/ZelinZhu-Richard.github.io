@@ -55,7 +55,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round
 .end-card { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; background: var(--paper) url("./assets/paper.webp") center / cover; color: var(--ink); text-align: center; animation: end-in 1800ms ease-in-out; }
 @keyframes end-in { from { opacity: 0; } to { opacity: 1; } }
 .colophon { display: flex; align-items: flex-end; gap: clamp(18px, 2.4vw, 30px); padding-left: clamp(70px, 8.6vw, 112px); }
-.end-card h2 { margin: 0; writing-mode: vertical-rl; font-family: "LXGW WenKai", serif; font-size: clamp(66px, 7.6vw, 104px); font-weight: 400; line-height: 1.1; letter-spacing: .14em; }
+.end-card h2 { margin: 0; writing-mode: vertical-rl; font-family: "LXGW WenKai", serif; font-size: clamp(66px, 7.6vw, 104px); font-weight: 400; line-height: 1.4; letter-spacing: .14em; }
 .seal { width: clamp(52px, 5.8vw, 78px); height: clamp(52px, 5.8vw, 78px); fill: var(--vermilion); stroke: none; }
 .seal-glyph { font-family: "LXGW WenKai", serif; font-size: 42px; fill: #000; stroke: none; }
 .end-subtitle { margin: 30px 0 0; font-size: clamp(21px, 1.9vw, 27px); line-height: 1.4; color: var(--ink); }

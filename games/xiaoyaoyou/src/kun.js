@@ -60,7 +60,7 @@ function finCoordinates(mesh) {
 const DIFFUSE_FILL = [.12, .16, .19];
 const SHEET_TRANSMISSION = .50;
 // Sea look, off in the grey sheet views so they still compare with Blender.
-const LOOK = Object.freeze({ key: [1.62, 1.5, 1.24], shadow: [.055, .095, .125], sky: [.26, .33, .37], rim: [.86, .92, .9],
+const LOOK = Object.freeze({ key: [1.5, 1.39, 1.15], shadow: [.055, .095, .125], sky: [.26, .33, .37], rim: [.86, .92, .9],
   rimPower: 3.2, rimGain: .3, caustic: 2.6, wrap: .62 });
 
 export function prepareKun(root, gobo, light) {
@@ -145,7 +145,7 @@ export function prepareKun(root, gobo, light) {
                         texture2D(kunGobo,q*.73-vec2(kunTime*.008,-kunTime*.012)).g+.2);
           vec3 key=kunKey*lit*(.62+${LOOK.caustic.toFixed(2)}*web*web);
           // Strong top light lifts the ink toward the paper, as it does in the key art.
-          vec3 painted=mix(diffuseColor.rgb,vec3(.94,.93,.89),lit*lit*.46*(1.-kunSheet*.8));
+          vec3 painted=mix(diffuseColor.rgb,vec3(.94,.93,.89),lit*lit*.3*(1.-kunSheet*.8));
           // Pleats read as soft grooves, and the ridge strip melts into the back.
           painted*=1.-kunPleat*.16;
           diffuseColor.a*=1.-kunPleat*.66;

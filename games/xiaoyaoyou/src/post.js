@@ -169,9 +169,9 @@ void main(){
   float transmit=1.;
   float t0=0.,t1=min(dist,uReach*2.4);
   if(abs(ray.y)>1e-4){
-    float a=(uMistTop-uCamera.y)/ray.y,b=(uMistBottom-uCamera.y)/ray.y;
+    float a=(uMistTop*1.5-uCamera.y)/ray.y,b=(uMistBottom-uCamera.y)/ray.y;
     t0=max(t0,min(a,b));t1=min(t1,max(a,b));
-  }else if(uCamera.y>uMistTop)t1=-1.;
+  }else if(uCamera.y>uMistTop*1.5)t1=-1.;
   if(t1>t0){
     const int MIST=10;
     float dm=(t1-t0)/float(MIST);
@@ -180,7 +180,9 @@ void main(){
     float gather=0.;
     for(int i=0;i<MIST;i++){
       vec3 p=uCamera+ray*m;
-      float h=(p.y-uMistBottom)/(uMistTop-uMistBottom);
+      // The ceiling of the mist rolls, so it never reads as a level sheet.
+      float swell=texture(tMist,vec3(p.xz/(560.*sqrt(uScale)),uTime*.004)).r;
+      float h=clamp((p.y-uMistBottom)/(uMistTop*(.35+1.3*swell)-uMistBottom),0.,1.);
       vec3 q=p/(240.*sqrt(uScale));
       q.xz+=vec2(uTime*.012,-uTime*.008);
       float n=texture(tMist,q).r;
@@ -317,7 +319,7 @@ export function createPost(renderer, gobo, seedRandom) {
   const upPass = pass(upFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() } });
   const composite = pass(compositeFragment, {
     tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tBloom: { value: up[0].texture }, tDepth: { value: depthTexture },
-    uBloom: { value: .2 }, uExposure: { value: .92 }, uTime: { value: 0 }, uGrain: { value: .012 }, uResolution: { value: new THREE.Vector2(1, 1) },
+    uBloom: { value: .34 }, uExposure: { value: .92 }, uTime: { value: 0 }, uGrain: { value: .012 }, uResolution: { value: new THREE.Vector2(1, 1) },
     uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() },
   });
   function draw(material, target) {
@@ -365,7 +367,7 @@ export function createPost(renderer, gobo, seedRandom) {
       for (let i = 0; i < LEVELS; i++) {
         downPass.uniforms.tSource.value = source;
         downPass.uniforms.uTexel.value.set(.5 / down[i].width, .5 / down[i].height);
-        downPass.uniforms.uThreshold.value = i === 0 ? 1.3 : 0;
+        downPass.uniforms.uThreshold.value = i === 0 ? 1.05 : 0;
         draw(downPass, down[i]);
         source = down[i].texture;
       }
