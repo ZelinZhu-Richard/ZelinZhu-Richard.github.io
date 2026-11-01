@@ -204,26 +204,28 @@ def boulder(sheet, center, radius, seed):
     sheet.add(points, paints, faces)
 
 
-def pad(sheet, center, radius, seed, thickness, sides=6):
-    """One flat foliage plate: an irregular, slightly drooping slab, never a round cap."""
+def pad(sheet, center, radius, seed, thickness, sides=5):
+    """A needle clump: a low slab whose rim alternates deep and shallow, drooping at
+    each tip, so its outline reads as brushed needles and never as a round cap."""
     rng = random.Random(seed)
     cx, cy, cz = center
-    stretch, turn = rng.uniform(.5, .8), rng.uniform(0, TAU)
-    top, rim = [], []
-    for side in range(sides):
-        angle = side * TAU / sides
-        r = radius * rng.uniform(.6, 1.25)
+    stretch, turn = rng.uniform(.45, .8), rng.uniform(0, TAU)
+    count = sides * 2
+    rim = []
+    for side in range(count):
+        angle = side * TAU / count + rng.uniform(-.14, .14)
+        r = radius * (rng.uniform(.95, 1.4) if side % 2 == 0 else rng.uniform(.38, .68))
         x, y = r * math.cos(angle), r * stretch * math.sin(angle)
-        px, py = x * math.cos(turn) - y * math.sin(turn), x * math.sin(turn) + y * math.cos(turn)
-        rim.append((cx + px, cy + py, cz - thickness * rng.uniform(.2, .7)))
-        top.append((cx + px * .55, cy + py * .55, cz + thickness * rng.uniform(.4, .9)))
-    points = [(cx, cy, cz + thickness)] + top + rim + [(cx, cy, cz - thickness * .8)]
+        rim.append((cx + x * math.cos(turn) - y * math.sin(turn), cy + x * math.sin(turn) + y * math.cos(turn),
+                    cz + thickness * rng.uniform(-.75, .6)))
+    # A lumpy lens, not a cone: a drooping rim seen from below reads as a hat.
+    points = [(cx, cy, cz + thickness * .85)] + rim + [(cx, cy, cz - thickness * .85)]
     last = len(points) - 1
-    faces = [(0, 1 + side, 1 + (side + 1) % sides) for side in range(sides)]
-    for side in range(sides):
-        next_side = (side + 1) % sides
-        faces.append((1 + side, 1 + sides + side, 1 + sides + next_side, 1 + next_side))
-        faces.append((1 + sides + next_side, 1 + sides + side, last))
+    faces = []
+    for side in range(count):
+        next_side = (side + 1) % count
+        faces.append((0, 1 + side, 1 + next_side))
+        faces.append((1 + next_side, 1 + side, last))
     sheet.add(points, [(.5, 1, 1)] * len(points), faces)
 
 
@@ -250,20 +252,22 @@ def limb(sheet, start, end, rise, thick, sides):
 
 
 def pine(sheet, base, size, lean, seed, far=False):
-    """A wind-bent pine: short crooked trunk, level limbs, flat irregular foliage plates."""
+    """A wind-shaped pine: a crooked trunk, limbs reaching mostly one way, and ragged
+    clumps of needles along each limb instead of a single cap on a stalk."""
     rng = random.Random(seed)
     sides, rings = (3, 3) if far else (5, 5)
-    bend = rng.uniform(.3, .8)
-    azimuth = rng.uniform(0, TAU)
+    bend = rng.uniform(.4, .9)
+    wind = rng.uniform(0, TAU)
     def spine(t):
-        sweep = bend * size * .5 * t * t
-        return (base[0] + lean[0] * size * t + sweep * math.cos(azimuth),
-                base[1] + lean[1] * size * t + sweep * math.sin(azimuth), base[2] + size * .78 * t)
+        sweep = bend * size * .55 * t ** 1.6
+        kink = size * .09 * math.sin(t * 5.2 + seed)
+        return (base[0] + lean[0] * size * t + sweep * math.cos(wind) - kink * math.sin(wind),
+                base[1] + lean[1] * size * t + sweep * math.sin(wind) + kink * math.cos(wind), base[2] + size * .8 * t)
     points, faces = [], []
     for ring in range(rings):
         t = ring / (rings - 1)
         cx, cy, cz = spine(t)
-        radius = size * .05 * (1.3 - t) + .2
+        radius = size * .075 * (1.25 - t) + .25
         for side in range(sides):
             angle = side * TAU / sides
             points.append((cx + radius * math.cos(angle), cy + radius * math.sin(angle), cz))
@@ -273,25 +277,30 @@ def pine(sheet, base, size, lean, seed, far=False):
             faces.append((ring * sides + side, ring * sides + next_side,
                           (ring + 1) * sides + next_side, (ring + 1) * sides + side))
     sheet.add(points, [(.8, 1, 1)] * len(points), faces)
-    limbs = 3 if far else rng.randint(4, 5)
+    limbs = 3 if far else rng.randint(3, 4)
     for index in range(limbs):
-        t = .5 + .5 * index / max(1, limbs - 1)
+        t = .3 + .68 * index / max(1, limbs - 1)
         start = spine(t)
-        angle = azimuth + index * 2.4 + rng.uniform(-.5, .5)
-        reach = size * rng.uniform(.34, .62) * (1.15 - .5 * index / limbs)
-        end = (start[0] + reach * math.cos(angle), start[1] + reach * math.sin(angle), start[2] + size * rng.uniform(-.1, .06))
+        downwind = rng.random() < .72
+        angle = wind + rng.gauss(0, .55) if downwind else wind + math.pi + rng.gauss(0, .7)
+        reach = size * rng.uniform(.34, .62) * (1.2 - .6 * t) * (1.25 if downwind else .65)
+        end = (start[0] + reach * math.cos(angle), start[1] + reach * math.sin(angle), start[2] + size * rng.uniform(-.14, .05))
         if not far:
             limb(sheet, start, end, size * .05, size * .028 + .14, 3)
-        for plate in range(1 if far else 2):
-            offset = rng.uniform(0, TAU)
-            pad(sheet, (end[0] + size * .07 * plate * math.cos(offset), end[1] + size * .07 * plate * math.sin(offset), end[2] + plate * size * .05),
-                size * rng.uniform(.22, .36), seed + index * 7 + plate + 1, size * .085, 5 if far else 6)
+        for clump in range(2 if far else rng.randint(6, 7)):
+            # Needles begin close to the trunk, so a limb never reads as a bare bar.
+            along = rng.uniform(.12, 1.1)
+            spread = size * .1
+            pad(sheet, (start[0] + (end[0] - start[0]) * along + rng.uniform(-spread, spread),
+                        start[1] + (end[1] - start[1]) * along + rng.uniform(-spread, spread),
+                        start[2] + (end[2] - start[2]) * along + size * rng.uniform(-.03, .07)),
+                size * rng.uniform(.14, .26) * (1.5 if far else 1), seed + index * 7 + clump + 1, size * .11, 4 if far else 5)
 
 
 def hero_pillar(seed, height, radius, sides, pines):
     rng = random.Random(seed)
     sheet = Sheet()
-    crowns = [column(sheet, seed, height, radius, (0, 0), 30, 32)]
+    crowns = [column(sheet, seed, height, radius, (0, 0), 28, 30)]
     for side in range(sides):
         angle = rng.uniform(0, TAU)
         offset = radius * rng.uniform(.6, 1.0)

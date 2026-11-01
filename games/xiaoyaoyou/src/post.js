@@ -140,7 +140,9 @@ void main(){
   vec3 ray=end-uCamera;
   float dist=length(ray);
   ray/=dist;
-  float reach=min(dist,uReach);
+  // The march ends at the surface, so no screen row suddenly gains all its samples.
+  float surface=ray.y>1e-3?(uSurface-uCamera.y)/ray.y:1e9;
+  float reach=min(min(dist,uReach),surface);
   float jitter=ign(gl_FragCoord.xy);
   const int STEPS=16;
   float shafts=0.;
@@ -152,7 +154,9 @@ void main(){
     if(p.y<uSurface){
       float depthBelow=(uSurface-p.y)/uSurface;
       float b=beams(p);
-      shafts+=b*b*exp(-depthBelow*1.2)*u*2./float(STEPS)*float(STEPS);
+      // Columns fade in below the surface. Seen from afar, a column cut off at the
+      // surface plane would end in a hard straight line.
+      shafts+=b*b*exp(-depthBelow*1.2)*smoothstep(0.,.36,depthBelow)*u*2.;
     }
   }
   shafts/=float(STEPS);
@@ -161,10 +165,19 @@ void main(){
   // Parallel light converges on one vanishing point, so the fine streaks radiate from it.
   vec2 fromSun=(vUv-uVanish)*vec2(uAspect,1.);
   float angle=atan(fromSun.x,-fromSun.y);
-  float streak=texture2D(tGobo,vec2(angle*1.6+uTime*.0035,.31)).a*.6+texture2D(tGobo,vec2(angle*4.7-uTime*.005,.67)).a*.5;
-  // Rays die away with distance from the surface, leaving the depths dark.
-  float fall=max(exp(-max(length(fromSun)-.7,0.)*1.5),.85*smoothstep(.15,1.,vUv.y));
-  vec3 scatter=uShaft*shafts*(reach/uReach)*phase*uShaftGain*22.*(.1+2.2*streak*streak*streak)*fall;
+  // Broad groups, mid-width bands and a little fine strand, each drifting on its own.
+  float groups=texture2D(tGobo,vec2(angle*.62+uTime*.0021,.31)).b;
+  float bands=texture2D(tGobo,vec2(angle*2.1-uTime*.0034,.67)).b;
+  float strands=texture2D(tGobo,vec2(angle*6.3+uTime*.005,.13)).a;
+  float rays=smoothstep(.34,.82,groups*.62+bands*.5)*(.62+.38*strands);
+  // Each ray ends at its own depth below the top of the frame, wherever the camera points.
+  float length_=.42+1.05*texture2D(tGobo,vec2(angle*1.7,.83)).b;
+  float below=max(1.-vUv.y-.08,0.);
+  float fall=exp(-pow(below/length_,2.))*smoothstep(-.1,.45,vUv.y);
+  vec3 scatter=uShaft*shafts*(reach/uReach)*phase*uShaftGain*22.*(.1+3.4*rays)*fall;
+  // One shared bright region near the surface, which the rays visibly leave.
+  vec2 source=(vUv-clamp(uVanish,vec2(.08,0.),vec2(.92,1.06)))*vec2(uAspect,1.);
+  scatter+=uShaft*exp(-dot(source,source)*2.6)*.15*(.7+.5*groups);
   // Mist hugs the seabed: march only the slab of water it lives in.
   float transmit=1.;
   float t0=0.,t1=min(dist,uReach*2.4);
@@ -187,9 +200,11 @@ void main(){
       q.xz+=vec2(uTime*.012,-uTime*.008);
       float n=texture(tMist,q).r;
       float fine=texture(tMist,q*3.1+n*.3).r;
-      // Mist gathers where the pillars stand and thins over the open water.
-      float gather_=texture2D(tMistMap,p.xz/8000.+.5).r;
-      float d=smoothstep(.5,.72,n*.72+fine*.36+(1.-h)*.2)*pow(max(1.-h,0.),1.3)*(.08+.92*gather_);
+      // Mist pools at the pillar feet. Separate banks drift over open water,
+      // and the dark sea stays visible in the gaps between them.
+      float pool=texture2D(tMistMap,p.xz/8000.+.5).r;
+      float bank=smoothstep(.4,.7,texture(tMist,vec3(p.xz/(1500.*sqrt(uScale)),.37)).r);
+      float d=smoothstep(.5,.72,n*.72+fine*.36+(1.-h)*.2)*pow(max(1.-h,0.),1.3)*min(1.,pool+bank*.55);
       float density=d*uMistGain*dm;
       float step_=exp(-density);
       lit+=transmit*(1.-step_)*(.42+1.3*beams(p));
@@ -283,12 +298,12 @@ void main(){
   vec2 q=vUv-.5;
   q.x*=mix(1.,uResolution.x/uResolution.y,.5);
   c*=1.-smoothstep(.34,.98,length(q))*.5;
-  float g=grainAt(gl_FragCoord.xy+floor(uTime*12.)*vec2(37.,17.))-.5;
-  c=max(c+g*uGrain*(.35+.65*(1.-l)),0.);
   gl_FragColor=vec4(c,1.);
   #include <colorspace_fragment>
-  // Dither just above the 8-bit step, so the dark water never bands.
-  gl_FragColor.rgb+=(grainAt(gl_FragCoord.yx*1.7)-.5)/255.;
+  // Grain and dither sit in display space. In linear light the sRGB curve multiplies
+  // them about 13 times in the darks, most of all in the red channel.
+  float g=grainAt(gl_FragCoord.xy+floor(uTime*12.)*vec2(37.,17.))-.5;
+  gl_FragColor.rgb+=g*uGrain*(1.-l*.6)+(grainAt(gl_FragCoord.yx*1.7)-.5)/255.;
 }`;
 
 export function createPost(renderer, gobo, seedRandom) {
@@ -310,7 +325,7 @@ export function createPost(renderer, gobo, seedRandom) {
   const volume = pass(volumeFragment, {
     tDepth: { value: depthTexture }, tGobo: { value: gobo }, tMist: { value: mist }, tMistMap: { value: null },
     uInverse: { value: new THREE.Matrix4() }, uCamera: { value: new THREE.Vector3() }, uLight: { value: new THREE.Vector3(0, 1, 0) },
-    uShaft: { value: new THREE.Color('#A9B4AC') }, uMist: { value: new THREE.Color('#7C9199') }, uLayers: { value: new THREE.Vector3(1, 0, 0) }, uHero: { value: new THREE.Vector3(0, 0, 30) }, uVanish: { value: new THREE.Vector2(.7, 1.6) }, uAspect: { value: 1.6 },
+    uShaft: { value: new THREE.Color('#A9B4AC') }, uMist: { value: new THREE.Color('#71868E') }, uLayers: { value: new THREE.Vector3(1, 0, 0) }, uHero: { value: new THREE.Vector3(0, 0, 30) }, uVanish: { value: new THREE.Vector2(.7, 1.6) }, uAspect: { value: 1.6 },
     uTime: { value: 0 }, uSurface: { value: 640 }, uScale: { value: 1 }, uReach: { value: 300 },
     uShaftGain: { value: .46 }, uMistGain: { value: .012 }, uMistTop: { value: 120 }, uMistBottom: { value: -40 },
   });
@@ -319,7 +334,7 @@ export function createPost(renderer, gobo, seedRandom) {
   const upPass = pass(upFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() } });
   const composite = pass(compositeFragment, {
     tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tBloom: { value: up[0].texture }, tDepth: { value: depthTexture },
-    uBloom: { value: .34 }, uExposure: { value: .92 }, uTime: { value: 0 }, uGrain: { value: .012 }, uResolution: { value: new THREE.Vector2(1, 1) },
+    uBloom: { value: .34 }, uExposure: { value: .92 }, uTime: { value: 0 }, uGrain: { value: .006 }, uResolution: { value: new THREE.Vector2(1, 1) },
     uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() },
   });
   function draw(material, target) {

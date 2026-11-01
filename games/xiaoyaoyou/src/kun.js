@@ -112,7 +112,7 @@ export function prepareKun(root, gobo, light) {
       shader.uniforms.kunDiffuseFill={value:new THREE.Vector3(...DIFFUSE_FILL)};
       shader.uniforms.kunTransmission={value:sheet?SHEET_TRANSMISSION:0};
       shader.uniforms.kunSheet={value:sheet?1:0};
-      shader.uniforms.kunPleat={value:old.name==='kun_pleat'?1:0};
+      shader.uniforms.kunPleat={value:mesh.name.startsWith('kun_throat_pleat')?1:mesh.name.startsWith('kun_mouth')?.45:0};
       shader.uniforms.kunRidge={value:mesh.name==='kun_dorsal_ridge'?1:0};
       shader.fragmentShader=`uniform vec3 kunDiffuseFill,kunLight,kunKey,kunShadow,kunSky,kunRim;
         uniform float kunTransmission,kunLook,kunTime,kunSize,kunSheet,kunPleat,kunRidge;
@@ -130,6 +130,8 @@ export function prepareKun(root, gobo, light) {
           reflectedLight.directDiffuse += diffuseColor.rgb * directionalLights[0].color *
             (RECIPROCAL_PI * kunTransmission * (1.0-diffuseColor.a) * backLight);
         #endif
+        // Pleats are about a pixel wide: they read as folds in the throat, in any view.
+        diffuseColor.a*=1.-kunPleat*.72;
         if(kunLook>.5){
           // Soft wrapped top light, dappled by the same caustics that fall on the rocks.
           vec3 n=normalize(vKunNormal);
@@ -147,16 +149,14 @@ export function prepareKun(root, gobo, light) {
           // Strong top light lifts the ink toward the paper, as it does in the key art.
           vec3 painted=mix(diffuseColor.rgb,vec3(.94,.93,.89),lit*lit*.3*(1.-kunSheet*.8));
           // Pleats read as soft grooves, and the ridge strip melts into the back.
-          painted*=1.-kunPleat*.16;
-          diffuseColor.a*=1.-kunPleat*.66;
           painted=mix(painted,vec3(.9,.92,.92),kunRidge*.72);
           vec3 fill=mix(kunShadow,kunSky,n.y*.5+.5);
-          reflectedLight.directDiffuse=painted*key*(1.-kunSheet*.3);
+          reflectedLight.directDiffuse=painted*key*(1.-kunSheet*.3)*(1.-kunPleat);
           reflectedLight.indirectDiffuse=painted*fill;
           // A cream edge where the surface turns away; never a hard line.
           float facing=clamp(dot(n,toEye),0.,1.);
           float rim=pow(1.-facing,${LOOK.rimPower.toFixed(2)})*smoothstep(-.35,.75,n.y);
-          totalEmissiveRadiance+=kunRim*rim*${LOOK.rimGain.toFixed(2)}*(1.-kunSheet*.55);
+          totalEmissiveRadiance+=kunRim*rim*${LOOK.rimGain.toFixed(2)}*(1.-kunSheet*.55)*(1.-kunPleat);
           if(kunSheet>.5){
             // Thin sheets glow where light passes through them; dense ink stays dark.
             float paper=clamp((1.-diffuseColor.a)/.62,0.,1.);

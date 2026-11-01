@@ -184,7 +184,7 @@ export function createJourney(pillars) {
     const b = CAMERA_ART;
     const blend = key => a[key] + (b[key] - a[key]) * mix;
     const size = BODY_LENGTH * j.scale;
-    const fit = aspect < 1 ? 1 + (1 - aspect) * 2.5 : 1;
+    const fit = aspect < 1 ? 1 + (1 - aspect) * (1.15 + 1.35 * mix) : 1;
     const azimuth = blend('azimuth'), elevation = blend('elevation');
     const distance = blend('distance') * size * fit;
     const c = forward(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth)), elevation);

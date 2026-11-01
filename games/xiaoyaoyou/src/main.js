@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { prepareAssets } from './assets.js';
 import { prepareKun } from './kun.js';
-import { createWorld, mulberry, FOG_DENSITY } from './world.js';
+import { createWorld, mulberry, FOG_DENSITY, fogDensity } from './world.js';
 import { createJourney, GROWTH, WORLD } from './journey.js';
 import { createPost, createGobo } from './post.js';
 
@@ -202,7 +202,7 @@ export async function createRuntime(text, onProgress) {
     kun.update(state.gameMs, config.phase, state.beat === 'title' || (sheet && config.phase === null), !(sheet && state.beat === 'test'), sized);
     if (state.beat === 'north' || state.beat === 'end') {
       poseKun();
-      scene.fog.density = FOG_DENSITY / Math.pow(journey.j.scale, .92);
+      scene.fog.density = fogDensity(journey.j.scale);
       world.update(camera, state.gameMs, journey.j.scale);
       world.showMote(journey.j.mote, journey.j.scale, state.gameMs);
     } else if (state.beat === 'test') world.update(camera, state.gameMs, 1);

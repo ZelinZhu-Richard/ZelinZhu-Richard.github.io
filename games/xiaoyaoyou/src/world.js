@@ -18,6 +18,8 @@ export function mulberry(seed) {
 }
 
 export const FOG_DENSITY = .00165;
+// Slower than Kun's growth, so distant pillars still fade once the sea looks small.
+export const fogDensity = scale => FOG_DENSITY / Math.pow(scale, .6);
 
 const noiseGLSL = `
 float hash21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
@@ -62,7 +64,7 @@ function rockMaterial(shared, instanced) {
         gl_Position=projectionMatrix*viewMatrix*world;
       }`,
     fragmentShader: `
-      uniform vec3 uDeep, uHaze, uLight, uCamera, uKey, uAmbient;
+      uniform vec3 uAbyss, uDeep, uHaze, uLight, uCamera, uKey, uAmbient;
       uniform float uDensity, uTime, uViewScale;
       uniform sampler2D tGobo, tRock;
       varying vec3 vWorld, vNormal, vPaint;
@@ -75,7 +77,7 @@ function rockMaterial(shared, instanced) {
         vec3 cliff=texture2D(tRock,vec2(vWorld.z,vWorld.y)/170.).rgb*facing.x+texture2D(tRock,vec2(vWorld.x,vWorld.y)/170.).rgb*facing.y;
         vec3 albedo=cliff*(1.-.55*vPaint.r);
         #ifdef SEA_FLOOR
-          albedo*=.34;
+          albedo*=.85;
         #endif
         albedo=mix(albedo,vec3(.0075,.0105,.012),vPaint.g*.94);
         vec2 q=vWorld.xz+uLight.xz*(640.-vWorld.y)/uLight.y;
@@ -89,8 +91,13 @@ function rockMaterial(shared, instanced) {
         c+=uHaze*.05*pow(1.-max(dot(n,toEye),0.),3.)*(1.-vPaint.g);
         float dist=length(vWorld-uCamera);
         float f=1.-exp(-pow(dist*uDensity,2.));
-        // Fog fades to the same water colour the dome holds at the horizon.
-        c=mix(c,uDeep*.86+uHaze*.13,f);
+        #ifdef SEA_FLOOR
+          // The seabed falls to near black, meeting the dome only at the horizon.
+          c=mix(c,mix(uAbyss*2.2,uDeep*.86+uHaze*.13,smoothstep(.3,.95,f)),f);
+        #else
+          // Pillars dissolve into the water with distance, paling only toward their feet.
+          c=mix(c,mix(uDeep*.86+uHaze*.13,uDeep*.9+uHaze*.22,exp(-max(vWorld.y,0.)/(38.*uViewScale))),f);
+        #endif
         gl_FragColor=vec4(c,0.);
         #include <colorspace_fragment>
       }`,
@@ -150,7 +157,7 @@ function placements() {
     if (openLane || !separated(x, z, hero, 170)) continue;
     hero.push({ kind: hero.length % 8, x, z, rotation: random() * 6.28, scale: .72 + random() * .5 });
   }
-  for (let tries = 0; far.length < 150 && tries < 12000; tries++) {
+  for (let tries = 0; far.length < 124 && tries < 12000; tries++) {
     const radius = 420 + Math.pow(random(), .7) * 3000, angle = random() * Math.PI * 2;
     const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
     const cluster = Math.sin(x * .0041 + 1.3) * Math.cos(z * .0037 - .4) + .25 * Math.sin(x * .013 + z * .011);
@@ -186,14 +193,15 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   const mistSize = 256, mistData = new Uint8Array(mistSize * mistSize);
   const mistField = new Float32Array(mistSize * mistSize);
   for (const item of [...layout.hero, ...layout.far]) {
-    const cx = (item.x / 8000 + .5) * mistSize, cy = (item.z / 8000 + .5) * mistSize, radius = 3.2 + 3.6 * item.scale;
+    const cx = (item.x / 8000 + .5) * mistSize, cy = (item.z / 8000 + .5) * mistSize, radius = 1.5 + 1.5 * item.scale;
     for (let y = Math.max(0, Math.floor(cy - radius * 2.5)); y < Math.min(mistSize, cy + radius * 2.5); y++) {
       for (let x = Math.max(0, Math.floor(cx - radius * 2.5)); x < Math.min(mistSize, cx + radius * 2.5); x++) {
-        mistField[y * mistSize + x] += Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (radius * radius));
+        // The strongest pool wins, so a dense stand of pillars never merges into one sheet.
+        mistField[y * mistSize + x] = Math.max(mistField[y * mistSize + x], Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (radius * radius)));
       }
     }
   }
-  for (let i = 0; i < mistData.length; i++) mistData[i] = Math.round(255 * Math.min(1, mistField[i] * .95));
+  for (let i = 0; i < mistData.length; i++) mistData[i] = Math.round(255 * mistField[i]);
   const mistMap = new THREE.DataTexture(mistData, mistSize, mistSize, THREE.RedFormat, THREE.UnsignedByteType);
   mistMap.minFilter = mistMap.magFilter = THREE.LinearFilter;
   mistMap.needsUpdate = true;
@@ -325,7 +333,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       heroLight.set(-look.x * .34 + look.z * .16, 1, -look.z * .34 - look.x * .16).normalize();
       shared.uCamera.value.copy(camera.position);
       shared.uTime.value = gameMs / 1000;
-      shared.uDensity.value = FOG_DENSITY / Math.pow(scale, .92);
+      shared.uDensity.value = fogDensity(scale);
       shared.uViewScale.value = Math.pow(scale, .8);
       speckMaterial.uniforms.uBox.value = 170 * Math.pow(scale, .9);
       speckMaterial.uniforms.uPixel.value = Math.min(window.devicePixelRatio || 1, 2);
