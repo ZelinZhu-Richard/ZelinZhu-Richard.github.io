@@ -477,3 +477,25 @@ Sweep rows used the current dihedral and lower-scale factor. The first attempt a
 - The deferred AI upscale is done. The pectoral crop was only 103×260 reference pixels stretched to 811×2048. `blender/paint/pectoral-up.png` and `fluke-up.png` are generated upscales of those exact crops, on the same UVs. The embossed contour pattern Codex called scratches came from the wave high-pass layer on the soft crop, so that layer is now off. Rays stay at Richard's 0.0475.
 - The dark dorsal band came from a 22% ink tint in the spine wash; the wash now stays near paper. The ridge strip is lifted in the shader, and pleats read as soft grooves. Grey sheet views are unchanged so they still compare with Blender.
 - `assets/rock.webp` (283 KB) is a generated tileable ink-wash cliff texture. Prompts are in MORNING.md.
+
+### Codex M3 round 2: PASS (2026-11-01, commit 32efe2b)
+
+All four criteria PASS. Codex reported IoU as side 0.6348 and top 0.6474 against the waived 0.691 and 0.719, and stated that only Richard can waive them. It also caught `metrics.extra.iou.waivedViews` still claiming a waiver on those views; `capture.mjs` now records the M1 numbers and says the lower ones are unwaived.
+
+### M4 build notes
+
+- `src/post.js` is a new pipeline: 4× MSAA HDR scene, half-resolution volumetric march (16 light steps, 10 mist steps) with a depth-aware blur and bilateral upsample, bloom over five levels, a filmic curve, a cool shadow grade, grain and dither. Every pass goes through `renderer.info`, so the draw-call gate counts it all.
+- Shafts come from a gobo extruded along the light. Fine streaks are keyed to the light's screen-space vanishing point so they converge the way parallel light does in the key art, and one broad shaft always stands over Kun.
+- Mist is a 3D noise slab near the seabed, gathered around pillars by a generated proximity map, with a rolling ceiling.
+- Kun keeps Lambert with no specular term. The sea look adds wrapped top light, caustic dapple, a cream rim, and thin-sheet transmission scaled by paper coverage. Grey sheet views skip all of it, so `?view=side|top|front` still compares with Blender.
+- `capture.mjs` waits for CSS fades before each checkpoint screenshot. It also compares the real Begin and the direct checkpoint by mean pixel difference, because grain and shaft drift rule out byte equality. The threshold is 10/255, set by me. It measured 8.6 on desktop, up from 0.13 in the plain M3 scene, which is close enough to the limit that it should be read as a loose check.
+
+Frame rate, measured on the real GPU (Apple M4 Pro) in headless Chromium at three journey points: 57 to 60 fps at 1440×900 DPR 1, and 60 fps at DPR 2, p95 about 18 ms. The PLAN's manual 60 fps check on Richard's own display is still his to do.
+
+### M5 build notes
+
+- Title: `ref/key-north-sea.png` full-bleed behind the title with a soft vignette, shipped as `assets/title.webp` (148 KB). `ref/` itself is untouched and nothing ships from it. A real Begin dissolves the painting into the live sea; direct checkpoints land instantly.
+- Source lines live in `text.json` exactly as in the passages block, all `draft: true` and `verify: true`. `north-1` shows on entering the sea, `north-2` after mote 4. English drafts are my own.
+- Replay resets `motes` to 0 and `kunScale` to 1 without a reload.
+- End card: vertical title, paper colored seal reading 逍遥 cut from a vermilion block, on a generated xuan paper texture.
+- `index.html` now carries real metadata, written to match `tools/verify.mjs`: canonical, Open Graph, description. `og:image` points at `making-of/img/og.jpg`, which exists only if the stretch page is built; this is flagged in MORNING.md if it is not.
