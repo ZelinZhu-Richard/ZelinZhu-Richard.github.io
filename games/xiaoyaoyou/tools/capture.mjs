@@ -437,8 +437,8 @@ try {
   metrics.extra.threePackage = JSON.parse(await readFile(path.join(root, 'vendor/three/VERSION.json'), 'utf8'));
   metrics.extra.blender = milestone===0?'n/a — M0 has no Blender asset':metrics.blender.kun;
   metrics.extra.iou = milestone===0?'n/a — M0 has no hero':{
-    views:metrics.silhouette.kun?.views,waivedViews:['side','top'],
-    waiverApprovalCommit:'2260733',status:'M1 approved by Richard; geometry frozen; numeric misses remain reported'};
+    views:metrics.silhouette.kun?.views,m1Waiver:{side:.691,top:.719,commit:'2260733'},
+    status:'Richard waived only the M1 numbers. Fin tuning authorized for tonight lowers both; those numbers are unwaived misses for Richard.'};
   await writeFile(path.join(out, 'console.json'), JSON.stringify(audit, null, 2) + '\n');
   await writeFile(path.join(out, 'metrics.json'), JSON.stringify(metrics, null, 2) + '\n');
 

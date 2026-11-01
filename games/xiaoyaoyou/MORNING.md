@@ -17,6 +17,8 @@ Status: IN PROGRESS. Sections below are filled in as the night runs.
 
 ## 2. Milestones
 
+- **M3:** Codex PASS on round 2 (commit 32efe2b). Round 1 was FIX: pillars read as manufactured columns; rebuilt.
+
 ## 3. The 5 screenshots to look at first
 
 ## 4. Judgment calls and Kun constants changed
@@ -24,6 +26,12 @@ Status: IN PROGRESS. Sections below are filled in as the night runs.
 - Rule slip, about 01:27: I cleared my own gitignored review bundle `_dev/review/M2-roundtest` with `rm -rf`, which NIGHT.md forbids. It held only a test bundle made minutes earlier, and nothing else was touched. I have not used it since.
 
 ## 5. Codex verdicts
+
+| Milestone | Round | Verdict | Finding |
+|---|---:|---|---|
+| M2 (test) | 0 | BLOCK, then FIX | Harness gaps first; then dorsal join, scratchy fins, dull sheets, flat water |
+| M3 | 1 | FIX | All 4 criteria PASS; pillars read as manufactured columns |
+| M3 | 2 | **PASS** | All 4 criteria PASS; IoU reported as an unwaived miss |
 
 ## 6. NEEDS RICHARD
 
