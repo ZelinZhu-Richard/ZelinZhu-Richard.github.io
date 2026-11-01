@@ -429,3 +429,51 @@ Refreshed and inspected `_dev/silhouette/kun-side.png`, `kun-top.png`, `kun-fron
 Live swim URL: `http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=kun-test&seed=1`.
 Rear camera: `http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=kun-test&seed=1&view=rear`.
 The prescribed server is running; iab remains unavailable, so screenshots use the authorized headless Chromium harness. No personal browser control, no files outside the game changed, ref untouched, nothing pushed. Stop and wait for Richard's review; do not tick M2 or start M3.
+
+## Overnight run begins (2026-11-01 01:21 EST; Claude Code builds, Codex reviews)
+
+Builder handed from Codex to Claude Code per NIGHT.md. M2 stays unticked; NIGHT.md directs M3 onward regardless. No boxes are ticked tonight; status lives here and in MORNING.md.
+
+Phase 1 results are in MORNING.md. Reviewer loop works (`tools/codex_review.sh`, `gpt-6.1-sol`, read-only, evidence-only bundle). Codex image generation works. Headless Chromium reaches the Apple GPU with `--use-angle=metal`, so `capture.mjs` now prefers that and records it; SwiftShader stays the fallback.
+
+### M3 build notes
+
+- `src/journey.js`: the whole journey is a pure fixed-step simulation with no three.js or DOM. `north-play`, `north-full` and `end-card` replay the real path with the pilot rather than stage a pose, so a checkpoint cannot show anything autoplay does not reach. `north-start` is the true first frames.
+- Camera: the opening and the finale use the key-art framing (front three-quarter from slightly below, head to the right); play uses the behind camera (azimuth 132°). Same rig, eased between them. `north-play` is the extra checkpoint for judging the real gameplay camera.
+- Motes spawn on a slow outward spiral around `ref-pillar-1`, which is why it stays in frame at both ends. A lost mote dims and returns ahead.
+- `capture.mjs`: `matchesCheckpoint` was a byte-for-byte compare from the empty M0 scene. The sea is alive now, so it compares mean pixel difference at the same journey state (< 10/255; measured about 0.13).
+- Scale gates are checked on narrow as well as desktop, though PLAN only names desktop screenshots.
+
+### Codex M3 round 1: FIX (2026-11-01, commit 37a2401)
+
+All four criteria PASS. One critical art finding: pillars read as manufactured columns with level collars and rectangular plinths. Agreed. Rebuilt `column()` with tilted bedding planes, ledges that wrap only part of the way round, fissures that open upward, broken crowns and slumped rubble feet; pines rebuilt as bent trunks with level limbs and flat irregular plates.
+
+### Kun fin constants (authorized by NIGHT.md; each change logged)
+
+| Constant | Was | Now |
+|---|---:|---:|
+| PECTORAL_FIN_SCALE | 1.35 | 1.7 |
+| LOWER_FIN_SCALE factor | 0.80 | 0.85 |
+| UPPER_FIN_SWEEP_DEGREES | 55 | 66 |
+| LOWER_FIN_SWEEP_DEGREES | 55 | 62 |
+| UPPER_FIN_DIHEDRAL_DEGREES | 20 | 16 |
+| LOWER_FIN_DIHEDRAL_DEGREES | -30 | -26 |
+
+The validator gained `--fin-constants`: only the four `kun_fin_*` meshes changed; body, fluke, ridge, mouth, eyes and pleats are identical, all UVs are identical, the swim shader is identical, fin UVs and local coordinates stay invariant across scales. Twist, camber, fin roots and the fluke are untouched.
+
+**This lowers IoU below the numbers Richard waived.** His M1 waiver names side 0.691 and top 0.719. These are new misses only he can clear:
+
+| Scale | Sweep upper/lower | Side IoU | Top IoU |
+|---:|---:|---:|---:|
+| 1.35 | 55/55 | 0.6913 | 0.7209 |
+| 1.5 | 60/58 | 0.6711 | 0.6961 |
+| 1.6 | 64/60 | 0.6449 | 0.6746 |
+| 1.7 (current) | 66/62 | 0.6348 | 0.6474 |
+
+Sweep rows used the current dihedral and lower-scale factor. The first attempt at this table was discarded: a shell quoting mistake wrote invalid constants, Blender failed, and the compare step re-read stale renders. The table above comes from a rerun that checks both exit codes.
+
+### Texture changes
+
+- The deferred AI upscale is done. The pectoral crop was only 103×260 reference pixels stretched to 811×2048. `blender/paint/pectoral-up.png` and `fluke-up.png` are generated upscales of those exact crops, on the same UVs. The embossed contour pattern Codex called scratches came from the wave high-pass layer on the soft crop, so that layer is now off. Rays stay at Richard's 0.0475.
+- The dark dorsal band came from a 22% ink tint in the spine wash; the wash now stays near paper. The ridge strip is lifted in the shader, and pleats read as soft grooves. Grey sheet views are unchanged so they still compare with Blender.
+- `assets/rock.webp` (283 KB) is a generated tileable ink-wash cliff texture. Prompts are in MORNING.md.
