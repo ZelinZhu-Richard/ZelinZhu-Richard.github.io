@@ -85,6 +85,7 @@ export async function createRuntime(text, onProgress) {
       state.gameMs = ++steps * 1000 / 60;
     }
     j.autoplay = wasAutoplay;
+    Object.assign(j, { hold: false, steerX: 0, steerY: 0 });
     syncState();
   }
   function jump(id) {
