@@ -27,6 +27,8 @@ Your working directory is a review bundle. It holds everything you are allowed t
 
 `PLAN.md` Decisions (Richard's own words, dated) supersede older text in `REVIEW_RUBRIC.md` where they conflict. Examples: the side and top IoU misses for Kun are waived by Richard and must be reported, not failed; the front view is by-eye only; the belly carries a 40% wash on its pleats rather than plain cream. A criterion in the `{{MILESTONE}}` section of `PLAN.md` is never relaxed by you.
 
+`REVIEW_RUBRIC.md` §3 says a Wrong item fails "the milestone that owns it". Ownership follows the `PLAN.md` milestones: M3 owns gameplay, controls, pacing, scale, pillar and pine shapes, and the raw slice; M4 owns light, fog, depth, mist, shafts, Kun's shading and the match to the key art's atmosphere; M5 owns text, fonts, title polish and the end card. Do not fail a milestone for work a later milestone owns. Report such gaps in `notes`. An earlier milestone's criteria still count as regressions.
+
 Ignore process items that depend on Richard being present. Unticked checkboxes for earlier milestones, "show and wait" steps, and the "needs ticked" prerequisite table do not apply: tonight the owner authorised working past them. Boxes are ticked only by Richard, so an unticked box is correct and not a finding.
 
 ## How to review
