@@ -142,21 +142,22 @@ void main(){
   float reach=min(dist,uReach);
   float jitter=ign(gl_FragCoord.xy);
   const int STEPS=16;
-  float ds=reach/float(STEPS);
   float shafts=0.;
-  float t=ds*jitter;
   for(int i=0;i<STEPS;i++){
+    // Samples crowd toward the camera, where a beam spans the most screen.
+    float u=(float(i)+jitter)/float(STEPS);
+    float t=reach*u*u;
     vec3 p=uCamera+ray*t;
     if(p.y<uSurface){
       float depthBelow=(uSurface-p.y)/uSurface;
       float b=beams(p);
-      shafts+=b*b*exp(-depthBelow*1.2);
+      shafts+=b*b*exp(-depthBelow*1.2)*u*2./float(STEPS)*float(STEPS);
     }
-    t+=ds;
   }
+  shafts/=float(STEPS);
   // Light scatters forward: shafts brighten as the view turns toward the surface.
   float phase=.42+1.3*pow(max(dot(ray,uLight),0.),2.);
-  vec3 scatter=uShaft*shafts*(reach/uReach)*phase*uShaftGain;
+  vec3 scatter=uShaft*shafts*(reach/uReach)*phase*uShaftGain*22.;
   // Mist hugs the seabed: march only the slab of water it lives in.
   float transmit=1.;
   float t0=0.,t1=min(dist,uReach*2.4);
@@ -269,7 +270,7 @@ void main(){
   c=mix(c,c*c*(3.-2.*c),.42);
   // Cool the shadows only, leaving Kun's paper whites alone.
   float l=dot(c,vec3(.2126,.7152,.0722));
-  c=mix(c,c*vec3(.84,.97,1.1),(1.-smoothstep(.0,.42,l))*.7);
+  c=mix(c,c*vec3(.9,.985,1.03),(1.-smoothstep(.0,.42,l))*.7);
   vec2 q=vUv-.5;
   q.x*=mix(1.,uResolution.x/uResolution.y,.5);
   c*=1.-smoothstep(.34,.98,length(q))*.5;

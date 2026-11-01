@@ -3,13 +3,13 @@
 
 export const BODY_LENGTH = 10.4;
 export const GROWTH = Object.freeze({ motes: 7, factor: 1.43 });
-export const WORLD = Object.freeze({ surface: 640, arena: 2500 });
+export const WORLD = Object.freeze({ surface: 640, arena: 3000 });
 export const PILLAR_CENTER = Object.freeze({ x: 0, z: 0, radius: 58, height: 240 });
 
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
-const CAMERA_PLAY = Object.freeze({ azimuth: 2.36, elevation: .2, distance: 3.1, aimAhead: .42, aimLift: .1 });
-const CAMERA_ART = Object.freeze({ azimuth: .97, elevation: -.12, distance: 2.72, aimAhead: 0, aimLift: -.34 });
+const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: .1, distance: 3.2, aimAhead: .32, aimLift: .28 });
+const CAMERA_ART = Object.freeze({ azimuth: .97, elevation: -.12, distance: 2.4, aimAhead: 0, aimLift: -.16 });
 const CAMERA_MIX = Object.freeze({ introHold: 2.4, introEase: 4.4, finaleEase: 5.5, finaleHold: 4 });
 const SPEED = Object.freeze({ held: 1.2, idleFraction: .25, rise: .34, fall: 1 });
 const TURN = Object.freeze({ yawRate: 1.0, pitchLimit: .55, yawFollow: 5, pitchFollow: 2.2, bank: .5 });
@@ -40,7 +40,7 @@ export function createJourney(pillars) {
     });
     // Start on the near side of the first pillar, so it stands behind Kun in the opening shot.
     j.offset = openingOffset(aspect);
-    const bearing = ART_BEARING + j.offset, radius = 545;
+    const bearing = ART_BEARING + j.offset, radius = 640;
     j.x = PILLAR_CENTER.x + Math.sin(bearing) * radius;
     j.z = PILLAR_CENTER.z + Math.cos(bearing) * radius;
     j.yaw = j.heading = 0;
@@ -57,7 +57,7 @@ export function createJourney(pillars) {
     const scale = j.targetScale;
     const speed = SPEED.held * BODY_LENGTH * Math.pow(scale, .96);
     const distance = speed * MOTE.spawnSeconds;
-    const radius = 530 + (scale - 1) * 165;
+    const radius = 620 + (scale - 1) * 188;
     const bearing = Math.atan2(j.x - PILLAR_CENTER.x, j.z - PILLAR_CENTER.z);
     const a = bearing + distance / Math.max(radius, radial() + 1);
     const ox = PILLAR_CENTER.x + Math.sin(a) * radius, oz = PILLAR_CENTER.z + Math.cos(a) * radius;

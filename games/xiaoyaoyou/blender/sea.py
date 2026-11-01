@@ -26,8 +26,8 @@ TAU = math.tau
 # towers at the start and as a low stone forest once Kun has grown twelvefold.
 HERO_PILLARS = [
     # seed, height, base radius, side columns, pines
-    (11, 210, 30, 3, 11), (23, 248, 26, 2, 9), (37, 176, 34, 4, 12), (41, 232, 22, 2, 8),
-    (53, 150, 28, 3, 10), (67, 262, 30, 3, 10), (71, 190, 24, 1, 7), (83, 136, 32, 3, 9),
+    (11, 210, 30, 3, 6), (23, 248, 26, 2, 5), (37, 176, 34, 4, 6), (41, 232, 22, 2, 4),
+    (53, 150, 28, 3, 5), (67, 262, 30, 3, 5), (71, 190, 24, 1, 4), (83, 136, 32, 3, 5),
 ]
 FAR_PILLARS = [(101, 200, 28), (113, 250, 24), (127, 160, 34), (131, 220, 20), (149, 130, 30)]
 FLOOR_SIZE, FLOOR_CELLS = 9000, 72
@@ -204,18 +204,20 @@ def boulder(sheet, center, radius, seed):
     sheet.add(points, paints, faces)
 
 
-def pad(sheet, center, radius, seed, thickness):
-    """One flat cloud-pine foliage pad, ragged at the rim and heavy underneath."""
+def pad(sheet, center, radius, seed, thickness, sides=6):
+    """One flat foliage plate: an irregular, slightly drooping slab, never a round cap."""
     rng = random.Random(seed)
-    sides = 8
     cx, cy, cz = center
-    points = [(cx, cy, cz + thickness)]
-    for ring, scale, drop in [(1, .58, thickness * .55), (2, 1, -thickness * .1)]:
-        for side in range(sides):
-            angle = side * TAU / sides + ring * .4
-            r = radius * scale * rng.uniform(.74, 1.24)
-            points.append((cx + r * math.cos(angle), cy + r * .86 * math.sin(angle), cz + drop + rng.uniform(-.14, .14) * thickness))
-    points.append((cx, cy, cz - thickness * .55))
+    stretch, turn = rng.uniform(.5, .8), rng.uniform(0, TAU)
+    top, rim = [], []
+    for side in range(sides):
+        angle = side * TAU / sides
+        r = radius * rng.uniform(.6, 1.25)
+        x, y = r * math.cos(angle), r * stretch * math.sin(angle)
+        px, py = x * math.cos(turn) - y * math.sin(turn), x * math.sin(turn) + y * math.cos(turn)
+        rim.append((cx + px, cy + py, cz - thickness * rng.uniform(.2, .7)))
+        top.append((cx + px * .55, cy + py * .55, cz + thickness * rng.uniform(.4, .9)))
+    points = [(cx, cy, cz + thickness)] + top + rim + [(cx, cy, cz - thickness * .8)]
     last = len(points) - 1
     faces = [(0, 1 + side, 1 + (side + 1) % sides) for side in range(sides)]
     for side in range(sides):
@@ -225,21 +227,43 @@ def pad(sheet, center, radius, seed, thickness):
     sheet.add(points, [(.5, 1, 1)] * len(points), faces)
 
 
-def pine(sheet, base, size, lean, seed):
-    """A bent trunk with limbs carrying flat foliage pads, as in the key art."""
+def limb(sheet, start, end, rise, thick, sides):
+    """A bent tube from trunk to foliage, rising then drooping like a Huangshan pine."""
+    rings = 3
+    points = []
+    for ring in range(rings):
+        t = ring / (rings - 1)
+        x = start[0] + (end[0] - start[0]) * t
+        y = start[1] + (end[1] - start[1]) * t
+        z = start[2] + (end[2] - start[2]) * t + rise * math.sin(t * math.pi)
+        r = thick * (1 - .7 * t)
+        for side in range(sides):
+            angle = side * TAU / sides
+            points.append((x + r * math.cos(angle), y + r * math.sin(angle), z + r * .7 * math.sin(angle * 2)))
+    faces = []
+    for ring in range(rings - 1):
+        for side in range(sides):
+            next_side = (side + 1) % sides
+            faces.append((ring * sides + side, ring * sides + next_side,
+                          (ring + 1) * sides + next_side, (ring + 1) * sides + side))
+    sheet.add(points, [(.8, 1, 1)] * len(points), faces)
+
+
+def pine(sheet, base, size, lean, seed, far=False):
+    """A wind-bent pine: short crooked trunk, level limbs, flat irregular foliage plates."""
     rng = random.Random(seed)
-    sides, rings = 5, 5
-    bend = rng.uniform(.15, .55)
+    sides, rings = (3, 3) if far else (5, 5)
+    bend = rng.uniform(.3, .8)
     azimuth = rng.uniform(0, TAU)
     def spine(t):
-        sweep = bend * size * .55 * t * t
+        sweep = bend * size * .5 * t * t
         return (base[0] + lean[0] * size * t + sweep * math.cos(azimuth),
-                base[1] + lean[1] * size * t + sweep * math.sin(azimuth), base[2] + size * t)
+                base[1] + lean[1] * size * t + sweep * math.sin(azimuth), base[2] + size * .78 * t)
     points, faces = [], []
     for ring in range(rings):
         t = ring / (rings - 1)
         cx, cy, cz = spine(t)
-        radius = size * .05 * (1.25 - t) + .14
+        radius = size * .05 * (1.3 - t) + .2
         for side in range(sides):
             angle = side * TAU / sides
             points.append((cx + radius * math.cos(angle), cy + radius * math.sin(angle), cz))
@@ -249,15 +273,19 @@ def pine(sheet, base, size, lean, seed):
             faces.append((ring * sides + side, ring * sides + next_side,
                           (ring + 1) * sides + next_side, (ring + 1) * sides + side))
     sheet.add(points, [(.8, 1, 1)] * len(points), faces)
-    tiers = rng.randint(4, 5)
-    for tier in range(tiers):
-        t = .42 + .58 * tier / (tiers - 1)
-        cx, cy, cz = spine(t)
-        outward = (1 - tier / tiers) * size * .2
-        angle = azimuth + rng.uniform(-1.3, 1.3) + tier * 2.2
-        radius = size * (.3 - .12 * tier / tiers) * rng.uniform(.9, 1.2)
-        pad(sheet, (cx + outward * math.cos(angle), cy + outward * math.sin(angle), cz), radius,
-            seed + tier * 7 + 1, size * .15)
+    limbs = 3 if far else rng.randint(4, 5)
+    for index in range(limbs):
+        t = .5 + .5 * index / max(1, limbs - 1)
+        start = spine(t)
+        angle = azimuth + index * 2.4 + rng.uniform(-.5, .5)
+        reach = size * rng.uniform(.34, .62) * (1.15 - .5 * index / limbs)
+        end = (start[0] + reach * math.cos(angle), start[1] + reach * math.sin(angle), start[2] + size * rng.uniform(-.1, .06))
+        if not far:
+            limb(sheet, start, end, size * .05, size * .028 + .14, 3)
+        for plate in range(1 if far else 2):
+            offset = rng.uniform(0, TAU)
+            pad(sheet, (end[0] + size * .07 * plate * math.cos(offset), end[1] + size * .07 * plate * math.sin(offset), end[2] + plate * size * .05),
+                size * rng.uniform(.22, .36), seed + index * 7 + plate + 1, size * .085, 5 if far else 6)
 
 
 def hero_pillar(seed, height, radius, sides, pines):
@@ -276,7 +304,7 @@ def hero_pillar(seed, height, radius, sides, pines):
                 radius * rng.uniform(.12, .42), seed + 400 + rock)
     # Tops carry dense low foliage, then a few taller pines that break the outline.
     for index, ((cx, cy, cz), crown) in enumerate(crowns):
-        for tuft in range(12 if index == 0 else 5):
+        for tuft in range(8 if index == 0 else 3):
             angle = rng.uniform(0, TAU)
             spread = crown * math.sqrt(rng.random())
             pad(sheet, (cx + spread * math.cos(angle), cy + spread * math.sin(angle), cz + rng.uniform(-3, 5)),
@@ -284,11 +312,20 @@ def hero_pillar(seed, height, radius, sides, pines):
     for index in range(pines):
         (cx, cy, cz), crown = crowns[index % len(crowns)]
         angle = rng.uniform(0, TAU)
-        spread = rng.uniform(.25, 1.05)
-        base = (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz - rng.uniform(0, 4))
-        size = rng.uniform(17, 27) * (1.3 if index < 4 else 1)
-        lean = (math.cos(angle) * spread * .4, math.sin(angle) * spread * .4)
+        spread = rng.uniform(.15, 1.1)
+        # Stand on the broken crown, leaning outward over the drop.
+        base = (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz + rng.uniform(4, 15))
+        size = rng.uniform(15, 25) * (1.2 if index < 4 else 1)
+        lean = (math.cos(angle) * spread * .42, math.sin(angle) * spread * .42)
         pine(sheet, base, size, lean, seed + index * 13)
+    for ledge in range(2):
+        # A few cliff pines cling to the upper face.
+        angle = rng.uniform(0, TAU)
+        z = height * rng.uniform(.55, .86)
+        reach = radius * rng.uniform(.8, 1.02)
+        size = rng.uniform(11, 17)
+        pine(sheet, (reach * math.cos(angle), reach * math.sin(angle), z), size,
+             (math.cos(angle) * .9, math.sin(angle) * .9), seed + 700 + ledge)
     return sheet
 
 
@@ -300,11 +337,11 @@ def far_pillar(seed, height, radius):
     second = rng.uniform(0, TAU)
     side, side_crown = column(sheet, seed + 3, height * rng.uniform(.45, .75), radius * .5,
                               (radius * 1.1 * math.cos(second), radius * 1.1 * math.sin(second)), 8, 9, .5)
-    for tuft in range(7):
-        angle = tuft * TAU / 7 + rng.uniform(-.3, .3)
-        reach = crown * rng.uniform(.3, 1)
-        pad(sheet, (top[0] + reach * math.cos(angle), top[1] + reach * math.sin(angle), top[2] + rng.uniform(-2, 11)),
-            rng.uniform(.35, .6) * max(9, crown * .7), seed + tuft, rng.uniform(3, 6))
+    for tuft in range(3):
+        angle = tuft * TAU / 3 + rng.uniform(-.4, .4)
+        reach = crown * rng.uniform(.2, .9)
+        pine(sheet, (top[0] + reach * math.cos(angle), top[1] + reach * math.sin(angle), top[2] + rng.uniform(4, 12)),
+             rng.uniform(16, 26), (math.cos(angle) * .3, math.sin(angle) * .3), seed + tuft, True)
     return sheet
 
 

@@ -193,7 +193,7 @@ export async function createRuntime(text, onProgress) {
     if (state.beat === 'test') u.uHero.value.set(world.light.x * climb0, world.light.z * climb0, 13);
     else u.uHero.value.set(j.x + world.light.x * climb, j.z + world.light.z * climb, 13 * scale);
     u.uSurface.value = WORLD.surface;
-    u.uReach.value = 460 * Math.pow(scale, .9);
+    u.uReach.value = 420 * Math.pow(scale, .78);
     const inSea = state.beat !== 'test';
     u.uMistGain.value = inSea ? .03 / Math.pow(scale, .7) : 0;
     u.tMistMap.value = world.mistMap;

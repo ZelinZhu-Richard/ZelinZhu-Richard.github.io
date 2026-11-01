@@ -125,8 +125,8 @@ function domeMaterial(shared) {
           float a=texture2D(tGobo,p/size+flow).g;
           float b=texture2D(tGobo,p/(size*.62)-flow*1.3+a*.04).g;
           float swell=texture2D(tGobo,p/(size*2.6)+flow*.4).b;
-          float plate=smoothstep(.5,.72,a*.7+b*.5+swell*.24-.14);
-          float pool=pow(sun,8.)*3.2+pow(sun,30.)*9.;
+          float plate=smoothstep(.44,.82,a*.7+b*.5+swell*.24-.14);
+          float pool=pow(sun,9.)*2.4+pow(sun,30.)*9.;
           float near=exp(-pow(t*uDensity*.6,2.));
           vec3 surface=c*(.42+.8*swell)+uShaft*plate*pool*1.4;
           c=mix(c,surface,near*smoothstep(.1,.4,up));
@@ -143,7 +143,7 @@ function placements() {
   // Pillar 1 anchors the sea; the others keep clear of the opening sight line.
   hero.push({ kind: 0, x: PILLAR_CENTER.x, z: PILLAR_CENTER.z, rotation: .6, scale: 1 });
   const separated = (x, z, list, gap) => list.every(p => Math.hypot(p.x - x, p.z - z) > gap);
-  for (let tries = 0; hero.length < 13 && tries < 4000; tries++) {
+  for (let tries = 0; hero.length < 12 && tries < 4000; tries++) {
     const radius = 230 + random() * 1000, angle = random() * Math.PI * 2;
     const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
     const openLane = Math.hypot(x + 254, z - 180) < 200 || Math.abs(x * .57 + z * .82) < 80 && x < 0;
@@ -155,7 +155,7 @@ function placements() {
     const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
     const cluster = Math.sin(x * .0041 + 1.3) * Math.cos(z * .0037 - .4) + .25 * Math.sin(x * .013 + z * .011);
     if (cluster < -.1 || !separated(x, z, hero, 130) || !separated(x, z, far, 76)) continue;
-    far.push({ kind: far.length % 5, x, z, rotation: random() * 6.28, scale: .7 + random() * .9, stretch: .7 + random() * .85 });
+    far.push({ kind: far.length % 5, x, z, rotation: random() * 6.28, scale: .7 + random() * .6, stretch: .7 + random() * .45 });
   }
   return { hero, far };
 }

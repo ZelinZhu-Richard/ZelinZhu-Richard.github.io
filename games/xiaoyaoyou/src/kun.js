@@ -147,7 +147,7 @@ export function prepareKun(root, gobo, light) {
           painted*=1.-kunPleat*.42;
           painted=mix(painted,vec3(.9,.92,.92),kunRidge*.72);
           vec3 fill=mix(kunShadow,kunSky,n.y*.5+.5);
-          reflectedLight.directDiffuse=painted*key;
+          reflectedLight.directDiffuse=painted*key*(1.-kunSheet*.3);
           reflectedLight.indirectDiffuse=painted*fill;
           // A cream edge where the surface turns away; never a hard line.
           float facing=clamp(dot(n,toEye),0.,1.);
