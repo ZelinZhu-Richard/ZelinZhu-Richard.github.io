@@ -162,7 +162,7 @@ function placements() {
     const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
     const cluster = Math.sin(x * .0041 + 1.3) * Math.cos(z * .0037 - .4) + .25 * Math.sin(x * .013 + z * .011);
     if (cluster < -.1 || !separated(x, z, hero, 130) || !separated(x, z, far, 76)) continue;
-    far.push({ kind: far.length % 5, x, z, rotation: random() * 6.28, scale: .7 + random() * .6, stretch: .7 + random() * .45 });
+    far.push({ kind: far.length % 5, x, z, rotation: random() * 6.28, scale: .7 + random() * .6, stretch: .7 + random() * .45, sink: 40 + random() * 46 });
   }
   return { hero, far };
 }
@@ -209,7 +209,8 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   const quaternion = new THREE.Quaternion(), position = new THREE.Vector3(), size = new THREE.Vector3();
   const place = (item, mesh, index) => {
     quaternion.setFromEuler(rotation.set(0, item.rotation, 0));
-    matrix.compose(position.set(item.x, -6, item.z), quaternion, size.set(item.scale, item.scale * (item.stretch ?? 1), item.scale));
+    // Far pillars sink by varied depths, so their feet never line up into a repeated shape.
+    matrix.compose(position.set(item.x, -(item.sink ?? 6), item.z), quaternion, size.set(item.scale, item.scale * (item.stretch ?? 1), item.scale));
     mesh.setMatrixAt(index, matrix);
   };
   const instanced = (geometry, items, kind) => {
