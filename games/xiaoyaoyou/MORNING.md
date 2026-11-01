@@ -47,7 +47,7 @@ Evidence is in the gitignored `_dev/` folder on this machine. To open the galler
 
 **M4: NEEDS RICHARD.** [Gallery](_dev/evidence/M4/review.html) · [metrics](_dev/evidence/M4/metrics.json) · [close-up](_dev/evidence/M4/kun-closeup-desktop.png) · [Codex verdict](_dev/review/M4-round3/verdict.json)
 
-- Passing: palette (offPalette 0, redShare 0, luma 53 to 74 against the key art's 69), the Kun close-up including the cream rim, draw calls, console.
+- Passing: palette (offPalette 0, redShare 0, luma 62 to 74 against the key art's 69), the Kun close-up including the cream rim, draw calls, console.
 - Failing: C3, the key-art comparison. Codex: pillar feet read as complete contours against the mist. Also major: long even shaft bands, and large cellular marks on the surface.
 
 **M5: NEEDS RICHARD.** [Gallery](_dev/evidence/M5/review.html) · [metrics](_dev/evidence/M5/metrics.json) · [text](_dev/evidence/M5/north-text-desktop.png) · [end card](_dev/evidence/M5/end-card-desktop.png) · [Codex verdict](_dev/review/M5-round3/verdict.json)
