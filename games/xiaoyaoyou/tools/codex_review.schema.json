@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "summary", "evidenceValid", "criteria", "issues", "notes"],
+  "properties": {
+    "verdict": { "type": "string", "enum": ["PASS", "FIX", "BLOCK"] },
+    "summary": { "type": "string" },
+    "evidenceValid": { "type": "boolean" },
+    "criteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["criterion", "result", "evidence"],
+        "properties": {
+          "criterion": { "type": "string" },
+          "result": { "type": "string", "enum": ["PASS", "FAIL", "N/A"] },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "file", "observed", "expected", "fix"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["critical", "major", "minor"] },
+          "file": { "type": "string" },
+          "observed": { "type": "string" },
+          "expected": { "type": "string" },
+          "fix": { "type": "string" }
+        }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  }
+}

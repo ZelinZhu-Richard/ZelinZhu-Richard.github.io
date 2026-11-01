@@ -399,3 +399,33 @@ Richard has **not approved M2**. His review accepts the running swim and fixed b
 4. Frozen: all **30 exported mesh position/normal fingerprints and all UV arrays match the pre-pass asset exactly**. The `SWIM` configuration and vertex shader SHA-256 match exactly. `kun-planforms.json` unchanged. Repaint via `paint_kun.py --textures-only` so no outlines are regenerated. Material-only validation permits the explicitly authorized texture changes while continuing to freeze geometry, UVs and swim.
 
 Raw and optimized exports still have **42,094 triangles**, 2048 maximum texture dimension, both required Meshopt/WebP extensions and all six required nodes. Optimized asset is **8,671,720 bytes**. Upper-back mapping remains source max 1.209× / atlas max 1.443×, below 1.5×. Built-in iab still reports unavailable; the prescribed live server returns 200. Next: clean-commit Blender comparison then browser capture, inspect all requested views and wait. M2 remains unticked. Nothing pushed.
+
+## M2 material-only evidence — awaiting Richard (2026-10-27, commit db284592105d455a080b5678339707c867b95e04)
+
+**M2 is not approved and remains unticked.** Blender render → silhouette comparison → browser capture completed on the same clean commit db28459. `capture.mjs --milestone 2` exits 0: **20/20 technical checks true**. The four material changes are implemented; their visual acceptance is Richard's decision.
+
+Requested browser views (all fresh, inspected):
+- Test: `_dev/evidence/M2/kun-test-desktop.png` (and narrow regression).
+- Gameplay: `kun-view-gameplay-desktop.png`.
+- Directly behind: `kun-view-rear-desktop.png`.
+- Three-quarter: `kun-view-three-quarter-desktop.png`.
+- Top: `kun-view-top-desktop.png`.
+- Overview: `kun-camera-review.png`, arranged top / rear, then three-quarter / gameplay. Full gallery with references: `review.html`.
+
+Refreshed and inspected `_dev/silhouette/kun-side.png`, `kun-top.png`, `kun-front.png`, the three `kun-M2-*-browser.png` Blender/browser comparisons and `kun-M2-key-art-browser.png`. Browser screenshots retain the extended head landscape, cool paper/shadows, lighter transparent sheets and indigo edges. I also inspected all four swim phases and the title, north-start, loading and narrow regression screenshots. No further correction is presumed authorized before Richard's review.
+
+| Check | Measured result |
+|---|---|
+| Scope freeze | **PASS:** all 30 exported position/normal mesh fingerprints identical; all UV arrays identical; SWIM config/vertex-shader SHA identical. 42,094 triangles. |
+| Material parameters | Cool paper [241,247,248]; head fade over last 10%; rays 4.75% (one quarter); light pectoral alpha 0.3804–0.3882, fluke light median 0.3804 with opaque stock preserved; back-light transmission strength 0.50, modulated by (1−alpha). |
+| Diffuse-only shader | **PASS technical:** all 30 material instances remain MeshLambertMaterial, with no specular/reflection/rim. New cool fill and sheet transmission contribute only to diffuse lighting. No swim code changes. |
+| Browser audit | **PASS:** 0 page errors, 0 console errors, 0 failed or external requests. Local Kun and meshopt decoder return 200. Expected Retry-injection 503 remains separately recorded. |
+| Budgets / loading | **PASS:** maximum 46 draw calls / 60,050 rendered triangles; DPR ≤2; READY max 903.3 ms; runtime 11,055,226 bytes. Optimized Kun 8,671,720 bytes, textures ≤2048, required extensions/nodes retained. |
+| Mapping | **PASS:** unchanged max source-pixel stretch 1.209× / atlas texel stretch 1.443×. |
+| Side IoU | **MISS, existing Richard M1 waiver:** 0.6914 vs 0.70, unchanged. |
+| Top IoU | **MISS, existing Richard M1 waiver:** 0.7191 vs 0.75, unchanged. |
+| Evidence freshness | **PASS:** metrics/silhouette commit db28459, both dirty=false; all 20 technical checks true. Post-capture LOG entry is the only pending worktree change. |
+
+Live swim URL: `http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=kun-test&seed=1`.
+Rear camera: `http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=kun-test&seed=1&view=rear`.
+The prescribed server is running; iab remains unavailable, so screenshots use the authorized headless Chromium harness. No personal browser control, no files outside the game changed, ref untouched, nothing pushed. Stop and wait for Richard's review; do not tick M2 or start M3.
