@@ -65,7 +65,7 @@ function rockMaterial(shared, instanced) {
       }`,
     fragmentShader: `
       uniform vec3 uAbyss, uDeep, uHaze, uLight, uCamera, uKey, uAmbient;
-      uniform float uDensity, uTime, uViewScale;
+      uniform float uDensity, uTime, uViewScale, uFoot;
       uniform sampler2D tGobo, tRock;
       varying vec3 vWorld, vNormal, vPaint;
       ${noiseGLSL}
@@ -92,11 +92,22 @@ function rockMaterial(shared, instanced) {
         float dist=length(vWorld-uCamera);
         float f=1.-exp(-pow(dist*uDensity,2.));
         #ifdef SEA_FLOOR
+          f=max(f,smoothstep(2800.,4300.,length(vWorld.xz)));
+        #endif
+        #ifdef SEA_FLOOR
           // The seabed falls to near black, meeting the dome only at the horizon.
           c=mix(c,mix(uAbyss*2.2,uDeep*.86+uHaze*.13,smoothstep(.3,.95,f)),f);
         #else
           // Pillars dissolve into the water with distance, paling only toward their feet.
-          c=mix(c,mix(uDeep*.86+uHaze*.13,uDeep*.9+uHaze*.22,exp(-max(vWorld.y,0.)/(38.*uViewScale))),f);
+          // Everything far away ends in one water colour, so distance leaves no silhouettes.
+          vec3 far=uDeep*.86+uHaze*.13;
+          // At the seabed a pillar takes the seabed's own fog, so its foot leaves no shape.
+          vec3 low=mix(uAbyss*2.2,far,smoothstep(.3,.95,f));
+          c=mix(c,mix(low,far,smoothstep(0.,uFoot*2.,vWorld.y)),f);
+          // Near feet dissolve at their own heights; far ones are already gone.
+          float rise=uFoot*(.25+1.5*fbm2(vWorld.xz*.009/uViewScale+vec2(uTime*.008,0.)));
+          float foot=1.-smoothstep(0.,rise,vWorld.y);
+          c=mix(c,mix(uHaze*.2,low,f),foot*foot*.85);
         #endif
         gl_FragColor=vec4(c,0.);
         #include <colorspace_fragment>
@@ -121,9 +132,9 @@ function domeMaterial(shared) {
         vec3 c=mix(uAbyss*.34,uDeep*.86,smoothstep(-.42,.05,up));
         c=mix(c,uSea*1.2,smoothstep(.02,.56,up));
         c+=uHaze*pow(sun,5.)*.2+uShaft*pow(sun,28.)*.32;
-        c=mix(c,uDeep*.86+uHaze*.13,exp(-pow(up/.13,2.)));
         float murk=texture2D(tGobo,ray.xz*.42/(abs(up)+.55)+uTime*.0016).b;
         c*=.74+.52*murk;
+        c=mix(c,uDeep*.86+uHaze*.13,exp(-pow(up/.13,2.)));
         if(up>.008){
           float t=(uSurface-uCamera.y)/up;
           vec2 p=uCamera.xz+ray.xz*t;
@@ -132,10 +143,10 @@ function domeMaterial(shared) {
           float a=texture2D(tGobo,p/size+flow).g;
           float b=texture2D(tGobo,p/(size*.62)-flow*1.3+a*.04).g;
           float swell=texture2D(tGobo,p/(size*2.6)+flow*.4).b;
-          float plate=smoothstep(.44,.82,a*.7+b*.5+swell*.24-.14);
+          float plate=smoothstep(.4,.9,a*.7+b*.5+swell*.24-.14);
           float pool=pow(sun,9.)*2.4+pow(sun,30.)*9.;
           float near=exp(-pow(t*uDensity*.6,2.));
-          vec3 surface=c*(.42+.8*swell)+uShaft*plate*pool*1.4;
+          vec3 surface=c*(.42+.8*swell)+uShaft*plate*pool;
           c=mix(c,surface,near*smoothstep(.1,.4,up));
         }
         gl_FragColor=vec4(c,0.);
@@ -178,7 +189,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     uAbyss: { value: palette.abyss }, uDeep: { value: palette.deep }, uSea: { value: palette.sea },
     uHaze: { value: palette.haze }, uShaft: { value: palette.shaft }, uFog: { value: palette.deep },
     uLight: { value: light }, uCamera: { value: new THREE.Vector3() }, uTime: { value: 0 },
-    uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
+    uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, uFoot: { value: 90 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
     uKey: { value: new THREE.Color(1.15, 1.2, 1.2) }, uAmbient: { value: new THREE.Color(.15, .19, .215) },
   };
   const meshes = new Map();
@@ -328,7 +339,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       // The light stands ahead of the camera and to its right, so the bright water
       // and the slant of the shafts stay composed as Kun turns.
       camera.getWorldDirection(look);
-      const azimuth = Math.atan2(look.x, look.z) - .5;
+      const azimuth = Math.atan2(look.x, look.z) - .34;
       light.set(Math.sin(azimuth) * .62, 1, Math.cos(azimuth) * .62).normalize();
       // Kun keeps a near-overhead key, leaning a little toward the camera.
       heroLight.set(-look.x * .34 + look.z * .16, 1, -look.z * .34 - look.x * .16).normalize();
@@ -336,6 +347,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       shared.uTime.value = gameMs / 1000;
       shared.uDensity.value = fogDensity(scale);
       shared.uViewScale.value = Math.pow(scale, .8);
+      shared.uFoot.value = 46 + 14 * Math.sqrt(scale);
       speckMaterial.uniforms.uBox.value = 170 * Math.pow(scale, .9);
       speckMaterial.uniforms.uPixel.value = Math.min(window.devicePixelRatio || 1, 2);
     },

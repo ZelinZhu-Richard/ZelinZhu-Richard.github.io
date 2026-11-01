@@ -169,15 +169,22 @@ void main(){
   float groups=texture2D(tGobo,vec2(angle*.62+uTime*.0021,.31)).b;
   float bands=texture2D(tGobo,vec2(angle*2.1-uTime*.0034,.67)).b;
   float strands=texture2D(tGobo,vec2(angle*6.3+uTime*.005,.13)).a;
-  float rays=smoothstep(.34,.82,groups*.62+bands*.5)*(.62+.38*strands);
+  float rays=smoothstep(.46,.86,groups*.62+bands*.5)*(.5+.5*strands);
   // Each ray ends at its own depth below the top of the frame, wherever the camera points.
   float length_=.42+1.05*texture2D(tGobo,vec2(angle*1.7,.83)).b;
   float below=max(1.-vUv.y-.08,0.);
   float fall=exp(-pow(below/length_,2.))*smoothstep(-.1,.45,vUv.y);
-  vec3 scatter=uShaft*shafts*(reach/uReach)*phase*uShaftGain*22.*(.1+3.4*rays)*fall;
-  // One shared bright region near the surface, which the rays visibly leave.
+  // Light gathers around one opening in the surface and breaks up as it descends.
   vec2 source=(vUv-clamp(uVanish,vec2(.08,0.),vec2(.92,1.06)))*vec2(uAspect,1.);
+  float focus=exp(-dot(source,source)*.6);
+  float broken=.45+1.1*texture2D(tGobo,vec2(angle*3.3,below*.55+uTime*.002)).b;
+  // Soft-limited: strong columns stay light in water and never become a solid wall.
+  float light=shafts*(reach/uReach)*phase*uShaftGain*22.*(.05+9.*rays*focus*broken)*fall;
+  vec3 scatter=uShaft*.6*(1.-exp(-light*1.7));
+  // One shared bright region near the surface, which the rays visibly leave.
   scatter+=uShaft*exp(-dot(source,source)*2.6)*.15*(.7+.5*groups);
+  // A soft band of far water covers the line where the seabed meets the dome.
+  scatter+=uMist*.1*exp(-pow(ray.y/.085,2.))*smoothstep(0.,1.,dist/(900.*sqrt(uScale)));
   // Mist hugs the seabed: march only the slab of water it lives in.
   float transmit=1.;
   float t0=0.,t1=min(dist,uReach*2.4);
@@ -270,8 +277,10 @@ uniform sampler2D tScene, tVolume, tBloom, tDepth;
 uniform float uBloom, uExposure, uTime, uGrain;
 uniform vec2 uResolution, uVolumeTexel;
 uniform vec4 uProject;
+uniform float uRim;
 varying vec2 vUv;
 vec3 curve(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+float coverAt(vec2 uv){return smoothstep(.02,.14,texture2D(tScene,uv).a);}
 float grainAt(vec2 p){p=fract(p*vec2(.1031,.1030));p+=dot(p,p.yx+33.33);return fract((p.x+p.y)*p.x);}
 void main(){
   vec3 c=texture2D(tScene,vUv).rgb;
@@ -289,6 +298,21 @@ void main(){
   // him in front of the volume, and the water's alpha of zero leaves it untouched.
   float foreground=texture2D(tScene,vUv).a;
   c=c*mix(v.a,1.,foreground)+v.rgb*(1.-foreground*.82);
+  // The cream rim is measured from coverage, not from normals. Fin sheets are flat, so a
+  // fresnel term never reaches their edges, and ink inside a fin must not trigger it.
+  float mask=coverAt(vUv);
+  if(mask>.01){
+    float around=0.;
+    vec2 unit=uResolution.y/900./uResolution*2.6;
+    for(int i=0;i<8;i++){
+      float a=float(i)*.7854;
+      vec2 d=vec2(cos(a),sin(a))*unit;
+      around+=coverAt(vUv+d)*.62+coverAt(vUv+d*2.3)*.38;
+    }
+    // A wide soft falloff, stronger on edges that face the light. Never an even line.
+    float rim=pow(mask*(1.-around/8.),1.5)*(.5+.5*(1.-coverAt(vUv+vec2(0.,unit.y*2.))));
+    c+=vec3(.97,.92,.8)*rim*uRim;
+  }
   c+=texture2D(tBloom,vUv).rgb*uBloom;
   c=curve(c*uExposure);
   c=mix(c,c*c*(3.-2.*c),.42);
@@ -335,7 +359,7 @@ export function createPost(renderer, gobo, seedRandom) {
   const composite = pass(compositeFragment, {
     tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tBloom: { value: up[0].texture }, tDepth: { value: depthTexture },
     uBloom: { value: .34 }, uExposure: { value: .92 }, uTime: { value: 0 }, uGrain: { value: .006 }, uResolution: { value: new THREE.Vector2(1, 1) },
-    uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() },
+    uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() }, uRim: { value: 1.25 },
   });
   function draw(material, target) {
     quad.material = material;

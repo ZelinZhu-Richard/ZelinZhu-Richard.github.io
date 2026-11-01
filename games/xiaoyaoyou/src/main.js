@@ -229,6 +229,8 @@ export async function createRuntime(text, onProgress) {
     const octave = Math.log(scale) / Math.log(4);
     u.uLayers.value.set(Math.max(0, 1 - octave), Math.max(0, 1 - Math.abs(octave - 1)), Math.max(0, octave - 1));
     u.uScale.value = scale;
+    // The broader gobo layers carry more light, so the gain eases off as Kun grows.
+    u.uShaftGain.value = .46 / Math.pow(scale, .42);
     u.uLight.value.copy(world.light);
     const j = journey.j, climb = (WORLD.surface - j.y) / world.light.y, climb0 = WORLD.surface / world.light.y;
     if (state.beat === 'test') u.uHero.value.set(world.light.x * climb0, world.light.z * climb0, 13);

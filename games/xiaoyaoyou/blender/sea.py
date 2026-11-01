@@ -361,7 +361,8 @@ def seabed():
     for iy in range(cells + 1):
         for ix in range(cells + 1):
             x, y = (ix / cells - .5) * size, (iy / cells - .5) * size
-            height = 110 * (fbm(x * .0012, y * .0012, 3) - .5) + 34 * (fbm(x * .006, y * .006, 9) - .5)
+            # Gentle swells only. A taller hill shows a hard crest line against the mist.
+            height = 34 * (fbm(x * .0012, y * .0012, 3) - .5) + 16 * (fbm(x * .006, y * .006, 9) - .5)
             points.append((x, y, height))
             paints.append((fbm(x * .02, y * .02, 4), 0, 0))
     for iy in range(cells):
