@@ -519,3 +519,23 @@ Fix round 1, with causes found rather than guessed:
 Mistakes in this round, all caught before review: a shader name clash on `depth` (reported by the harness), and a zsh loop that passed `--autoplay --replay` as one argument, so one M5 capture ran without autoplay. That capture failed visibly and was redone; no evidence from it was used.
 
 M3 changed after its PASS at 32efe2b, so that verdict no longer covers the current code. All three milestones were recaptured on 8cdcb48 and sent for review, including M3.
+
+### Codex M4 round 2: FIX; M5 round 2: FIX; M3 regression: PASS (2026-11-01, commit 8cdcb48)
+
+M3 passed on the changed code. M4: 7 of 9 criteria PASS; a visible horizontal atmosphere boundary and bounded pillar feet fail the key-art comparison, and the cream rim was not established. Major: broad even shafts. M5: its 4 criteria PASS; one critical for shipping the key art, one major for the same boundary.
+
+**Title judgment call.** Codex's critical cites the PLAN Layout line that `ref/` is never shipped. Richard asked for this backdrop twice: at M0, "the title screen should eventually use ref/key-north-sea.png as a full-bleed background with a soft dark vignette behind the title, like a game key-art title screen", and in NIGHT.md section C. Those are newer and more specific than the Layout line, so the title stays. Codex cannot read NIGHT.md, so `tools/codex_review.md` now quotes both of his sentences under Precedence. PLAN.md is unedited. Item is listed in MORNING.md for Richard, because the plan text and the shipped game now disagree.
+
+Fix round 2 (the last allowed for M4 and M5):
+
+| Issue | Cause | Fix |
+|---|---|---|
+| Cream rim missing | A fresnel term cannot reach flat sheet edges | Rim measured from screen-space coverage, so body and sheets are treated alike and ink inside a fin does not trigger it |
+| Rim overshoot (found by me) | The first version read as a sticker outline, which the rubric forbids | Wider falloff, stronger on light-facing edges |
+| Horizontal boundary | Seabed and dome faded toward differently modulated colours | Dome horizon colour is no longer modulated; floor fades out before its edge; a soft distance band covers the seam |
+| Ghost pillars | Pillars and seabed fogged toward different colours at the same distance | At the seabed a pillar takes the seabed's own fog |
+| Bounded feet | Base geometry ended cleanly | Each foot dissolves at its own noise-driven height |
+| Even shafts | No focal point | Rays gather around one opening, break up along their length, and are soft-limited so a strong column never becomes a wall; gain eases as Kun grows |
+| Hard diagonal edge low in frame | A seabed hill crest against the mist | Gentler seabed swells |
+
+All three milestones recaptured on dfc672d; 90 of 90 automated checks true. Kun freeze re-verified: only the four fins differ, with UVs and swim shader identical. M3, M4 and M5 sent for review.
