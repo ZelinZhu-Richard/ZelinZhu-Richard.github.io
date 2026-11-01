@@ -46,7 +46,7 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.2; stroke-linecap: round
 .toggle:hover { border-color: transparent; opacity: 1; }
 .toggle[aria-pressed="false"] { opacity: .5; text-decoration: line-through; text-decoration-thickness: 1px; }
 .line, .hint { position: absolute; left: 50%; width: min(760px, calc(100vw - 40px)); transform: translateX(-50%); text-align: center; opacity: 0; transition: opacity 900ms ease-in-out; }
-.line { bottom: max(9vh, 64px); }
+.line { bottom: max(7vh, 56px); }
 .line.showing, .hint.showing { opacity: 1; }
 .hint { bottom: 22px; margin: 0; color: var(--paper-shade); font-size: 18px; line-height: 1.4; text-shadow: 0 0 14px rgba(11, 22, 28, .9); }
 .line-zh { margin: 0; font-family: "LXGW WenKai", serif; font-size: clamp(25px, 3.1vw, 40px); line-height: 1.5; letter-spacing: .1em; text-indent: .1em; color: var(--paper); text-shadow: 0 0 22px rgba(11, 22, 28, .95), 0 0 6px rgba(11, 22, 28, .7); }

@@ -288,7 +288,8 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       varying vec2 vUv; varying float vFade;
       void main(){vUv=uv;vFade=aFade;
         vec4 view=viewMatrix*vec4(instanceMatrix[3].xyz,1.);
-        view.xy+=position.xy*aSize;
+        // A distant mote keeps a readable size, so it can always be found.
+        view.xy+=position.xy*max(aSize,-view.z*.028)*step(.001,aSize);
         gl_Position=projectionMatrix*view;}`,
     fragmentShader: `
       uniform vec3 uColor; varying vec2 vUv; varying float vFade;

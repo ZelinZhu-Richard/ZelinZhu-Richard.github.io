@@ -60,7 +60,7 @@ function finCoordinates(mesh) {
 const DIFFUSE_FILL = [.12, .16, .19];
 const SHEET_TRANSMISSION = .50;
 // Sea look, off in the grey sheet views so they still compare with Blender.
-const LOOK = Object.freeze({ key: [1.62, 1.5, 1.24], shadow: [.1, .15, .19], sky: [.28, .35, .38], rim: [.86, .92, .9],
+const LOOK = Object.freeze({ key: [1.62, 1.5, 1.24], shadow: [.055, .095, .125], sky: [.26, .33, .37], rim: [.86, .92, .9],
   rimPower: 3.2, rimGain: .3, caustic: 2.6, wrap: .62 });
 
 export function prepareKun(root, gobo, light) {
