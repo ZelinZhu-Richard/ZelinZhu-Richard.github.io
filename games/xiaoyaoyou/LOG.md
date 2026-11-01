@@ -539,3 +539,17 @@ Fix round 2 (the last allowed for M4 and M5):
 | Hard diagonal edge low in frame | A seabed hill crest against the mist | Gentler seabed swells |
 
 All three milestones recaptured on dfc672d; 90 of 90 automated checks true. Kun freeze re-verified: only the four fins differ, with UVs and swim shader identical. M3, M4 and M5 sent for review.
+
+### Final verdicts (2026-11-01)
+
+M4 round 3: FIX on dfc672d. C3 still fails on bounded pillar feet; major findings on striped shafts and a cellular water surface. The cream rim criterion now passes. M5 round 3: FIX on dfc672d. All four criteria pass; both findings are M4's atmosphere. Both have used their two fix rounds, so per NIGHT.md they are NEEDS RICHARD and I stopped.
+
+M3 round 4: FIX on dfc672d, a real regression of mine: the portrait camera clipped the fluke. A journey-wide measurement showed more than Codex saw: Kun sat about 80 px left in portrait play, and left the frame during the camera swing on desktop. Look-ahead now waits for the swing to finish and is reduced in portrait. `capture.mjs` gained `checks.playFraming`, 13 journey points at both viewports. M3's second fix round.
+
+Phase E found a real layout bug: on short screens an old rule set the title rule to 20 px, a grey block. Fixed. I stopped M3 round 5 before it returned, so the verdict would cover that commit; it had produced no verdict. M3 round 5 reran on 1e735d6: **PASS**.
+
+Stretch deferred: both items are gated on A to C being READY.
+
+**M3 status is NEEDS RICHARD, not READY.** All four criteria pass and Codex says PASS, but PLAN rule 9 says breaking an earlier criterion fails the current milestone, and Richard's M1 waiver names 0.691 and 0.719. Tonight's 0.6348 and 0.6474 are outside it. Codex was told not to fail on this alone, so its PASS cannot answer this. Only Richard can.
+
+Final capture on 1e735d6: 93 of 93 checks true, clean console, 65 draw calls, 271,678 triangles, 9,723,224 bytes. No boxes ticked. Details and options are in MORNING.md.
