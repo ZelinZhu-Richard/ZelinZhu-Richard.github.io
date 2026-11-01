@@ -79,7 +79,7 @@ progress::-moz-progress-bar { background: var(--paper); }
 @media (max-height: 500px) {
   h1 { font-size: 56px; }
   .subtitle { margin-top: 0; font-size: 22px; }
-  .title-rule { height: 20px; margin: 16px 0 8px; }
+  .title-rule { margin: 16px 0 8px; }
   .status { bottom: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
