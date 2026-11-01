@@ -25,7 +25,9 @@ Your working directory is a review bundle. It holds everything you are allowed t
 
 ## Precedence
 
-`PLAN.md` Decisions (Richard's own words, dated) supersede older text in `REVIEW_RUBRIC.md` where they conflict. Examples: the side and top IoU misses for Kun are waived by Richard and must be reported, not failed; the front view is by-eye only; the belly carries a 40% wash on its pleats rather than plain cream. A criterion in the `{{MILESTONE}}` section of `PLAN.md` is never relaxed by you.
+`PLAN.md` Decisions (Richard's own words, dated) supersede older text in `REVIEW_RUBRIC.md` where they conflict. Examples: the front view is by-eye only; the belly carries a 40% wash on its pleats rather than plain cream.
+
+Kun's IoU has a specific history. At M1 Richard waived side 0.691 and top 0.719, in those words, and those exact numbers only. Tonight's brief lets the builder tune Kun's fin scale, sweep and dihedral against the key art, so a lower IoU can result. Do not fail the milestone for that alone, and do not call it waived either: report the measured numbers against 0.691 and 0.719 in `notes`, stating plainly that only Richard can waive them. Any other change to Kun's geometry is a regression and fails. A criterion in the `{{MILESTONE}}` section of `PLAN.md` is never relaxed by you.
 
 `REVIEW_RUBRIC.md` §3 says a Wrong item fails "the milestone that owns it". Ownership follows the `PLAN.md` milestones: M3 owns gameplay, controls, pacing, scale, pillar and pine shapes, and the raw slice; M4 owns light, fog, depth, mist, shafts, Kun's shading and the match to the key art's atmosphere; M5 owns text, fonts, title polish and the end card. Do not fail a milestone for work a later milestone owns. Report such gaps in `notes`. An earlier milestone's criteria still count as regressions.
 

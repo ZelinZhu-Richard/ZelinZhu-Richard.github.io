@@ -40,7 +40,7 @@ export function createJourney(pillars) {
     });
     // Start on the near side of the first pillar, so it stands behind Kun in the opening shot.
     j.offset = openingOffset(aspect);
-    const bearing = ART_BEARING + j.offset, radius = 640;
+    const bearing = ART_BEARING + j.offset, radius = 606;
     j.x = PILLAR_CENTER.x + Math.sin(bearing) * radius;
     j.z = PILLAR_CENTER.z + Math.cos(bearing) * radius;
     j.yaw = j.heading = 0;

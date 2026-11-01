@@ -143,7 +143,7 @@ def column(sheet, seed, height, radius, center, rings, segments, reach=1.0):
             cut = max(cut, depth * (.5 + .9 * t) * math.exp(-(delta / width) ** 2) * (.6 + .9 * fbm(where * 3, t * 3, seed + 2)))
         grain = .2 * (fbm(angle * 2.3, t * 7, seed) - .5) + .14 * (fbm(angle * 7.1, t * 23, seed + 9) - .5)
         # An irregular foot of slumped rock rather than a plinth.
-        foot = (.7 + .9 * fbm(angle * 1.7, 2.2, seed + 4)) * math.exp(-t * (9 + 7 * fbm(angle * 2.1, .7, seed + 6)))
+        foot = (.3 + .55 * fbm(angle * 1.7, 2.2, seed + 4)) * math.exp(-t * (9 + 7 * fbm(angle * 2.1, .7, seed + 6)))
         return (poly * .78 + .22) * scale * (1 - cut + grain) + foot, cut, grain
 
     points, paints, top_center = [], [], None
@@ -294,12 +294,12 @@ def hero_pillar(seed, height, radius, sides, pines):
     crowns = [column(sheet, seed, height, radius, (0, 0), 30, 32)]
     for side in range(sides):
         angle = rng.uniform(0, TAU)
-        offset = radius * rng.uniform(.7, 1.3)
+        offset = radius * rng.uniform(.6, 1.0)
         crowns.append(column(sheet, seed + 31 * (side + 1), height * rng.uniform(.3, .76), radius * rng.uniform(.34, .6),
                              (offset * math.cos(angle), offset * math.sin(angle)), 18, 18, .5))
     for rock in range(9):
         angle = rng.uniform(0, TAU)
-        offset = radius * rng.uniform(.9, 2.1)
+        offset = radius * rng.uniform(.8, 1.45)
         boulder(sheet, (offset * math.cos(angle), offset * math.sin(angle), rng.uniform(-3, 5)),
                 radius * rng.uniform(.12, .42), seed + 400 + rock)
     # Tops carry dense low foliage, then a few taller pines that break the outline.
