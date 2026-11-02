@@ -621,3 +621,38 @@ Also: needle clumps tear apart toward their edges in the shader, so no polygon o
 ### M3 regressions found and fixed
 
 The closer camera first broke two M3 checks. Pillar ratio 0.265 against the 0.25 limit: Kun's outward spiral widened from 188 to 226 per scale unit, now 0.236. Portrait clipped Kun for a moment at t=1: the camera pulls back further and aims at the whole of Kun in portrait, and follows tighter during the posed shots.
+
+### Codex reviews of M4 fix round 3, and what each changed
+
+Numbered in sequence with last night's: M4 review 3 was the last one then.
+
+| Review | Commit | Verdict | Criteria | Findings | Answer |
+|---:|---|---|---:|---|---|
+| M3 r6 | b6424ac | PASS | 4 of 4 | Regression pass on the new camera | |
+| M4 r4 | b6424ac | FIX | 2 of 4 | Pillar feet; close-up crop missed the belly; stippling; bars of light | Stippling was my near-fade dither on stone in front of Kun, gone. Crop now centred on the front of the body. Water rebuilt |
+| M4 r5 | 4dd87fe | FIX | 3 of 4 | Feet; silver flakes on the surface; bars of light | Mist behind a foot only outlines it, so foot cards now always stand on the camera's side. Water quietened. Rays varied |
+| M5 r4 | 92b6c59 | FIX | 4 of 4 | Feet (M4's). Title confirmed as a real game frame | |
+| M4 r6 | cc38308 | FIX | 3 of 4 | Feet only; surface and shafts now minor | |
+| M4 r7 | b16ec6d | FIX | 3 of 4 | Feet, shafts and surface, all worst on the narrow frames | I had been tuning on desktop. See below |
+| M4 r8 | ddc3bb5 | FIX | 4 of 4 | Comb of even shafts; hard line in `kun-test` | **C3 passed for the first time.** The line was my bug: fog bank height zeroed in the test scene, density not |
+
+### The pillar feet, for the record
+
+The finding that survived every review since last night. Four attempts, three wrong:
+
+1. Mist in front of the foot alone: covers it, but where mist thins the outline is still there.
+2. Discarding stone below an uneven height: the contour goes, but a dither reads as halftone. Rejected before review.
+3. Melting the foot into a blur of the scene, in the composite: the edge stayed, because the blur stopped at the silhouette, then stayed again, because the mist itself is depth-aware and changes sharply at the outline. Fixed by splitting the composite into merge and grade, and melting between them with a blurred mask. Works, at a price of five passes; kept, restricted to the very bottom of each foot.
+4. What finally closed it: a low fog bank with an uneven ceiling, computed from each pixel's path through it. Stone and seabed sink into one colour as the path lengthens, so a foot has no contour left. Physically right, and cheap: it runs inside the existing volume pass.
+
+### Shafts, for the record
+
+Round 8's "comb" was fair: rays were evenly spaced and ran smooth. They now fall in four uneven clusters and each breaks along its own length, converging just above the frame as they do in the key art.
+
+### Fins: a test I did not keep
+
+78/73 sweep looked almost the same as 84/78. Not worth a change or new numbers, so it was reverted, including the raw build.
+
+### Kun freeze audit
+
+`tools/check_kun.py --fin-constants --scale 1.95`: only the four `kun_fin_*` meshes changed; 26 other objects identical; all UVs and the swim shader identical; triangle counts identical.
