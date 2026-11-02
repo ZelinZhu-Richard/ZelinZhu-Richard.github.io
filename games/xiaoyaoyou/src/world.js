@@ -27,8 +27,8 @@ const OPENING_STAND = [[330, -215, .62, 1], [470, -110, .72, 3], [420, 235, .66,
   [760, -380, .95, 4], [820, 420, .9, 6], [300, 330, .5, 7]];
 // Cliffs at the frame edges: where the inner edge sits in half-frames, depth, the height their
 // top reaches in half-heights, and how far each wall turns from the view.
-const FRAME_CLIFFS = [{ kind: 0, edge: -.66, depth: 1, top: .02, turn: -.35 }, { kind: 1, edge: .72, depth: .86, top: .2, turn: .3 + Math.PI },
-  { kind: 2, edge: -.2, depth: .42, top: -.74, turn: .4 }, { kind: 2, edge: .34, depth: .34, top: -.88, turn: -.3 + Math.PI }];
+const FRAME_CLIFFS = [{ kind: 0, edge: -.56, depth: 1, top: .08, turn: -.35 }, { kind: 1, edge: .66, depth: .86, top: .2, turn: .3 + Math.PI },
+  { kind: 2, edge: -.14, depth: .42, top: -.62, turn: .4 }, { kind: 2, edge: .3, depth: .34, top: -.76, turn: -.3 + Math.PI }];
 // Far embers in the two posed shots, as offsets from the view in half-frames.
 const EMBERS = [[-.78, -.1], [-.34, -.2], [.28, -.6], [.88, -.02], [.76, -.34]];
 
@@ -89,8 +89,8 @@ function rockMaterial(shared, instanced) {
             float torn=vnoise(vec2(dot(vWorld,vec3(.31,.82,.22)),dot(vWorld,vec3(-.66,.24,.71)))*vec2(.5,1.6));
             if(torn>vPaint.b*2.6+.12)discard;
           }
-          // Stone dissolves just before it would reach the lens.
-          if(ign(gl_FragCoord.xy)>smoothstep(uNear*.4,uNear,dist))discard;
+          // Stone clears from around the lens. In the posed shots nothing stands in front of Kun.
+          if(ign(gl_FragCoord.xy)>smoothstep(uNear*.92,uNear,dist))discard;
         #endif
         vec3 n=normalize(vNormal);
         // The painted cliff, projected on the two vertical planes and blended by the face.
@@ -149,7 +149,7 @@ function domeMaterial(shared) {
       varying vec3 vDir;
       void main(){vDir=position;vec4 p=projectionMatrix*mat4(mat3(viewMatrix))*vec4(position,1.);gl_Position=p.xyww;}`,
     fragmentShader: `
-      uniform vec3 uAbyss,uDeep,uSea,uHaze,uHorizon,uShaft,uLight,uCamera; uniform float uTime,uSurface,uDensity,uViewScale;
+      uniform vec3 uAbyss,uDeep,uSea,uHaze,uHorizon,uShaft,uLight,uCamera; uniform float uTime,uSurface,uDensity,uViewScale,uBand;
       uniform sampler2D tGobo;
       varying vec3 vDir;
       void main(){
@@ -164,7 +164,7 @@ function domeMaterial(shared) {
         // Far water pales into a band of haze behind the stone. Its height is uneven, so it
         // never reads as a line.
         float rise=texture2D(tGobo,vec2(atan(ray.x,ray.z)*.31,.21)).b;
-        c=mix(c,uHorizon,exp(-pow(max(up-.015,0.)/(.05+.1*rise),1.5))*smoothstep(-.1,0.,up));
+        c=mix(c,uHorizon,uBand*exp(-pow(max(up-.015,0.)/(.05+.1*rise),1.5))*smoothstep(-.1,0.,up));
         if(up>.02){
           // The surface from below: dark swell, with glints wherever a ripple's slope tips
           // toward the light. They thin out and shrink with distance.
@@ -235,7 +235,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     uHaze: { value: palette.haze }, uShaft: { value: palette.shaft }, uFog: { value: palette.deep },
     uHorizon: { value: palette.deep.clone().multiplyScalar(.6).add(palette.haze.clone().multiplyScalar(.5)) },
     uLight: { value: light }, uCamera: { value: new THREE.Vector3() }, uTime: { value: 0 },
-    uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, uFoot: { value: 90 }, uNear: { value: 30 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
+    uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, uFoot: { value: 90 }, uNear: { value: 30 }, uBand: { value: 1 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
     uKey: { value: new THREE.Color(1.15, 1.2, 1.2) }, uAmbient: { value: new THREE.Color(.075, .1, .118) },
   };
   const meshes = new Map();
@@ -466,7 +466,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       finaleOn = rig.ready;
       if (finaleOn) placeCliffs(1, rig, pitch, scale, aspect, 1 - mix);
     },
-    update(camera, gameMs, scale) {
+    update(camera, gameMs, scale, mix = 0) {
       // The light stands ahead of the camera and to its right, so the bright water
       // and the slant of the shafts stay composed as Kun turns.
       camera.getWorldDirection(look);
@@ -479,9 +479,11 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       shared.uDensity.value = fogDensity(scale);
       shared.uViewScale.value = Math.pow(scale, .8);
       shared.uFoot.value = 46 + 14 * Math.sqrt(scale);
-      shared.uNear.value = 26 + 16 * scale;
+      shared.uNear.value = THREE.MathUtils.lerp(14 + 6 * scale, 14.8 * scale, mix);
       speckMaterial.uniforms.uBox.value = 170 * Math.pow(scale, .9);
       speckMaterial.uniforms.uPixel.value = Math.min(window.devicePixelRatio || 1, 2);
+      // The test scene has no stone to break the horizon, so it keeps a plain gradient.
+      shared.uBand.value = props.visible ? 1 : 0;
       if (props.visible && frame++ % 6 === 0) cull(camera, scale, fogDensity(scale));
     },
     refresh() { frame = 0; },

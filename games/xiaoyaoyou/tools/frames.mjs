@@ -27,7 +27,8 @@ try {
   page.on('pageerror', e => console.log('pageerror', e.message));
   page.on('requestfailed', r => console.log('failed', r.url()));
   page.on('console', m => { if (m.type() === 'error' || m.text().includes('THREE.WebGLProgram')) console.log(m.type(), m.text().slice(0, 900)); });
-  await page.goto(`http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=north-start${clean ? '&clean=1' : ''}`);
+  await page.goto(`http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=north-start`);
+  if (clean) await page.addStyleTag({ content: '#hud{display:none!important}' });
   await page.waitForFunction(() => window.__GAME_READY__ === true, null, { timeout: 15000 });
   await page.waitForFunction(() => window.__GAME_STATE__.settled, null, { timeout: 30000 });
   for (const shot of shots) {
