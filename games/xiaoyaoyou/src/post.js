@@ -3,7 +3,7 @@ import * as THREE from 'three';
 // HDR scene -> half-resolution volumetric light and mist -> bloom -> filmic grade.
 // Every pass is counted in renderer.info, so the draw-call gate sees all of it.
 
-const RAY_COUNT = 13;
+const RAY_COUNT = 17;
 const VERTEX = 'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -175,10 +175,10 @@ void main(){
   for(int i=0;i<RAYS;i++){
     vec4 r=uRays[i];
     float across=(angle-r.x)/r.y, along=below/r.z;
-    rays+=r.w*exp(-across*across)*exp(-along*along*along);
+    rays+=r.w*exp(-across*across)*exp(-along*along);
   }
   float strands=texture2D(tGobo,vec2(angle*5.1+uTime*.004,.13)).a;
-  float broken=.62+.76*texture2D(tGobo,vec2(angle*2.3,below*.42+uTime*.002)).b;
+  float broken=.4+1.2*texture2D(tGobo,vec2(angle*2.3,below*.9+uTime*.002)).b;
   // Light gathers around one opening in the surface.
   vec2 source=(vUv-clamp(uVanish,vec2(.08,0.),vec2(.92,1.06)))*vec2(uAspect,1.);
   // Soft-limited: strong columns stay light in water and never become a solid wall.
@@ -187,7 +187,7 @@ void main(){
   // One shared bright region near the surface, which the rays visibly leave.
   scatter+=uShaft*exp(-dot(source,source)*3.)*.13;
   // A soft band of far water covers the line where the seabed meets the dome.
-  scatter+=uMist*.1*exp(-pow(ray.y/.085,2.))*smoothstep(0.,1.,dist/(900.*sqrt(uScale)));
+  scatter+=uMist*.05*exp(-pow(ray.y/.085,2.))*smoothstep(0.,1.,dist/(900.*sqrt(uScale)));
   // Mist hugs the seabed: march only the slab of water it lives in.
   float transmit=1.;
   float t0=0.,t1=min(dist,uReach*2.4);
@@ -232,14 +232,16 @@ const cardVertex = `
 attribute vec4 aCenter;
 attribute vec4 aCard;
 uniform float uTime,uScale,uDensity,uSurface;
-uniform vec3 uLight;
+uniform vec3 uLight,uCamera;
 uniform sampler2D tGobo;
 varying vec2 vUv;
 varying float vFade,vLight,vDepth,vSoft;
 void main(){
   float width=aCenter.w*pow(uScale,.34);
-  float height=width*.62/pow(uScale,.12);
-  vec3 center=aCenter.xyz+vec3(sin(uTime*.03+aCard.y*40.),0.,cos(uTime*.024+aCard.y*31.))*width*.08;
+  float height=width*.6/pow(uScale,.12);
+  vec3 center=aCenter.xyz+vec3(sin(uTime*.03+aCard.y*40.),0.,cos(uTime*.024+aCard.y*31.))*width*.06;
+  // Always in front of the foot it belongs to, seen from wherever the camera is.
+  center.xz+=normalize(uCamera.xz-center.xz+1e-3)*aCard.w;
   vec4 view=viewMatrix*vec4(center,1.);
   vec3 up=(viewMatrix*vec4(0.,1.,0.,0.)).xyz;
   vec2 corner=position.xy;
@@ -249,7 +251,7 @@ void main(){
   vSoft=30.+22.*sqrt(uScale);
   // Close to the camera a card opens out and disappears, so the view never enters a sheet.
   float near=smoothstep(90.*sqrt(uScale),300.*sqrt(uScale),dist);
-  vFade=near*exp(-pow(dist*uDensity*.72,2.))*(.82+.18*sin(uTime*.11+aCard.y*17.));
+  vFade=near*exp(-pow(dist*uDensity*.6,2.))*(.82+.18*sin(uTime*.11+aCard.y*17.));
   vec2 q=center.xz+uLight.xz*(uSurface-center.y)/uLight.y;
   vLight=.34+1.3*texture2D(tGobo,q/(900.*sqrt(uScale))).r;
   float cell=aCard.x;
@@ -403,9 +405,10 @@ export function createPost(renderer, gobo, seedRandom) {
   // The table of rays: angle from straight down, half-width, reach in frame heights, strength.
   const rayRandom = seedRandom;
   const RAY_SET = Array.from({ length: RAY_COUNT }, (_, i) => {
-    const place = (i + .5) / RAY_COUNT, thick = rayRandom() < .3;
-    return { angle: (place - .5) * .78 + (rayRandom() - .5) * .05, width: thick ? .04 + rayRandom() * .03 : .012 + rayRandom() * .016,
-      reach: .3 + rayRandom() * .5, gain: (thick ? .5 : .7 + rayRandom() * .5) * (1 - Math.pow(Math.abs(place - .56) * 1.9, 2)) };
+    const place = (i + .5) / RAY_COUNT, thick = rayRandom() < .3, long = rayRandom();
+    // Most rays die early; only a couple reach far, and those are the fainter ones.
+    return { angle: (place - .5) * .78 + (rayRandom() - .5) * .07, width: thick ? .05 + rayRandom() * .05 : .016 + rayRandom() * .02,
+      reach: .16 + long * long * .62, gain: (thick ? .42 : .55 + rayRandom() * .6) * (1 - .55 * long) * (1 - Math.pow(Math.abs(place - .56) * 1.9, 2)) };
   });
   const volume = pass(volumeFragment.replaceAll('RAYS', String(RAY_COUNT)), {
     tDepth: { value: depthTexture }, tGobo: { value: gobo }, tMist: { value: mist }, tMistMap: { value: null },
@@ -433,7 +436,7 @@ export function createPost(renderer, gobo, seedRandom) {
   const cardScene = new THREE.Scene();
   const cardUniforms = {
     tSheet: { value: null }, tDepth: { value: depthTexture }, tGobo: { value: gobo }, uProject: { value: new THREE.Vector4() }, uViewport: { value: new THREE.Vector2(1, 1) },
-    uMist: { value: new THREE.Color('#71868E') }, uGain: { value: .62 }, uTime: { value: 0 }, uScale: { value: 1 }, uDensity: { value: .001 }, uSurface: { value: 640 }, uLight: { value: new THREE.Vector3(0, 1, 0) },
+    uMist: { value: new THREE.Color('#71868E') }, uGain: { value: .62 }, uTime: { value: 0 }, uScale: { value: 1 }, uDensity: { value: .001 }, uSurface: { value: 640 }, uLight: { value: new THREE.Vector3(0, 1, 0) }, uCamera: { value: new THREE.Vector3() },
   };
   return {
     uniforms: volume.uniforms, grade: composite.uniforms, sceneTarget, cards: cardUniforms,
@@ -448,7 +451,7 @@ export function createPost(renderer, gobo, seedRandom) {
       const center = new Float32Array(items.length * 4), card = new Float32Array(items.length * 4);
       items.forEach((item, i) => {
         center.set([item.x, item.y, item.z, item.width], i * 4);
-        card.set([item.cell, item.seed, item.flip, 0], i * 4);
+        card.set([item.cell, item.seed, item.flip, item.front], i * 4);
       });
       geometry.setAttribute('aCenter', new THREE.InstancedBufferAttribute(center, 4));
       geometry.setAttribute('aCard', new THREE.InstancedBufferAttribute(card, 4));
@@ -501,6 +504,7 @@ export function createPost(renderer, gobo, seedRandom) {
       composite.uniforms.tVolume.value = volumeA.texture;
       cardUniforms.uProject.value.copy(blur.uniforms.uProject.value);
       cardUniforms.uTime.value = time;
+      cardUniforms.uCamera.value.copy(camera.position);
       renderer.setRenderTarget(cardTarget);
       renderer.setClearColor(0x000000, 0);
       renderer.clear();

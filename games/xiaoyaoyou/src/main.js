@@ -11,7 +11,7 @@ const CHECKPOINTS = new Map([['title', 'title'], ['north-start', 'north'], ['nor
 // When each source line shows, in journey seconds. Fixed to the simulation, never to the wall clock.
 const LINE_TIMES = { first: [1.8, 10.5], second: 9 };
 const SHEET_VIEWS = ['side', 'top', 'front'];
-const CARD_GAIN = .78, BLOOM_GAIN = .34;
+const CARD_GAIN = .86, BLOOM_GAIN = .34;
 
 export async function createRuntime(text, onProgress) {
   const title = document.querySelector('#title-screen');

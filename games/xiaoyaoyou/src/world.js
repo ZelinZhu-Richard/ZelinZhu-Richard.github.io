@@ -185,14 +185,14 @@ function domeMaterial(shared) {
           vec2 toSun=normalize(uLight.xz+1e-4);
           float facet=smoothstep(-.5,.8,dot(slope,toSun)*44.);
           float swell=texture2D(tGobo,p/(size*3.1)+flow*.4).b;
-          vec3 water=mix(uAbyss*.42,uSea*vec3(.56,.76,.92),facet*facet*facet)*(.5+.95*swell);
+          vec3 water=mix(uAbyss*.42,uSea*vec3(.5,.7,.88),facet*facet*facet*(.34+.66*pow(sun,5.)))*(.5+.95*swell);
           float glow=pow(sun,8.);
           water+=uHaze*glow*facet*facet*.8;
-          float glint=smoothstep(.3,.8,1.-length(slope-toSun*.014)*46.);
-          float pool=pow(sun,12.)*.55+pow(sun,44.)*7.;
+          float glint=smoothstep(.1,.9,1.-length(slope-toSun*.014)*42.);
+          float pool=pow(sun,22.)*.46+pow(sun,60.)*7.;
           float top=smoothstep(.44,.58,up);
           vec3 cream=mix(uShaft*2.1,vec3(2.2,1.95,1.5),pow(sun,18.));
-          vec3 surface=water+cream*glint*min(pool,1.)*(.12+.88*top);
+          vec3 surface=water+cream*glint*min(pool,1.)*(.08+.92*top);
           surface+=cream*glint*max(pool-1.,0.)*.5*top;
           float near=exp(-pow(t*uDensity*.32,2.));
           c=mix(c,surface,near*smoothstep(.34,.56,up));
@@ -240,7 +240,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   const shared = {
     uAbyss: { value: palette.abyss }, uDeep: { value: palette.deep }, uSea: { value: palette.sea },
     uHaze: { value: palette.haze }, uShaft: { value: palette.shaft }, uFog: { value: palette.deep },
-    uHorizon: { value: palette.deep.clone().multiplyScalar(.6).add(palette.haze.clone().multiplyScalar(.5)) },
+    uHorizon: { value: palette.deep.clone().multiplyScalar(.62).add(palette.haze.clone().multiplyScalar(.36)) },
     uLight: { value: light }, uCamera: { value: new THREE.Vector3() }, uTime: { value: 0 },
     uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, uFoot: { value: 90 }, uNear: { value: 30 }, uBand: { value: 1 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
     uKey: { value: new THREE.Color(1.15, 1.2, 1.2) }, uAmbient: { value: new THREE.Color(.075, .1, .118) },
@@ -371,16 +371,15 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     }
   }
 
-  // Mist cards lie across every foot, and open banks drift between the stands.
+  // Mist cards stand on the camera's side of every foot, because only mist in front of stone
+  // can hide where it ends. Mist behind a foot just outlines it.
   const cardRandom = mulberry(7171), cards = [];
-  const addCard = (x, z, spread, width) => {
-    const a = cardRandom() * 6.28, r = spread * Math.sqrt(cardRandom());
-    cards.push({ x: x + Math.sin(a) * r, y: 4 + cardRandom() * 26, z: z + Math.cos(a) * r, width: width * (.75 + cardRandom() * .6),
+  const addCard = (x, z, front, width) => {
+    cards.push({ x, y: -46 + cardRandom() * 22, z, width: width * (.8 + cardRandom() * .5), front: front * (.9 + cardRandom() * .5),
       cell: Math.floor(cardRandom() * 9), flip: cardRandom() < .5 ? -1 : 1, seed: cardRandom() });
   };
-  for (const item of layout.hero) for (let i = 0; i < 7; i++) addCard(item.x, item.z, 60 + 40 * item.scale, 300 * Math.max(item.scale, 1));
-  for (const item of layout.field) if (cardRandom() < .62) addCard(item.x, item.z, 50, 210 * item.scale);
-  for (let i = 0; i < 70; i++) { const a = cardRandom() * 6.28, r = 200 + cardRandom() * 4000; addCard(Math.sin(a) * r, Math.cos(a) * r, 0, 330); }
+  for (const item of layout.hero) for (let i = 0; i < 4; i++) addCard(item.x, item.z, 46 * item.scale, 300 * Math.max(item.scale, .85));
+  for (const item of layout.field) for (let i = 0; i < 2; i++) addCard(item.x, item.z, 30 * item.scale, 230 * item.scale);
 
   const dome = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 24), domeMaterial(shared));
   dome.frustumCulled = false; dome.renderOrder = -10;
@@ -477,7 +476,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       // The light stands ahead of the camera and to its right, so the bright water
       // and the slant of the shafts stay composed as Kun turns.
       camera.getWorldDirection(look);
-      const azimuth = Math.atan2(look.x, look.z) - .34;
+      const azimuth = Math.atan2(look.x, look.z) - .34 * Math.min(1, camera.aspect);
       light.set(Math.sin(azimuth) * .92, 1, Math.cos(azimuth) * .92).normalize();
       // Kun keeps a near-overhead key, leaning a little toward the camera.
       heroLight.set(-look.x * .34 + look.z * .16, 1, -look.z * .34 - look.x * .16).normalize();
