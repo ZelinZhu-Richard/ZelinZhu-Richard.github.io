@@ -291,7 +291,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
   - Show and wait: side and top silhouette overlays and the IoU table, then front, front-left 25°-above three-quarter, and behind-left 30°-above gameplay-camera renders; browser n/a.
   - Fallback if stuck: set the body's cross-section widths from the side and top masks (per-column extents), trace the fin and fluke outlines from the reference masks, and drop subdivision to level 1.
 
-- [ ] Milestone 2: Kun in the browser — both textures, swim deformation, north-sea test scene
+- [x] Milestone 2: Kun in the browser — both textures, swim deformation, north-sea test scene
 
   `tools/optimize_assets.sh`, `assets.json` with a `kun` entry, `src/assets.js`, and the checkpoint `kun-test`.
   - **Test scene:**
@@ -316,7 +316,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
   - Show and wait: the Blender previews next to `kun-view-*`, `kun-test-desktop.png` next to `key-north-sea.png`, the swim strip, and the IoU table.
   - Fallback if stuck: if transparency sorting shows artifacts, draw the fins in two passes (back faces, then front faces) or use alpha hashing. If `onBeforeCompile` fights the lighting, use a ShaderMaterial with Three's fog chunks.
 
-- [ ] Milestone 3: Beat 1 playable — the northern sea (first raw slice)
+- [x] Milestone 3: Beat 1 playable — the northern sea (first raw slice)
 
   `blender/sea.py`: tall ink rock pillars (`ref-pillar-1…n`, irregular extruded profiles with displaced vertices), with small ink pines on their tops as in the key art, at a fixed world size. Runtime motes are instanced red glows; each new mote spawns ahead of the player and drifts into its path, so a player can never miss one. The `kun-test` scene's background, fog, light and shafts carry over.
   - **Growth:** 7 motes. Each one multiplies Kun's scale by about 1.43, reaching about 12×. Camera distance scales with Kun.
@@ -364,7 +364,7 @@ The 60 fps target is checked manually by Richard on an M-series Mac. It is not a
   - Show and wait: the close-up and the north screenshots, each next to the key art, plus the palette numbers.
   - Fallback if stuck: make the light shafts static additive gradient planes, and replace the rim shader with a second, slightly larger additive cream hull behind Kun.
 
-- [ ] Milestone 5: Bilingual text, fonts, seal end card — SHIPPABLE VERTICAL SLICE
+- [x] Milestone 5: Bilingual text, fonts, seal end card — SHIPPABLE VERTICAL SLICE
 
   This is the first shippable slice, and an unattended night's guaranteed deliverable: title → northern sea with source lines → seal end card → Replay.
   - **Text:** `text.json` holds `title`, the UI strings, `north-1` (shown on entering the sea) and `north-2` (shown after mote 4). It also holds Codex's fresh English drafts.
