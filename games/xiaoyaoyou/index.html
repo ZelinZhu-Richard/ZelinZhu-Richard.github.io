@@ -33,7 +33,10 @@
     </section>
   </div>
   <main id="title-screen" class="title-screen">
-    <img id="title-art" class="title-art" src="./assets/title.webp" alt="" aria-hidden="true">
+    <picture>
+      <source media="(max-aspect-ratio: 3/4)" srcset="./assets/title-narrow.webp">
+      <img id="title-art" class="title-art" src="./assets/title.webp" alt="" aria-hidden="true">
+    </picture>
     <div class="title-group">
       <h1 data-text="title" data-lang="zh"></h1>
       <p class="subtitle" lang="en" data-text="title" data-lang="en"></p>

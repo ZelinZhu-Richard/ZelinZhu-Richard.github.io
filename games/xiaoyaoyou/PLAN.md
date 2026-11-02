@@ -64,7 +64,7 @@ Use these only when `run_night.sh` drives Codex with the grader while Richard is
 - `vendor/three/` holds Three.js build + addons + LICENSE
 - `blender/*.py` are the asset scripts
 - `assets/*.glb` are the optimized runtime assets (committed)
-- `ref/` holds the reference art. It is read-only: never edited, and never shipped, with one exception: the making-of page may carry a copy of the key art, clearly labeled "concept art", next to the in-game result (see **Title and concept art** in Decisions).
+- `ref/` holds the reference art. It is read-only: never edited, and never shipped, with one exception: the making-of page may carry a copy of the key art, clearly labeled "concept art", next to the in-game result, and the reference sheets, as Richard asked for that page on 2026-11-01 (see **Title and concept art** in Decisions).
 - `fonts/` holds the font subsets plus `OFL-LXGWWenKai.txt` and `OFL-EBGaramond.txt`
 - `text.json`
 - `tools/capture.mjs`, `tools/silhouette.py`, `tools/optimize_assets.sh`, `tools/subset_fonts.sh`, `tools/check_text.py`

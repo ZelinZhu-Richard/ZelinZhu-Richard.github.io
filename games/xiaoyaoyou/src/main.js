@@ -141,7 +141,7 @@ export async function createRuntime(text, onProgress) {
     if (id === 'end-card') { replayJourney(j => j.ended); finish(); }
     resize();
   }
-  // A real Begin dissolves the painting into the live sea behind it.
+  // A real Begin dissolves the title frame into the live sea behind it.
   const start = () => jump('north-start', true);
   function replay() {
     const auto = journey.j.autoplay;
