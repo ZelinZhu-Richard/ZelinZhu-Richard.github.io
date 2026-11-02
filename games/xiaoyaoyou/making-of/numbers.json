@@ -1,0 +1,37 @@
+{
+  "iou": "0.62 from the side and 0.58 from above, where 1 would be a perfect match",
+  "rows": [
+    [
+      "Triangles in the heaviest frame (limit 300,000)",
+      "250,975"
+    ],
+    [
+      "Draw calls in the heaviest frame (limit 150)",
+      "72"
+    ],
+    [
+      "Download, full journey (limit 20 MB)",
+      "10.6 MB"
+    ],
+    [
+      "Frame rate, Apple M4 Pro, headless Chromium",
+      "60 fps"
+    ],
+    [
+      "Stone pillars in the sea",
+      "542"
+    ],
+    [
+      "Length of the journey",
+      "116 s"
+    ],
+    [
+      "Lines of game and model code",
+      "3,255"
+    ],
+    [
+      "Independent reviews run by Codex",
+      "14"
+    ]
+  ]
+}
