@@ -349,7 +349,7 @@ export async function createRuntime(text, onProgress) {
       const j = journey.j, fromX = camera.position.x, fromZ = camera.position.z, dx = j.x - fromX, dz = j.z - fromZ, length2 = dx * dx + dz * dz;
       result.blocked = world.colliders.some(p => {
         const t = THREE.MathUtils.clamp(((p.x - fromX) * dx + (p.z - fromZ) * dz) / length2, 0, 1);
-        return t < .92 && Math.hypot(fromX + dx * t - p.x, fromZ + dz * t - p.z) < p.radius * .8 && p.height > Math.min(j.y, camera.position.y);
+        return t < .92 && Math.hypot(fromX + dx * t - p.x, fromZ + dz * t - p.z) < p.radius * .8 && p.height > camera.position.y + (j.y - camera.position.y) * t;
       });
     }
     return result;

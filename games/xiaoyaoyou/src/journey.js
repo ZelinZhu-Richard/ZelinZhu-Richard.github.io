@@ -27,6 +27,13 @@ const SHOWCASE_SHOTS = Object.freeze([
 ]);
 const SHOT_BLEND = 6;
 const SHOWCASE_PACE = .62;
+// A pillar must not stand between the camera and Kun. The sight line sweeps forward with Kun, so
+// the only way round a pillar is inside it: the camera swings in behind Kun and closes up, lets the
+// stone slide past outside it, and returns to the flank. Closing up as it swings keeps Kun the same
+// size on screen and clears the stone at a wider angle, so the flank is never lost.
+const CLEARANCE = Object.freeze({ lead: 1.2, margin: .22, closest: .5, closer: .85, swing: 1.7, settle: .8 });
+// A portrait frame has no width to spare and a longer boom, so it swings further and does not close up.
+const CLEARANCE_PORTRAIT = Object.freeze({ closest: .3, closer: 1 });
 const CAMERA_MIX = Object.freeze({ introHold: 2.4, introEase: 4.4, finaleEase: 5.5, finaleHold: 4 });
 const SPEED = Object.freeze({ held: 1.2, idleFraction: .25, rise: .34, fall: 1 });
 const TURN = Object.freeze({ yawRate: 1.0, pitchLimit: .55, yawFollow: 5, pitchFollow: 2.2, bank: .5 });
@@ -63,7 +70,7 @@ export function createJourney(pillars) {
       scale: 1, targetScale: 1, motes: 0, growth: [], moteTimes: [], pulse: 0,
       steerX: 0, steerY: 0, hold: false, steerActive: false,
       mote: { active: false, x: 0, y: 0, z: 0, wait: MOTE.delay, age: 0, fade: 0 },
-      cam: { x: 0, y: 0, z: 0, aimX: 0, aimY: 0, aimZ: 0, mix: 0, ready: false },
+      cam: { x: 0, y: 0, z: 0, aimX: 0, aimY: 0, aimZ: 0, mix: 0, clear: 1, portrait: 0, ready: false },
       rig: { x: 0, y: 0, z: 0, fx: 0, fz: 1, ready: false },
       orbit: 0,
     });
@@ -214,24 +221,58 @@ export function createJourney(pillars) {
     }
   }
 
+  // How far round the camera may stand when it has this share of its usual sideways reach.
+  function clearedPose(share, off, distance) {
+    const limit = key => CLEARANCE[key] + (CLEARANCE_PORTRAIT[key] - CLEARANCE[key]) * j.cam.portrait;
+    const closer = Math.max(limit('closer'), Math.sqrt(share));
+    return { off: Math.max(limit('closest'), Math.asin(Math.min(1, share * Math.sin(off) / closer))), distance: distance * closer };
+  }
+  // The share of the camera's sideways reach that keeps every pillar out of the sight line.
+  function clearShare(off, distance, size) {
+    const hx = Math.sin(j.yaw), hz = Math.cos(j.yaw), margin = CLEARANCE.margin * size;
+    const reach = distance * Math.sin(off), slope = Math.cos(off) / Math.sin(off);
+    let share = 1;
+    for (const pillar of pillars) {
+      const dx = pillar.x - j.x, dz = pillar.z - j.z;
+      // Across is measured toward the camera's side, Kun's right.
+      const across = hz * -dx + hx * dz, along = dx * hx + dz * hz;
+      if (across + pillar.radius < 0 || across - pillar.radius > reach) continue;
+      // A crown below the sight line passes under it. The camera sits low, so the line climbs to Kun.
+      if (pillar.height < j.y + (j.cam.y - j.y) * clamp(across / reach, 0, 1)) continue;
+      const allowed = Math.max(0, across - pillar.radius - margin) / reach;
+      const pose = clearedPose(allowed, off, distance);
+      const behind = -pose.distance * Math.cos(pose.off) - pillar.radius - margin;
+      const ahead = -across * slope + j.speed * CLEARANCE.lead + pillar.radius;
+      if (along > behind && along < ahead) share = Math.min(share, allowed);
+    }
+    return share;
+  }
+
   function updateCamera(dt, aspect) {
     let mix = 1 - smooth(CAMERA_MIX.introHold, CAMERA_MIX.introHold + CAMERA_MIX.introEase, j.t);
     if (j.phase === 'finale') mix = Math.max(mix, smooth(.3, CAMERA_MIX.finaleEase, j.phaseT));
-    const portrait = clamp((1.1 - aspect) / .6, 0, 1);
+    const portrait = j.cam.portrait = clamp((1.1 - aspect) / .6, 0, 1);
     const a = showcase ? shot() : { ...CAMERA_PLAY, azimuth: CAMERA_PLAY.azimuth + (CAMERA_PORTRAIT.azimuth - CAMERA_PLAY.azimuth) * portrait,
       aimAhead: CAMERA_PLAY.aimAhead + (CAMERA_PORTRAIT.aimAhead - CAMERA_PLAY.aimAhead) * portrait };
     const b = CAMERA_ART;
     const blend = key => a[key] + (b[key] - a[key]) * mix;
     const size = BODY_LENGTH * j.scale;
     const fit = aspect < 1 ? 1 + (1 - aspect) * (1.6 + 1.35 * mix) : 1;
-    const azimuth = blend('azimuth'), elevation = blend('elevation');
-    const distance = blend('distance') * size * fit;
+    const elevation = blend('elevation');
+    let distance = blend('distance') * size * fit, azimuth = blend('azimuth');
+    if (!showcase) {
+      const off = Math.PI - azimuth, share = clearShare(off, distance, size);
+      j.cam.clear = j.cam.ready ? j.cam.clear + (share - j.cam.clear) * Math.min(1, dt * (share < j.cam.clear ? CLEARANCE.swing : CLEARANCE.settle)) : share;
+      const pose = clearedPose(j.cam.clear, off, distance);
+      azimuth += (off - Math.min(off, pose.off)) * (1 - mix);
+      distance += (pose.distance - distance) * (1 - mix);
+    }
     const c = forward(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth)), elevation);
     const lookYaw = forward(j.yaw, 0);
     // The camera stays anchored to Kun; only its aim looks ahead.
     const baseY = j.y + blend('aimLift') * size;
     // The fins trail behind the body, so a narrow frame centres on the whole of Kun.
-    const side = (blend('aimSide') * (1 - portrait) - (.17 + (showcase ? 0 : .09) * (1 - mix)) * portrait) * size;
+    const side = (blend('aimSide') * (1 - portrait) - (.17 + (showcase ? 0 : .09) * (1 - mix)) * portrait * Math.sin(Math.PI - azimuth) / Math.sin(Math.PI - blend('azimuth'))) * size;
     const sideX = Math.cos(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth))) * side;
     const sideZ = -Math.sin(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth))) * side;
     // Look-ahead waits for the camera to swing behind Kun, or it pushes Kun out of frame.
