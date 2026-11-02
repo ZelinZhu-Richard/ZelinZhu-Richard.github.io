@@ -25,4 +25,4 @@ Portfolio visitors who want to find skills Richard uses and understand the skill
 
 ## Evidence on Hand
 
-The user's approved structure in this chat and the public NVIDIA/SkillSpector repository description, checked on October 22, 2026.
+Imported from local Skills snapshot `f159d04`, which records the user-approved structure and the public NVIDIA/SkillSpector repository description checked on October 22, 2026. The November 2 integration preserves that supplied content; it does not re-review the listed skill.

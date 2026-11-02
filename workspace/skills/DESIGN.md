@@ -1,6 +1,6 @@
 # Skills page
 
-Code-derived documentation for the narrow `/skills/` extension. The approved product structure is recorded in `PRODUCT.md`; no separate visual comp was supplied. This surface continues the existing portfolio design.
+Code-derived documentation for the narrow `/skills/` extension, imported from local snapshot `f159d04`. That snapshot records the product structure in `PRODUCT.md`; no separate visual comp was supplied. This surface continues the existing portfolio design.
 
 ## Content and ownership
 
@@ -33,4 +33,6 @@ Above 700px, sections use a `1fr 1.5fr` two-column grid with an 8% gap: heading 
 
 ## Verification and disposition
 
-Completion handoff reports passing desktop and mobile browser checks, all 95 existing tests, and the build. Reviewer disposition: **SHIP**, with no material findings. This document records the implemented scoped surface and does not expand the shared design system.
+The November 2, 2026 integration passed all 661 existing tests, the production build and `npm run verify`. Codex's built-in browser checked the page and affected detail-page navigation at 1440×900 and 390×844, including the mobile menu and SkillSpector permalink, with no observed console errors or horizontal overflow. These checks cover the imported static page and navigation; they do not constitute a new security review of the listed skill.
+
+The page is linked from the shared detail-page navigation and sitemap. The captured homepage remains unchanged while ownership of that shared file is unresolved. Publication still requires Richard's approval. This document records the implemented scoped surface and does not expand the shared design system.
