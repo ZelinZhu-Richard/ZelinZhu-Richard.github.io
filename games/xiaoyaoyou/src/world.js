@@ -225,7 +225,7 @@ function placements() {
     const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
     const cluster = Math.sin(x * .0041 + 1.3) * Math.cos(z * .0037 - .4) + .25 * Math.sin(x * .013 + z * .011);
     if (cluster < -.32 || !separated(x, z, hero, 120) || !separated(x, z, field.slice(-150), 62) || Math.hypot(x - open.x, z - open.z) < 150) continue;
-    field.push({ kind: field.length % 5, deep: field.length % 4, x, z, rotation: random() * 6.28, scale: .6 + random() * .75, stretch: .7 + random() * .5, sink: 40 + random() * 46 });
+    field.push({ kind: field.length % 5, x, z, rotation: random() * 6.28, scale: .6 + random() * .75, stretch: .7 + random() * .5, sink: 40 + random() * 46 });
   }
   return { hero, field };
 }
@@ -250,7 +250,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   seaRoot.traverse(object => { if (object.isMesh) meshes.set(object.name, object); });
   const geometries = (name, count) => Array.from({ length: count }, (_, i) => bakedGeometry(meshes.get(`${name}-${i + 1}`)));
   const heroGeometry = geometries('ref-pillar', 8), farGeometry = geometries('far-pillar', 5);
-  const deepGeometry = geometries('deep-pillar', 4), cliffGeometry = geometries('cliff', 3);
+  const deepGeometry = geometries('deep-pillar', 5), cliffGeometry = geometries('cliff', 3);
   for (const geometry of [...heroGeometry, ...farGeometry, ...cliffGeometry]) geometry.computeBoundingBox();
   const rock = rockMaterial(shared, true), floorMaterial = rockMaterial(shared, false);
   const layout = placements();
@@ -288,7 +288,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   };
   const heroBatches = heroGeometry.map(geometry => batch(geometry, layout.hero.length));
   const farBatches = farGeometry.map(geometry => batch(geometry, 160));
-  const deepBatches = deepGeometry.map(geometry => batch(geometry, 260));
+  const deepBatches = deepGeometry.map(geometry => batch(geometry, 220));
   const cliffBatches = cliffGeometry.map(geometry => batch(geometry, 4));
   const batches = [...heroBatches, ...farBatches, ...deepBatches, ...cliffBatches];
   for (const item of [...layout.hero, ...layout.field]) item.matrix = composed(item);
@@ -340,7 +340,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     camera.getWorldDirection(heading);
     const flat = Math.hypot(heading.x, heading.z) || 1, fx = heading.x / flat, fz = heading.z / flat;
     const cx = camera.position.x, cz = camera.position.z;
-    const reach = 2.15 / density, detail = 520 * Math.pow(scale, .3), close = 150 * Math.sqrt(scale);
+    const reach = 2.15 / density, detail = 860 * Math.pow(scale, .08), close = 150 * Math.sqrt(scale);
     // Wide enough that a quick turn never reveals a gap before the next pass.
     const cone = Math.cos(Math.min(1.5, Math.atan(FOV_TAN * Math.max(camera.aspect, 1)) + .62));
     const counts = new Map();
@@ -361,7 +361,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     }
     for (const item of layout.field) {
       const d = seen(item);
-      if (d >= 0) put(d < detail ? farBatches[item.kind] : deepBatches[item.deep], item);
+      if (d >= 0) put(d < detail ? farBatches[item.kind] : deepBatches[item.kind], item);
     }
     for (const item of stages[0]) if (seen(item) >= 0) put(cliffBatches[item.kind], item);
     if (finaleOn) for (const item of stages[1]) put(cliffBatches[item.kind], item);

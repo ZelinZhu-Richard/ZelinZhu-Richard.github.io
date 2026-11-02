@@ -30,8 +30,8 @@ HERO_PILLARS = [
     (53, 150, 28, 3, 5), (67, 262, 30, 3, 5), (71, 190, 24, 1, 4), (83, 136, 32, 3, 5),
 ]
 FAR_PILLARS = [(101, 200, 28), (113, 250, 24), (127, 160, 34), (131, 220, 20), (149, 130, 30)]
-# The deep field: bare stacks with a broken crown, a few dozen triangles each, by the hundred.
-DEEP_PILLARS = [(211, 210, 26), (223, 260, 20), (239, 150, 32), (241, 190, 24)]
+# The deep field shows the same pillars as coarse silhouettes, so nothing changes shape in the fog.
+DEEP_PILLARS = FAR_PILLARS
 # Foreground cliffs for the frame edges: broad broken walls hung with pines.
 CLIFFS = [(301, 320, 150, 15, 12), (313, 280, 170, 15, 11), (337, 340, 120, 12, 9)]
 FLOOR_SIZE, FLOOR_CELLS = 9000, 72
@@ -361,9 +361,13 @@ def far_pillar(seed, height, radius):
 
 
 def deep_pillar(seed, height, radius):
-    """A silhouette for the deep field. Only the outline matters at this distance."""
+    """far_pillar's own outline at a tenth of the triangles: same seeds, same second spire."""
+    rng = random.Random(seed)
     sheet = Sheet()
-    column(sheet, seed, height, radius, (0, 0), 8, 7, 1.0, .52)
+    column(sheet, seed, height, radius, (0, 0), 8, 7, 1.0, .46)
+    second = rng.uniform(0, TAU)
+    column(sheet, seed + 3, height * rng.uniform(.45, .75), radius * .5,
+           (radius * 1.1 * math.cos(second), radius * 1.1 * math.sin(second)), 5, 5, .5)
     return sheet
 
 
