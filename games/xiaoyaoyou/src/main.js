@@ -251,8 +251,8 @@ export async function createRuntime(text, onProgress) {
     u.tMistMap.value = world.mistMap;
     u.uMistTop.value = 34 + 30 * Math.sqrt(scale);
     u.uMistBottom.value = -30;
-    u.uBankTop.value = (inSea ? 1 : 0) * (22 + 13 * Math.sqrt(scale));
-    u.uBankDensity.value = layers.mist * .0065 / Math.sqrt(scale);
+    u.uBankTop.value = 22 + 13 * Math.sqrt(scale);
+    u.uBankDensity.value = inSea ? layers.mist * .0065 / Math.sqrt(scale) : 0;
     post.cards.uGain.value = layers.cards * CARD_GAIN;
     post.grade.uBloom.value = layers.bloom * BLOOM_GAIN;
     post.cards.uScale.value = scale;

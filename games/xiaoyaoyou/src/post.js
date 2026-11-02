@@ -177,17 +177,20 @@ void main(){
   for(int i=0;i<RAYS;i++){
     vec4 r=uRays[i];
     float across=(angle-r.x)/r.y, along=below/(r.z*tall);
-    rays+=r.w*exp(-across*across)*exp(-along*along);
+    // Each ray is interrupted along its own length, so none runs as one smooth bar.
+    float gaps=texture2D(tGobo,vec2(r.x*7.3+float(i)*.37,below*1.5+uTime*.003)).b;
+    rays+=r.w*exp(-across*across)*exp(-along*along)*smoothstep(.22,.62,gaps);
   }
   float strands=texture2D(tGobo,vec2(angle*5.1+uTime*.004,.13)).a;
   float broken=.4+1.2*texture2D(tGobo,vec2(angle*2.3,below*.9+uTime*.002)).b;
   // Light gathers around one opening in the surface.
   vec2 source=(vUv-clamp(uVanish,vec2(.08,0.),vec2(.92,1.06)))*vec2(uAspect,1.);
   // Soft-limited: strong columns stay light in water and never become a solid wall.
-  float light=shafts*(reach/uReach)*phase*uShaftGain*22.*(.03+7.*rays*broken*(.72+.28*strands))*smoothstep(-.1,.3,vUv.y);
+  float light=shafts*(reach/uReach)*phase*uShaftGain*22.*(.03+11.5*rays*broken*(.56+.44*strands))*smoothstep(-.1,.3,vUv.y);
   vec3 scatter=uShaft*.6*(1.-exp(-light*1.7));
   // One shared bright region near the surface, which the rays visibly leave.
-  scatter+=uShaft*exp(-dot(source,source)*3.)*.13;
+  // A broad glow under the surface, which the rays are embedded in.
+  scatter+=uShaft*exp(-dot(source,source)*3.2)*.1;
   // A soft band of far water covers the line where the seabed meets the dome.
   scatter+=uMist*.05*exp(-pow(ray.y/.085,2.))*smoothstep(0.,1.,dist/(900.*sqrt(uScale)));
   // Mist hugs the seabed: march only the slab of water it lives in.
@@ -435,12 +438,15 @@ export function createPost(renderer, gobo, seedRandom) {
   quadScene.add(quad);
   const pass = (fragmentShader, uniforms) => new THREE.ShaderMaterial({ vertexShader: VERTEX, fragmentShader, uniforms, depthTest: false, depthWrite: false, toneMapped: false });
   // The table of rays: angle from straight down, half-width, reach in frame heights, strength.
+  // They fall in uneven clusters with gaps between, never at even spacing. Most die early;
+  // only a couple reach far, and those are the fainter ones.
   const rayRandom = seedRandom;
+  const clusters = [.14, .4, .52, .83];
   const RAY_SET = Array.from({ length: RAY_COUNT }, (_, i) => {
-    const place = (i + .5) / RAY_COUNT, thick = rayRandom() < .3, long = rayRandom();
-    // Most rays die early; only a couple reach far, and those are the fainter ones.
-    return { angle: (place - .5) * .78 + (rayRandom() - .5) * .07, width: thick ? .05 + rayRandom() * .05 : .016 + rayRandom() * .02,
-      reach: .16 + long * long * .62, gain: (thick ? .42 : .55 + rayRandom() * .6) * (1 - .55 * long) * (1 - Math.pow(Math.abs(place - .56) * 1.9, 2)) };
+    const place = clusters[i % clusters.length] + (rayRandom() + rayRandom() - 1) * .085;
+    const thick = rayRandom() < .3, long = rayRandom();
+    return { angle: (place - .5) * .84, width: thick ? .04 + rayRandom() * .05 : .012 + rayRandom() * .022,
+      reach: .16 + long * long * .62, gain: (thick ? .46 : .5 + rayRandom() * .7) * (1 - .55 * long) * (1 - Math.pow(Math.abs(place - .5) * 1.5, 2)) };
   });
   const volume = pass(volumeFragment.replaceAll('RAYS', String(RAY_COUNT)), {
     tDepth: { value: depthTexture }, tGobo: { value: gobo }, tMist: { value: mist }, tMistMap: { value: null },
