@@ -193,12 +193,12 @@ function domeMaterial(shared) {
           float facet=smoothstep(-.5,.8,dot(slope,toSun)*44.);
           float swell=texture2D(tGobo,p/(size*3.1)+flow*.4).b;
           vec3 water=mix(uAbyss*.42,uSea*vec3(.5,.7,.88),facet*facet*facet*(.34+.66*pow(sun,5.)))*(.5+.95*swell);
-          float glow=pow(sun,8.);
-          water+=uHaze*glow*facet*facet*.8;
+          float glow=pow(sun,14.);
+          water+=uHaze*glow*facet*facet*.55;
           float glint=smoothstep(.1,.9,1.-length(slope-toSun*.014)*42.);
-          float pool=pow(sun,22.)*.46+pow(sun,60.)*7.;
+          float pool=pow(sun,36.)*.42+pow(sun,110.)*7.;
           float top=smoothstep(.44,.58,up);
-          vec3 cream=mix(uShaft*2.1,vec3(2.2,1.95,1.5),pow(sun,18.));
+          vec3 cream=mix(uShaft*1.4,vec3(2.1,1.86,1.42),pow(sun,40.));
           vec3 surface=water+cream*glint*min(pool,1.)*(.08+.92*top);
           surface+=cream*glint*max(pool-1.,0.)*.5*top;
           float near=exp(-pow(t*uDensity*.32,2.));

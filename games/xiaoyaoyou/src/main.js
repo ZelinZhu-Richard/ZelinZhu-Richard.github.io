@@ -239,7 +239,7 @@ export async function createRuntime(text, onProgress) {
     u.uLayers.value.set(Math.max(0, 1 - octave), Math.max(0, 1 - Math.abs(octave - 1)), Math.max(0, octave - 1));
     u.uScale.value = scale;
     // The broader gobo layers carry more light, so the gain eases off as Kun grows.
-    u.uShaftGain.value = layers.shafts * .46 / Math.pow(scale, .42);
+    u.uShaftGain.value = layers.shafts * .37 / Math.pow(scale, .42);
     u.uLight.value.copy(world.light);
     const j = journey.j, climb = (WORLD.surface - j.y) / world.light.y, climb0 = WORLD.surface / world.light.y;
     if (state.beat === 'test') u.uHero.value.set(world.light.x * climb0, world.light.z * climb0, 13);
@@ -251,6 +251,8 @@ export async function createRuntime(text, onProgress) {
     u.tMistMap.value = world.mistMap;
     u.uMistTop.value = 34 + 30 * Math.sqrt(scale);
     u.uMistBottom.value = -30;
+    u.uBankTop.value = (inSea ? 1 : 0) * (22 + 13 * Math.sqrt(scale));
+    u.uBankDensity.value = layers.mist * .0065 / Math.sqrt(scale);
     post.cards.uGain.value = layers.cards * CARD_GAIN;
     post.grade.uBloom.value = layers.bloom * BLOOM_GAIN;
     post.cards.uScale.value = scale;

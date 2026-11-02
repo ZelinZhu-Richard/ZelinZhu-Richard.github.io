@@ -117,7 +117,7 @@ uniform sampler3D tMist;
 uniform mat4 uInverse;
 uniform vec3 uCamera, uLight, uShaft, uMist, uLayers, uHero;
 uniform vec2 uVanish;
-uniform float uTime, uSurface, uScale, uReach, uShaftGain, uMistGain, uMistTop, uMistBottom, uAspect;
+uniform float uTime, uSurface, uScale, uReach, uShaftGain, uMistGain, uMistTop, uMistBottom, uAspect, uBankTop, uBankDensity;
 uniform vec4 uRays[RAYS];
 varying vec2 vUv;
 float ign(vec2 p){return fract(52.9829189*fract(dot(p,vec2(.06711056,.00583715))));}
@@ -166,15 +166,17 @@ void main(){
   float phase=.42+1.3*pow(max(dot(ray,uLight),0.),2.);
   // Parallel light converges on one vanishing point, so the fine streaks radiate from it.
   // Held close above the frame, so the rays always fan out as they do in the key art.
-  vec2 fromSun=(vUv-vec2(uVanish.x,min(uVanish.y,1.3)))*vec2(uAspect,1.);
+  vec2 fromSun=(vUv-vec2(uVanish.x,min(uVanish.y,1.12)))*vec2(uAspect,1.);
   float angle=atan(fromSun.x,-fromSun.y);
   // Each ray is its own soft wedge with its own reach, so none ends at the same place and
   // the fan never reads as even stripes.
   float below=max(1.-vUv.y-.02,0.);
+  // A tall frame shows more water, so the same rays end sooner in it.
+  float tall=mix(.62,1.,clamp((uAspect-.5)/.9,0.,1.));
   float rays=0.;
   for(int i=0;i<RAYS;i++){
     vec4 r=uRays[i];
-    float across=(angle-r.x)/r.y, along=below/r.z;
+    float across=(angle-r.x)/r.y, along=below/(r.z*tall);
     rays+=r.w*exp(-across*across)*exp(-along*along);
   }
   float strands=texture2D(tGobo,vec2(angle*5.1+uTime*.004,.13)).a;
@@ -223,6 +225,15 @@ void main(){
     }
     scatter+=uMist*lit;
   }
+  // A low bank of fog with an uneven ceiling. Everything sinks into it as the path through it
+  // lengthens, so stone and seabed meet in one colour and a foot leaves no contour.
+  vec2 at=uCamera.xz+ray.xz*min(dist,uReach*6.);
+  float ceiling=uBankTop*(.5+1.1*texture(tMist,vec3(at/(760.*sqrt(uScale))+vec2(uTime*.003,0.),.61)).r);
+  float under=clamp((ceiling-end.y)/max(abs(uCamera.y-end.y),1.),0.,1.);
+  float bank=exp(-dist*under*uBankDensity);
+  float glow=.5+.42*texture(tMist,vec3(at/(300.*sqrt(uScale)),.23)).r;
+  scatter=scatter*bank+uMist*glow*(1.-bank)*.6;
+  transmit*=bank;
   gl_FragColor=vec4(scatter,transmit);
 }`;
 
@@ -437,7 +448,7 @@ export function createPost(renderer, gobo, seedRandom) {
     uShaft: { value: new THREE.Color('#A9B4AC') }, uMist: { value: new THREE.Color('#71868E') }, uLayers: { value: new THREE.Vector3(1, 0, 0) }, uHero: { value: new THREE.Vector3(0, 0, 30) }, uVanish: { value: new THREE.Vector2(.7, 1.6) }, uAspect: { value: 1.6 },
     uRays: { value: RAY_SET.map(() => new THREE.Vector4()) },
     uTime: { value: 0 }, uSurface: { value: 640 }, uScale: { value: 1 }, uReach: { value: 300 },
-    uShaftGain: { value: .46 }, uMistGain: { value: .012 }, uMistTop: { value: 120 }, uMistBottom: { value: -40 },
+    uShaftGain: { value: .46 }, uMistGain: { value: .012 }, uMistTop: { value: 120 }, uMistBottom: { value: -40 }, uBankTop: { value: 40 }, uBankDensity: { value: .006 },
   });
   const blur = pass(blurFragment, { tSource: { value: null }, tDepth: { value: depthTexture }, uStep: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() } });
   const downPass = pass(downFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() }, uThreshold: { value: 0 } });
