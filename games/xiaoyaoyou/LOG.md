@@ -585,3 +585,39 @@ He asked for this to be recorded in those words and for M3 to be cleared, so M3 
 - **B, M4 round 3:** "Authorize M4 round 3, time-boxed to 3 hours, not round-capped. Codex's findings are artifacts; the bigger gap to the key art is composition and light." Priorities, in his order: (1) camera and scale: opening and full-growth lower and closer, looking up at Kun, who spans about 60 to 70% of the frame width; gameplay Kun larger, with pillars passing close by for parallax; (2) warm key light on Kun's back, with everything else cold; (3) depth and framing: dark foreground cliffs at the frame edges, a denser layered stone forest, mist of irregular height hiding the pillar feet; (4) contrast: deeper blacks, brighter highlights, the key art's value range; (5) then Codex's artifacts: pillar feet, shaft striping, a finer water surface. "You may push fin scale and sweep further toward the key art's veil-like fins; log it."
 - **G, stretch:** "(1) making-of/index.html, the most important for my portfolio: concept art → reference sheets → Blender passes with overlays → in-game frames; the pipeline (image refs → code-built Blender meshes → three.js, with Claude building and Codex as independent reviewer); and key numbers. (2) The ?showcase=1 cinematic camera."
 - **End:** "Update MORNING.md at the end with before/after comparison sheets against the key art."
+
+## M4 fix round 3 (begun 2026-11-01 21:42 EST, box ends 00:42 EST)
+
+### Kun's fins (his authorization: "You may push fin scale and sweep further toward the key art's veil-like fins; log it.")
+
+| Constant | Waived build | Now |
+|---|---:|---:|
+| PECTORAL_FIN_SCALE | 1.7 | 1.95 |
+| Lower fin scale factor | 0.85 | 0.85 |
+| UPPER_FIN_SWEEP_DEGREES | 66 | 84 |
+| LOWER_FIN_SWEEP_DEGREES | 62 | 78 |
+| Dihedral, twist, camber | unchanged | unchanged |
+
+Tried along the way: 2.05 at 73/68 read as a wing standing off the back, so scale came down and sweep went up until the fins trailed along the body.
+
+**IoU moved outside the waiver:** side 0.6240, top 0.5800, against the waived 0.635 and 0.647. The change is authorized, the numbers are not waived. Listed for Richard in MORNING.md.
+
+### What changed, in his priority order
+
+1. **Camera and scale.** Opening and finale camera: low, close, looking up 13° at Kun, who spans 70% of the frame on real vertices (was 46%). Kun lifts its head 0.1 rad in those two shots. Gameplay distance 3.2 to 2.1 body lengths, so Kun goes from 34% to 44% of the width. Kun's altitude growth halved (21 to 12 per scale unit) and all 542 pillars now collide, so stone passes close at every size. The camera is pushed clear of stone. Kun opens low (altitude 54) to keep pillar 1's foot in frame while looking up.
+2. **Warm key.** A warm pool on Kun's back, centered 31% along the body, falling to a cold key and a dark blue belly sampled from the key art (54, 81, 91). The warm term is the only warm light in the scene.
+3. **Depth and framing.** Real foreground cliffs at the frame edges, placed from the camera pose in both posed shots, sliding in as the final shot arrives. Forest: 22 hero pillars and 520 field pillars with a far silhouette level of 91 triangles, drawn through view-cone and fog culling at each sixth frame. Mist: a 3 by 3 sprite sheet of painted wisps (`assets/mist.webp`, AI-generated, prompt in `_dev/gen/mist/prompt.txt`) on 500 or so soft-particle cards at half resolution.
+4. **Contrast.** Luma percentiles at north-start: p1 5, p5 15, p50 62, p95 175, p99 225. Key art: 4, 14, 56, 171, 232. Was 27, 33, 58, 100, 216. Warmth of the top 3% of pixels, R minus B: +24 against the key art's +36. Was -11.
+5. **Artifacts.** Pillar feet sit under mist cards. Shafts are a table of 13 separate rays, each with its own width, reach and strength, sliding as the camera turns. Water is rebuilt: every ripple face catches the light or falls dark, and large warm glints appear only near the sun at the top of the frame.
+
+Also: needle clumps tear apart toward their edges in the shader, so no polygon outline survives close up. Close stone gets a finer texture pass and extra ambient, because a close pass was pure black. In the posed shots, stone nearer than Kun is cleared.
+
+### Changes to the capture checks
+
+- **`checks.playFraming`** now judges Kun from real vertices (`measure().kunSpan`), with 2% room for the swim wave. The projected box stays in the metrics as `boxInFrame`. With swept fins the box corners sit far outside the fish; it failed at frames where the whole of Kun is visibly in frame. This check was mine, not a PLAN criterion.
+- **`begin`** now compares a real Begin with the direct checkpoint at one exact simulation step, using a new `holdAt` debug hook, and the limit tightened from 10 to 3. Measured difference: 0.
+- `tools/frames.mjs` (quick looks, not evidence), `tools/compare_key.py` (sheets and value range) and `tools/fps.mjs` are new. Frame rate on this Mac's GPU in headless Chromium: 60.0 at both pixel ratios at four journey points.
+
+### M3 regressions found and fixed
+
+The closer camera first broke two M3 checks. Pillar ratio 0.265 against the 0.25 limit: Kun's outward spiral widened from 188 to 226 per scale unit, now 0.236. Portrait clipped Kun for a moment at t=1: the camera pulls back further and aims at the whole of Kun in portrait, and follows tighter during the posed shots.
