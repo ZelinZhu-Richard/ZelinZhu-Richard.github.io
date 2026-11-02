@@ -346,7 +346,7 @@ uniform vec2 uResolution, uVolumeTexel;
 uniform vec4 uProject;
 uniform float uRim;
 varying vec2 vUv;
-float coverAt(vec2 uv){return smoothstep(.02,.14,texture2D(tScene,uv).a);}
+float coverAt(vec2 uv){return smoothstep(.003,.04,texture2D(tScene,uv).a);}
 void main(){
   vec4 scene=texture2D(tScene,vUv);
   vec3 c=scene.rgb;

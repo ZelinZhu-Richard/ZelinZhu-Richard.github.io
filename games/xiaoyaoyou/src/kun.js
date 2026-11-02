@@ -65,9 +65,17 @@ const SHEET_TRANSMISSION = .50;
 const LOOK = Object.freeze({ warm: [3.0, 2.08, 1.05], cool: [.5, .68, .78], shadow: [.03, .062, .085], sky: [.1, .155, .19], rim: [.86, .92, .9],
   rimPower: 3.2, rimGain: .22, caustic: 2.2, wrap: .34, poolCenter: .31, poolWidth: .3 });
 
+// The sheet's ear-clipped slivers carry slightly different normals, so anything that must stay smooth
+// across a fin reads the fin's mean normal.
+function meanNormal(geometry) {
+  const normals = geometry.attributes.normal, mean = new THREE.Vector3(), n = new THREE.Vector3();
+  for (let i = 0; i < normals.count; i++) mean.add(n.fromBufferAttribute(normals, i));
+  return mean.normalize();
+}
+
 // The body comes first and the fins second. A fin's ink bleeds soft and lifts toward a mid wash,
 // most on the undersides, and its sheet takes less of the key. The tail keeps its own look.
-const FIN = Object.freeze({ bleed: 4.4, bleedMix: .86, wash: [.2, .29, .34], lift: .56, liftUnder: .86, under: [.42, .5, .53], underMix: .5, keep: .66, veil: .84, even: .55, evenAlpha: .66 });
+const FIN = Object.freeze({ bleed: 4.4, bleedMix: .86, wash: [.2, .29, .34], lift: .56, liftUnder: .86, under: [.42, .5, .53], underMix: .5, keep: .66, veil: .84, even: .55, evenAlpha: .66, edgeOn: [.08, .5] });
 
 export function prepareKun(root, gobo, light, finEdge) {
   root.updateMatrixWorld(true);
@@ -125,12 +133,13 @@ export function prepareKun(root, gobo, light, finEdge) {
       shader.uniforms.kunTransmission={value:sheet?SHEET_TRANSMISSION:0};
       shader.uniforms.kunSheet={value:sheet?1:0};
       shader.uniforms.kunFin={value:mesh.name.startsWith('kun_fin_')?1:0};
+      shader.uniforms.kunFinNormal={value:meanNormal(mesh.geometry)};
       shader.uniforms.kunPleat={value:mesh.name.startsWith('kun_throat_pleat')?1:mesh.name.startsWith('kun_mouth')?.45:0};
       shader.uniforms.kunRidge={value:mesh.name==='kun_dorsal_ridge'?1:0};
       shader.fragmentShader=`uniform vec3 kunDiffuseFill,kunLight,kunWarm,kunCool,kunShadow,kunSky,kunRim,kunFinWash;
         uniform float kunTransmission,kunLook,kunTime,kunSize,kunSheet,kunPleat,kunRidge,kunFin;
         uniform sampler2D kunGobo,kunFinEdge;
-        varying vec3 vKunWorld,vKunNormal;
+        varying vec3 vKunWorld,vKunNormal,vKunFlat;
         varying float vKunAlong;
       `+shader.fragmentShader;
       shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_end>', `
@@ -199,17 +208,19 @@ export function prepareKun(root, gobo, light, finEdge) {
           }
           #ifdef USE_MAP
             // Last, so a fading edge never reads as thin paper and glows. The edge melts into the water.
-            if(kunFin>.5) diffuseColor.a=finVeil*${FIN.veil.toFixed(2)}*texture2D(kunFinEdge,vMapUv).r;
+            // Edge-on, a wide fade collapses into a hard line, so the veil thins out as it turns away.
+            if(kunFin>.5) diffuseColor.a=finVeil*${FIN.veil.toFixed(2)}*texture2D(kunFinEdge,vMapUv).r*
+              smoothstep(${FIN.edgeOn[0].toFixed(2)},${FIN.edgeOn[1].toFixed(2)},abs(dot(normalize(vKunFlat),toEye)));
           #endif
         }
       `);
-      shader.vertexShader='varying vec3 vKunWorld,vKunNormal;\nvarying float vKunAlong;\n'+waveGLSL+shader.vertexShader;
+      shader.vertexShader='uniform vec3 kunFinNormal;\nvarying vec3 vKunWorld,vKunNormal,vKunFlat;\nvarying float vKunAlong;\n'+waveGLSL+shader.vertexShader;
       shader.vertexShader=shader.vertexShader.replace('#include <beginnormal_vertex>',
         '#include <beginnormal_vertex>\nobjectNormal=kunBentNormal(position,objectNormal,kunSpan,kunSpanGradient);');
       shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
         '#include <begin_vertex>\ntransformed.y+=kunHeight(position,kunSpan);');
       shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',
-        '#include <project_vertex>\nvKunWorld=(modelMatrix*vec4(transformed,1.)).xyz;\nvKunNormal=mat3(modelMatrix)*objectNormal;\nvKunAlong=clamp((kunNose-position.z)/(kunNose-kunTail),0.,1.);');
+        '#include <project_vertex>\nvKunWorld=(modelMatrix*vec4(transformed,1.)).xyz;\nvKunNormal=mat3(modelMatrix)*objectNormal;\nvKunFlat=mat3(modelMatrix)*kunFinNormal;\nvKunAlong=clamp((kunNose-position.z)/(kunNose-kunTail),0.,1.);');
     };
     material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v7-${sheet?1:0}`;
     mesh.material=material; mesh.renderOrder=sheet?2:pleat?1:0;
