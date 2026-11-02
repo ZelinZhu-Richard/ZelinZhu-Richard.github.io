@@ -656,3 +656,9 @@ Round 8's "comb" was fair: rays were evenly spaced and ran smooth. They now fall
 ### Kun freeze audit
 
 `tools/check_kun.py --fin-constants --scale 1.95`: only the four `kun_fin_*` meshes changed; 26 other objects identical; all UVs and the swim shader identical; triangle counts identical.
+
+### M4 PASS, M3 PASS, M5 PASS on 8e7f837 (2026-11-01 23:25 EST, 1 h 43 min into the box)
+
+M4 review 9, M3 review 7 and M5 review 5, all on one clean commit. M4: 4 of 4 criteria, two minor notes (narrow shafts read as a tight bundle; surface mottling on narrow). M3: 4 of 4. M5: 4 of 4. All three reports note that Kun's IoU is outside the waiver and that only Richard can waive it.
+
+All three also note that the key art's forest is denser than the game's, which is his priority 3. `8e7f837` stands as the fallback. I am using part of the remaining box on that, and on the two minor notes, and any result must clear review on its own commit or be reverted.
