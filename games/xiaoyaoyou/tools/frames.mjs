@@ -14,7 +14,9 @@ const prefix = args.shift();
 const take = (flag, fallback) => { const i = args.indexOf(flag); return i < 0 ? fallback : args.splice(i, 2)[1]; };
 const size = take('--size', '1440x900');
 const dsf = Number(take('--dsf', 1));
+const layers = take('--layers', null);
 const clean = args.includes('--clean');
+const showcase = args.includes('--showcase');
 const shots = args.filter(a => !a.startsWith('--'));
 const [width, height] = size.split('x').map(Number);
 const out = path.join(root, '_dev/tmp/frames');
@@ -27,10 +29,11 @@ try {
   page.on('pageerror', e => console.log('pageerror', e.message));
   page.on('requestfailed', r => console.log('failed', r.url()));
   page.on('console', m => { if (m.type() === 'error' || m.text().includes('THREE.WebGLProgram')) console.log(m.type(), m.text().slice(0, 900)); });
-  await page.goto(`http://127.0.0.1:8101/games/xiaoyaoyou/?checkpoint=north-start`);
+  await page.goto(`http://127.0.0.1:8101/games/xiaoyaoyou/${showcase ? '?showcase=1' : '?checkpoint=north-start'}`);
   if (clean) await page.addStyleTag({ content: '#hud{display:none!important}' });
   await page.waitForFunction(() => window.__GAME_READY__ === true, null, { timeout: 15000 });
   await page.waitForFunction(() => window.__GAME_STATE__.settled, null, { timeout: 30000 });
+  if (layers) await page.evaluate(next => window.__GAME_DEBUG__.layers(JSON.parse(next)), layers);
   for (const shot of shots) {
     await page.evaluate(id => {
       if (/^t[\d.]+$/.test(id)) window.__GAME_DEBUG__.seek(Number(id.slice(1)));

@@ -15,6 +15,17 @@ const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.74, aimAhead: .16 });
 // Low and close, looking up at Kun as the key art does. Kun sits right of centre, so the
 // fins trail across the frame.
 const CAMERA_ART = Object.freeze({ azimuth: 1.24, elevation: -ART_PITCH, distance: 1.5, aimAhead: 0, aimLift: -.12, aimSide: -.1 });
+// ?showcase=1: a fixed shot list over the real journey, for screen recording.
+const SHOWCASE_SHOTS = Object.freeze([
+  { at: 0, azimuth: 1.5, elevation: -.2, distance: 1.75, aimAhead: 0, aimLift: -.06, aimSide: -.05 },
+  { at: 13, azimuth: 2.55, elevation: -.26, distance: 2, aimAhead: .1, aimLift: .02, aimSide: 0 },
+  { at: 25, azimuth: 1.15, elevation: .26, distance: 2.5, aimAhead: 0, aimLift: -.1, aimSide: .05 },
+  { at: 38, azimuth: 1.95, elevation: -.12, distance: 1.7, aimAhead: 0, aimLift: -.04, aimSide: -.08 },
+  { at: 52, azimuth: .72, elevation: -.18, distance: 1.9, aimAhead: 0, aimLift: -.08, aimSide: .06 },
+  { at: 64, azimuth: 2.2, elevation: .14, distance: 2.7, aimAhead: 0, aimLift: -.06, aimSide: 0 },
+]);
+const SHOT_BLEND = 6;
+const SHOWCASE_PACE = .62;
 const CAMERA_MIX = Object.freeze({ introHold: 2.4, introEase: 4.4, finaleEase: 5.5, finaleHold: 4 });
 const SPEED = Object.freeze({ held: 1.2, idleFraction: .25, rise: .34, fall: 1 });
 const TURN = Object.freeze({ yawRate: 1.0, pitchLimit: .55, yawFollow: 5, pitchFollow: 2.2, bank: .5 });
@@ -43,6 +54,7 @@ export function openingView(aspect = 1.6) {
 
 export function createJourney(pillars) {
   const j = {};
+  let showcase = false;
   function reset(aspect = 1.6) {
     Object.assign(j, {
       t: 0, phase: 'intro', phaseT: 0, ended: false, autoplay: false,
@@ -65,6 +77,15 @@ export function createJourney(pillars) {
   }
 
   const held = () => SPEED.held * BODY_LENGTH * Math.pow(j.scale, .96);
+  // The showcase brings motes closer instead of speeding up the swim.
+  const pace = () => (showcase ? SHOWCASE_PACE : 1);
+  function shot() {
+    let index = 0;
+    while (index < SHOWCASE_SHOTS.length - 1 && j.t >= SHOWCASE_SHOTS[index + 1].at) index++;
+    const from = SHOWCASE_SHOTS[Math.max(0, index - 1)], to = SHOWCASE_SHOTS[index];
+    const t = smooth(to.at, to.at + SHOT_BLEND, j.t);
+    return Object.fromEntries(Object.keys(CAMERA_PLAY).map(key => [key, from[key] + (to[key] - from[key]) * t]));
+  }
   const radial = () => Math.hypot(j.x - PILLAR_CENTER.x, j.z - PILLAR_CENTER.z);
 
   function nextMotePosition() {
@@ -72,7 +93,7 @@ export function createJourney(pillars) {
     // and of any player who keeps swimming. Head straight on if the player turned away.
     const scale = j.targetScale;
     const speed = SPEED.held * BODY_LENGTH * Math.pow(scale, .96);
-    const distance = speed * MOTE.spawnSeconds;
+    const distance = speed * MOTE.spawnSeconds * pace();
     const radius = 620 + (scale - 1) * 226;
     const bearing = Math.atan2(j.x - PILLAR_CENTER.x, j.z - PILLAR_CENTER.z);
     const a = bearing + distance / Math.max(radius, radial() + 1);
@@ -153,6 +174,7 @@ export function createJourney(pillars) {
     if (j.motes >= GROWTH.motes || j.phase === 'finale') { m.active = false; return; }
     if (!m.active) {
       m.wait -= dt;
+      m.wait -= showcase ? dt * .8 : 0;
       if (m.wait <= 0) {
         [m.x, m.y, m.z] = nextMotePosition();
         Object.assign(m, { active: true, age: 0, fade: 0 });
@@ -195,7 +217,7 @@ export function createJourney(pillars) {
     let mix = 1 - smooth(CAMERA_MIX.introHold, CAMERA_MIX.introHold + CAMERA_MIX.introEase, j.t);
     if (j.phase === 'finale') mix = Math.max(mix, smooth(.3, CAMERA_MIX.finaleEase, j.phaseT));
     const portrait = clamp((1.1 - aspect) / .6, 0, 1);
-    const a = { ...CAMERA_PLAY, azimuth: CAMERA_PLAY.azimuth + (CAMERA_PORTRAIT.azimuth - CAMERA_PLAY.azimuth) * portrait,
+    const a = showcase ? shot() : { ...CAMERA_PLAY, azimuth: CAMERA_PLAY.azimuth + (CAMERA_PORTRAIT.azimuth - CAMERA_PLAY.azimuth) * portrait,
       aimAhead: CAMERA_PLAY.aimAhead + (CAMERA_PORTRAIT.aimAhead - CAMERA_PLAY.aimAhead) * portrait };
     const b = CAMERA_ART;
     const blend = key => a[key] + (b[key] - a[key]) * mix;
@@ -266,5 +288,5 @@ export function createJourney(pillars) {
   }
 
   reset();
-  return { j, step, reset, held };
+  return { j, step, reset, held, setShowcase(on) { showcase = on; } };
 }

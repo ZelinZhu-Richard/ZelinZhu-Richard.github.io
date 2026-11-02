@@ -11,6 +11,7 @@ const CHECKPOINTS = new Map([['title', 'title'], ['north-start', 'north'], ['nor
 // When each source line shows, in journey seconds. Fixed to the simulation, never to the wall clock.
 const LINE_TIMES = { first: [1.8, 10.5], second: 9 };
 const SHEET_VIEWS = ['side', 'top', 'front'];
+const CARD_GAIN = .62, BLOOM_GAIN = .34;
 
 export async function createRuntime(text, onProgress) {
   const title = document.querySelector('#title-screen');
@@ -56,6 +57,8 @@ export async function createRuntime(text, onProgress) {
   let autoplayOn = false;
   let shownLine = null;
   let holdMs = null;
+  // Evidence only: lets the making-of page show a frame built up one layer at a time.
+  const layers = { look: 1, shafts: 1, mist: 1, cards: 1, bloom: 1 };
   const runs = [];
   let run = null;
   const projected = new THREE.Vector3();
@@ -204,7 +207,7 @@ export async function createRuntime(text, onProgress) {
     }
     const sheet = SHEET_VIEWS.includes(config.view);
     const sized = state.beat === 'north' || state.beat === 'end' ? journey.j.scale : 1;
-    kun.update(state.gameMs, config.phase, state.beat === 'title' || (sheet && config.phase === null), !(sheet && state.beat === 'test'), sized);
+    kun.update(state.gameMs, config.phase, state.beat === 'title' || (sheet && config.phase === null), !(sheet && state.beat === 'test') && layers.look > 0, sized);
     if (state.beat === 'north' || state.beat === 'end') {
       poseKun();
       scene.fog.density = fogDensity(journey.j.scale);
@@ -236,7 +239,7 @@ export async function createRuntime(text, onProgress) {
     u.uLayers.value.set(Math.max(0, 1 - octave), Math.max(0, 1 - Math.abs(octave - 1)), Math.max(0, octave - 1));
     u.uScale.value = scale;
     // The broader gobo layers carry more light, so the gain eases off as Kun grows.
-    u.uShaftGain.value = .46 / Math.pow(scale, .42);
+    u.uShaftGain.value = layers.shafts * .46 / Math.pow(scale, .42);
     u.uLight.value.copy(world.light);
     const j = journey.j, climb = (WORLD.surface - j.y) / world.light.y, climb0 = WORLD.surface / world.light.y;
     if (state.beat === 'test') u.uHero.value.set(world.light.x * climb0, world.light.z * climb0, 13);
@@ -244,10 +247,12 @@ export async function createRuntime(text, onProgress) {
     u.uSurface.value = WORLD.surface;
     u.uReach.value = 420 * Math.pow(scale, .78);
     const inSea = state.beat !== 'test';
-    u.uMistGain.value = inSea ? .03 / Math.pow(scale, .7) : 0;
+    u.uMistGain.value = inSea ? layers.mist * .03 / Math.pow(scale, .7) : 0;
     u.tMistMap.value = world.mistMap;
     u.uMistTop.value = 34 + 30 * Math.sqrt(scale);
     u.uMistBottom.value = -30;
+    post.cards.uGain.value = layers.cards * CARD_GAIN;
+    post.grade.uBloom.value = layers.bloom * BLOOM_GAIN;
     post.cards.uScale.value = scale;
     post.cards.uDensity.value = fogDensity(scale);
     post.cards.uLight.value.copy(world.light);
@@ -419,6 +424,7 @@ export async function createRuntime(text, onProgress) {
       // Replays the real journey to a time, for evidence and contact sheets.
       // Stops the simulation at an exact game time, so two routes into a scene can be compared.
       holdAt(ms) { holdMs = ms; },
+      layers(next) { Object.assign(layers, next); },
       seek(seconds) { jump('north-start'); replayJourney(j => j.t >= seconds || j.ended); return journey.j.t; },
       kunScreenBox: () => { const box = measure().kun; return { x: box.centerX, y: box.centerY }; },
       growthTarget: GROWTH,
@@ -444,6 +450,12 @@ export async function createRuntime(text, onProgress) {
         if (checkpoint) jump(checkpoint);
         if (params.has('timescale')) setTimescale(Number(params.get('timescale')));
         if (params.get('autoplay') === '1') autoplay(true);
+        if (params.get('showcase') === '1') {
+          document.body.classList.add('showcase');
+          journey.setShowcase(true);
+          autoplayOn = true;
+          jump('north-start');
+        }
       },
     };
   } catch (error) {

@@ -70,6 +70,9 @@ progress::-webkit-progress-value { background: var(--paper); }
 progress::-moz-progress-bar { background: var(--paper); }
 .error-symbol { margin-bottom: 12px; }
 .error button { border-color: var(--haze); }
+/* Showcase: a clean frame for screen recording. The source lines stay, the controls go. */
+.showcase, .showcase #world { cursor: none; }
+.showcase .toggle, .showcase .hint { display: none; }
 @media (max-width: 480px) {
   .title-screen { padding: 26px 24px 40px; }
   .title-art { object-position: 90% 50%; }
