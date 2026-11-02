@@ -47,6 +47,7 @@ Draft, pending verification. Every line in `text.json` is marked `draft: true`, 
 - `tools/title_frames.sh` renders the title and social images from the game. Rerun it after any change to the look.
 - `tools/make_making_of.py` builds `making-of/img/` and `making-of/numbers.json` from the final build.
 - `tools/fin_edge.py` bakes the fin dissolve mask. Rerun it after any change to the fin outline.
+- `tools/gameplay_sheet.py` builds contact sheets of the gameplay camera at twelve moments on the journey, for both viewports.
 - `tools/view_angle.mjs` measures, across the journey, how the camera sits against Kun, whether the next mote is in frame, and whether stone stands in front of Kun.
 - `tools/optimize_assets.sh` compresses `_dev/raw/*.glb` into `assets/`.
 - `tools/subset_fonts.sh` rebuilds the font subsets from `text.json`, and `tools/check_text.py` validates the text.

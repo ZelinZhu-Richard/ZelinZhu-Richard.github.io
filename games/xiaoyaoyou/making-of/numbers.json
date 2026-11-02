@@ -1,5 +1,5 @@
 {
-  "iou": "0.62 from the side and 0.58 from above, where 1 would be a perfect match",
+  "iou": "0.65 from the side and 0.66 from above, where 1 would be a perfect match",
   "rows": [
     [
       "Triangles in the heaviest frame (limit 300,000)",
@@ -11,7 +11,7 @@
     ],
     [
       "Download, full journey (limit 20 MB)",
-      "10.9 MB"
+      "10.8 MB"
     ],
     [
       "Frame rate, Apple M4 Pro, headless Chromium",
@@ -27,11 +27,11 @@
     ],
     [
       "Lines of game and model code",
-      "3,339"
+      "3,413"
     ],
     [
       "Independent reviews run by Codex",
-      "28"
+      "29"
     ]
   ]
 }
