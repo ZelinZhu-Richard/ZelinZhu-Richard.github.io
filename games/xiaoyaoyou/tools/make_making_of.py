@@ -61,7 +61,7 @@ def main():
     triangles = max(view['triangles'] for view in points)
     calls = max(view['drawCalls'] for view in points)
     world = (ROOT / 'src/world.js').read_text()
-    pillars = int(re.search(r'hero\.length < (\d+)', world)[1]) + int(re.search(r'field\.length < (\d+)', world)[1])
+    pillars = sum(int(re.search(pattern, world)[1]) for pattern in (r'hero\.length < (\d+)', r'field\.length < (\d+)', r'added < (\d+)'))
     code = sum(len(path.read_text().splitlines()) for folder in ('src', 'blender') for path in (ROOT / folder).iterdir() if path.suffix in ('.js', '.py'))
     verdicts = len(list((ROOT / '_dev/review').glob('*/verdict.json')))
     side, top = silhouette['views']['side']['iou'], silhouette['views']['top']['iou']
