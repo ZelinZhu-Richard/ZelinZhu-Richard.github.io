@@ -339,6 +339,19 @@ export async function createRuntime(text, onProgress) {
     }
     if (state.beat === 'north') for (const [name, box] of world.named) result[name] = boxInView(box);
     if (kun && (state.beat === 'test' || state.beat === 'north')) result.kunSpan = kunSpan();
+    if (state.beat === 'north' && journey.j.mote.active) {
+      const m = journey.j.mote;
+      projected.set(m.x, m.y, m.z).project(camera);
+      result.mote = { x: (projected.x + 1) / 2, y: (1 - projected.y) / 2, inFrame: Math.abs(projected.x) <= 1 && Math.abs(projected.y) <= 1 && projected.z < 1, distance: Math.hypot(m.x - journey.j.x, m.y - journey.j.y, m.z - journey.j.z) / (10.4 * journey.j.scale) };
+    }
+    if (state.beat === 'north') {
+      // Stone standing between the camera and Kun, on the ground plan.
+      const j = journey.j, fromX = camera.position.x, fromZ = camera.position.z, dx = j.x - fromX, dz = j.z - fromZ, length2 = dx * dx + dz * dz;
+      result.blocked = world.colliders.some(p => {
+        const t = THREE.MathUtils.clamp(((p.x - fromX) * dx + (p.z - fromZ) * dz) / length2, 0, 1);
+        return t < .92 && Math.hypot(fromX + dx * t - p.x, fromZ + dz * t - p.z) < p.radius * .8 && p.height > Math.min(j.y, camera.position.y);
+      });
+    }
     return result;
   }
   function onKey(event) {
@@ -397,8 +410,12 @@ export async function createRuntime(text, onProgress) {
     rockTexture.colorSpace = THREE.SRGBColorSpace;
     rockTexture.wrapS = rockTexture.wrapT = THREE.RepeatWrapping;
     rockTexture.anisotropy = 8;
+    // Same UV space as the fin paint, whose glTF texture is not flipped.
+    const finEdge = await loader.loadAsync('assets/fin-edge.webp');
+    finEdge.flipY = false;
+    finEdge.anisotropy = 8;
     world = createWorld(assets.get('sea'), gobo, rockTexture);
-    kun = prepareKun(assets.get('kun'), gobo, world.heroLight);
+    kun = prepareKun(assets.get('kun'), gobo, world.heroLight, finEdge);
     journey = createJourney(world.colliders);
     scene.add(kun.root, world.group);
     // Lighting remains available in the grey reference views as well.

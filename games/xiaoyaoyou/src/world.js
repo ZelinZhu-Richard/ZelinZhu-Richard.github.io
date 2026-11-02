@@ -446,6 +446,8 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   specks.frustumCulled = false; specks.renderOrder = 3;
   group.add(specks);
 
+  // Behind Kun, whose camera stands at most four body lengths off.
+  const MOTE_EDGE = Object.freeze({ gain: 1, depth: 5, past: .42, size: 1.9 });
   const moteMaterial = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneFactor,
     uniforms: { uColor: { value: palette.vermilion } },
@@ -514,7 +516,27 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     refresh() { frame = 0; },
     showMote(mote, scale, gameMs, camera, mix) {
       for (let i = 0; i < 8; i++) setMote(i, 0, 0, 0, 0, 0);
-      if (mote.active) setMote(0, mote.x, mote.y, mote.z, BODY_LENGTH * scale * .34, mote.fade * (.86 + .14 * Math.sin(gameMs * .004)));
+      if (mote.active) {
+        const pulse = mote.fade * (.86 + .14 * Math.sin(gameMs * .004));
+        setMote(0, mote.x, mote.y, mote.z, BODY_LENGTH * scale * .34, pulse);
+        // The camera sits at Kun's flank, so what lies dead ahead is off the frame. Its light still
+        // reaches in from that edge, and gives way to the mote itself as it swims into view.
+        const toMote = position.set(mote.x, mote.y, mote.z).applyMatrix4(camera.matrixWorldInverse);
+        const depth = Math.max(-toMote.z, 1e-3), halfHeight = depth * FOV_TAN;
+        const sx = (toMote.z < 0 ? 1 : 40) * toMote.x / (halfHeight * camera.aspect), sy = (toMote.z < 0 ? 1 : 40) * toMote.y / halfHeight;
+        const beyond = Math.max(Math.abs(sx), Math.abs(sy));
+        const glow = THREE.MathUtils.smoothstep(beyond - 1, .04, .4) * MOTE_EDGE.gain * pulse;
+        if (glow > .002) {
+          // Centred past the frame, so only the halo shows and never the core.
+          const near = BODY_LENGTH * scale * MOTE_EDGE.depth, halfTall = near * FOV_TAN, halfWide = halfTall * camera.aspect;
+          const ex = sx / beyond, ey = sy / beyond, wide = Math.abs(sx) >= Math.abs(sy);
+          // Measured against the frame's shorter side, so a phone keeps a glow and not a wash.
+          const reach = Math.min(halfTall, halfWide);
+          const p = camera.localToWorld(position.set(ex * halfWide + (wide ? Math.sign(ex) * MOTE_EDGE.past * reach : 0),
+            ey * halfTall + (wide ? 0 : Math.sign(ey) * MOTE_EDGE.past * reach), -near));
+          setMote(7, p.x, p.y, p.z, reach * MOTE_EDGE.size, glow);
+        }
+      }
       if (mix > .01) {
         const depth = BODY_LENGTH * scale * 14;
         const right = position.set(1, 0, 0).applyQuaternion(camera.quaternion).clone(), up = size.set(0, 1, 0).applyQuaternion(camera.quaternion).clone();

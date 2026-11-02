@@ -65,7 +65,11 @@ const SHEET_TRANSMISSION = .50;
 const LOOK = Object.freeze({ warm: [3.0, 2.08, 1.05], cool: [.5, .68, .78], shadow: [.03, .062, .085], sky: [.1, .155, .19], rim: [.86, .92, .9],
   rimPower: 3.2, rimGain: .22, caustic: 2.2, wrap: .34, poolCenter: .31, poolWidth: .3 });
 
-export function prepareKun(root, gobo, light) {
+// The body comes first and the fins second. A fin's ink bleeds soft and lifts toward a mid wash,
+// most on the undersides, and its sheet takes less of the key. The tail keeps its own look.
+const FIN = Object.freeze({ bleed: 4.4, bleedMix: .86, wash: [.2, .29, .34], lift: .56, liftUnder: .86, under: [.42, .5, .53], underMix: .5, keep: .66, veil: .84, even: .55, evenAlpha: .66 });
+
+export function prepareKun(root, gobo, light, finEdge) {
   root.updateMatrixWorld(true);
   const meshes=[];
   root.traverse(object=>{if(object.isMesh) meshes.push(object);});
@@ -97,8 +101,10 @@ export function prepareKun(root, gobo, light) {
     kunNose:{value:body.geometry.boundingBox.max.z},kunTail:{value:fluke.geometry.boundingBox.min.z},
     kunLook:{value:0},kunLight:{value:light},kunGobo:{value:gobo},kunTime:{value:0},kunSize:{value:1},
     kunWarm:{value:new THREE.Vector3(...LOOK.warm)},kunCool:{value:new THREE.Vector3(...LOOK.cool)},kunShadow:{value:new THREE.Vector3(...LOOK.shadow)},
-    kunSky:{value:new THREE.Vector3(...LOOK.sky)},kunRim:{value:new THREE.Vector3(...LOOK.rim)} };
+    kunSky:{value:new THREE.Vector3(...LOOK.sky)},kunRim:{value:new THREE.Vector3(...LOOK.rim)},
+    kunFinEdge:{value:finEdge},kunFinWash:{value:new THREE.Vector3(...FIN.wash)} };
   const materials=[];
+  let finIndex=0;
   for(const mesh of meshes) {
     const old=mesh.material;
     const sheet=mesh.name.startsWith('kun_fin_')||mesh.name==='kun_fluke';
@@ -109,16 +115,21 @@ export function prepareKun(root, gobo, light) {
       color:old.color, map:old.map, transparent:sheet||pleat, opacity:old.opacity,
       side:sheet?THREE.DoubleSide:THREE.FrontSide, depthWrite:!sheet&&!pleat });
     // Lambert has no specular lobe, metalness, environment reflection or rim.
+    // The traced sheet has coplanar triangles that overlap, and each overlap would blend twice,
+    // as a fan of pale ribs. The stencil lets each fin draw a pixel once, with the mesh untouched.
+    if(mesh.name.startsWith('kun_fin_')) Object.assign(material,{stencilWrite:true,stencilFunc:THREE.NotEqualStencilFunc,
+      stencilRef:++finIndex,stencilZPass:THREE.ReplaceStencilOp});
     material.onBeforeCompile=shader=>{
       Object.assign(shader.uniforms,uniforms);
       shader.uniforms.kunDiffuseFill={value:new THREE.Vector3(...DIFFUSE_FILL)};
       shader.uniforms.kunTransmission={value:sheet?SHEET_TRANSMISSION:0};
       shader.uniforms.kunSheet={value:sheet?1:0};
+      shader.uniforms.kunFin={value:mesh.name.startsWith('kun_fin_')?1:0};
       shader.uniforms.kunPleat={value:mesh.name.startsWith('kun_throat_pleat')?1:mesh.name.startsWith('kun_mouth')?.45:0};
       shader.uniforms.kunRidge={value:mesh.name==='kun_dorsal_ridge'?1:0};
-      shader.fragmentShader=`uniform vec3 kunDiffuseFill,kunLight,kunWarm,kunCool,kunShadow,kunSky,kunRim;
-        uniform float kunTransmission,kunLook,kunTime,kunSize,kunSheet,kunPleat,kunRidge;
-        uniform sampler2D kunGobo;
+      shader.fragmentShader=`uniform vec3 kunDiffuseFill,kunLight,kunWarm,kunCool,kunShadow,kunSky,kunRim,kunFinWash;
+        uniform float kunTransmission,kunLook,kunTime,kunSize,kunSheet,kunPleat,kunRidge,kunFin;
+        uniform sampler2D kunGobo,kunFinEdge;
         varying vec3 vKunWorld,vKunNormal;
         varying float vKunAlong;
       `+shader.fragmentShader;
@@ -155,10 +166,26 @@ export function prepareKun(root, gobo, light) {
           vec3 key=kunKey*lit*(.62+${LOOK.caustic.toFixed(2)}*dapple);
           // Strong top light lifts the ink toward the paper, as it does in the key art.
           vec3 painted=mix(diffuseColor.rgb,mix(vec3(.94,.93,.89),vec3(.97,.9,.76),pool),lit*lit*.3*(1.-kunSheet*.8));
+          float finVeil=diffuseColor.a;
+          #ifdef USE_MAP
+            if(kunFin>.5){
+              // Low mips bleed the blotch edges as wet ink does; the darks then lift to a mid wash.
+              vec4 bled=texture2D(map,vMapUv,${FIN.bleed.toFixed(2)});
+              painted=mix(painted,bled.rgb,${FIN.bleedMix.toFixed(2)});
+              // Alpha comes from the bled paint alone: sharp alpha turns the paint's fine rays into ribs.
+              finVeil=mix(bled.a,${FIN.evenAlpha.toFixed(2)},${FIN.even.toFixed(2)});
+              float ink=1.-smoothstep(.03,.4,dot(painted,vec3(.2126,.7152,.0722)));
+              // Transparent double-sided sheets draw in two passes, so n keeps the mesh's own side.
+              float under=smoothstep(.2,-.5,n.y*(dot(n,toEye)<0.?-1.:1.));
+              painted=mix(painted,kunFinWash,ink*mix(${FIN.lift.toFixed(2)},${FIN.liftUnder.toFixed(2)},under));
+              // Undersides see only the fill light, which keeps every value ratio, so narrow the paint itself.
+              painted=mix(painted,vec3(${FIN.under.map(v=>v.toFixed(2)).join(',')}),under*${FIN.underMix.toFixed(2)});
+            }
+          #endif
           // Pleats read as soft grooves, and the ridge strip melts into the back.
           painted=mix(painted,vec3(.9,.92,.92),kunRidge*.72);
           vec3 fill=mix(kunShadow,kunSky,n.y*.5+.5);
-          reflectedLight.directDiffuse=painted*key*(1.-kunSheet*.3)*(1.-kunPleat);
+          reflectedLight.directDiffuse=painted*key*(1.-kunSheet*.3)*(1.-kunPleat)*(1.-kunFin*${(1-FIN.keep).toFixed(2)});
           reflectedLight.indirectDiffuse=painted*fill;
           // A cream edge where the surface turns away; never a hard line.
           float facing=clamp(dot(n,toEye),0.,1.);
@@ -168,8 +195,12 @@ export function prepareKun(root, gobo, light) {
             // Thin sheets glow where light passes through them; dense ink stays dark.
             float paper=clamp((1.-diffuseColor.a)/.62,0.,1.);
             float through=abs(ndl)*.55+.7*pow(clamp(dot(toEye,-kunLight),0.,1.),2.);
-            totalEmissiveRadiance+=diffuseColor.rgb*kunKey*(.3+.7*paper)*(.03+.17*through)*(.8+web*.5);
+            totalEmissiveRadiance+=painted*kunKey*(.3+.7*paper)*(.03+.17*through)*(.8+web*.5);
           }
+          #ifdef USE_MAP
+            // Last, so a fading edge never reads as thin paper and glows. The edge melts into the water.
+            if(kunFin>.5) diffuseColor.a=finVeil*${FIN.veil.toFixed(2)}*texture2D(kunFinEdge,vMapUv).r;
+          #endif
         }
       `);
       shader.vertexShader='varying vec3 vKunWorld,vKunNormal;\nvarying float vKunAlong;\n'+waveGLSL+shader.vertexShader;
@@ -180,7 +211,7 @@ export function prepareKun(root, gobo, light) {
       shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',
         '#include <project_vertex>\nvKunWorld=(modelMatrix*vec4(transformed,1.)).xyz;\nvKunNormal=mat3(modelMatrix)*objectNormal;\nvKunAlong=clamp((kunNose-position.z)/(kunNose-kunTail),0.,1.);');
     };
-    material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v6-${sheet?1:0}`;
+    material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v7-${sheet?1:0}`;
     mesh.material=material; mesh.renderOrder=sheet?2:pleat?1:0;
     // Rest bounds do not include the shader's displacement.
     mesh.frustumCulled=false;

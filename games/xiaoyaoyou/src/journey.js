@@ -9,9 +9,10 @@ export const PILLAR_CENTER = Object.freeze({ x: 0, z: 0, radius: 58, height: 240
 
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
-// Behind and to one side, looking ahead of Kun, so the heading and the next mote stay in frame.
-const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: -.07, distance: 2.1, aimAhead: .18, aimLift: .02, aimSide: 0 });
-const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.74, aimAhead: .16 });
+// Off to one side and a little below, so the painted flank and the head stay in view and the
+// fins sit behind the body. Kun is on the outside of its turn here, so a bank shows the flank too.
+const CAMERA_PLAY = Object.freeze({ azimuth: 1.88, elevation: -.18, distance: 2.1, aimAhead: .18, aimLift: .02, aimSide: 0 });
+const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.22, aimAhead: .16 });
 // Low and close, looking up at Kun as the key art does. Kun sits right of centre, so the
 // fins trail across the frame.
 const CAMERA_ART = Object.freeze({ azimuth: 1.24, elevation: -ART_PITCH, distance: 1.5, aimAhead: 0, aimLift: -.12, aimSide: -.1 });
@@ -230,7 +231,7 @@ export function createJourney(pillars) {
     // The camera stays anchored to Kun; only its aim looks ahead.
     const baseY = j.y + blend('aimLift') * size;
     // The fins trail behind the body, so a narrow frame centres on the whole of Kun.
-    const side = (blend('aimSide') * (1 - portrait) - .17 * portrait) * size;
+    const side = (blend('aimSide') * (1 - portrait) - (.17 + (showcase ? 0 : .09) * (1 - mix)) * portrait) * size;
     const sideX = Math.cos(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth))) * side;
     const sideZ = -Math.sin(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth))) * side;
     // Look-ahead waits for the camera to swing behind Kun, or it pushes Kun out of frame.

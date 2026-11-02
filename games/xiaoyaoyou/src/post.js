@@ -368,7 +368,9 @@ void main(){
   c=c*(1.-card.a)+card.rgb;
   // The cream rim is measured from coverage, not from normals. Fin sheets are flat, so a
   // fresnel term never reaches their edges, and ink inside a fin must not trigger it.
-  float mask=coverAt(vUv);
+  // The pixel itself must be properly opaque, so a fin dissolving into the water never takes a
+  // contour: the rim stays on hard silhouettes, the body's and the tail's.
+  float mask=smoothstep(.24,.36,texture2D(tScene,vUv).a);
   if(mask>.01){
     float around=0.;
     vec2 unit=uResolution.y/900./uResolution*2.6;
@@ -420,10 +422,11 @@ void main(){
 
 export function createPost(renderer, gobo, seedRandom) {
   const mist = createMistVolume(seedRandom);
-  const depthTexture = new THREE.DepthTexture(4, 4, THREE.UnsignedIntType);
+  const depthTexture = new THREE.DepthTexture(4, 4, THREE.UnsignedInt248Type);
+  depthTexture.format = THREE.DepthStencilFormat;
   depthTexture.minFilter = depthTexture.magFilter = THREE.NearestFilter;
   const hdr = { type: THREE.HalfFloatType, format: THREE.RGBAFormat, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false };
-  const sceneTarget = new THREE.WebGLRenderTarget(4, 4, { ...hdr, depthBuffer: true, samples: 4, depthTexture });
+  const sceneTarget = new THREE.WebGLRenderTarget(4, 4, { ...hdr, depthBuffer: true, stencilBuffer: true, samples: 4, depthTexture });
   const volumeA = new THREE.WebGLRenderTarget(4, 4, hdr), volumeB = new THREE.WebGLRenderTarget(4, 4, hdr);
   const cardTarget = new THREE.WebGLRenderTarget(4, 4, hdr);
   const mergedTarget = new THREE.WebGLRenderTarget(4, 4, hdr);

@@ -18,7 +18,7 @@ from mathutils import Vector
 import common
 
 # Fin-local normalized paint/weights are computed before these geometry knobs.
-PECTORAL_FIN_SCALE = 1.95
+PECTORAL_FIN_SCALE = 1.7
 UPPER_FIN_SCALE = PECTORAL_FIN_SCALE
 LOWER_FIN_SCALE = PECTORAL_FIN_SCALE * .85
 UPPER_FIN_SWEEP_DEGREES = 84

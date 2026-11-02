@@ -29,6 +29,7 @@ Add `?showcase=1` for a cinematic autoplay of about 73 seconds with no controls 
 - LXGW WenKai and EB Garamond, SIL Open Font License. Licenses in `fonts/OFL-LXGWWenKai.txt` and `fonts/OFL-EBGaramond.txt`.
 - Kun and the pillars are modelled from Python in Blender, with no downloaded or AI-generated meshes.
 - `assets/rock.webp`, `assets/paper.webp`, `assets/mist.webp` and the fin and fluke paint in `blender/paint/` are AI-generated images. The fin and fluke paint are upscales of the project's own reference sheet.
+- `assets/fin-edge.webp`, which dissolves the fin edges, is made by `tools/fin_edge.py` from the traced fin outline and seeded noise. It is not AI-generated.
 - The title and social images are real frames of the game, made by `tools/title_frames.sh`. The AI concept art appears only on the making-of page, labeled as concept art.
 
 ## Text status
@@ -45,5 +46,7 @@ Draft, pending verification. Every line in `text.json` is marked `draft: true`, 
 - `tools/fps.mjs [seconds ...]` measures frame pacing on the real GPU.
 - `tools/title_frames.sh` renders the title and social images from the game. Rerun it after any change to the look.
 - `tools/make_making_of.py` builds `making-of/img/` and `making-of/numbers.json` from the final build.
+- `tools/fin_edge.py` bakes the fin dissolve mask. Rerun it after any change to the fin outline.
+- `tools/view_angle.mjs` measures, across the journey, how the camera sits against Kun, whether the next mote is in frame, and whether stone stands in front of Kun.
 - `tools/optimize_assets.sh` compresses `_dev/raw/*.glb` into `assets/`.
 - `tools/subset_fonts.sh` rebuilds the font subsets from `text.json`, and `tools/check_text.py` validates the text.
