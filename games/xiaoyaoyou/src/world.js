@@ -165,7 +165,7 @@ function domeMaterial(shared) {
         // The water column stays dark almost to the surface, lifting only around the light.
         vec3 c=mix(uAbyss*.3,uDeep*.62,smoothstep(-.4,.04,up));
         c=mix(c,uDeep*1.12,smoothstep(.05,.62,up));
-        c+=uSea*pow(sun,4.)*.5+uHaze*pow(sun,14.)*.42+uShaft*pow(sun,60.)*.34;
+        c+=uSea*pow(sun,4.)*.5+uHaze*pow(sun,14.)*.42+uShaft*pow(sun,34.)*.62;
         float murk=texture2D(tGobo,ray.xz*.42/(abs(up)+.55)+uTime*.0016).b;
         c*=.8+.4*murk;
         // Far water pales into a band of haze behind the stone. Its height is uneven, so it
@@ -234,6 +234,16 @@ function placements() {
     if (cluster < -.32 || !separated(x, z, hero, 120) || !separated(x, z, field.slice(-150), 62) || Math.hypot(x - open.x, z - open.z) < 150) continue;
     field.push({ kind: field.length % 5, x, z, rotation: random() * 6.28, scale: .6 + random() * .75, stretch: .7 + random() * .5, sink: 40 + random() * 46 });
   }
+  // Small spires inside the ring read as distance in the opening shot, as they do in the key
+  // art. They draw on their own stream, so the composed layout above never moves.
+  const small = mulberry(31337);
+  for (let tries = 0, added = 0; added < 110 && tries < 6000; tries++) {
+    const radius = 120 + small() * 300, angle = small() * Math.PI * 2;
+    const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
+    if (!separated(x, z, hero, 70) || !separated(x, z, field, 44) || Math.hypot(x - open.x, z - open.z) < 200) continue;
+    field.push({ kind: field.length % 5, x, z, rotation: small() * 6.28, scale: .2 + small() * .26, stretch: .7 + small() * .5, sink: 16, small: true });
+    added++;
+  }
   return { hero, field };
 }
 
@@ -294,8 +304,8 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     return mesh;
   };
   const heroBatches = heroGeometry.map(geometry => batch(geometry, layout.hero.length));
-  const farBatches = farGeometry.map(geometry => batch(geometry, 160));
-  const deepBatches = deepGeometry.map(geometry => batch(geometry, 220));
+  const farBatches = farGeometry.map(geometry => batch(geometry, 200));
+  const deepBatches = deepGeometry.map(geometry => batch(geometry, 300));
   const cliffBatches = cliffGeometry.map(geometry => batch(geometry, 4));
   const batches = [...heroBatches, ...farBatches, ...deepBatches, ...cliffBatches];
   for (const item of [...layout.hero, ...layout.field]) item.matrix = composed(item);
@@ -367,8 +377,10 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       if (d >= 0) put(d < detail * 1.5 ? heroBatches[item.kind] : farBatches[item.kind % 5], item);
     }
     for (const item of layout.field) {
+      // Once Kun has outgrown them, the small spires are too small to see.
+      if (item.small && scale > 3) continue;
       const d = seen(item);
-      if (d >= 0) put(d < detail ? farBatches[item.kind] : deepBatches[item.kind], item);
+      if (d >= 0) put(d < detail && !item.small ? farBatches[item.kind] : deepBatches[item.kind], item);
     }
     for (const item of stages[0]) if (seen(item) >= 0) put(cliffBatches[item.kind], item);
     if (finaleOn) for (const item of stages[1]) put(cliffBatches[item.kind], item);

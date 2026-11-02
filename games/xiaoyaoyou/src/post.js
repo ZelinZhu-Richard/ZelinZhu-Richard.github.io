@@ -172,7 +172,7 @@ void main(){
   // the fan never reads as even stripes.
   float below=max(1.-vUv.y-.02,0.);
   // A tall frame shows more water, so the same rays end sooner in it.
-  float tall=mix(.62,1.,clamp((uAspect-.5)/.9,0.,1.));
+  float tall=mix(.46,1.,clamp((uAspect-.5)/.9,0.,1.));
   float rays=0.;
   for(int i=0;i<RAYS;i++){
     vec4 r=uRays[i];
