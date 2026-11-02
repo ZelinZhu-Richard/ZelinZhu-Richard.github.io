@@ -3,15 +3,15 @@
   "rows": [
     [
       "Triangles in the heaviest frame (limit 300,000)",
-      "250,975"
+      "283,989"
     ],
     [
       "Draw calls in the heaviest frame (limit 150)",
-      "72"
+      "79"
     ],
     [
       "Download, full journey (limit 20 MB)",
-      "10.6 MB"
+      "10.9 MB"
     ],
     [
       "Frame rate, Apple M4 Pro, headless Chromium",
@@ -23,15 +23,15 @@
     ],
     [
       "Length of the journey",
-      "116 s"
+      "115 s"
     ],
     [
       "Lines of game and model code",
-      "3,255"
+      "3,306"
     ],
     [
       "Independent reviews run by Codex",
-      "14"
+      "17"
     ]
   ]
 }
