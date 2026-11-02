@@ -638,7 +638,7 @@ Numbered in sequence with last night's: M4 review 3 was the last one then.
 
 ### The pillar feet, for the record
 
-The finding that survived every review since last night. Four attempts, three wrong:
+The finding that survived every review since last night. Four attempts: the first two failed, the third helped and stayed, the fourth closed it.
 
 1. Mist in front of the foot alone: covers it, but where mist thins the outline is still there.
 2. Discarding stone below an uneven height: the contour goes, but a dither reads as halftone. Rejected before review.
