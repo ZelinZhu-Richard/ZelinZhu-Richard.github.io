@@ -553,3 +553,35 @@ Stretch deferred: both items are gated on A to C being READY.
 **M3 status is NEEDS RICHARD, not READY.** All four criteria pass and Codex says PASS, but PLAN rule 9 says breaking an earlier criterion fails the current milestone, and Richard's M1 waiver names 0.691 and 0.719. Tonight's 0.6348 and 0.6474 are outside it. Codex was told not to fail on this alone, so its PASS cannot answer this. Only Richard can.
 
 Final capture on 1e735d6: 93 of 93 checks true, clean console, 65 draw calls, 271,678 triangles, 9,723,224 bytes. No boxes ticked. Details and options are in MORNING.md.
+
+## Richard's decisions on the overnight report (2026-11-01 21:37 EST; second run begins)
+
+Recorded in his words. Rules stay as in NIGHT.md, except "no fix-round cap. Each phase has a time box; when a box runs out, keep the best version, record what's left, and move on." The run stops at 04:37 EST at the latest. Boxes stay unticked: NIGHT.md's rule stands and he kept it; approvals are recorded here and in MORNING.md.
+
+Time boxes. M4 round 3 has his 3 hours. The others are mine, because he set only that one: title 45 min, making-of 90 min, showcase 60 min, final 30 min.
+
+## M2 APPROVED by Richard (2026-11-01, commit 90026d0)
+
+"M2 approved."
+
+| View | Captured IoU | Status |
+|---|---:|---|
+| side | 0.6348 | Waived by Richard, below |
+| top | 0.6474 | Waived by Richard, below |
+| front / three-quarter / gameplay | by eye | Accepted with M2 |
+
+Box left unticked, as above.
+
+## M3 cleared by Richard, with an IoU waiver (2026-11-01, commit 90026d0)
+
+"Waive Kun's IoU at side 0.635 / top 0.647 (fins at 1.7). The key art wins over the sheet; this was deliberate."
+
+He asked for this to be recorded in those words and for M3 to be cleared, so M3 stands cleared on its Codex PASS (round 5, 1e735d6). M3's criteria stay in the regression check for everything below. The waiver names numbers and a fin scale: if the fins move again, the new numbers are reported as outside it and listed for him, even though he has authorized the move.
+
+## Other decisions (2026-11-01)
+
+- **D, title:** "Title: don't ship the AI key art as the title background. It's concept art, it promises more than the game shows, and on my portfolio that would mislead visitors. After the M4 work below, use a real in-game frame instead (the best full-growth or opening frame, rendered at high resolution). The key art goes into the making-of page, clearly labeled "concept art", next to the in-game result. Amend PLAN accordingly."
+- **F, text:** "I'll verify the source lines and rewrite the English myself later; keep them as drafts."
+- **B, M4 round 3:** "Authorize M4 round 3, time-boxed to 3 hours, not round-capped. Codex's findings are artifacts; the bigger gap to the key art is composition and light." Priorities, in his order: (1) camera and scale: opening and full-growth lower and closer, looking up at Kun, who spans about 60 to 70% of the frame width; gameplay Kun larger, with pillars passing close by for parallax; (2) warm key light on Kun's back, with everything else cold; (3) depth and framing: dark foreground cliffs at the frame edges, a denser layered stone forest, mist of irregular height hiding the pillar feet; (4) contrast: deeper blacks, brighter highlights, the key art's value range; (5) then Codex's artifacts: pillar feet, shaft striping, a finer water surface. "You may push fin scale and sweep further toward the key art's veil-like fins; log it."
+- **G, stretch:** "(1) making-of/index.html, the most important for my portfolio: concept art → reference sheets → Blender passes with overlays → in-game frames; the pipeline (image refs → code-built Blender meshes → three.js, with Claude building and Codex as independent reviewer); and key numbers. (2) The ?showcase=1 cinematic camera."
+- **End:** "Update MORNING.md at the end with before/after comparison sheets against the key art."
