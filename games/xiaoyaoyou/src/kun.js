@@ -60,8 +60,10 @@ function finCoordinates(mesh) {
 const DIFFUSE_FILL = [.12, .16, .19];
 const SHEET_TRANSMISSION = .50;
 // Sea look, off in the grey sheet views so they still compare with Blender.
-const LOOK = Object.freeze({ key: [1.5, 1.39, 1.15], shadow: [.055, .095, .125], sky: [.26, .33, .37], rim: [.86, .92, .9],
-  rimPower: 3.2, rimGain: .3, caustic: 2.6, wrap: .62 });
+// The warm key is the only warm light in the sea: a pool on the back under the shaft. Past it
+// the top light is cold, and the belly falls into dark blue water, as sampled from the key art.
+const LOOK = Object.freeze({ warm: [2.9, 2.14, 1.22], cool: [.5, .68, .78], shadow: [.03, .062, .085], sky: [.1, .155, .19], rim: [.86, .92, .9],
+  rimPower: 3.2, rimGain: .22, caustic: 2.2, wrap: .34, poolCenter: .31, poolWidth: .3 });
 
 export function prepareKun(root, gobo, light) {
   root.updateMatrixWorld(true);
@@ -94,7 +96,7 @@ export function prepareKun(root, gobo, light) {
   const uniforms={ kunCycle:{value:0},kunEnabled:{value:1},
     kunNose:{value:body.geometry.boundingBox.max.z},kunTail:{value:fluke.geometry.boundingBox.min.z},
     kunLook:{value:0},kunLight:{value:light},kunGobo:{value:gobo},kunTime:{value:0},kunSize:{value:1},
-    kunKey:{value:new THREE.Vector3(...LOOK.key)},kunShadow:{value:new THREE.Vector3(...LOOK.shadow)},
+    kunWarm:{value:new THREE.Vector3(...LOOK.warm)},kunCool:{value:new THREE.Vector3(...LOOK.cool)},kunShadow:{value:new THREE.Vector3(...LOOK.shadow)},
     kunSky:{value:new THREE.Vector3(...LOOK.sky)},kunRim:{value:new THREE.Vector3(...LOOK.rim)} };
   const materials=[];
   for(const mesh of meshes) {
@@ -114,10 +116,11 @@ export function prepareKun(root, gobo, light) {
       shader.uniforms.kunSheet={value:sheet?1:0};
       shader.uniforms.kunPleat={value:mesh.name.startsWith('kun_throat_pleat')?1:mesh.name.startsWith('kun_mouth')?.45:0};
       shader.uniforms.kunRidge={value:mesh.name==='kun_dorsal_ridge'?1:0};
-      shader.fragmentShader=`uniform vec3 kunDiffuseFill,kunLight,kunKey,kunShadow,kunSky,kunRim;
+      shader.fragmentShader=`uniform vec3 kunDiffuseFill,kunLight,kunWarm,kunCool,kunShadow,kunSky,kunRim;
         uniform float kunTransmission,kunLook,kunTime,kunSize,kunSheet,kunPleat,kunRidge;
         uniform sampler2D kunGobo;
         varying vec3 vKunWorld,vKunNormal;
+        varying float vKunAlong;
       `+shader.fragmentShader;
       shader.fragmentShader=shader.fragmentShader.replace('#include <lights_fragment_end>', `
         #include <lights_fragment_end>
@@ -145,9 +148,11 @@ export function prepareKun(root, gobo, light) {
           vec2 q=vKunWorld.xz/(kunSize*11.);
           float web=min(texture2D(kunGobo,q+vec2(kunTime*.011,kunTime*.007)).g+.2,
                         texture2D(kunGobo,q*.73-vec2(kunTime*.008,-kunTime*.012)).g+.2);
+          float pool=exp(-pow((vKunAlong-${LOOK.poolCenter.toFixed(2)})/${LOOK.poolWidth.toFixed(2)},2.));
+          vec3 kunKey=mix(kunCool,kunWarm,pool);
           vec3 key=kunKey*lit*(.62+${LOOK.caustic.toFixed(2)}*web*web);
           // Strong top light lifts the ink toward the paper, as it does in the key art.
-          vec3 painted=mix(diffuseColor.rgb,vec3(.94,.93,.89),lit*lit*.3*(1.-kunSheet*.8));
+          vec3 painted=mix(diffuseColor.rgb,mix(vec3(.94,.93,.89),vec3(.97,.9,.76),pool),lit*lit*.3*(1.-kunSheet*.8));
           // Pleats read as soft grooves, and the ridge strip melts into the back.
           painted=mix(painted,vec3(.9,.92,.92),kunRidge*.72);
           vec3 fill=mix(kunShadow,kunSky,n.y*.5+.5);
@@ -165,15 +170,15 @@ export function prepareKun(root, gobo, light) {
           }
         }
       `);
-      shader.vertexShader='varying vec3 vKunWorld,vKunNormal;\n'+waveGLSL+shader.vertexShader;
+      shader.vertexShader='varying vec3 vKunWorld,vKunNormal;\nvarying float vKunAlong;\n'+waveGLSL+shader.vertexShader;
       shader.vertexShader=shader.vertexShader.replace('#include <beginnormal_vertex>',
         '#include <beginnormal_vertex>\nobjectNormal=kunBentNormal(position,objectNormal,kunSpan,kunSpanGradient);');
       shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',
         '#include <begin_vertex>\ntransformed.y+=kunHeight(position,kunSpan);');
       shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',
-        '#include <project_vertex>\nvKunWorld=(modelMatrix*vec4(transformed,1.)).xyz;\nvKunNormal=mat3(modelMatrix)*objectNormal;');
+        '#include <project_vertex>\nvKunWorld=(modelMatrix*vec4(transformed,1.)).xyz;\nvKunNormal=mat3(modelMatrix)*objectNormal;\nvKunAlong=clamp((kunNose-position.z)/(kunNose-kunTail),0.,1.);');
     };
-    material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v4-${sheet?1:0}`;
+    material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v5-${sheet?1:0}`;
     mesh.material=material; mesh.renderOrder=sheet?2:pleat?1:0;
     // Rest bounds do not include the shader's displacement.
     mesh.frustumCulled=false;

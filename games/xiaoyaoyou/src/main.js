@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { prepareAssets } from './assets.js';
 import { prepareKun } from './kun.js';
 import { createWorld, mulberry, FOG_DENSITY, fogDensity } from './world.js';
-import { createJourney, GROWTH, WORLD } from './journey.js';
+import { createJourney, ART_PITCH, GROWTH, WORLD } from './journey.js';
 import { createPost, createGobo } from './post.js';
 
 const STEP_SECONDS = 1 / 60;
@@ -108,6 +108,8 @@ export async function createRuntime(text, onProgress) {
     rngState = config.seed;
     Object.assign(state, { beat: CHECKPOINTS.get(id), motes: 0, kunScale: 1, gameMs: 0, settled: false });
     journey.reset(aspect());
+    world.placeOpening(journey.j.cam, aspect());
+    world.refresh();
     journey.j.autoplay = autoplayOn;
     if (state.beat === 'title') { title.hidden = false; title.classList.remove('leaving'); }
     else if (crossfade && !title.hidden) title.classList.add('leaving');
@@ -179,7 +181,8 @@ export async function createRuntime(text, onProgress) {
   function poseKun() {
     const j = journey.j;
     kun.root.position.set(j.x, j.y, j.z);
-    kun.root.rotation.set(-j.pitch, j.yaw, j.roll, 'YXZ');
+    // In the two posed shots Kun lifts its head, as in the key art.
+    kun.root.rotation.set(-j.pitch - j.cam.mix * .1, j.yaw, j.roll, 'YXZ');
     kun.root.scale.setScalar(j.scale);
     const c = j.cam;
     camera.position.set(c.x, c.y, c.z);
@@ -203,6 +206,7 @@ export async function createRuntime(text, onProgress) {
     if (state.beat === 'north' || state.beat === 'end') {
       poseKun();
       scene.fog.density = fogDensity(journey.j.scale);
+      world.placeFinale(journey.j.rig, ART_PITCH, journey.j.scale, aspect(), journey.j.cam.mix);
       world.update(camera, state.gameMs, journey.j.scale);
       world.showMote(journey.j.mote, journey.j.scale, state.gameMs);
     } else if (state.beat === 'test') world.update(camera, state.gameMs, 1);
@@ -213,7 +217,7 @@ export async function createRuntime(text, onProgress) {
       renderer.render(scene, camera);
     } else {
       configureVolume(sized);
-      post.render(scene, camera, state.gameMs / 1000);
+      post.render(scene, camera, state.gameMs / 1000, state.beat !== 'test');
     }
     Object.assign(stats, {
       drawCalls: renderer.info.render.calls,
@@ -242,6 +246,9 @@ export async function createRuntime(text, onProgress) {
     u.tMistMap.value = world.mistMap;
     u.uMistTop.value = 34 + 30 * Math.sqrt(scale);
     u.uMistBottom.value = -30;
+    post.cards.uScale.value = scale;
+    post.cards.uDensity.value = fogDensity(scale);
+    post.cards.uLight.value.copy(world.light);
   }
   function frameKun() {
     const ratio = aspect();
@@ -298,6 +305,22 @@ export async function createRuntime(text, onProgress) {
       inFrame: b.min.x >= -1 && b.max.x <= 1 && b.min.y >= -1 && b.max.y <= 1 && b.min.z >= -1 && b.max.z <= 1,
       centerX: (b.min.x + b.max.x + 2) * innerWidth / 4, centerY: (2 - b.min.y - b.max.y) * innerHeight / 4 };
   }
+  // The true span of the model on screen, read from its vertices. measure().kun stays the
+  // projected bounding box, because the M3 scale gate is defined on it.
+  function kunSpan() {
+    let min = Infinity, max = -Infinity, low = Infinity, high = -Infinity;
+    kun.root.updateMatrixWorld(true);
+    kun.root.traverse(object => {
+      if (!object.isMesh) return;
+      const position = object.geometry.attributes.position;
+      for (let i = 0; i < position.count; i += 7) {
+        projected.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld).project(camera);
+        min = Math.min(min, projected.x); max = Math.max(max, projected.x);
+        low = Math.min(low, projected.y); high = Math.max(high, projected.y);
+      }
+    });
+    return { widthFraction: (max - min) / 2, heightFraction: (high - low) / 2, left: (min + 1) / 2, right: (max + 1) / 2, top: (1 - high) / 2, bottom: (1 - low) / 2 };
+  }
   function measure() {
     const result = { cameraAltitude: camera.position.y };
     if (state.beat === 'test' || state.beat === 'north') {
@@ -306,6 +329,7 @@ export async function createRuntime(text, onProgress) {
       result.kun = boxInView(box, kun.root.matrixWorld);
     }
     if (state.beat === 'north') for (const [name, box] of world.named) result[name] = boxInView(box);
+    if (kun && (state.beat === 'test' || state.beat === 'north')) result.kunSpan = kunSpan();
     return result;
   }
   function onKey(event) {
@@ -358,7 +382,9 @@ export async function createRuntime(text, onProgress) {
     onProgress(0.5);
     const assets = await prepareAssets(value => onProgress(0.5 + value / 2));
     const gobo = createGobo(mulberry(4242));
-    const rockTexture = await new THREE.TextureLoader().loadAsync('assets/rock.webp');
+    const loader = new THREE.TextureLoader();
+    const mistSheet = await loader.loadAsync('assets/mist.webp');
+    const rockTexture = await loader.loadAsync('assets/rock.webp');
     rockTexture.colorSpace = THREE.SRGBColorSpace;
     rockTexture.wrapS = rockTexture.wrapT = THREE.RepeatWrapping;
     rockTexture.anisotropy = 8;
@@ -373,6 +399,7 @@ export async function createRuntime(text, onProgress) {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
     renderer.info.autoReset = false;
     post = createPost(renderer, gobo, mulberry(9001));
+    post.setCards(world.cards, mistSheet);
     resize();
     jump('title');
     window.__GAME_DEBUG__ = {

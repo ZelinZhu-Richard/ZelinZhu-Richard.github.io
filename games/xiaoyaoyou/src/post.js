@@ -3,6 +3,7 @@ import * as THREE from 'three';
 // HDR scene -> half-resolution volumetric light and mist -> bloom -> filmic grade.
 // Every pass is counted in renderer.info, so the draw-call gate sees all of it.
 
+const RAY_COUNT = 13;
 const VERTEX = 'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -117,6 +118,7 @@ uniform mat4 uInverse;
 uniform vec3 uCamera, uLight, uShaft, uMist, uLayers, uHero;
 uniform vec2 uVanish;
 uniform float uTime, uSurface, uScale, uReach, uShaftGain, uMistGain, uMistTop, uMistBottom, uAspect;
+uniform vec4 uRays[RAYS];
 varying vec2 vUv;
 float ign(vec2 p){return fract(52.9829189*fract(dot(p,vec2(.06711056,.00583715))));}
 vec3 worldAt(vec2 uv,float depth){vec4 w=uInverse*vec4(uv*2.-1.,depth*2.-1.,1.);return w.xyz/w.w;}
@@ -165,24 +167,24 @@ void main(){
   // Parallel light converges on one vanishing point, so the fine streaks radiate from it.
   vec2 fromSun=(vUv-uVanish)*vec2(uAspect,1.);
   float angle=atan(fromSun.x,-fromSun.y);
-  // Broad groups, mid-width bands and a little fine strand, each drifting on its own.
-  float groups=texture2D(tGobo,vec2(angle*.62+uTime*.0021,.31)).b;
-  float bands=texture2D(tGobo,vec2(angle*2.1-uTime*.0034,.67)).b;
-  float strands=texture2D(tGobo,vec2(angle*6.3+uTime*.005,.13)).a;
-  float rays=smoothstep(.46,.86,groups*.62+bands*.5)*(.5+.5*strands);
-  // Each ray ends at its own depth below the top of the frame, wherever the camera points.
-  float length_=.42+1.05*texture2D(tGobo,vec2(angle*1.7,.83)).b;
-  float below=max(1.-vUv.y-.08,0.);
-  float fall=exp(-pow(below/length_,2.))*smoothstep(-.1,.45,vUv.y);
-  // Light gathers around one opening in the surface and breaks up as it descends.
+  // Each ray is its own soft wedge with its own reach, so none ends at the same place and
+  // the fan never reads as even stripes.
+  float below=max(1.-vUv.y-.02,0.);
+  float rays=0.;
+  for(int i=0;i<RAYS;i++){
+    vec4 r=uRays[i];
+    float across=(angle-r.x)/r.y, along=below/r.z;
+    rays+=r.w*exp(-across*across)*exp(-along*along*along);
+  }
+  float strands=texture2D(tGobo,vec2(angle*5.1+uTime*.004,.13)).a;
+  float broken=.62+.76*texture2D(tGobo,vec2(angle*2.3,below*.42+uTime*.002)).b;
+  // Light gathers around one opening in the surface.
   vec2 source=(vUv-clamp(uVanish,vec2(.08,0.),vec2(.92,1.06)))*vec2(uAspect,1.);
-  float focus=exp(-dot(source,source)*.6);
-  float broken=.45+1.1*texture2D(tGobo,vec2(angle*3.3,below*.55+uTime*.002)).b;
   // Soft-limited: strong columns stay light in water and never become a solid wall.
-  float light=shafts*(reach/uReach)*phase*uShaftGain*22.*(.05+9.*rays*focus*broken)*fall;
+  float light=shafts*(reach/uReach)*phase*uShaftGain*22.*(.03+7.*rays*broken*(.72+.28*strands))*smoothstep(-.1,.3,vUv.y);
   vec3 scatter=uShaft*.6*(1.-exp(-light*1.7));
   // One shared bright region near the surface, which the rays visibly leave.
-  scatter+=uShaft*exp(-dot(source,source)*2.6)*.15*(.7+.5*groups);
+  scatter+=uShaft*exp(-dot(source,source)*3.)*.13;
   // A soft band of far water covers the line where the seabed meets the dome.
   scatter+=uMist*.1*exp(-pow(ray.y/.085,2.))*smoothstep(0.,1.,dist/(900.*sqrt(uScale)));
   // Mist hugs the seabed: march only the slab of water it lives in.
@@ -221,6 +223,54 @@ void main(){
     scatter+=uMist*lit;
   }
   gl_FragColor=vec4(scatter,transmit);
+}`;
+
+// Painted mist on camera-facing cards, faded where they meet stone. Half resolution, unblurred,
+// so the torn edges and spray of the sprite sheet survive.
+const cardVertex = `
+attribute vec4 aCenter;
+attribute vec4 aCard;
+uniform float uTime,uScale,uDensity,uSurface;
+uniform vec3 uLight;
+uniform sampler2D tGobo;
+varying vec2 vUv;
+varying float vFade,vLight,vDepth,vSoft;
+void main(){
+  float width=aCenter.w*pow(uScale,.34);
+  float height=width*.62/pow(uScale,.12);
+  vec3 center=aCenter.xyz+vec3(sin(uTime*.03+aCard.y*40.),0.,cos(uTime*.024+aCard.y*31.))*width*.08;
+  vec4 view=viewMatrix*vec4(center,1.);
+  vec3 up=(viewMatrix*vec4(0.,1.,0.,0.)).xyz;
+  vec2 corner=position.xy;
+  view.xyz+=vec3(corner.x*width,0.,0.)+up*(corner.y+.5)*height;
+  float depth=-view.z, dist=length(view.xyz);
+  vDepth=depth;
+  vSoft=30.+22.*sqrt(uScale);
+  // Close to the camera a card opens out and disappears, so the view never enters a sheet.
+  float near=smoothstep(90.*sqrt(uScale),300.*sqrt(uScale),dist);
+  vFade=near*exp(-pow(dist*uDensity*.42,2.))*(.82+.18*sin(uTime*.11+aCard.y*17.));
+  vec2 q=center.xz+uLight.xz*(uSurface-center.y)/uLight.y;
+  vLight=.34+1.3*texture2D(tGobo,q/(900.*sqrt(uScale))).r;
+  float cell=aCard.x;
+  vec2 uv=vec2(corner.x*aCard.z+.5,corner.y+.5);
+  vUv=(vec2(mod(cell,3.),2.-floor(cell/3.))+uv*.96+.02)/3.;
+  gl_Position=projectionMatrix*view;
+}`;
+
+const cardFragment = `
+precision highp float;
+uniform sampler2D tSheet,tDepth;
+uniform vec4 uProject;
+uniform vec2 uViewport;
+uniform vec3 uMist;
+uniform float uGain;
+varying vec2 vUv;
+varying float vFade,vLight,vDepth,vSoft;
+void main(){
+  float m=texture2D(tSheet,vUv).r;
+  float scene=uProject.x/(uProject.y-texture2D(tDepth,gl_FragCoord.xy/uViewport).r);
+  float a=m*vFade*clamp((scene-vDepth)/vSoft,0.,1.)*uGain;
+  gl_FragColor=vec4(uMist*vLight*a,a);
 }`;
 
 const blurFragment = `
@@ -273,8 +323,8 @@ void main(){
 
 const compositeFragment = `
 precision highp float;
-uniform sampler2D tScene, tVolume, tBloom, tDepth;
-uniform float uBloom, uExposure, uTime, uGrain;
+uniform sampler2D tScene, tVolume, tBloom, tDepth, tCards;
+uniform float uBloom, uExposure, uTime, uGrain, uBlack;
 uniform vec2 uResolution, uVolumeTexel;
 uniform vec4 uProject;
 uniform float uRim;
@@ -298,6 +348,8 @@ void main(){
   // him in front of the volume, and the water's alpha of zero leaves it untouched.
   float foreground=texture2D(tScene,vUv).a;
   c=c*mix(v.a,1.,foreground)+v.rgb*(1.-foreground*.82);
+  vec4 card=texture2D(tCards,vUv)*(1.-foreground);
+  c=c*(1.-card.a)+card.rgb;
   // The cream rim is measured from coverage, not from normals. Fin sheets are flat, so a
   // fresnel term never reaches their edges, and ink inside a fin must not trigger it.
   float mask=coverAt(vUv);
@@ -314,7 +366,7 @@ void main(){
     c+=vec3(.97,.92,.8)*rim*uRim;
   }
   c+=texture2D(tBloom,vUv).rgb*uBloom;
-  c=curve(c*uExposure);
+  c=curve(max(c*uExposure-uBlack,0.));
   c=mix(c,c*c*(3.-2.*c),.42);
   // Cool the shadows only, leaving Kun's paper whites alone.
   float l=dot(c,vec3(.2126,.7152,.0722));
@@ -337,6 +389,7 @@ export function createPost(renderer, gobo, seedRandom) {
   const hdr = { type: THREE.HalfFloatType, format: THREE.RGBAFormat, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false };
   const sceneTarget = new THREE.WebGLRenderTarget(4, 4, { ...hdr, depthBuffer: true, samples: 4, depthTexture });
   const volumeA = new THREE.WebGLRenderTarget(4, 4, hdr), volumeB = new THREE.WebGLRenderTarget(4, 4, hdr);
+  const cardTarget = new THREE.WebGLRenderTarget(4, 4, hdr);
   const LEVELS = 5;
   const down = Array.from({ length: LEVELS }, () => new THREE.WebGLRenderTarget(4, 4, hdr));
   const up = Array.from({ length: LEVELS - 1 }, () => new THREE.WebGLRenderTarget(4, 4, hdr));
@@ -346,10 +399,18 @@ export function createPost(renderer, gobo, seedRandom) {
   quad.frustumCulled = false;
   quadScene.add(quad);
   const pass = (fragmentShader, uniforms) => new THREE.ShaderMaterial({ vertexShader: VERTEX, fragmentShader, uniforms, depthTest: false, depthWrite: false, toneMapped: false });
-  const volume = pass(volumeFragment, {
+  // The table of rays: angle from straight down, half-width, reach in frame heights, strength.
+  const rayRandom = seedRandom;
+  const RAY_SET = Array.from({ length: RAY_COUNT }, (_, i) => {
+    const place = (i + .5) / RAY_COUNT, thick = rayRandom() < .3;
+    return { angle: (place - .5) * .78 + (rayRandom() - .5) * .05, width: thick ? .04 + rayRandom() * .03 : .012 + rayRandom() * .016,
+      reach: .3 + rayRandom() * .5, gain: (thick ? .5 : .7 + rayRandom() * .5) * (1 - Math.pow(Math.abs(place - .56) * 1.9, 2)) };
+  });
+  const volume = pass(volumeFragment.replaceAll('RAYS', String(RAY_COUNT)), {
     tDepth: { value: depthTexture }, tGobo: { value: gobo }, tMist: { value: mist }, tMistMap: { value: null },
     uInverse: { value: new THREE.Matrix4() }, uCamera: { value: new THREE.Vector3() }, uLight: { value: new THREE.Vector3(0, 1, 0) },
     uShaft: { value: new THREE.Color('#A9B4AC') }, uMist: { value: new THREE.Color('#71868E') }, uLayers: { value: new THREE.Vector3(1, 0, 0) }, uHero: { value: new THREE.Vector3(0, 0, 30) }, uVanish: { value: new THREE.Vector2(.7, 1.6) }, uAspect: { value: 1.6 },
+    uRays: { value: RAY_SET.map(() => new THREE.Vector4()) },
     uTime: { value: 0 }, uSurface: { value: 640 }, uScale: { value: 1 }, uReach: { value: 300 },
     uShaftGain: { value: .46 }, uMistGain: { value: .012 }, uMistTop: { value: 120 }, uMistBottom: { value: -40 },
   });
@@ -357,8 +418,8 @@ export function createPost(renderer, gobo, seedRandom) {
   const downPass = pass(downFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() }, uThreshold: { value: 0 } });
   const upPass = pass(upFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() } });
   const composite = pass(compositeFragment, {
-    tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tBloom: { value: up[0].texture }, tDepth: { value: depthTexture },
-    uBloom: { value: .34 }, uExposure: { value: .92 }, uTime: { value: 0 }, uGrain: { value: .006 }, uResolution: { value: new THREE.Vector2(1, 1) },
+    tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tBloom: { value: up[0].texture }, tDepth: { value: depthTexture }, tCards: { value: cardTarget.texture },
+    uBloom: { value: .34 }, uExposure: { value: .92 }, uBlack: { value: .004 }, uTime: { value: 0 }, uGrain: { value: .006 }, uResolution: { value: new THREE.Vector2(1, 1) },
     uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() }, uRim: { value: 1.25 },
   });
   function draw(material, target) {
@@ -368,19 +429,48 @@ export function createPost(renderer, gobo, seedRandom) {
   }
   let width = 4, height = 4;
   const inverse = new THREE.Matrix4(), vanish = new THREE.Vector3();
+  const cardScene = new THREE.Scene();
+  const cardUniforms = {
+    tSheet: { value: null }, tDepth: { value: depthTexture }, tGobo: { value: gobo }, uProject: { value: new THREE.Vector4() }, uViewport: { value: new THREE.Vector2(1, 1) },
+    uMist: { value: new THREE.Color('#71868E') }, uGain: { value: .62 }, uTime: { value: 0 }, uScale: { value: 1 }, uDensity: { value: .001 }, uSurface: { value: 640 }, uLight: { value: new THREE.Vector3(0, 1, 0) },
+  };
   return {
-    uniforms: volume.uniforms, grade: composite.uniforms, sceneTarget,
+    uniforms: volume.uniforms, grade: composite.uniforms, sceneTarget, cards: cardUniforms,
+    setCards(items, sheet) {
+      sheet.colorSpace = THREE.NoColorSpace;
+      sheet.minFilter = THREE.LinearMipmapLinearFilter;
+      cardUniforms.tSheet.value = sheet;
+      const quad = new THREE.PlaneGeometry(1, 1);
+      const geometry = new THREE.InstancedBufferGeometry();
+      geometry.index = quad.index;
+      geometry.setAttribute('position', quad.attributes.position);
+      const center = new Float32Array(items.length * 4), card = new Float32Array(items.length * 4);
+      items.forEach((item, i) => {
+        center.set([item.x, item.y, item.z, item.width], i * 4);
+        card.set([item.cell, item.seed, item.flip, 0], i * 4);
+      });
+      geometry.setAttribute('aCenter', new THREE.InstancedBufferAttribute(center, 4));
+      geometry.setAttribute('aCard', new THREE.InstancedBufferAttribute(card, 4));
+      geometry.instanceCount = items.length;
+      const material = new THREE.ShaderMaterial({ vertexShader: cardVertex, fragmentShader: cardFragment, uniforms: cardUniforms,
+        transparent: true, depthTest: false, depthWrite: false, side: THREE.DoubleSide, blending: THREE.CustomBlending,
+        blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor });
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.frustumCulled = false;
+      cardScene.add(mesh);
+    },
     setSize(w, h) {
       width = w; height = h;
       sceneTarget.setSize(w, h);
       const halfW = Math.max(2, w >> 1), halfH = Math.max(2, h >> 1);
-      volumeA.setSize(halfW, halfH); volumeB.setSize(halfW, halfH);
+      volumeA.setSize(halfW, halfH); volumeB.setSize(halfW, halfH); cardTarget.setSize(halfW, halfH);
+      cardUniforms.uViewport.value.set(halfW, halfH);
       down.forEach((target, i) => target.setSize(Math.max(2, w >> (i + 1)), Math.max(2, h >> (i + 1))));
       up.forEach((target, i) => target.setSize(Math.max(2, w >> (i + 1)), Math.max(2, h >> (i + 1))));
       composite.uniforms.uResolution.value.set(w, h);
       composite.uniforms.uVolumeTexel.value.set(1 / halfW, 1 / halfH);
     },
-    render(scene, camera, time) {
+    render(scene, camera, time, withCards = true) {
       renderer.setRenderTarget(sceneTarget);
       renderer.clear();
       renderer.render(scene, camera);
@@ -391,6 +481,12 @@ export function createPost(renderer, gobo, seedRandom) {
       volume.uniforms.uVanish.value.set(vanish.x * .5 + .5, vanish.y * .5 + .5);
       volume.uniforms.uAspect.value = width / height;
       volume.uniforms.uTime.value = time;
+      // Rays drift, and slide round as the camera turns, wrapping at the ends of the fan.
+      const pan = Math.atan2(camera.matrixWorld.elements[8], camera.matrixWorld.elements[10]) * .3;
+      RAY_SET.forEach((ray, i) => {
+        const place = ((ray.angle + pan + Math.sin(time * .04 + i * 2.1) * .012) / .84 + .5 + 100) % 1;
+        volume.uniforms.uRays.value[i].set((place - .5) * .84, ray.width, ray.reach, ray.gain * Math.sin(place * Math.PI));
+      });
       draw(volume, volumeA);
       const near = camera.near, far = camera.far;
       blur.uniforms.uProject.value.set(near * far / (far - near), far / (far - near), 0, 0);
@@ -402,6 +498,12 @@ export function createPost(renderer, gobo, seedRandom) {
       blur.uniforms.uStep.value.set(0, 1 / volumeA.height);
       draw(blur, volumeA);
       composite.uniforms.tVolume.value = volumeA.texture;
+      cardUniforms.uProject.value.copy(blur.uniforms.uProject.value);
+      cardUniforms.uTime.value = time;
+      renderer.setRenderTarget(cardTarget);
+      renderer.setClearColor(0x000000, 0);
+      renderer.clear();
+      if (withCards) renderer.render(cardScene, camera);
       let source = sceneTarget.texture;
       for (let i = 0; i < LEVELS; i++) {
         downPass.uniforms.tSource.value = source;
@@ -420,7 +522,7 @@ export function createPost(renderer, gobo, seedRandom) {
       draw(composite, null);
     },
     dispose() {
-      for (const target of [sceneTarget, volumeA, volumeB, ...down, ...up]) target.dispose();
+      for (const target of [sceneTarget, volumeA, volumeB, cardTarget, ...down, ...up]) target.dispose();
       for (const material of [volume, blur, downPass, upPass, composite]) material.dispose();
       depthTexture.dispose(); mist.dispose(); quad.geometry.dispose();
     },

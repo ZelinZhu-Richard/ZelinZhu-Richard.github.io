@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { BODY_LENGTH, PILLAR_CENTER, WORLD } from './journey.js';
+import { BODY_LENGTH, PILLAR_CENTER, WORLD, openingView } from './journey.js';
 
 const palette = {
   abyss: new THREE.Color('#0B161C'), deep: new THREE.Color('#172A35'), sea: new THREE.Color('#30444E'),
@@ -17,9 +17,17 @@ export function mulberry(seed) {
   };
 }
 
-export const FOG_DENSITY = .00165;
+export const FOG_DENSITY = .0011;
 // Slower than Kun's growth, so distant pillars still fade once the sea looks small.
 export const fogDensity = scale => FOG_DENSITY / Math.pow(scale, .6);
+
+const FOV_TAN = Math.tan(21 * Math.PI / 180);
+// Stone composed behind Kun in the opening shot: depth along the view, offset to the side, size, kind.
+const OPENING_STAND = [[300, -196, 1.06, 1], [430, -96, .86, 3], [372, 214, .98, 2], [540, 60, 1.2, 5],
+  [640, -340, 1, 4], [700, 356, .9, 6], [235, 300, .7, 7]];
+// Cliffs at the frame edges: offset in half-frames, depth, the height their top reaches in
+// half-heights, and how far each wall turns from the view.
+const FRAME_CLIFFS = [{ kind: 0, x: -1.3, depth: 1, top: -.2, turn: -.35 }, { kind: 1, x: 1.34, depth: .86, top: .02, turn: .3 + Math.PI }];
 
 const noiseGLSL = `
 float hash21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
@@ -64,7 +72,7 @@ function rockMaterial(shared, instanced) {
         gl_Position=projectionMatrix*viewMatrix*world;
       }`,
     fragmentShader: `
-      uniform vec3 uAbyss, uDeep, uHaze, uLight, uCamera, uKey, uAmbient;
+      uniform vec3 uAbyss, uDeep, uHaze, uHorizon, uLight, uCamera, uKey, uAmbient;
       uniform float uDensity, uTime, uViewScale, uFoot;
       uniform sampler2D tGobo, tRock;
       varying vec3 vWorld, vNormal, vPaint;
@@ -95,14 +103,13 @@ function rockMaterial(shared, instanced) {
           f=max(f,smoothstep(2800.,4300.,length(vWorld.xz)));
         #endif
         #ifdef SEA_FLOOR
-          // The seabed falls to near black, meeting the dome only at the horizon.
-          c=mix(c,mix(uAbyss*2.2,uDeep*.86+uHaze*.13,smoothstep(.3,.95,f)),f);
+          // The seabed falls to near black, meeting the far haze only at the horizon.
+          c=mix(c,mix(uAbyss*1.2,uHorizon,smoothstep(.45,.98,f)),f);
         #else
-          // Pillars dissolve into the water with distance, paling only toward their feet.
-          // Everything far away ends in one water colour, so distance leaves no silhouettes.
-          vec3 far=uDeep*.86+uHaze*.13;
+          // Pillars dissolve into the far haze with distance, staying dark while they are near.
+          vec3 far=uHorizon;
           // At the seabed a pillar takes the seabed's own fog, so its foot leaves no shape.
-          vec3 low=mix(uAbyss*2.2,far,smoothstep(.3,.95,f));
+          vec3 low=mix(uAbyss*1.2,far,smoothstep(.45,.98,f));
           c=mix(c,mix(low,far,smoothstep(0.,uFoot*2.,vWorld.y)),f);
           // Near feet dissolve at their own heights; far ones are already gone.
           float rise=uFoot*(.25+1.5*fbm2(vWorld.xz*.009/uViewScale+vec2(uTime*.008,0.)));
@@ -122,32 +129,46 @@ function domeMaterial(shared) {
       varying vec3 vDir;
       void main(){vDir=position;vec4 p=projectionMatrix*mat4(mat3(viewMatrix))*vec4(position,1.);gl_Position=p.xyww;}`,
     fragmentShader: `
-      uniform vec3 uAbyss,uDeep,uSea,uHaze,uShaft,uLight,uCamera; uniform float uTime,uSurface,uDensity,uViewScale;
+      uniform vec3 uAbyss,uDeep,uSea,uHaze,uHorizon,uShaft,uLight,uCamera; uniform float uTime,uSurface,uDensity,uViewScale;
       uniform sampler2D tGobo;
       varying vec3 vDir;
       void main(){
         vec3 ray=normalize(vDir);
         float up=ray.y, sun=max(dot(ray,uLight),0.);
-        // The water column: near black below, lifting and clearing toward the light.
-        vec3 c=mix(uAbyss*.34,uDeep*.86,smoothstep(-.42,.05,up));
-        c=mix(c,uSea*1.2,smoothstep(.02,.56,up));
-        c+=uHaze*pow(sun,5.)*.2+uShaft*pow(sun,28.)*.32;
+        // The water column stays dark almost to the surface, lifting only around the light.
+        vec3 c=mix(uAbyss*.3,uDeep*.62,smoothstep(-.4,.04,up));
+        c=mix(c,uDeep*1.12,smoothstep(.05,.62,up));
+        c+=uSea*pow(sun,4.)*.5+uHaze*pow(sun,14.)*.42+uShaft*pow(sun,60.)*.34;
         float murk=texture2D(tGobo,ray.xz*.42/(abs(up)+.55)+uTime*.0016).b;
-        c*=.74+.52*murk;
-        c=mix(c,uDeep*.86+uHaze*.13,exp(-pow(up/.13,2.)));
-        if(up>.008){
+        c*=.8+.4*murk;
+        // Far water pales into a band of haze behind the stone. Its height is uneven, so it
+        // never reads as a line.
+        float rise=texture2D(tGobo,vec2(atan(ray.x,ray.z)*.31,.21)).b;
+        c=mix(c,uHorizon,exp(-pow(max(up-.015,0.)/(.05+.1*rise),1.5))*smoothstep(-.1,0.,up));
+        if(up>.02){
+          // The surface from below: dark swell, with glints wherever a ripple's slope tips
+          // toward the light. They thin out and shrink with distance.
           float t=(uSurface-uCamera.y)/up;
           vec2 p=uCamera.xz+ray.xz*t;
-          float size=120.*pow(uViewScale,.6);
-          vec2 flow=vec2(uTime*.012,uTime*.007);
-          float a=texture2D(tGobo,p/size+flow).g;
-          float b=texture2D(tGobo,p/(size*.62)-flow*1.3+a*.04).g;
-          float swell=texture2D(tGobo,p/(size*2.6)+flow*.4).b;
-          float plate=smoothstep(.4,.9,a*.7+b*.5+swell*.24-.14);
-          float pool=pow(sun,9.)*2.4+pow(sun,30.)*9.;
-          float near=exp(-pow(t*uDensity*.6,2.));
-          vec3 surface=c*(.42+.8*swell)+uShaft*plate*pool;
-          c=mix(c,surface,near*smoothstep(.1,.4,up));
+          float size=150.*pow(uViewScale,.6);
+          vec2 flow=vec2(uTime*.006,uTime*.0035);
+          vec2 e=vec2(.0022,0.);
+          vec2 q=p/size+flow;
+          float h0=texture2D(tGobo,q).b;
+          vec2 slope=vec2(texture2D(tGobo,q+e.xy).b-h0,texture2D(tGobo,q+e.yx).b-h0);
+          vec2 q2=p/(size*.37)-flow*1.7+slope*2.;
+          float h1=texture2D(tGobo,q2).b;
+          slope+=.6*vec2(texture2D(tGobo,q2+e.xy).b-h1,texture2D(tGobo,q2+e.yx).b-h1);
+          vec2 q3=p/(size*.13)+flow*2.3-slope;
+          float h2=texture2D(tGobo,q3).b;
+          slope+=.4*vec2(texture2D(tGobo,q3+e.xy).b-h2,texture2D(tGobo,q3+e.yx).b-h2);
+          float glint=smoothstep(.4,.95,1.-length(slope-vec2(.012,.008))*62.);
+          float swell=texture2D(tGobo,p/(size*3.1)+flow*.4).b;
+          float pool=pow(sun,12.)*1.1+pow(sun,44.)*7.;
+          float near=exp(-pow(t*uDensity*.32,2.));
+          vec3 surface=mix(c*(.5+.9*swell),uShaft*2.1,glint*min(pool,1.));
+          surface+=uShaft*glint*max(pool-1.,0.)*.7;
+          c=mix(c,surface,near*smoothstep(.36,.56,up));
         }
         gl_FragColor=vec4(c,0.);
         #include <colorspace_fragment>
@@ -157,25 +178,29 @@ function domeMaterial(shared) {
 
 function placements() {
   const random = mulberry(20261101);
-  const hero = [], far = [];
-  // Pillar 1 anchors the sea; the others keep clear of the opening sight line.
+  const hero = [], field = [];
+  const open = openingView();
+  // Pillar 1 anchors the sea, and a composed stand fills the opening shot.
   hero.push({ kind: 0, x: PILLAR_CENTER.x, z: PILLAR_CENTER.z, rotation: .6, scale: 1 });
-  const separated = (x, z, list, gap) => list.every(p => Math.hypot(p.x - x, p.z - z) > gap);
-  for (let tries = 0; hero.length < 12 && tries < 4000; tries++) {
-    const radius = 230 + random() * 1000, angle = random() * Math.PI * 2;
-    const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
-    const openLane = Math.hypot(x + 254, z - 180) < 200 || Math.abs(x * .57 + z * .82) < 80 && x < 0;
-    if (openLane || !separated(x, z, hero, 170)) continue;
-    hero.push({ kind: hero.length % 8, x, z, rotation: random() * 6.28, scale: .72 + random() * .5 });
+  for (const [depth, side, scale, kind] of OPENING_STAND) {
+    hero.push({ kind, x: open.x + open.fx * depth + open.rx * side, z: open.z + open.fz * depth + open.rz * side, rotation: random() * 6.28, scale });
   }
-  for (let tries = 0; far.length < 124 && tries < 12000; tries++) {
-    const radius = 420 + Math.pow(random(), .7) * 3000, angle = random() * Math.PI * 2;
+  const separated = (x, z, list, gap) => list.every(p => Math.hypot(p.x - x, p.z - z) > gap);
+  for (let tries = 0; hero.length < 22 && tries < 6000; tries++) {
+    const radius = 240 + random() * 2800, angle = random() * Math.PI * 2;
+    const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
+    if (!separated(x, z, hero, 190) || Math.hypot(x - open.x, z - open.z) < 170) continue;
+    // Towers grow toward the outer sea, so a grown Kun still passes stone close by.
+    hero.push({ kind: hero.length % 8, x, z, rotation: random() * 6.28, scale: (.72 + random() * .5) * (1 + radius / 3000 * .7) });
+  }
+  for (let tries = 0; field.length < 520 && tries < 30000; tries++) {
+    const radius = 300 + Math.pow(random(), .62) * 4300, angle = random() * Math.PI * 2;
     const x = Math.sin(angle) * radius, z = Math.cos(angle) * radius;
     const cluster = Math.sin(x * .0041 + 1.3) * Math.cos(z * .0037 - .4) + .25 * Math.sin(x * .013 + z * .011);
-    if (cluster < -.1 || !separated(x, z, hero, 130) || !separated(x, z, far, 76)) continue;
-    far.push({ kind: far.length % 5, x, z, rotation: random() * 6.28, scale: .7 + random() * .6, stretch: .7 + random() * .45, sink: 40 + random() * 46 });
+    if (cluster < -.32 || !separated(x, z, hero, 120) || !separated(x, z, field.slice(-150), 62) || Math.hypot(x - open.x, z - open.z) < 150) continue;
+    field.push({ kind: field.length % 5, deep: field.length % 4, x, z, rotation: random() * 6.28, scale: .6 + random() * .75, stretch: .7 + random() * .5, sink: 40 + random() * 46 });
   }
-  return { hero, far };
+  return { hero, field };
 }
 
 export function createWorld(seaRoot, gobo, rockTexture) {
@@ -188,22 +213,24 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   const shared = {
     uAbyss: { value: palette.abyss }, uDeep: { value: palette.deep }, uSea: { value: palette.sea },
     uHaze: { value: palette.haze }, uShaft: { value: palette.shaft }, uFog: { value: palette.deep },
+    uHorizon: { value: palette.deep.clone().multiplyScalar(.6).add(palette.haze.clone().multiplyScalar(.5)) },
     uLight: { value: light }, uCamera: { value: new THREE.Vector3() }, uTime: { value: 0 },
     uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, uFoot: { value: 90 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
-    uKey: { value: new THREE.Color(1.15, 1.2, 1.2) }, uAmbient: { value: new THREE.Color(.15, .19, .215) },
+    uKey: { value: new THREE.Color(1.15, 1.2, 1.2) }, uAmbient: { value: new THREE.Color(.075, .1, .118) },
   };
   const meshes = new Map();
   seaRoot.updateMatrixWorld(true);
   seaRoot.traverse(object => { if (object.isMesh) meshes.set(object.name, object); });
-  const heroGeometry = [], farGeometry = [];
-  for (let i = 1; i <= 8; i++) heroGeometry.push(bakedGeometry(meshes.get(`ref-pillar-${i}`)));
-  for (let i = 1; i <= 5; i++) farGeometry.push(bakedGeometry(meshes.get(`far-pillar-${i}`)));
+  const geometries = (name, count) => Array.from({ length: count }, (_, i) => bakedGeometry(meshes.get(`${name}-${i + 1}`)));
+  const heroGeometry = geometries('ref-pillar', 8), farGeometry = geometries('far-pillar', 5);
+  const deepGeometry = geometries('deep-pillar', 4), cliffGeometry = geometries('cliff', 3);
+  for (const geometry of [...heroGeometry, ...farGeometry, ...cliffGeometry]) geometry.computeBoundingBox();
   const rock = rockMaterial(shared, true), floorMaterial = rockMaterial(shared, false);
   const layout = placements();
   // Where mist gathers: soft pools around every pillar, used by the volume pass.
   const mistSize = 256, mistData = new Uint8Array(mistSize * mistSize);
   const mistField = new Float32Array(mistSize * mistSize);
-  for (const item of [...layout.hero, ...layout.far]) {
+  for (const item of [...layout.hero, ...layout.field]) {
     const cx = (item.x / 8000 + .5) * mistSize, cy = (item.z / 8000 + .5) * mistSize, radius = 1.5 + 1.5 * item.scale;
     for (let y = Math.max(0, Math.floor(cy - radius * 2.5)); y < Math.min(mistSize, cy + radius * 2.5); y++) {
       for (let x = Math.max(0, Math.floor(cx - radius * 2.5)); x < Math.min(mistSize, cx + radius * 2.5); x++) {
@@ -216,25 +243,28 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   const mistMap = new THREE.DataTexture(mistData, mistSize, mistSize, THREE.RedFormat, THREE.UnsignedByteType);
   mistMap.minFilter = mistMap.magFilter = THREE.LinearFilter;
   mistMap.needsUpdate = true;
+
   const matrix = new THREE.Matrix4(), rotation = new THREE.Euler();
   const quaternion = new THREE.Quaternion(), position = new THREE.Vector3(), size = new THREE.Vector3();
-  const place = (item, mesh, index) => {
+  const composed = item => {
     quaternion.setFromEuler(rotation.set(0, item.rotation, 0));
     // Far pillars sink by varied depths, so their feet never line up into a repeated shape.
-    matrix.compose(position.set(item.x, -(item.sink ?? 6), item.z), quaternion, size.set(item.scale, item.scale * (item.stretch ?? 1), item.scale));
-    mesh.setMatrixAt(index, matrix);
+    return new THREE.Matrix4().compose(position.set(item.x, -(item.sink ?? 6), item.z), quaternion, size.set(item.scale, item.scale * (item.stretch ?? 1), item.scale));
   };
-  const instanced = (geometry, items, kind) => {
-    const chosen = items.filter(item => item.kind === kind);
-    const mesh = new THREE.InstancedMesh(geometry, rock, chosen.length);
-    chosen.forEach((item, index) => place(item, mesh, index));
-    mesh.instanceMatrix.needsUpdate = true;
-    mesh.computeBoundingSphere();
+  const batch = (geometry, capacity) => {
+    const mesh = new THREE.InstancedMesh(geometry, rock, capacity);
+    mesh.count = 0;
+    mesh.frustumCulled = false;
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     props.add(mesh);
     return mesh;
   };
-  heroGeometry.forEach((geometry, kind) => instanced(geometry, layout.hero, kind));
-  farGeometry.forEach((geometry, kind) => instanced(geometry, layout.far, kind));
+  const heroBatches = heroGeometry.map(geometry => batch(geometry, layout.hero.length));
+  const farBatches = farGeometry.map(geometry => batch(geometry, 140));
+  const deepBatches = deepGeometry.map(geometry => batch(geometry, 260));
+  const cliffBatches = cliffGeometry.map(geometry => batch(geometry, 2));
+  const batches = [...heroBatches, ...farBatches, ...deepBatches, ...cliffBatches];
+  for (const item of [...layout.hero, ...layout.field]) item.matrix = composed(item);
   const floor = new THREE.Mesh(bakedGeometry(meshes.get('sea_floor')), floorMaterial);
   floor.position.y = -24;
   props.add(floor);
@@ -244,15 +274,83 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   layout.hero.forEach((item, index) => {
     if (index >= 8) return;
     const geometry = heroGeometry[item.kind];
-    geometry.computeBoundingBox();
     const m = new THREE.Matrix4().compose(new THREE.Vector3(item.x, -6, item.z),
       new THREE.Quaternion().setFromEuler(new THREE.Euler(0, item.rotation, 0)), new THREE.Vector3().setScalar(item.scale));
     named.set(`ref-pillar-${index + 1}`, geometry.boundingBox.clone().applyMatrix4(m));
   });
   const colliders = layout.hero.map(item => {
-    const box = heroGeometry[item.kind].boundingBox ?? (heroGeometry[item.kind].computeBoundingBox(), heroGeometry[item.kind].boundingBox);
+    const box = heroGeometry[item.kind].boundingBox;
     return { x: item.x, z: item.z, radius: Math.max(box.max.x - box.min.x, box.max.z - box.min.z) * .42 * item.scale, height: box.max.y * item.scale };
   });
+  for (const item of layout.field) {
+    const box = farGeometry[item.kind].boundingBox;
+    colliders.push({ x: item.x, z: item.z, radius: (box.max.x - box.min.x) * .28 * item.scale, height: box.max.y * item.scale * item.stretch - item.sink });
+  }
+  // The opening's framing cliffs are real stone; the final shot's are placed as it arrives.
+  const openingCliffs = FRAME_CLIFFS.map(() => ({ x: 1e6, z: 1e6, radius: 0, height: 0 }));
+  colliders.push(...openingCliffs);
+  const stages = [FRAME_CLIFFS.map(cliff => ({ kind: cliff.kind, x: 1e6, z: 1e6, matrix: new THREE.Matrix4() })),
+    FRAME_CLIFFS.map(cliff => ({ kind: cliff.kind, x: 1e6, z: 1e6, matrix: new THREE.Matrix4() }))];
+  function placeCliffs(stage, pose, pitch, scale, aspect, slide) {
+    const spread = 1 + slide * .9;
+    FRAME_CLIFFS.forEach((cliff, index) => {
+      const depth = (118 + 62 * (scale - 1)) * cliff.depth;
+      const across = cliff.x * spread * depth * FOV_TAN * aspect;
+      const x = pose.x + pose.fx * depth - pose.fz * across, z = pose.z + pose.fz * depth + pose.fx * across;
+      const top = pose.y + depth * Math.tan(pitch + Math.atan(cliff.top * FOV_TAN));
+      const unit = (top + 14) / cliffGeometry[cliff.kind].boundingBox.max.y;
+      const item = stages[stage][index];
+      item.x = x; item.z = z;
+      item.matrix.compose(position.set(x, -14, z), quaternion.setFromEuler(rotation.set(0, Math.atan2(pose.fx, pose.fz) + cliff.turn, 0)), size.set(unit * 1.1, unit, unit * 1.1));
+      if (stage === 0) Object.assign(openingCliffs[index], { x, z, radius: 90 * unit, height: top });
+    });
+  }
+  let finaleOn = false, frame = 0;
+  const heading = new THREE.Vector3();
+  // Only stone in the view cone and short of the fog is drawn, and distant stone uses the
+  // light silhouettes. This is what lets the sea hold hundreds of pillars inside the budget.
+  function cull(camera, scale, density) {
+    camera.getWorldDirection(heading);
+    const flat = Math.hypot(heading.x, heading.z) || 1, fx = heading.x / flat, fz = heading.z / flat;
+    const cx = camera.position.x, cz = camera.position.z;
+    const reach = 2.15 / density, detail = 520 * Math.pow(scale, .3), close = 150 * Math.sqrt(scale);
+    // Wide enough that a quick turn never reveals a gap before the next pass.
+    const cone = Math.cos(Math.min(1.5, Math.atan(FOV_TAN * Math.max(camera.aspect, 1)) + .62));
+    const counts = new Map();
+    const put = (mesh, item) => {
+      const n = counts.get(mesh) ?? 0;
+      if (n >= mesh.instanceMatrix.count) return;
+      mesh.setMatrixAt(n, item.matrix);
+      counts.set(mesh, n + 1);
+    };
+    const seen = item => {
+      const dx = item.x - cx, dz = item.z - cz, d = Math.hypot(dx, dz);
+      if (d > reach || (d > close && dx * fx + dz * fz < d * cone)) return -1;
+      return d;
+    };
+    for (const item of layout.hero) if (seen(item) >= 0) put(heroBatches[item.kind], item);
+    for (const item of layout.field) {
+      const d = seen(item);
+      if (d >= 0) put(d < detail ? farBatches[item.kind] : deepBatches[item.deep], item);
+    }
+    for (const item of stages[0]) if (seen(item) >= 0) put(cliffBatches[item.kind], item);
+    if (finaleOn) for (const item of stages[1]) put(cliffBatches[item.kind], item);
+    for (const mesh of batches) {
+      mesh.count = counts.get(mesh) ?? 0;
+      mesh.instanceMatrix.needsUpdate = true;
+    }
+  }
+
+  // Mist cards lie across every foot, and open banks drift between the stands.
+  const cardRandom = mulberry(7171), cards = [];
+  const addCard = (x, z, spread, width) => {
+    const a = cardRandom() * 6.28, r = spread * Math.sqrt(cardRandom());
+    cards.push({ x: x + Math.sin(a) * r, y: 4 + cardRandom() * 26, z: z + Math.cos(a) * r, width: width * (.75 + cardRandom() * .6),
+      cell: Math.floor(cardRandom() * 9), flip: cardRandom() < .5 ? -1 : 1, seed: cardRandom() });
+  };
+  for (const item of layout.hero) for (let i = 0; i < 4; i++) addCard(item.x, item.z, 70 * item.scale, 210 * item.scale);
+  for (const item of layout.field) if (cardRandom() < .62) addCard(item.x, item.z, 50, 210 * item.scale);
+  for (let i = 0; i < 70; i++) { const a = cardRandom() * 6.28, r = 200 + cardRandom() * 4000; addCard(Math.sin(a) * r, Math.cos(a) * r, 0, 330); }
 
   const dome = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 24), domeMaterial(shared));
   dome.frustumCulled = false; dome.renderOrder = -10;
@@ -334,13 +432,23 @@ export function createWorld(seaRoot, gobo, rockTexture) {
   };
 
   return {
-    group, props, colliders, named, light, heroLight, mistMap, shafts: 5, motes: 8,
+    group, props, colliders, named, light, heroLight, mistMap, cards, shafts: 5, motes: 8,
+    placeOpening(cam, aspect) {
+      finaleOn = false;
+      const fx = cam.aimX - cam.x, fz = cam.aimZ - cam.z, length = Math.hypot(fx, fz) || 1;
+      const pitch = Math.atan2(cam.aimY - cam.y, length);
+      placeCliffs(0, { x: cam.x, y: cam.y, z: cam.z, fx: fx / length, fz: fz / length }, pitch, 1, aspect, 0);
+    },
+    placeFinale(rig, pitch, scale, aspect, mix) {
+      finaleOn = rig.ready;
+      if (finaleOn) placeCliffs(1, rig, pitch, scale, aspect, 1 - mix);
+    },
     update(camera, gameMs, scale) {
       // The light stands ahead of the camera and to its right, so the bright water
       // and the slant of the shafts stay composed as Kun turns.
       camera.getWorldDirection(look);
       const azimuth = Math.atan2(look.x, look.z) - .34;
-      light.set(Math.sin(azimuth) * .62, 1, Math.cos(azimuth) * .62).normalize();
+      light.set(Math.sin(azimuth) * .92, 1, Math.cos(azimuth) * .92).normalize();
       // Kun keeps a near-overhead key, leaning a little toward the camera.
       heroLight.set(-look.x * .34 + look.z * .16, 1, -look.z * .34 - look.x * .16).normalize();
       shared.uCamera.value.copy(camera.position);
@@ -350,7 +458,9 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       shared.uFoot.value = 46 + 14 * Math.sqrt(scale);
       speckMaterial.uniforms.uBox.value = 170 * Math.pow(scale, .9);
       speckMaterial.uniforms.uPixel.value = Math.min(window.devicePixelRatio || 1, 2);
+      if (props.visible && frame++ % 6 === 0) cull(camera, scale, fogDensity(scale));
     },
+    refresh() { frame = 0; },
     showMote(mote, scale, gameMs) {
       for (let i = 0; i < 8; i++) setMote(i, 0, 0, 0, 0, 0);
       if (mote.active) setMote(0, mote.x, mote.y, mote.z, BODY_LENGTH * scale * .34, mote.fade * (.86 + .14 * Math.sin(gameMs * .004)));

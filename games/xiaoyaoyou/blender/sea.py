@@ -30,6 +30,10 @@ HERO_PILLARS = [
     (53, 150, 28, 3, 5), (67, 262, 30, 3, 5), (71, 190, 24, 1, 4), (83, 136, 32, 3, 5),
 ]
 FAR_PILLARS = [(101, 200, 28), (113, 250, 24), (127, 160, 34), (131, 220, 20), (149, 130, 30)]
+# The deep field: bare stacks with a broken crown, a few dozen triangles each, by the hundred.
+DEEP_PILLARS = [(211, 210, 26), (223, 260, 20), (239, 150, 32), (241, 190, 24)]
+# Foreground cliffs for the frame edges: broad broken walls hung with pines.
+CLIFFS = [(301, 320, 150, 15, 12), (313, 280, 170, 15, 11), (337, 340, 120, 12, 9)]
 FLOOR_SIZE, FLOOR_CELLS = 9000, 72
 
 
@@ -354,6 +358,36 @@ def far_pillar(seed, height, radius):
     return sheet
 
 
+def deep_pillar(seed, height, radius):
+    """A silhouette for the deep field. Only the outline matters at this distance."""
+    sheet = Sheet()
+    column(sheet, seed, height, radius, (0, 0), 7, 7)
+    return sheet
+
+
+def cliff(seed, height, width, columns, pines):
+    """A foreground wall: narrow spires shouldered together, tall toward one end and stepping
+    down the other, so the outline is broken towers and never a flat top."""
+    rng = random.Random(seed)
+    sheet = Sheet()
+    crowns = []
+    for index in range(columns):
+        t = rng.uniform(-1, 1)
+        tall = (.34 + .66 * smooth(-1, .7, t) ** 1.4) * rng.uniform(.68, 1.08)
+        crowns.append(column(sheet, seed + index * 19, height * tall, width * rng.uniform(.13, .24),
+                             (t * width, rng.uniform(-.34, .34) * width), 15, 11, .9))
+    for rock in range(8):
+        boulder(sheet, (rng.uniform(-1.1, 1.1) * width, rng.uniform(-.4, .4) * width, rng.uniform(-3, 8)),
+                width * rng.uniform(.08, .2), seed + 500 + rock)
+    for index in range(pines):
+        (cx, cy, cz), crown = crowns[index % len(crowns)]
+        angle = rng.uniform(0, TAU)
+        spread = rng.uniform(.2, 1.1)
+        pine(sheet, (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz + rng.uniform(1, 7)),
+             rng.uniform(20, 38), (math.cos(angle) * spread * .5, math.sin(angle) * spread * .5), seed + index * 23)
+    return sheet
+
+
 def seabed():
     sheet = Sheet()
     cells, size = FLOOR_CELLS, FLOOR_SIZE
@@ -388,6 +422,8 @@ ink = common.plain_material('ink', '#17171C')
 abyss = common.plain_material('abyss', '#0B161C')
 objects = [build(f'ref-pillar-{i + 1}', hero_pillar(*spec), ink) for i, spec in enumerate(HERO_PILLARS)]
 objects += [build(f'far-pillar-{i + 1}', far_pillar(*spec), ink) for i, spec in enumerate(FAR_PILLARS)]
+objects += [build(f'deep-pillar-{i + 1}', deep_pillar(*spec), ink) for i, spec in enumerate(DEEP_PILLARS)]
+objects += [build(f'cliff-{i + 1}', cliff(*spec), ink) for i, spec in enumerate(CLIFFS)]
 objects.append(build('sea_floor', seabed(), abyss))
 
 triangles = {}
