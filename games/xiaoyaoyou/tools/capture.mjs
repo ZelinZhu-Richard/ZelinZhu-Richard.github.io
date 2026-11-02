@@ -71,9 +71,9 @@ async function waitReady(page) {
 }
 
 async function holdAtBeginMoment(page) {
-  // Late enough in the opening hold for the first source line to have faded fully in.
-  await page.evaluate(() => window.__GAME_DEBUG__.holdAt(3200));
-  await page.waitForFunction(() => window.__GAME_STATE__.gameMs >= 3200, null, { timeout: 15000 });
+  // Inside the opening hold, after the first source line has started; its fade runs on the clock.
+  await page.evaluate(() => window.__GAME_DEBUG__.holdAt(2300));
+  await page.waitForFunction(() => window.__GAME_STATE__.gameMs >= 2300, null, { timeout: 15000 });
   await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)));
   await page.waitForTimeout(200);
 }
