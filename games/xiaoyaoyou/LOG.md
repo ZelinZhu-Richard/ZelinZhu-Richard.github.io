@@ -662,3 +662,9 @@ Round 8's "comb" was fair: rays were evenly spaced and ran smooth. They now fall
 M4 review 9, M3 review 7 and M5 review 5, all on one clean commit. M4: 4 of 4 criteria, two minor notes (narrow shafts read as a tight bundle; surface mottling on narrow). M3: 4 of 4. M5: 4 of 4. All three reports note that Kun's IoU is outside the waiver and that only Richard can waive it.
 
 All three also note that the key art's forest is denser than the game's, which is his priority 3. `8e7f837` stands as the fallback. I am using part of the remaining box on that, and on the two minor notes, and any result must clear review on its own commit or be reverted.
+
+### After the first PASS (2026-11-01 23:25 to 23:48)
+
+The forest pass: two attempts that changed how the field was generated reshuffled it and spoiled the opening, one with a wall of stone, one with a huge pillar directly behind Kun. Neither was committed. What stayed: the approved layout restored exactly, and 110 small spires added on a separate random stream, always drawn with the light mesh, skipped once Kun has outgrown them. One ray change backfired on narrow screens and was reverted.
+
+Review 10 on 13d1a9a returned **FIX**, with 4 of 4 criteria, two majors: shaft strips, and hard cream bands on the upper fin. Those same shafts and fins were in the commit that passed review 9. So one reviewer run passed what the next did not. I did not fall back on the earlier PASS: both findings are fair when you look at the frames, and the fin bands were real. Caustics were crisp on the sheets; light through a membrane spreads, so sheets now take a soft dapple. Rays went from 17 to 28, weaker and shorter, on a wider fan: the key art's light is dispersed, not a few strong strips.
