@@ -668,3 +668,13 @@ All three also note that the key art's forest is denser than the game's, which i
 The forest pass: two attempts that changed how the field was generated reshuffled it and spoiled the opening, one with a wall of stone, one with a huge pillar directly behind Kun. Neither was committed. What stayed: the approved layout restored exactly, and 110 small spires added on a separate random stream, always drawn with the light mesh, skipped once Kun has outgrown them. One ray change backfired on narrow screens and was reverted.
 
 Review 10 on 13d1a9a returned **FIX**, with 4 of 4 criteria, two majors: shaft strips, and hard cream bands on the upper fin. Those same shafts and fins were in the commit that passed review 9. So one reviewer run passed what the next did not. I did not fall back on the earlier PASS: both findings are fair when you look at the frames, and the fin bands were real. Caustics were crisp on the sheets; light through a membrane spreads, so sheets now take a soft dapple. Rays went from 17 to 28, weaker and shorter, on a wider fan: the key art's light is dispersed, not a few strong strips.
+
+### Final verdicts, second run (2026-11-01 23:56 EST)
+
+M4 review 11: **PASS**, M3 review 9: **PASS**, M5 review 7: **PASS**, all 4 of 4 criteria, all on ec40098. M4's two minor notes are both on narrow frames: shaft cores and surface patches. M4 fix round 3 finished 2 h 14 min into its 3-hour box.
+
+Final capture on ec40098: 27 of 27, 31 of 31 and 35 of 35 checks true, clean console, 79 draw calls, 284,429 triangles, 10,875,001 bytes, ready in 0.5 s, journey 115.0 s. 60.0 fps at both pixel ratios at three journey points on this Mac. IoU side 0.6240, top 0.5800, outside the waiver, listed for Richard. Showcase 73.15 s. Making-of 1.7 MB of images, clean console, no overflow at 1440 or 390 wide.
+
+Audit against 90026d0: no file outside `games/xiaoyaoyou/` changed; `ref/`, REVIEW_RUBRIC.md, GAME.md and NIGHT.md unchanged; no checkbox changed; no upstream configured and no remote branch contains HEAD. Commits after ec40098 touch only notes, the making-of page and its data.
+
+Boxes stay unticked. Details and the open decision are in MORNING.md.

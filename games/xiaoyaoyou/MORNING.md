@@ -1,4 +1,180 @@
-# MORNING.md: overnight report
+# MORNING.md: report
+
+**Second run:** started 2026-11-01 21:37 EST, finished 23:57 EST the same night, against a 7-hour limit. M4's 3-hour box ran 21:42 to 00:42.
+Status: FINAL. Final code commit: `ec40098`. Nothing pushed, nothing outside `games/xiaoyaoyou/` changed. Boxes stay unticked, because you kept NIGHT.md's rule: M2's approval and M3's clearance are recorded in LOG.md.
+
+The first night's report follows further down, unchanged, for the record.
+
+## 1. One-screen summary
+
+**M3, M4 and M5 all pass, on one commit. The title is a real game frame, and both stretch items are built.**
+
+| Item | Status | Criteria | Codex | Notes |
+|---|---|---:|---|---|
+| M2 | **APPROVED by you** | | | Recorded in LOG.md |
+| M3 Playable sea | **PASS, 6A open** | 4 of 4 | **PASS** | Cleared by you, then changed by this work, so it was re-reviewed |
+| M4 Look | **PASS, 6A open** | 4 of 4 | **PASS** | Key-art comparison passed for the first time at review 8. Finished 23:56, inside the box |
+| M5 Text and end card | **PASS, 6A open** | 4 of 4 | **PASS** | Title is now a real frame |
+| Title | **Done** | | Confirmed | `assets/title.webp`, plus a separate portrait render |
+| `making-of/index.html` | **Built** | | Not reviewed | 1.7 MB of images against the 8 MB limit |
+| `?showcase=1` | **Built** | | Not reviewed | 73 s on the real journey, no controls on screen |
+
+What you should know first:
+
+1. **Kun's IoU is outside your waiver again.** You allowed the fin push and asked me to log it; the waiver names 0.635 and 0.647. It is now side 0.624, top 0.580. Your call, in 6A. Every reviewer says the same.
+2. **It still isn't the painting.** It is clearly the same world now. The gaps left are the painting's density of detail, its longer whale, and veils that dissolve where my fins have an edge. Section 2 has them side by side.
+3. **Read the PASS as "cleared on this run".** Review 9 passed a build, and review 10 failed nearly the same frames for its shafts and fins. I fixed both instead of falling back. The final build passed, but the reviewer is not perfectly consistent, and your eye is the real bar.
+4. **The phone is still untested,** and the game now does more work per frame. Everything ran on this Mac's M4 Pro.
+
+Automated checks on `ec40098`: 27 of 27, 31 of 31 and 35 of 35 true across the three captures, with a clean console. Peak 79 draw calls (limit 150), 284,429 triangles (limit 300,000), 10.9 MB download (limit 20 MB), ready in 0.5 s. Frame rate on this Mac's GPU in headless Chromium: 60.0 at 1440×900 at both pixel ratios, at three journey points. Your own check is still open.
+
+## 2. Before and after, against the key art
+
+Each sheet is the key art, last night's frame, tonight's frame. To open them, run `python3 -m http.server 8101 --bind 127.0.0.1` from the worktree root, then visit `http://127.0.0.1:8101/games/xiaoyaoyou/_dev/evidence/compare/opening.png`. They are gitignored, on this machine; `python3 tools/before_after.py` rebuilds them.
+
+1. [Opening](_dev/evidence/compare/opening.png)
+2. [Full growth](_dev/evidence/compare/full-growth.png), the best frame
+3. [Gameplay](_dev/evidence/compare/gameplay.png), what a player sees most of the time
+
+Value range, as luma percentiles:
+
+| Frame | p1 | p5 | p25 | p50 | p75 | p95 | p99 | Mean | Warmth of top 3% (R−B) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Key art** | 4 | 14 | 37 | 56 | 91 | 171 | 232 | 69 | +36 |
+| Opening, before | 27 | 33 | 48 | 58 | 75 | 100 | 212 | 64 | −12 |
+| Opening, now | 2 | 10 | 32 | 53 | 75 | 189 | 226 | 62 | +27 |
+| Full growth, before | 7 | 15 | 37 | 57 | 78 | 122 | 215 | 62 | −10 |
+| Full growth, now | 2 | 6 | 21 | 42 | 62 | 180 | 222 | 52 | +28 |
+| Gameplay, before | 5 | 7 | 38 | 55 | 68 | 88 | 143 | 53 | −25 |
+| Gameplay, now | 2 | 8 | 25 | 47 | 61 | 77 | 200 | 47 | +7 |
+
+Your priorities, as they landed:
+
+| Priority | Result |
+|---|---|
+| 1. Camera and scale | Opening and full growth: Kun spans 69% of the frame width, measured on real vertices (was 46%), with the camera low and looking up 13°. Gameplay: 45% (was 34%). Stone now passes close at every size, and the camera is kept out of it |
+| 2. Warm key | A warm pool on the back, cold everywhere else. Top-pixel warmth went from −12 to +27; the key art is +36. Gameplay is only +7, because from behind you see less of the back |
+| 3. Depth and framing | Real foreground cliffs at both frame edges, three layers of stone (652 pillars, up from 136), a low fog bank and painted mist |
+| 4. Contrast | Deep blacks reached (p5 10 against 14) and p95 went from 100 to 189 against 171, in the opening. The midtones run a little darker than the painting, gameplay most of all |
+| 5. Artifacts | Pillar feet gone, after four attempts. Shafts are 28 fine, interrupted rays in uneven clusters. Water rebuilt: you now see ripples, not flecks |
+
+## 3. Milestones
+
+Galleries: [M3](_dev/evidence/M3/review.html) · [M4](_dev/evidence/M4/review.html) · [M5](_dev/evidence/M5/review.html). Verdicts: [M3](_dev/review/M3-round9/verdict.json) · [M4](_dev/review/M4-round11/verdict.json) · [M5](_dev/review/M5-round7/verdict.json). Close-up: [Kun](_dev/evidence/M4/kun-closeup-desktop.png).
+
+**M3.** Growth 7 motes to 12.23×. Pacing 115.0 s (90 to 150). Kun's height changes +9.9% (limit ±35%). `ref-pillar-1` shrinks to 0.236× (limit 0.25×) and stays in frame. Narrow +8.9%, 0.221×. Input unchanged: hold 4.2× idle, release 0.35, turn 58°.
+
+**M4.** Palette passes at both viewports: offPalette under 0.0001, redShare under 0.0001, luma 52 to 64. The warm key stays inside the cold palette because cream is low in saturation.
+
+**M5.** Text, fonts, licenses, toggles and two full autoplay runs all pass. WenKai subset 11 KB. The Begin check is now exact: a real Begin and a direct checkpoint match to 0 pixel difference at one simulation step.
+
+**Title.** A real full-growth frame at 2560×1440, with a separate 860×1864 render for portrait because a wide crop cuts Kun off on phones. Resized only, then a soft CSS vignette behind the title. The social image is cropped from the same frame. `tools/title_frames.sh` remakes them all.
+
+**Making-of.** Opens on a drag-to-compare wipe between the labeled concept art and the real frame. Then reference sheet, Blender overlays with the IoU, one frame built up layer by layer (the layers are real, switched off in the game), before and after, who did what, numbers, and what still falls short. Works by mouse, keyboard and at phone width, with no overflow and a clean console.
+
+**Showcase.** `?showcase=1` runs the real journey with the pilot and a fixed shot list. Motes are placed closer, so the swim isn't sped up. It ends on the seal card.
+
+## 4. Judgment calls and Kun constants
+
+**Kun constants** (all in `blender/kun.py`):
+
+| Constant | Waived build | Now |
+|---|---:|---:|
+| PECTORAL_FIN_SCALE | 1.7 | **1.95** |
+| UPPER_FIN_SWEEP_DEGREES | 66 | **84** |
+| LOWER_FIN_SWEEP_DEGREES | 62 | **78** |
+
+`tools/check_kun.py --fin-constants --scale 1.95`: only the four `kun_fin_*` meshes changed. The other 26 objects, all UVs, the swim shader and triangle counts are identical. Kun's runtime shading did change, as you asked.
+
+**Judgment calls:**
+
+- **I kept working after the first full PASS.** `8e7f837` passed all three milestones at 23:25, but all three reviews said the forest was sparser than the painting, which is your priority 3. I spent another pass on that with `8e7f837` as the fallback. The approved layout stayed exactly as it was, and new small spires were added on a separate random stream, after two attempts that reshuffled the forest made the opening worse.
+- **I didn't fall back when review 10 said FIX.** It came back on that forest pass with majors on shafts and fin bands. Both were in the build that had passed, but both findings are fair. Fixing them gave the softer fins and the dispersed rays, and that is what passed at review 11.
+- **Reference sheet on the making-of page.** You named it, so I widened the PLAN exception to cover it. PLAN's line now says so.
+- **Time boxes.** You set M4's. The others were mine: title 45 min, making-of 90, showcase 60, final 30. All finished early.
+- **Reviewer prompt changed again** (`tools/codex_review.md`): your title decision, your waiver, and your M4 priorities in your words. Codex still never sees my notes.
+- **Capture checks changed, and you should know how:**
+  - `playFraming` now judges Kun on real vertices. The projected box was failing frames where Kun is plainly in frame, because swept fins push its corners far out. The box result stays in the metrics. This check was mine, not a PLAN criterion.
+  - `begin` is stricter: one exact simulation step, limit tightened from 10 to 3, measured 0.
+  - `north-start` evidence is now taken at 2.3 s, not 0.5 s, so the first line of text has appeared.
+  - `kun-closeup` centers on the front of the body. Kun is so much larger that the old center missed the belly, which the criterion requires.
+- **Kun's altitude growth is halved and the spiral widened,** so stone passes close at every size and the M3 scale ratio still holds. M3 was re-reviewed after this.
+- **Making-of is written in your voice** ("I wrote the brief"), because it's for your portfolio. Edit freely. It isn't linked from the game or the site yet.
+
+**Slips:**
+
+- A link check of mine followed the making-of page's canonical URL, so it sent one GET to your live site, which answered 404 as expected. Nothing else left this machine except the Codex calls.
+- The generated mist image also left a copy in `~/.codex/generated_images/`, Codex's own folder.
+- My changes broke things along the way, all fixed: two M3 checks after the camera move, pines floating above narrowed crowns, and a straight fog line in `kun-test` that reached review 8.
+- I tuned on desktop for too long. Review 7's findings were all worst on narrow frames.
+
+## 5. Codex verdicts, second run
+
+Model `gpt-6.1-sol`, read-only, evidence bundles only, every run on a clean commit. Reviews are numbered on from the first night.
+
+| Milestone | Review | Commit | Verdict | Criteria | Main findings |
+|---|---:|---|---|---:|---|
+| M3 | 6 | `b6424ac` | PASS | 4 of 4 | Regression pass on the new camera |
+| M4 | 4 | `b6424ac` | FIX | 2 of 4 | Pillar feet, close-up missed the belly, stippling, bars of light |
+| M4 | 5 | `4dd87fe` | FIX | 3 of 4 | Feet, silver flakes on the surface, bars of light |
+| M5 | 4 | `92b6c59` | FIX | 4 of 4 | Feet only, which is M4's. Title confirmed as a real frame |
+| M4 | 6 | `cc38308` | FIX | 3 of 4 | Feet only; surface and shafts minor |
+| M4 | 7 | `b16ec6d` | FIX | 3 of 4 | Feet, shafts, surface, worst on narrow |
+| M4 | 8 | `ddc3bb5` | FIX | 4 of 4 | Comb of even shafts; fog line in `kun-test` |
+| M4 | 9 | `8e7f837` | PASS | 4 of 4 | Two minor notes |
+| M3 | 7 | `8e7f837` | PASS | 4 of 4 | |
+| M5 | 5 | `8e7f837` | PASS | 4 of 4 | |
+| M4 | 10 | `13d1a9a` | FIX | 4 of 4 | Shaft strips; hard cream bands on the fins |
+| M3 | 8 | `13d1a9a` | PASS | 4 of 4 | |
+| M5 | 6 | `13d1a9a` | PASS | 4 of 4 | |
+| M4 | 11 | `ec40098` | **PASS** | 4 of 4 | Final. Two minor notes, both on narrow frames: shaft cores, surface patches |
+| M3 | 9 | `ec40098` | **PASS** | 4 of 4 | Final |
+| M5 | 7 | `ec40098` | **PASS** | 4 of 4 | Final |
+
+## 6. NEEDS RICHARD
+
+**A. Kun's IoU.** You waived side 0.635 and top 0.647 at scale 1.7, then allowed me to push the fins further. They are now side 0.6240, top 0.5800.
+
+| Fin scale | Sweep upper/lower | Side IoU | Top IoU | Status |
+|---:|---:|---:|---:|---|
+| 1.7 | 66/62 | 0.6348 | 0.6474 | Waived by you |
+| **1.95 (current)** | 84/78 | 0.6240 | 0.5800 | Not waived |
+
+Options: (1) waive the current numbers, which I recommend, because the fins now trail back along the body as they do in the painting; (2) go back to 1.7, which is inside your waiver, and needs a rebuild and a fresh review. The sheet is the reason the score falls: `_dev/silhouette/kun-top.png` shows the fins well outside it, on purpose.
+
+**B. Your approvals.** M3, M4 and M5 pass. Boxes are yours to tick, or tell me to.
+
+**C. Your 60 fps check, and a real phone.** This Mac holds 60 at both pixel ratios with headroom, but tonight added passes: half-resolution mist cards, a merge pass, a wide blur. If a phone struggles, the first things to cut are the card count and the pixel ratio.
+
+**D. Text.** Still yours, as you said. Everything stays marked as draft.
+
+**E. Publishing.** `index.html`, the making-of page and the social image point at the live URL, so the page 404s until you deploy. The making-of copy is a draft in your voice.
+
+## 7. Image prompts
+
+One new image tonight, `assets/mist.webp`, generated with `codex exec` (`image_gen.imagegen`) and converted to greyscale WebP. The earlier four are in the first night's report below.
+
+**Mist sheet.** No attachment.
+
+```
+Use your built-in image generation tool.
+
+Generate one square image, 1024x1024: a sprite sheet of drifting sea mist painted in Chinese ink wash, pure white and pale grey on a pure black background. Layout: a 3 by 3 grid of separate wisps, nine in total. Each wisp sits fully inside its own cell, with black all the way around it and nothing touching the cell edges or the neighbouring wisp. Each wisp is wider than it is tall, heavy and dense along its lower edge, and it tears upward into ragged, granular, feathered tatters and fine spray, like breath rising off cold water or wet ink blooming on paper. The upper edges must be broken and irregular, with fine speckled spray and dry-brush texture, never smooth round puffs and never cotton-wool clouds. Each of the nine has a different silhouette. No horizon, no landscape, no objects, no grid lines, no text, no seal, no colour at all.
+
+Save the result in this directory as mist.png. Answer with one line: the file you saved.
+```
+
+## 8. What to do next
+
+1. Look at the three sheets in section 2, then play it, and try `?showcase=1`.
+2. Decide 6A.
+3. Open `making-of/` and edit the copy.
+4. Test on your phone.
+5. Then M6 (Peng), which I did not start.
+
+---
+
+# First night's report (2026-11-01, superseded where it differs from the above)
 
 Start: 2026-11-01 01:21 EST. Finished: 03:35 EST, about 2¼ hours into the 9.5-hour limit.
 Status: FINAL. Final code commit: `1e735d6`. Nothing pushed, nothing outside `games/xiaoyaoyou/` changed, no boxes ticked.
