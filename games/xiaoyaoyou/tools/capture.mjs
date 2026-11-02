@@ -70,6 +70,12 @@ async function waitReady(page) {
   return readyMs;
 }
 
+async function holdAtBeginMoment(page) {
+  await page.evaluate(() => window.__GAME_DEBUG__.holdAt(2000));
+  await page.waitForFunction(() => window.__GAME_STATE__.gameMs >= 2000, null, { timeout: 15000 });
+  await page.waitForTimeout(200);
+}
+
 async function sample(page, screenshot) {
   return page.evaluate(async data => {
     const image = new Image();
@@ -167,17 +173,17 @@ try {
       // A checkpoint is judged at rest: CSS fades finish before the shutter.
       await page.evaluate(() => Promise.all(document.getAnimations().map(a => a.finished)));
       if (id === 'north-text') await page.waitForTimeout(1100);
+      if (id === 'north-start') await holdAtBeginMoment(page);
       const screenshot = await page.screenshot({ path: path.join(out, `${id}-${viewport}.png`), scale: 'css' });
       metrics.checkpoints[id][viewport] = await sample(page, screenshot);
       if (id === 'north-start') {
-        // The sea is alive, so a real Begin and a direct checkpoint are compared by
-        // mean pixel difference at the same journey state, not byte for byte.
+        // A real Begin and a direct checkpoint are compared at one exact simulation step.
         const sharp = require('sharp');
         const [a, b] = await Promise.all([screenshot, beginScreenshots.get(viewport)].map(image => sharp(image).removeAlpha().raw().toBuffer()));
         let difference = 0;
         for (let i = 0; i < a.length; i++) difference += Math.abs(a[i] - b[i]);
         metrics.extra.begin[viewport].meanPixelDifference = difference / a.length;
-        metrics.extra.begin[viewport].matchesCheckpoint = difference / a.length < 10;
+        metrics.extra.begin[viewport].matchesCheckpoint = difference / a.length < 3;
       }
       const inspect = await page.evaluate(() => window.__GAME_DEBUG__.inspect());
       metrics.threeVersion = inspect.threeVersion;
@@ -190,7 +196,8 @@ try {
           beat: window.__GAME_STATE__.beat, titleHidden: document.querySelector('#title-screen').hidden,
           drawCalls: window.__GAME_STATS__.drawCalls, triangles: window.__GAME_STATS__.triangles,
         }));
-        // Both real Begin and a direct checkpoint must enter the same empty scene.
+        // Both real Begin and a direct checkpoint must enter the same scene.
+        await holdAtBeginMoment(page);
         beginScreenshots.set(viewport, await page.screenshot({ scale: 'css' }));
       }
       await page.close();
@@ -251,8 +258,11 @@ try {
         await page.evaluate(value=>window.__GAME_DEBUG__.seek(value),seconds);
         await page.waitForFunction(()=>window.__GAME_STATS__.frame>0);
         await page.waitForTimeout(150);
-        const kun=await page.evaluate(()=>window.__GAME_DEBUG__.measure().kun);
-        metrics.extra.framing[viewport].push({seconds,inFrame:kun.inFrame,widthPx:kun.widthPx,heightPx:kun.heightPx,centerX:kun.centerX,centerY:kun.centerY});
+        const {kun,kunSpan}=await page.evaluate(()=>window.__GAME_DEBUG__.measure());
+        // Judged on the model's real vertices, with room for the swim wave. The projected box is
+        // kept for reference: with fins this long its corners sit well outside the fish.
+        const inFrame=kunSpan.left>=0&&kunSpan.right<=1&&kunSpan.top>=.02&&kunSpan.bottom<=.98;
+        metrics.extra.framing[viewport].push({seconds,inFrame,boxInFrame:kun.inFrame,span:kunSpan,widthPx:kun.widthPx,heightPx:kun.heightPx,centerX:kun.centerX,centerY:kun.centerY});
       }
       await page.close();
     }

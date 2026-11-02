@@ -10,7 +10,7 @@ export const PILLAR_CENTER = Object.freeze({ x: 0, z: 0, radius: 58, height: 240
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 // Behind and to one side, looking ahead of Kun, so the heading and the next mote stay in frame.
-const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: -.07, distance: 2.1, aimAhead: .32, aimLift: .02, aimSide: 0 });
+const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: -.07, distance: 2.1, aimAhead: .18, aimLift: .02, aimSide: 0 });
 const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.74, aimAhead: .16 });
 // Low and close, looking up at Kun as the key art does. Kun sits right of centre, so the
 // fins trail across the frame.
@@ -73,7 +73,7 @@ export function createJourney(pillars) {
     const scale = j.targetScale;
     const speed = SPEED.held * BODY_LENGTH * Math.pow(scale, .96);
     const distance = speed * MOTE.spawnSeconds;
-    const radius = 620 + (scale - 1) * 188;
+    const radius = 620 + (scale - 1) * 206;
     const bearing = Math.atan2(j.x - PILLAR_CENTER.x, j.z - PILLAR_CENTER.z);
     const a = bearing + distance / Math.max(radius, radial() + 1);
     const ox = PILLAR_CENTER.x + Math.sin(a) * radius, oz = PILLAR_CENTER.z + Math.cos(a) * radius;
@@ -200,14 +200,15 @@ export function createJourney(pillars) {
     const b = CAMERA_ART;
     const blend = key => a[key] + (b[key] - a[key]) * mix;
     const size = BODY_LENGTH * j.scale;
-    const fit = aspect < 1 ? 1 + (1 - aspect) * (1.15 + 1.35 * mix) : 1;
+    const fit = aspect < 1 ? 1 + (1 - aspect) * (1.6 + 1.35 * mix) : 1;
     const azimuth = blend('azimuth'), elevation = blend('elevation');
     const distance = blend('distance') * size * fit;
     const c = forward(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth)), elevation);
     const lookYaw = forward(j.yaw, 0);
     // The camera stays anchored to Kun; only its aim looks ahead.
     const baseY = j.y + blend('aimLift') * size;
-    const side = blend('aimSide') * size * (1 - portrait);
+    // The fins trail behind the body, so a narrow frame centres on the whole of Kun.
+    const side = (blend('aimSide') * (1 - portrait) - .17 * portrait) * size;
     const sideX = Math.cos(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth))) * side;
     const sideZ = -Math.sin(j.yaw + Math.atan2(-Math.sin(azimuth), Math.cos(azimuth))) * side;
     // Look-ahead waits for the camera to swing behind Kun, or it pushes Kun out of frame.
@@ -238,8 +239,8 @@ export function createJourney(pillars) {
     if (j.phase === 'finale') {
       // The framing cliffs follow where the final shot will stand, then stay put as it settles.
       const yaw = j.yaw + Math.atan2(-Math.sin(b.azimuth), Math.cos(b.azimuth));
-      const n = forward(yaw, b.elevation), reach = b.distance * size * (aspect < 1 ? 1 + (1 - aspect) * 2.5 : 1);
-      const across = b.aimSide * size * (1 - portrait);
+      const n = forward(yaw, b.elevation), reach = b.distance * size * (aspect < 1 ? 1 + (1 - aspect) * 2.95 : 1);
+      const across = (b.aimSide * (1 - portrait) - .17 * portrait) * size;
       const target = { x: j.x + Math.cos(yaw) * across + n[0] * reach, y: j.y + b.aimLift * size + n[1] * reach,
         z: j.z - Math.sin(yaw) * across + n[2] * reach, fx: -Math.sin(yaw), fz: -Math.cos(yaw) };
       const rig = j.rig, rate = rig.ready ? Math.min(1, dt * 1.6 * (1 - smooth(4, 7, j.phaseT))) : 1;

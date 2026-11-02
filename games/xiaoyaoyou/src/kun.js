@@ -62,7 +62,7 @@ const SHEET_TRANSMISSION = .50;
 // Sea look, off in the grey sheet views so they still compare with Blender.
 // The warm key is the only warm light in the sea: a pool on the back under the shaft. Past it
 // the top light is cold, and the belly falls into dark blue water, as sampled from the key art.
-const LOOK = Object.freeze({ warm: [2.9, 2.14, 1.22], cool: [.5, .68, .78], shadow: [.03, .062, .085], sky: [.1, .155, .19], rim: [.86, .92, .9],
+const LOOK = Object.freeze({ warm: [3.0, 2.08, 1.05], cool: [.5, .68, .78], shadow: [.03, .062, .085], sky: [.1, .155, .19], rim: [.86, .92, .9],
   rimPower: 3.2, rimGain: .22, caustic: 2.2, wrap: .34, poolCenter: .31, poolWidth: .3 });
 
 export function prepareKun(root, gobo, light) {

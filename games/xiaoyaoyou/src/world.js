@@ -114,7 +114,8 @@ function rockMaterial(shared, instanced) {
         float top=max(dot(n,uLight),0.);
         vec3 toEye=normalize(uCamera-vWorld);
         vec3 lit=uKey*top*top*(.35+1.5*web+2.2*beam)+uAmbient*(.5+.5*n.y)+uAmbient*1.1*max(dot(n,toEye),0.);
-        vec3 c=albedo*lit;
+        // Close stone keeps its surface even on the side away from the light.
+        vec3 c=albedo*(lit+uAmbient*closeBy*2.4);
         // The water behind a pillar scatters a cool edge around it.
         c+=uHaze*.05*pow(1.-max(dot(n,toEye),0.),3.)*(1.-vPaint.g);
         float f=1.-exp(-pow(dist*uDensity,2.));

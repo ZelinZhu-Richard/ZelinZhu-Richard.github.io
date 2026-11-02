@@ -55,6 +55,7 @@ export async function createRuntime(text, onProgress) {
   let timescale = 1;
   let autoplayOn = false;
   let shownLine = null;
+  let holdMs = null;
   const runs = [];
   let run = null;
   const projected = new THREE.Vector3();
@@ -151,6 +152,7 @@ export async function createRuntime(text, onProgress) {
   };
   function simulate() {
     if (state.beat === 'title' || state.beat === 'end') return;
+    if (holdMs !== null && state.gameMs >= holdMs) return;
     state.gameMs = ++steps * 1000 / 60;
     if (state.beat !== 'north') return;
     journey.step(aspect());
@@ -415,6 +417,8 @@ export async function createRuntime(text, onProgress) {
         hold: j.hold, steerX: j.steerX, motes: j.motes, scale: j.scale, targetScale: j.targetScale, ended: j.ended, position: [j.x, j.y, j.z] }; },
       runs: () => runs,
       // Replays the real journey to a time, for evidence and contact sheets.
+      // Stops the simulation at an exact game time, so two routes into a scene can be compared.
+      holdAt(ms) { holdMs = ms; },
       seek(seconds) { jump('north-start'); replayJourney(j => j.t >= seconds || j.ended); return journey.j.t; },
       kunScreenBox: () => { const box = measure().kun; return { x: box.centerX, y: box.centerY }; },
       growthTarget: GROWTH,
