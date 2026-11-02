@@ -3,7 +3,7 @@
   "rows": [
     [
       "Triangles in the heaviest frame (limit 300,000)",
-      "283,989"
+      "284,429"
     ],
     [
       "Draw calls in the heaviest frame (limit 150)",
@@ -19,7 +19,7 @@
     ],
     [
       "Stone pillars in the sea",
-      "542"
+      "652"
     ],
     [
       "Length of the journey",
@@ -27,11 +27,11 @@
     ],
     [
       "Lines of game and model code",
-      "3,337"
+      "3,339"
     ],
     [
       "Independent reviews run by Codex",
-      "22"
+      "25"
     ]
   ]
 }

@@ -150,7 +150,9 @@ export function prepareKun(root, gobo, light) {
                         texture2D(kunGobo,q*.73-vec2(kunTime*.008,-kunTime*.012)).g+.2);
           float pool=exp(-pow((vKunAlong-${LOOK.poolCenter.toFixed(2)})/${LOOK.poolWidth.toFixed(2)},2.));
           vec3 kunKey=mix(kunCool,kunWarm,pool);
-          vec3 key=kunKey*lit*(.62+${LOOK.caustic.toFixed(2)}*web*web);
+          // Sheets take the caustics softly: light through a membrane spreads, it never bands.
+          float dapple=mix(web*web,.14+.3*web,kunSheet);
+          vec3 key=kunKey*lit*(.62+${LOOK.caustic.toFixed(2)}*dapple);
           // Strong top light lifts the ink toward the paper, as it does in the key art.
           vec3 painted=mix(diffuseColor.rgb,mix(vec3(.94,.93,.89),vec3(.97,.9,.76),pool),lit*lit*.3*(1.-kunSheet*.8));
           // Pleats read as soft grooves, and the ridge strip melts into the back.
@@ -166,7 +168,7 @@ export function prepareKun(root, gobo, light) {
             // Thin sheets glow where light passes through them; dense ink stays dark.
             float paper=clamp((1.-diffuseColor.a)/.62,0.,1.);
             float through=abs(ndl)*.55+.7*pow(clamp(dot(toEye,-kunLight),0.,1.),2.);
-            totalEmissiveRadiance+=diffuseColor.rgb*kunKey*paper*(.03+.2*through)*(.7+web*web*2.);
+            totalEmissiveRadiance+=diffuseColor.rgb*kunKey*(.3+.7*paper)*(.03+.17*through)*(.8+web*.5);
           }
         }
       `);
@@ -178,7 +180,7 @@ export function prepareKun(root, gobo, light) {
       shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',
         '#include <project_vertex>\nvKunWorld=(modelMatrix*vec4(transformed,1.)).xyz;\nvKunNormal=mat3(modelMatrix)*objectNormal;\nvKunAlong=clamp((kunNose-position.z)/(kunNose-kunTail),0.,1.);');
     };
-    material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v5-${sheet?1:0}`;
+    material.customProgramCacheKey=()=> `kun-vertical-swim-v1-matte-sheet-v6-${sheet?1:0}`;
     mesh.material=material; mesh.renderOrder=sheet?2:pleat?1:0;
     // Rest bounds do not include the shader's displacement.
     mesh.frustumCulled=false;

@@ -3,7 +3,7 @@ import * as THREE from 'three';
 // HDR scene -> half-resolution volumetric light and mist -> bloom -> filmic grade.
 // Every pass is counted in renderer.info, so the draw-call gate sees all of it.
 
-const RAY_COUNT = 17;
+const RAY_COUNT = 28;
 const VERTEX = 'varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
 
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -179,14 +179,14 @@ void main(){
     float across=(angle-r.x)/r.y, along=below/(r.z*tall);
     // Each ray is interrupted along its own length, so none runs as one smooth bar.
     float gaps=texture2D(tGobo,vec2(r.x*7.3+float(i)*.37,below*1.5+uTime*.003)).b;
-    rays+=r.w*exp(-across*across)*exp(-along*along)*smoothstep(.22,.62,gaps);
+    rays+=r.w*exp(-across*across)*exp(-along*along)*smoothstep(.2,.7,gaps);
   }
   float strands=texture2D(tGobo,vec2(angle*5.1+uTime*.004,.13)).a;
   float broken=.4+1.2*texture2D(tGobo,vec2(angle*2.3,below*.9+uTime*.002)).b;
   // Light gathers around one opening in the surface.
   vec2 source=(vUv-clamp(uVanish,vec2(.08,0.),vec2(.92,1.06)))*vec2(uAspect,1.);
   // Soft-limited: strong columns stay light in water and never become a solid wall.
-  float light=shafts*(reach/uReach)*phase*uShaftGain*22.*(.03+11.5*rays*broken*(.56+.44*strands))*smoothstep(-.1,.3,vUv.y);
+  float light=shafts*(reach/uReach)*phase*uShaftGain*22.*(.03+15.*rays*broken*(.56+.44*strands))*smoothstep(-.1,.3,vUv.y);
   vec3 scatter=uShaft*.6*(1.-exp(-light*1.7));
   // One shared bright region near the surface, which the rays visibly leave.
   // A broad glow under the surface, which the rays are embedded in.
@@ -441,12 +441,12 @@ export function createPost(renderer, gobo, seedRandom) {
   // They fall in uneven clusters with gaps between, never at even spacing. Most die early;
   // only a couple reach far, and those are the fainter ones.
   const rayRandom = seedRandom;
-  const clusters = [.14, .4, .52, .83];
+  const clusters = [.12, .34, .47, .58, .86];
   const RAY_SET = Array.from({ length: RAY_COUNT }, (_, i) => {
-    const place = clusters[i % clusters.length] + (rayRandom() + rayRandom() - 1) * .085;
-    const thick = rayRandom() < .3, long = rayRandom();
-    return { angle: (place - .5) * .84, width: thick ? .04 + rayRandom() * .05 : .012 + rayRandom() * .022,
-      reach: .16 + long * long * .62, gain: (thick ? .46 : .5 + rayRandom() * .7) * (1 - .55 * long) * (1 - Math.pow(Math.abs(place - .5) * 1.5, 2)) };
+    const place = clusters[i % clusters.length] + (rayRandom() + rayRandom() - 1) * .12;
+    const thick = rayRandom() < .22, long = rayRandom();
+    return { angle: (place - .5) * 1.04, width: thick ? .035 + rayRandom() * .05 : .007 + rayRandom() * .017,
+      reach: .13 + long * long * .52, gain: (thick ? .3 : .34 + rayRandom() * .62) * (1 - .6 * long) * (1 - Math.pow(Math.abs(place - .5) * 1.4, 2)) };
   });
   const volume = pass(volumeFragment.replaceAll('RAYS', String(RAY_COUNT)), {
     tDepth: { value: depthTexture }, tGobo: { value: gobo }, tMist: { value: mist }, tMistMap: { value: null },
@@ -533,8 +533,8 @@ export function createPost(renderer, gobo, seedRandom) {
       // Rays drift, and slide round as the camera turns, wrapping at the ends of the fan.
       const pan = Math.atan2(camera.matrixWorld.elements[8], camera.matrixWorld.elements[10]) * .3;
       RAY_SET.forEach((ray, i) => {
-        const place = ((ray.angle + pan + Math.sin(time * .04 + i * 2.1) * .012) / .84 + .5 + 100) % 1;
-        volume.uniforms.uRays.value[i].set((place - .5) * .84, ray.width, ray.reach, ray.gain * Math.sin(place * Math.PI));
+        const place = ((ray.angle + pan + Math.sin(time * .04 + i * 2.1) * .012) / 1.1 + .5 + 100) % 1;
+        volume.uniforms.uRays.value[i].set((place - .5) * 1.1, ray.width, ray.reach, ray.gain * Math.sin(place * Math.PI));
       });
       draw(volume, volumeA);
       const near = camera.near, far = camera.far;
