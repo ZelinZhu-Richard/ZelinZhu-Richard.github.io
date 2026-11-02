@@ -166,11 +166,11 @@ function domeMaterial(shared) {
         float rise=texture2D(tGobo,vec2(atan(ray.x,ray.z)*.31,.21)).b;
         c=mix(c,uHorizon,uBand*exp(-pow(max(up-.015,0.)/(.05+.1*rise),1.5))*smoothstep(-.1,0.,up));
         if(up>.02){
-          // The surface from below: dark swell, with glints wherever a ripple's slope tips
-          // toward the light. They thin out and shrink with distance.
+          // The surface from below. Every ripple face either catches the light or falls dark,
+          // which gives the fine banding; big warm glints gather only near the sun.
           float t=(uSurface-uCamera.y)/up;
           vec2 p=uCamera.xz+ray.xz*t;
-          float size=250.*pow(uViewScale,.6);
+          float size=170.*pow(uViewScale,.3);
           vec2 flow=vec2(uTime*.006,uTime*.0035);
           vec2 e=vec2(.0022,0.);
           vec2 q=p/size+flow;
@@ -178,17 +178,24 @@ function domeMaterial(shared) {
           vec2 slope=vec2(texture2D(tGobo,q+e.xy).b-h0,texture2D(tGobo,q+e.yx).b-h0);
           vec2 q2=p/(size*.37)-flow*1.7+slope*2.;
           float h1=texture2D(tGobo,q2).b;
-          slope+=.6*vec2(texture2D(tGobo,q2+e.xy).b-h1,texture2D(tGobo,q2+e.yx).b-h1);
+          slope+=.7*vec2(texture2D(tGobo,q2+e.xy).b-h1,texture2D(tGobo,q2+e.yx).b-h1);
           vec2 q3=p/(size*.13)+flow*2.3-slope;
           float h2=texture2D(tGobo,q3).b;
-          slope+=.4*vec2(texture2D(tGobo,q3+e.xy).b-h2,texture2D(tGobo,q3+e.yx).b-h2);
-          float glint=smoothstep(.4,.95,1.-length(slope-vec2(.012,.008))*62.);
+          slope+=.55*vec2(texture2D(tGobo,q3+e.xy).b-h2,texture2D(tGobo,q3+e.yx).b-h2);
+          vec2 toSun=normalize(uLight.xz+1e-4);
+          float facet=smoothstep(-.5,.8,dot(slope,toSun)*44.);
           float swell=texture2D(tGobo,p/(size*3.1)+flow*.4).b;
-          float pool=pow(sun,12.)*1.1+pow(sun,44.)*7.;
+          vec3 water=mix(uAbyss*.42,uSea*vec3(.56,.76,.92),facet*facet*facet)*(.5+.95*swell);
+          float glow=pow(sun,8.);
+          water+=uHaze*glow*facet*facet*.8;
+          float glint=smoothstep(.3,.8,1.-length(slope-toSun*.014)*46.);
+          float pool=pow(sun,12.)*.55+pow(sun,44.)*7.;
+          float top=smoothstep(.44,.58,up);
+          vec3 cream=mix(uShaft*2.1,vec3(2.2,1.95,1.5),pow(sun,18.));
+          vec3 surface=water+cream*glint*min(pool,1.)*(.12+.88*top);
+          surface+=cream*glint*max(pool-1.,0.)*.5*top;
           float near=exp(-pow(t*uDensity*.32,2.));
-          vec3 surface=mix(c*(.5+.9*swell),uShaft*2.1,glint*min(pool,1.));
-          surface+=uShaft*glint*max(pool-1.,0.)*.7;
-          c=mix(c,surface,near*smoothstep(.36,.56,up));
+          c=mix(c,surface,near*smoothstep(.34,.56,up));
         }
         gl_FragColor=vec4(c,0.);
         #include <colorspace_fragment>
