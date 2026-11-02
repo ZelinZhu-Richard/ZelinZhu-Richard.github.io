@@ -1,7 +1,7 @@
 # MORNING.md: report
 
-**Second run:** started 2026-11-01 21:37 EST, finished 23:57 EST the same night, against a 7-hour limit. M4's 3-hour box ran 21:42 to 00:42.
-Status: FINAL. Final code commit: `ec40098`. Nothing pushed, nothing outside `games/xiaoyaoyou/` changed. Boxes stay unticked, because you kept NIGHT.md's rule: M2's approval and M3's clearance are recorded in LOG.md.
+**Second run:** started 2026-11-01 21:37 EST, finished 23:57 EST the same night, against a 7-hour limit. M4's 3-hour box ran 21:42 to 00:42, and the last M4 review finished at 00:07.
+Status: FINAL. Final code commit: `ec40098`. M4 was reviewed once more at `f54cf31`, with the same game build and a PASS. Only notes changed after that. Nothing pushed, nothing outside `games/xiaoyaoyou/` changed. Boxes stay unticked, because you kept NIGHT.md's rule: M2's approval and M3's clearance are recorded in LOG.md.
 
 The first night's report follows further down, unchanged, for the record.
 
@@ -60,7 +60,7 @@ Your priorities, as they landed:
 
 ## 3. Milestones
 
-Galleries: [M3](_dev/evidence/M3/review.html) · [M4](_dev/evidence/M4/review.html) · [M5](_dev/evidence/M5/review.html). Verdicts: [M3](_dev/review/M3-round9/verdict.json) · [M4](_dev/review/M4-round11/verdict.json) · [M5](_dev/review/M5-round7/verdict.json). Close-up: [Kun](_dev/evidence/M4/kun-closeup-desktop.png).
+Galleries: [M3](_dev/evidence/M3/review.html) · [M4](_dev/evidence/M4/review.html) · [M5](_dev/evidence/M5/review.html). Verdicts: [M3](_dev/review/M3-round9/verdict.json) · [M4](_dev/review/M4-round12/verdict.json) · [M5](_dev/review/M5-round7/verdict.json). Close-up: [Kun](_dev/evidence/M4/kun-closeup-desktop.png).
 
 **M3.** Growth 7 motes to 12.23×. Pacing 115.0 s (90 to 150). Kun's height changes +9.9% (limit ±35%). `ref-pillar-1` shrinks to 0.236× (limit 0.25×) and stays in frame. Narrow +8.9%, 0.221×. Input unchanged: hold 4.2× idle, release 0.35, turn 58°.
 
@@ -130,6 +130,7 @@ Model `gpt-6.1-sol`, read-only, evidence bundles only, every run on a clean comm
 | M4 | 11 | `ec40098` | **PASS** | 4 of 4 | Final. Two minor notes, both on narrow frames: shaft cores, surface patches |
 | M3 | 9 | `ec40098` | **PASS** | 4 of 4 | Final |
 | M5 | 7 | `ec40098` | **PASS** | 4 of 4 | Final |
+| M4 | 12 | `f54cf31` | **PASS** | 4 of 4 | Confirmation on the last commit before this table was updated. A fresh capture, 31 of 31 checks. Same game build as `ec40098`. Two minor notes: shaft streaks, surface flecks |
 
 ## 6. NEEDS RICHARD
 

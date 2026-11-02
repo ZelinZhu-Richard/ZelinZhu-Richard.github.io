@@ -678,3 +678,7 @@ Final capture on ec40098: 27 of 27, 31 of 31 and 35 of 35 checks true, clean con
 Audit against 90026d0: no file outside `games/xiaoyaoyou/` changed; `ref/`, REVIEW_RUBRIC.md, GAME.md and NIGHT.md unchanged; no checkbox changed; no upstream configured and no remote branch contains HEAD. Commits after ec40098 touch only notes, the making-of page and its data.
 
 Boxes stay unticked. Details and the open decision are in MORNING.md.
+
+### M4 review 12 on f54cf31 (2026-11-02 00:07 EST)
+
+**PASS**, 4 of 4 criteria, on a fresh capture of the last commit: 31 of 31 checks, clean. The game build is identical to ec40098; between them only notes and the making-of page's images and numbers changed. Two minor notes: shaft streaks and surface flecks. Commits after f54cf31 touch only LOG.md and MORNING.md, which do not make evidence stale under REVIEW_RUBRIC §1.
