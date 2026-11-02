@@ -180,7 +180,8 @@ def column(sheet, seed, height, radius, center, rings, segments, reach=1.0, peak
     sheet.paint.append((.4, 0, 1))
     base = start + (rings - 1) * segments
     sheet.faces += [(base + segment, base + (segment + 1) % segments, hub) for segment in range(segments)]
-    return (top_center[0], top_center[1], sum(point[2] for point in last_ring) / segments), radius * insets[-1] * .74
+    # The crown narrows by `peak`, so anything standing on it keeps to the narrowed top.
+    return (top_center[0], top_center[1], sum(point[2] for point in last_ring) / segments), radius * insets[-1] * .74 * (1 - peak * .85)
 
 
 def boulder(sheet, center, radius, seed):
@@ -218,7 +219,7 @@ def pad(sheet, center, radius, seed, thickness, sides=5):
     rim = []
     for side in range(count):
         angle = side * TAU / count + rng.uniform(-.14, .14)
-        r = radius * (rng.uniform(.95, 1.4) if side % 2 == 0 else rng.uniform(.38, .68))
+        r = radius * (rng.uniform(.9, 1.3) if side % 2 == 0 else rng.uniform(.56, .84))
         x, y = r * math.cos(angle), r * stretch * math.sin(angle)
         rim.append((cx + x * math.cos(turn) - y * math.sin(turn), cy + x * math.sin(turn) + y * math.cos(turn),
                     cz + thickness * rng.uniform(-.75, .6)))
@@ -299,7 +300,7 @@ def pine(sheet, base, size, lean, seed, far=False):
             pad(sheet, (start[0] + (end[0] - start[0]) * along + rng.uniform(-spread, spread),
                         start[1] + (end[1] - start[1]) * along + rng.uniform(-spread, spread),
                         start[2] + (end[2] - start[2]) * along + size * rng.uniform(-.03, .07)),
-                size * rng.uniform(.1, .22) * (1.7 if far else 1), seed + index * 7 + clump + 1, size * .09, 4 if far else 5)
+                size * rng.uniform(.1, .22) * (1.7 if far else 1), seed + index * 7 + clump + 1, size * .09, 4 if far else 6)
 
 
 def hero_pillar(seed, height, radius, sides, pines):
@@ -321,14 +322,14 @@ def hero_pillar(seed, height, radius, sides, pines):
         for tuft in range(8 if index == 0 else 3):
             angle = rng.uniform(0, TAU)
             spread = crown * math.sqrt(rng.random())
-            pad(sheet, (cx + spread * math.cos(angle), cy + spread * math.sin(angle), cz + rng.uniform(-3, 5)),
+            pad(sheet, (cx + spread * math.cos(angle), cy + spread * math.sin(angle), cz + rng.uniform(-8, 1)),
                 rng.uniform(.3, .55) * max(9, crown * .6), seed + 200 + index * 11 + tuft, rng.uniform(4, 9))
     for index in range(pines):
         (cx, cy, cz), crown = crowns[index % len(crowns)]
         angle = rng.uniform(0, TAU)
         spread = rng.uniform(.15, 1.1)
         # Stand on the broken crown, leaning outward over the drop.
-        base = (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz + rng.uniform(4, 15))
+        base = (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz + rng.uniform(-7, 1))
         size = rng.uniform(15, 25) * (1.2 if index < 4 else 1)
         lean = (math.cos(angle) * spread * .42, math.sin(angle) * spread * .42)
         pine(sheet, base, size, lean, seed + index * 13)
@@ -354,7 +355,7 @@ def far_pillar(seed, height, radius):
     for tuft in range(3):
         angle = tuft * TAU / 3 + rng.uniform(-.4, .4)
         reach = crown * rng.uniform(.2, .9)
-        pine(sheet, (top[0] + reach * math.cos(angle), top[1] + reach * math.sin(angle), top[2] + rng.uniform(4, 12)),
+        pine(sheet, (top[0] + reach * math.cos(angle), top[1] + reach * math.sin(angle), top[2] + rng.uniform(-6, 1)),
              rng.uniform(16, 26), (math.cos(angle) * .3, math.sin(angle) * .3), seed + tuft, True)
     return sheet
 
@@ -384,7 +385,7 @@ def cliff(seed, height, width, columns, pines):
         (cx, cy, cz), crown = crowns[index % len(crowns)]
         angle = rng.uniform(0, TAU)
         spread = rng.uniform(.2, 1.1)
-        pine(sheet, (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz + rng.uniform(1, 7)),
+        pine(sheet, (cx + crown * spread * math.cos(angle), cy + crown * spread * math.sin(angle), cz + rng.uniform(-6, 1)),
              rng.uniform(20, 38), (math.cos(angle) * spread * .5, math.sin(angle) * spread * .5), seed + index * 23)
     return sheet
 

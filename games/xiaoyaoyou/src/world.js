@@ -134,7 +134,7 @@ function rockMaterial(shared, instanced) {
           // Near feet dissolve at their own heights; far ones are already gone.
           float rise=uFoot*(.25+1.5*fbm2(vWorld.xz*.009/uViewScale+vec2(uTime*.008,0.)));
           float foot=1.-smoothstep(0.,rise,vWorld.y);
-          c=mix(c,mix(uHaze*.2,low,f),foot*foot*.85);
+          c=mix(c,mix(uAbyss*1.1,low,f),foot*foot*.92);
         #endif
         gl_FragColor=vec4(c,0.);
         #include <colorspace_fragment>
@@ -378,7 +378,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     cards.push({ x: x + Math.sin(a) * r, y: 4 + cardRandom() * 26, z: z + Math.cos(a) * r, width: width * (.75 + cardRandom() * .6),
       cell: Math.floor(cardRandom() * 9), flip: cardRandom() < .5 ? -1 : 1, seed: cardRandom() });
   };
-  for (const item of layout.hero) for (let i = 0; i < 4; i++) addCard(item.x, item.z, 70 * item.scale, 210 * item.scale);
+  for (const item of layout.hero) for (let i = 0; i < 7; i++) addCard(item.x, item.z, 60 + 40 * item.scale, 300 * Math.max(item.scale, 1));
   for (const item of layout.field) if (cardRandom() < .62) addCard(item.x, item.z, 50, 210 * item.scale);
   for (let i = 0; i < 70; i++) { const a = cardRandom() * 6.28, r = 200 + cardRandom() * 4000; addCard(Math.sin(a) * r, Math.cos(a) * r, 0, 330); }
 

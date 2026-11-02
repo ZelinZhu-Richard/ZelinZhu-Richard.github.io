@@ -165,7 +165,8 @@ void main(){
   // Light scatters forward: shafts brighten as the view turns toward the surface.
   float phase=.42+1.3*pow(max(dot(ray,uLight),0.),2.);
   // Parallel light converges on one vanishing point, so the fine streaks radiate from it.
-  vec2 fromSun=(vUv-uVanish)*vec2(uAspect,1.);
+  // Held close above the frame, so the rays always fan out as they do in the key art.
+  vec2 fromSun=(vUv-vec2(uVanish.x,min(uVanish.y,1.3)))*vec2(uAspect,1.);
   float angle=atan(fromSun.x,-fromSun.y);
   // Each ray is its own soft wedge with its own reach, so none ends at the same place and
   // the fan never reads as even stripes.
@@ -248,7 +249,7 @@ void main(){
   vSoft=30.+22.*sqrt(uScale);
   // Close to the camera a card opens out and disappears, so the view never enters a sheet.
   float near=smoothstep(90.*sqrt(uScale),300.*sqrt(uScale),dist);
-  vFade=near*exp(-pow(dist*uDensity*.42,2.))*(.82+.18*sin(uTime*.11+aCard.y*17.));
+  vFade=near*exp(-pow(dist*uDensity*.72,2.))*(.82+.18*sin(uTime*.11+aCard.y*17.));
   vec2 q=center.xz+uLight.xz*(uSurface-center.y)/uLight.y;
   vLight=.34+1.3*texture2D(tGobo,q/(900.*sqrt(uScale))).r;
   float cell=aCard.x;

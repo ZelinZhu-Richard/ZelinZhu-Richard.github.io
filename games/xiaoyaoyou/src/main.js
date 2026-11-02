@@ -11,7 +11,7 @@ const CHECKPOINTS = new Map([['title', 'title'], ['north-start', 'north'], ['nor
 // When each source line shows, in journey seconds. Fixed to the simulation, never to the wall clock.
 const LINE_TIMES = { first: [1.8, 10.5], second: 9 };
 const SHEET_VIEWS = ['side', 'top', 'front'];
-const CARD_GAIN = .62, BLOOM_GAIN = .34;
+const CARD_GAIN = .78, BLOOM_GAIN = .34;
 
 export async function createRuntime(text, onProgress) {
   const title = document.querySelector('#title-screen');
@@ -247,7 +247,7 @@ export async function createRuntime(text, onProgress) {
     u.uSurface.value = WORLD.surface;
     u.uReach.value = 420 * Math.pow(scale, .78);
     const inSea = state.beat !== 'test';
-    u.uMistGain.value = inSea ? layers.mist * .03 / Math.pow(scale, .7) : 0;
+    u.uMistGain.value = inSea ? layers.mist * .019 / Math.pow(scale, .7) : 0;
     u.tMistMap.value = world.mistMap;
     u.uMistTop.value = 34 + 30 * Math.sqrt(scale);
     u.uMistBottom.value = -30;
@@ -426,7 +426,11 @@ export async function createRuntime(text, onProgress) {
       holdAt(ms) { holdMs = ms; },
       layers(next) { Object.assign(layers, next); },
       seek(seconds) { jump('north-start'); replayJourney(j => j.t >= seconds || j.ended); return journey.j.t; },
-      kunScreenBox: () => { const box = measure().kun; return { x: box.centerX, y: box.centerY }; },
+      kunScreenBox() {
+        kun.root.updateMatrixWorld(true);
+        projected.copy(kun.bodyFocus).applyMatrix4(kun.root.matrixWorld).project(camera);
+        return { x: (projected.x + 1) * innerWidth / 2, y: (1 - projected.y) * innerHeight / 2 };
+      },
       growthTarget: GROWTH,
     };
     window.addEventListener('resize', resize);

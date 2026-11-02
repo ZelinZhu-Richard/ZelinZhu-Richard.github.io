@@ -189,7 +189,10 @@ export function prepareKun(root, gobo, light) {
   const bounds=restBox.clone();
   bounds.min.y-=SWIM.bodyLength*SWIM.flukeAmpFrac;
   bounds.max.y+=SWIM.bodyLength*SWIM.flukeAmpFrac;
-  return {root,bounds,restBox,materials,
+  // The front of the body, where back, belly, rim and a fin root all fall inside one close-up.
+  const bodyFocus=body.geometry.boundingBox.getCenter(new THREE.Vector3());
+  bodyFocus.z+=SWIM.bodyLength*.14;
+  return {root,bounds,restBox,materials,bodyFocus,
     update(gameMs,phase,rest,look=false,size=1) {
       uniforms.kunCycle.value=phase??gameMs/SWIM.periodMs; uniforms.kunEnabled.value=rest?0:1;
       uniforms.kunLook.value=look?1:0; uniforms.kunTime.value=gameMs/1000; uniforms.kunSize.value=size;
