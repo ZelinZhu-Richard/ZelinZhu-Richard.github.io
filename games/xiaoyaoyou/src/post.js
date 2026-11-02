@@ -420,7 +420,7 @@ export function createPost(renderer, gobo, seedRandom) {
   const composite = pass(compositeFragment, {
     tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tBloom: { value: up[0].texture }, tDepth: { value: depthTexture }, tCards: { value: cardTarget.texture },
     uBloom: { value: .34 }, uExposure: { value: .92 }, uBlack: { value: .004 }, uTime: { value: 0 }, uGrain: { value: .006 }, uResolution: { value: new THREE.Vector2(1, 1) },
-    uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() }, uRim: { value: 1.25 },
+    uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() }, uRim: { value: .95 },
   });
   function draw(material, target) {
     quad.material = material;

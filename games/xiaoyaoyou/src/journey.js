@@ -4,13 +4,13 @@
 export const BODY_LENGTH = 10.4;
 export const GROWTH = Object.freeze({ motes: 7, factor: 1.43 });
 export const WORLD = Object.freeze({ surface: 640, arena: 3000 });
-export const ART_PITCH = .27;
+export const ART_PITCH = .225;
 export const PILLAR_CENTER = Object.freeze({ x: 0, z: 0, radius: 58, height: 240 });
 
 const TAU = Math.PI * 2;
 const STEP = 1 / 60;
 // Behind and to one side, looking ahead of Kun, so the heading and the next mote stay in frame.
-const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: -.07, distance: 2.1, aimAhead: .55, aimLift: .02, aimSide: 0 });
+const CAMERA_PLAY = Object.freeze({ azimuth: 2.3, elevation: -.07, distance: 2.1, aimAhead: .32, aimLift: .02, aimSide: 0 });
 const CAMERA_PORTRAIT = Object.freeze({ azimuth: 2.74, aimAhead: .16 });
 // Low and close, looking up at Kun as the key art does. Kun sits right of centre, so the
 // fins trail across the frame.
@@ -29,6 +29,8 @@ const forward = (yaw, pitch) => [Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch
 const openingOffset = aspect => .26 * clamp((aspect - .46) / 1.14, 0, 1);
 // Kun stays down among the towers as it grows, so they keep passing close by.
 const altitude = scale => 112 + 12 * (scale - 1);
+// Kun opens low over the seabed, so the camera can look up with the first pillar's foot in frame.
+const OPENING_ALTITUDE = 54;
 // The horizontal direction the key-art camera sits at relative to heading zero.
 const ART_BEARING = Math.atan2(-Math.sin(CAMERA_ART.azimuth), Math.cos(CAMERA_ART.azimuth));
 
@@ -44,7 +46,7 @@ export function createJourney(pillars) {
   function reset(aspect = 1.6) {
     Object.assign(j, {
       t: 0, phase: 'intro', phaseT: 0, ended: false, autoplay: false,
-      x: 0, y: altitude(1), z: 0, yaw: 0, pitch: 0, roll: 0, speed: 0, heading: 0,
+      x: 0, y: OPENING_ALTITUDE, z: 0, yaw: 0, pitch: 0, roll: 0, speed: 0, heading: 0,
       scale: 1, targetScale: 1, motes: 0, growth: [], moteTimes: [], pulse: 0,
       steerX: 0, steerY: 0, hold: false, steerActive: false,
       mote: { active: false, x: 0, y: 0, z: 0, wait: MOTE.delay, age: 0, fade: 0 },
@@ -118,7 +120,9 @@ export function createJourney(pillars) {
     j.yaw += wrap(j.heading - j.yaw) * Math.min(1, TURN.yawFollow * dt);
     const band = 26 + 8 * j.scale;
     const desired = finale ? 0 : j.steerY * TURN.pitchLimit;
-    const bias = clamp((altitude(j.targetScale) - j.y) / band, -1, 1) * (.34 + .34 * smooth(band, band * 2.4, Math.abs(altitude(j.targetScale) - j.y)));
+    // Kun holds its low opening line until the first shot gives way.
+    const level = j.phase === 'intro' ? OPENING_ALTITUDE : altitude(j.targetScale);
+    const bias = clamp((level - j.y) / band, -1, 1) * (.34 + .34 * smooth(band, band * 2.4, Math.abs(level - j.y)));
     j.pitch += (clamp(desired + bias, -TURN.pitchLimit, TURN.pitchLimit) - j.pitch) * Math.min(1, TURN.pitchFollow * dt);
     j.roll += (clamp(-turn * TURN.bank, -.42, .42) - j.roll) * Math.min(1, 2.4 * dt);
   }

@@ -106,7 +106,7 @@ def polygon_radius(corners, angle):
     return corners[0][1]
 
 
-def column(sheet, seed, height, radius, center, rings, segments, reach=1.0):
+def column(sheet, seed, height, radius, center, rings, segments, reach=1.0, peak=.26):
     """A weathered rock spire. Bedding planes tilt, ledges wrap only part of the way
     round, and fissures widen upward, so no ring of the loft reads as a level collar."""
     rng = random.Random(seed)
@@ -157,11 +157,11 @@ def column(sheet, seed, height, radius, center, rings, segments, reach=1.0):
         cx = center[0] + sum(a * (math.sin(f * t * 3 + p) - math.sin(p)) for a, f, p in sway)
         cy = center[1] + sum(a * (math.cos(f * t * 2.4 + p) - math.cos(p)) for a, f, p in sway)
         # The crown breaks unevenly instead of ending in a flat lid.
-        crown = smooth(.9, 1, t)
+        crown = smooth(1 - .1 - peak * .34, 1, t)
         for segment in range(segments):
             angle = segment * TAU / segments
             r, cut, grain = shape(angle, t * .985)
-            r *= radius * (1 - .26 * crown ** 2)
+            r *= radius * (1 - peak * crown ** 2)
             drop = crown * (radius * 1.15 * fbm(angle * 2.6, 3.1, seed + 8) + height * .05 * (1 - abs(math.cos(angle * 1.5 + seed))))
             points.append((cx + r * math.cos(angle), cy + r * math.sin(angle), z - drop))
             paints.append((min(1, cut * 3.1 + max(0, -grain) * 3), 0, t))
@@ -230,7 +230,8 @@ def pad(sheet, center, radius, seed, thickness, sides=5):
         next_side = (side + 1) % count
         faces.append((0, 1 + side, 1 + next_side))
         faces.append((1 + next_side, 1 + side, last))
-    sheet.add(points, [(.5, 1, 1)] * len(points), faces)
+    # Blue marks the clump's edge, where the runtime tears the outline into needles.
+    sheet.add(points, [(.5, 1, 1)] + [(.5, 1, 0)] * len(rim) + [(.5, 1, 1)], faces)
 
 
 def limb(sheet, start, end, rise, thick, sides):
@@ -291,20 +292,20 @@ def pine(sheet, base, size, lean, seed, far=False):
         end = (start[0] + reach * math.cos(angle), start[1] + reach * math.sin(angle), start[2] + size * rng.uniform(-.14, .05))
         if not far:
             limb(sheet, start, end, size * .05, size * .028 + .14, 3)
-        for clump in range(2 if far else rng.randint(6, 7)):
+        for clump in range(2 if far else rng.randint(9, 11)):
             # Needles begin close to the trunk, so a limb never reads as a bare bar.
             along = rng.uniform(.12, 1.1)
             spread = size * .1
             pad(sheet, (start[0] + (end[0] - start[0]) * along + rng.uniform(-spread, spread),
                         start[1] + (end[1] - start[1]) * along + rng.uniform(-spread, spread),
                         start[2] + (end[2] - start[2]) * along + size * rng.uniform(-.03, .07)),
-                size * rng.uniform(.14, .26) * (1.5 if far else 1), seed + index * 7 + clump + 1, size * .11, 4 if far else 5)
+                size * rng.uniform(.1, .22) * (1.7 if far else 1), seed + index * 7 + clump + 1, size * .09, 4 if far else 5)
 
 
 def hero_pillar(seed, height, radius, sides, pines):
     rng = random.Random(seed)
     sheet = Sheet()
-    crowns = [column(sheet, seed, height, radius, (0, 0), 28, 30)]
+    crowns = [column(sheet, seed, height, radius, (0, 0), 28, 30, 1.0, .5)]
     for side in range(sides):
         angle = rng.uniform(0, TAU)
         offset = radius * rng.uniform(.6, 1.0)
@@ -346,7 +347,7 @@ def far_pillar(seed, height, radius):
     """A lighter pillar for the deep field; its crown keeps a tufted foliage silhouette."""
     rng = random.Random(seed)
     sheet = Sheet()
-    top, crown = column(sheet, seed, height, radius, (0, 0), 14, 14)
+    top, crown = column(sheet, seed, height, radius, (0, 0), 14, 14, 1.0, .46)
     second = rng.uniform(0, TAU)
     side, side_crown = column(sheet, seed + 3, height * rng.uniform(.45, .75), radius * .5,
                               (radius * 1.1 * math.cos(second), radius * 1.1 * math.sin(second)), 8, 9, .5)
@@ -361,7 +362,7 @@ def far_pillar(seed, height, radius):
 def deep_pillar(seed, height, radius):
     """A silhouette for the deep field. Only the outline matters at this distance."""
     sheet = Sheet()
-    column(sheet, seed, height, radius, (0, 0), 7, 7)
+    column(sheet, seed, height, radius, (0, 0), 8, 7, 1.0, .52)
     return sheet
 
 
@@ -373,9 +374,9 @@ def cliff(seed, height, width, columns, pines):
     crowns = []
     for index in range(columns):
         t = rng.uniform(-1, 1)
-        tall = (.34 + .66 * smooth(-1, .7, t) ** 1.4) * rng.uniform(.68, 1.08)
+        tall = (.5 + .5 * smooth(-1, .4, t)) * rng.uniform(.62, 1.08)
         crowns.append(column(sheet, seed + index * 19, height * tall, width * rng.uniform(.13, .24),
-                             (t * width, rng.uniform(-.34, .34) * width), 15, 11, .9))
+                             (t * width, rng.uniform(-.34, .34) * width), 15, 11, .9, .46))
     for rock in range(8):
         boulder(sheet, (rng.uniform(-1.1, 1.1) * width, rng.uniform(-.4, .4) * width, rng.uniform(-3, 8)),
                 width * rng.uniform(.08, .2), seed + 500 + rock)

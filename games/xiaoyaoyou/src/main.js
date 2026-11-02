@@ -208,7 +208,7 @@ export async function createRuntime(text, onProgress) {
       scene.fog.density = fogDensity(journey.j.scale);
       world.placeFinale(journey.j.rig, ART_PITCH, journey.j.scale, aspect(), journey.j.cam.mix);
       world.update(camera, state.gameMs, journey.j.scale);
-      world.showMote(journey.j.mote, journey.j.scale, state.gameMs);
+      world.showMote(journey.j.mote, journey.j.scale, state.gameMs, camera, journey.j.cam.mix);
     } else if (state.beat === 'test') world.update(camera, state.gameMs, 1);
     updateText();
     renderer.info.reset();

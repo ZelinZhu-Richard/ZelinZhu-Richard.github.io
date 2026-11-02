@@ -23,11 +23,14 @@ export const fogDensity = scale => FOG_DENSITY / Math.pow(scale, .6);
 
 const FOV_TAN = Math.tan(21 * Math.PI / 180);
 // Stone composed behind Kun in the opening shot: depth along the view, offset to the side, size, kind.
-const OPENING_STAND = [[300, -196, 1.06, 1], [430, -96, .86, 3], [372, 214, .98, 2], [540, 60, 1.2, 5],
-  [640, -340, 1, 4], [700, 356, .9, 6], [235, 300, .7, 7]];
-// Cliffs at the frame edges: offset in half-frames, depth, the height their top reaches in
-// half-heights, and how far each wall turns from the view.
-const FRAME_CLIFFS = [{ kind: 0, x: -1.3, depth: 1, top: -.2, turn: -.35 }, { kind: 1, x: 1.34, depth: .86, top: .02, turn: .3 + Math.PI }];
+const OPENING_STAND = [[330, -215, .62, 1], [470, -110, .72, 3], [420, 235, .66, 2], [620, 90, .9, 5],
+  [760, -380, .95, 4], [820, 420, .9, 6], [300, 330, .5, 7]];
+// Cliffs at the frame edges: where the inner edge sits in half-frames, depth, the height their
+// top reaches in half-heights, and how far each wall turns from the view.
+const FRAME_CLIFFS = [{ kind: 0, edge: -.66, depth: 1, top: .02, turn: -.35 }, { kind: 1, edge: .72, depth: .86, top: .2, turn: .3 + Math.PI },
+  { kind: 2, edge: -.2, depth: .42, top: -.74, turn: .4 }, { kind: 2, edge: .34, depth: .34, top: -.88, turn: -.3 + Math.PI }];
+// Far embers in the two posed shots, as offsets from the view in half-frames.
+const EMBERS = [[-.78, -.1], [-.34, -.2], [.28, -.6], [.88, -.02], [.76, -.34]];
 
 const noiseGLSL = `
 float hash21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
@@ -73,16 +76,33 @@ function rockMaterial(shared, instanced) {
       }`,
     fragmentShader: `
       uniform vec3 uAbyss, uDeep, uHaze, uHorizon, uLight, uCamera, uKey, uAmbient;
-      uniform float uDensity, uTime, uViewScale, uFoot;
+      uniform float uDensity, uTime, uViewScale, uFoot, uNear;
       uniform sampler2D tGobo, tRock;
       varying vec3 vWorld, vNormal, vPaint;
       ${noiseGLSL}
+      float ign(vec2 p){return fract(52.9829189*fract(dot(p,vec2(.06711056,.00583715))));}
       void main(){
+        float dist=length(vWorld-uCamera);
+        #ifdef USE_ROCK_INSTANCING
+          // Needle clumps tear apart toward their edges, so no polygon outline survives.
+          if(vPaint.g>.5){
+            float torn=vnoise(vec2(dot(vWorld,vec3(.31,.82,.22)),dot(vWorld,vec3(-.66,.24,.71)))*vec2(.5,1.6));
+            if(torn>vPaint.b*2.6+.12)discard;
+          }
+          // Stone dissolves just before it would reach the lens.
+          if(ign(gl_FragCoord.xy)>smoothstep(uNear*.4,uNear,dist))discard;
+        #endif
         vec3 n=normalize(vNormal);
         // The painted cliff, projected on the two vertical planes and blended by the face.
         vec2 facing=pow(abs(n.xz),vec2(4.));
         facing/=facing.x+facing.y+1e-4;
         vec3 cliff=texture2D(tRock,vec2(vWorld.z,vWorld.y)/170.).rgb*facing.x+texture2D(tRock,vec2(vWorld.x,vWorld.y)/170.).rgb*facing.y;
+        // A finer pass of the same cliff keeps close stone from going soft.
+        float closeBy=1.-smoothstep(60.,420.,dist/sqrt(uViewScale));
+        if(closeBy>.001){
+          vec3 fine=texture2D(tRock,vec2(vWorld.z,vWorld.y)/37.).rgb*facing.x+texture2D(tRock,vec2(vWorld.x,vWorld.y)/37.).rgb*facing.y;
+          cliff*=mix(vec3(1.),fine*3.4,closeBy*.8);
+        }
         vec3 albedo=cliff*(1.-.55*vPaint.r);
         #ifdef SEA_FLOOR
           albedo*=.85;
@@ -97,7 +117,6 @@ function rockMaterial(shared, instanced) {
         vec3 c=albedo*lit;
         // The water behind a pillar scatters a cool edge around it.
         c+=uHaze*.05*pow(1.-max(dot(n,toEye),0.),3.)*(1.-vPaint.g);
-        float dist=length(vWorld-uCamera);
         float f=1.-exp(-pow(dist*uDensity,2.));
         #ifdef SEA_FLOOR
           f=max(f,smoothstep(2800.,4300.,length(vWorld.xz)));
@@ -150,7 +169,7 @@ function domeMaterial(shared) {
           // toward the light. They thin out and shrink with distance.
           float t=(uSurface-uCamera.y)/up;
           vec2 p=uCamera.xz+ray.xz*t;
-          float size=150.*pow(uViewScale,.6);
+          float size=250.*pow(uViewScale,.6);
           vec2 flow=vec2(uTime*.006,uTime*.0035);
           vec2 e=vec2(.0022,0.);
           vec2 q=p/size+flow;
@@ -215,7 +234,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     uHaze: { value: palette.haze }, uShaft: { value: palette.shaft }, uFog: { value: palette.deep },
     uHorizon: { value: palette.deep.clone().multiplyScalar(.6).add(palette.haze.clone().multiplyScalar(.5)) },
     uLight: { value: light }, uCamera: { value: new THREE.Vector3() }, uTime: { value: 0 },
-    uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, uFoot: { value: 90 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
+    uDensity: { value: .003 }, uSurface: { value: WORLD.surface }, uViewScale: { value: 1 }, uFoot: { value: 90 }, uNear: { value: 30 }, tGobo: { value: gobo }, tRock: { value: rockTexture },
     uKey: { value: new THREE.Color(1.15, 1.2, 1.2) }, uAmbient: { value: new THREE.Color(.075, .1, .118) },
   };
   const meshes = new Map();
@@ -260,9 +279,9 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     return mesh;
   };
   const heroBatches = heroGeometry.map(geometry => batch(geometry, layout.hero.length));
-  const farBatches = farGeometry.map(geometry => batch(geometry, 140));
+  const farBatches = farGeometry.map(geometry => batch(geometry, 160));
   const deepBatches = deepGeometry.map(geometry => batch(geometry, 260));
-  const cliffBatches = cliffGeometry.map(geometry => batch(geometry, 2));
+  const cliffBatches = cliffGeometry.map(geometry => batch(geometry, 4));
   const batches = [...heroBatches, ...farBatches, ...deepBatches, ...cliffBatches];
   for (const item of [...layout.hero, ...layout.field]) item.matrix = composed(item);
   const floor = new THREE.Mesh(bakedGeometry(meshes.get('sea_floor')), floorMaterial);
@@ -295,14 +314,14 @@ export function createWorld(seaRoot, gobo, rockTexture) {
     const spread = 1 + slide * .9;
     FRAME_CLIFFS.forEach((cliff, index) => {
       const depth = (118 + 62 * (scale - 1)) * cliff.depth;
-      const across = cliff.x * spread * depth * FOV_TAN * aspect;
-      const x = pose.x + pose.fx * depth - pose.fz * across, z = pose.z + pose.fz * depth + pose.fx * across;
       const top = pose.y + depth * Math.tan(pitch + Math.atan(cliff.top * FOV_TAN));
-      const unit = (top + 14) / cliffGeometry[cliff.kind].boundingBox.max.y;
+      const box = cliffGeometry[cliff.kind].boundingBox, unit = (top + 14) / box.max.y;
+      const across = (cliff.edge * depth * FOV_TAN * aspect + Math.sign(cliff.edge) * box.max.x * unit * .9) * spread;
+      const x = pose.x + pose.fx * depth - pose.fz * across, z = pose.z + pose.fz * depth + pose.fx * across;
       const item = stages[stage][index];
       item.x = x; item.z = z;
       item.matrix.compose(position.set(x, -14, z), quaternion.setFromEuler(rotation.set(0, Math.atan2(pose.fx, pose.fz) + cliff.turn, 0)), size.set(unit * 1.1, unit, unit * 1.1));
-      if (stage === 0) Object.assign(openingCliffs[index], { x, z, radius: 90 * unit, height: top });
+      if (stage === 0) Object.assign(openingCliffs[index], { x, z, radius: box.max.x * unit * .7, height: top });
     });
   }
   let finaleOn = false, frame = 0;
@@ -328,7 +347,10 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       if (d > reach || (d > close && dx * fx + dz * fz < d * cone)) return -1;
       return d;
     };
-    for (const item of layout.hero) if (seen(item) >= 0) put(heroBatches[item.kind], item);
+    for (const item of layout.hero) {
+      const d = seen(item);
+      if (d >= 0) put(d < detail * 1.5 ? heroBatches[item.kind] : farBatches[item.kind % 5], item);
+    }
     for (const item of layout.field) {
       const d = seen(item);
       if (d >= 0) put(d < detail ? farBatches[item.kind] : deepBatches[item.deep], item);
@@ -407,7 +429,7 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       void main(){vUv=uv;vFade=aFade;
         vec4 view=viewMatrix*vec4(instanceMatrix[3].xyz,1.);
         // A distant mote keeps a readable size, so it can always be found.
-        view.xy+=position.xy*max(aSize,-view.z*.028)*step(.001,aSize);
+        view.xy+=position.xy*max(aSize,-view.z*(aSize<.002?.007:.028))*step(.0005,aSize);
         gl_Position=projectionMatrix*view;}`,
     fragmentShader: `
       uniform vec3 uColor; varying vec2 vUv; varying float vFade;
@@ -456,14 +478,24 @@ export function createWorld(seaRoot, gobo, rockTexture) {
       shared.uDensity.value = fogDensity(scale);
       shared.uViewScale.value = Math.pow(scale, .8);
       shared.uFoot.value = 46 + 14 * Math.sqrt(scale);
+      shared.uNear.value = 26 + 16 * scale;
       speckMaterial.uniforms.uBox.value = 170 * Math.pow(scale, .9);
       speckMaterial.uniforms.uPixel.value = Math.min(window.devicePixelRatio || 1, 2);
       if (props.visible && frame++ % 6 === 0) cull(camera, scale, fogDensity(scale));
     },
     refresh() { frame = 0; },
-    showMote(mote, scale, gameMs) {
+    showMote(mote, scale, gameMs, camera, mix) {
       for (let i = 0; i < 8; i++) setMote(i, 0, 0, 0, 0, 0);
       if (mote.active) setMote(0, mote.x, mote.y, mote.z, BODY_LENGTH * scale * .34, mote.fade * (.86 + .14 * Math.sin(gameMs * .004)));
+      if (mix > .01) {
+        const depth = BODY_LENGTH * scale * 14;
+        const right = position.set(1, 0, 0).applyQuaternion(camera.quaternion).clone(), up = size.set(0, 1, 0).applyQuaternion(camera.quaternion).clone();
+        camera.getWorldDirection(look);
+        EMBERS.forEach(([x, y], i) => {
+          const p = camera.position.clone().addScaledVector(look, depth).addScaledVector(right, x * depth * FOV_TAN * camera.aspect).addScaledVector(up, y * depth * FOV_TAN);
+          setMote(i + 1, p.x, p.y, p.z, .001, mix * (.6 + .3 * Math.sin(gameMs * .0013 + i * 2.4)));
+        });
+      }
       motes.instanceMatrix.needsUpdate = true;
       moteGeometry.attributes.aSize.needsUpdate = true;
       moteGeometry.attributes.aFade.needsUpdate = true;
