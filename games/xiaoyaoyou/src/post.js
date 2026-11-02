@@ -301,14 +301,15 @@ precision highp float;
 uniform sampler2D tSource; uniform vec2 uTexel; uniform float uThreshold;
 varying vec2 vUv;
 void main(){
-  vec3 c=(texture2D(tSource,vUv+uTexel*vec2(-1,-1)).rgb+texture2D(tSource,vUv+uTexel*vec2(1,-1)).rgb+
-          texture2D(tSource,vUv+uTexel*vec2(-1,1)).rgb+texture2D(tSource,vUv+uTexel*vec2(1,1)).rgb)*.25;
+  vec4 mean=(texture2D(tSource,vUv+uTexel*vec2(-1,-1))+texture2D(tSource,vUv+uTexel*vec2(1,-1))+
+             texture2D(tSource,vUv+uTexel*vec2(-1,1))+texture2D(tSource,vUv+uTexel*vec2(1,1)))*.25;
+  vec3 c=mean.rgb;
   if(uThreshold>0.){
     float l=max(c.r,max(c.g,c.b));
     c*=smoothstep(uThreshold,uThreshold*1.9,l);
     c=min(c,vec3(9.));
   }
-  gl_FragColor=vec4(c,1.);
+  gl_FragColor=vec4(c,uThreshold>0.?1.:mean.a);
 }`;
 
 const upFragment = `
@@ -324,19 +325,17 @@ void main(){
   gl_FragColor=vec4(c/16.,1.);
 }`;
 
-const compositeFragment = `
+const mergeFragment = `
 precision highp float;
-uniform sampler2D tScene, tVolume, tBloom, tDepth, tCards;
-uniform float uBloom, uExposure, uTime, uGrain, uBlack;
+uniform sampler2D tScene, tVolume, tDepth, tCards;
 uniform vec2 uResolution, uVolumeTexel;
 uniform vec4 uProject;
 uniform float uRim;
 varying vec2 vUv;
-vec3 curve(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
 float coverAt(vec2 uv){return smoothstep(.02,.14,texture2D(tScene,uv).a);}
-float grainAt(vec2 p){p=fract(p*vec2(.1031,.1030));p+=dot(p,p.yx+33.33);return fract((p.x+p.y)*p.x);}
 void main(){
-  vec3 c=texture2D(tScene,vUv).rgb;
+  vec4 scene=texture2D(tScene,vUv);
+  vec3 c=scene.rgb;
   // Joint bilateral upsample, so half-resolution mist keeps silhouettes crisp.
   float here=uProject.x/(uProject.y-texture2D(tDepth,vUv).r);
   vec4 v=vec4(0.);float total=0.;
@@ -349,7 +348,7 @@ void main(){
   v/=total;
   // Kun's alpha lives in the scene target: sheets write no depth, so this keeps
   // him in front of the volume, and the water's alpha of zero leaves it untouched.
-  float foreground=texture2D(tScene,vUv).a;
+  float foreground=max(scene.a,0.);
   c=c*mix(v.a,1.,foreground)+v.rgb*(1.-foreground*.82);
   vec4 card=texture2D(tCards,vUv)*(1.-foreground);
   c=c*(1.-card.a)+card.rgb;
@@ -368,6 +367,26 @@ void main(){
     float rim=pow(mask*(1.-around/8.),1.5)*(.5+.5*(1.-coverAt(vUv+vec2(0.,unit.y*2.))));
     c+=vec3(.97,.92,.8)*rim*uRim;
   }
+  gl_FragColor=vec4(c,scene.a);
+}`;
+
+const gradeFragment = `
+precision highp float;
+uniform sampler2D tMerged, tBloom, tSoft;
+uniform float uBloom, uExposure, uTime, uGrain, uBlack;
+uniform vec2 uResolution, uSoftTexel;
+varying vec2 vUv;
+vec3 curve(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
+float grainAt(vec2 p){p=fract(p*vec2(.1031,.1030));p+=dot(p,p.yx+33.33);return fract((p.x+p.y)*p.x);}
+void main(){
+  vec4 merged=texture2D(tMerged,vUv);
+  // Stone's feet melt into a wide blur of the finished image. The mask is blurred too, so
+  // the melt crosses the outline and leaves no edge against the mist behind. It runs after
+  // the mist, because the mist itself changes sharply at a pillar's outline.
+  vec4 soft=(texture2D(tSoft,vUv+uSoftTexel*vec2(-.5,-.5))+texture2D(tSoft,vUv+uSoftTexel*vec2(.5,-.5))+
+             texture2D(tSoft,vUv+uSoftTexel*vec2(-.5,.5))+texture2D(tSoft,vUv+uSoftTexel*vec2(.5,.5)))*.25;
+  float melt=smoothstep(.06,.62,-soft.a-max(merged.a,0.)*4.)*.92;
+  vec3 c=mix(merged.rgb,soft.rgb,melt);
   c+=texture2D(tBloom,vUv).rgb*uBloom;
   c=curve(max(c*uExposure-uBlack,0.));
   c=mix(c,c*c*(3.-2.*c),.42);
@@ -393,6 +412,8 @@ export function createPost(renderer, gobo, seedRandom) {
   const sceneTarget = new THREE.WebGLRenderTarget(4, 4, { ...hdr, depthBuffer: true, samples: 4, depthTexture });
   const volumeA = new THREE.WebGLRenderTarget(4, 4, hdr), volumeB = new THREE.WebGLRenderTarget(4, 4, hdr);
   const cardTarget = new THREE.WebGLRenderTarget(4, 4, hdr);
+  const mergedTarget = new THREE.WebGLRenderTarget(4, 4, hdr);
+  const soft = Array.from({ length: 4 }, () => new THREE.WebGLRenderTarget(4, 4, hdr));
   const LEVELS = 5;
   const down = Array.from({ length: LEVELS }, () => new THREE.WebGLRenderTarget(4, 4, hdr));
   const up = Array.from({ length: LEVELS - 1 }, () => new THREE.WebGLRenderTarget(4, 4, hdr));
@@ -421,10 +442,13 @@ export function createPost(renderer, gobo, seedRandom) {
   const blur = pass(blurFragment, { tSource: { value: null }, tDepth: { value: depthTexture }, uStep: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() } });
   const downPass = pass(downFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() }, uThreshold: { value: 0 } });
   const upPass = pass(upFragment, { tSource: { value: null }, uTexel: { value: new THREE.Vector2() } });
-  const composite = pass(compositeFragment, {
-    tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tBloom: { value: up[0].texture }, tDepth: { value: depthTexture }, tCards: { value: cardTarget.texture },
+  const merge = pass(mergeFragment, {
+    tScene: { value: sceneTarget.texture }, tVolume: { value: volumeB.texture }, tDepth: { value: depthTexture }, tCards: { value: cardTarget.texture },
+    uResolution: { value: new THREE.Vector2(1, 1) }, uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() }, uRim: { value: .95 },
+  });
+  const grade = pass(gradeFragment, {
+    tMerged: { value: mergedTarget.texture }, tBloom: { value: up[0].texture }, tSoft: { value: soft[3].texture }, uSoftTexel: { value: new THREE.Vector2() },
     uBloom: { value: .34 }, uExposure: { value: .92 }, uBlack: { value: .004 }, uTime: { value: 0 }, uGrain: { value: .006 }, uResolution: { value: new THREE.Vector2(1, 1) },
-    uVolumeTexel: { value: new THREE.Vector2() }, uProject: { value: new THREE.Vector4() }, uRim: { value: .95 },
   });
   function draw(material, target) {
     quad.material = material;
@@ -439,7 +463,7 @@ export function createPost(renderer, gobo, seedRandom) {
     uMist: { value: new THREE.Color('#71868E') }, uGain: { value: .62 }, uTime: { value: 0 }, uScale: { value: 1 }, uDensity: { value: .001 }, uSurface: { value: 640 }, uLight: { value: new THREE.Vector3(0, 1, 0) }, uCamera: { value: new THREE.Vector3() },
   };
   return {
-    uniforms: volume.uniforms, grade: composite.uniforms, sceneTarget, cards: cardUniforms,
+    uniforms: volume.uniforms, grade: grade.uniforms, sceneTarget, cards: cardUniforms,
     setCards(items, sheet) {
       sheet.colorSpace = THREE.NoColorSpace;
       sheet.minFilter = THREE.LinearMipmapLinearFilter;
@@ -471,8 +495,12 @@ export function createPost(renderer, gobo, seedRandom) {
       cardUniforms.uViewport.value.set(halfW, halfH);
       down.forEach((target, i) => target.setSize(Math.max(2, w >> (i + 1)), Math.max(2, h >> (i + 1))));
       up.forEach((target, i) => target.setSize(Math.max(2, w >> (i + 1)), Math.max(2, h >> (i + 1))));
-      composite.uniforms.uResolution.value.set(w, h);
-      composite.uniforms.uVolumeTexel.value.set(1 / halfW, 1 / halfH);
+      soft.forEach((target, i) => target.setSize(Math.max(2, w >> (i + 1)), Math.max(2, h >> (i + 1))));
+      grade.uniforms.uSoftTexel.value.set(1 / soft[3].width, 1 / soft[3].height);
+      mergedTarget.setSize(w, h);
+      merge.uniforms.uResolution.value.set(w, h);
+      grade.uniforms.uResolution.value.set(w, h);
+      merge.uniforms.uVolumeTexel.value.set(1 / halfW, 1 / halfH);
     },
     render(scene, camera, time, withCards = true) {
       renderer.setRenderTarget(sceneTarget);
@@ -494,14 +522,14 @@ export function createPost(renderer, gobo, seedRandom) {
       draw(volume, volumeA);
       const near = camera.near, far = camera.far;
       blur.uniforms.uProject.value.set(near * far / (far - near), far / (far - near), 0, 0);
-      composite.uniforms.uProject.value.copy(blur.uniforms.uProject.value);
+      merge.uniforms.uProject.value.copy(blur.uniforms.uProject.value);
       blur.uniforms.tSource.value = volumeA.texture;
       blur.uniforms.uStep.value.set(1 / volumeA.width, 0);
       draw(blur, volumeB);
       blur.uniforms.tSource.value = volumeB.texture;
       blur.uniforms.uStep.value.set(0, 1 / volumeA.height);
       draw(blur, volumeA);
-      composite.uniforms.tVolume.value = volumeA.texture;
+      merge.uniforms.tVolume.value = volumeA.texture;
       cardUniforms.uProject.value.copy(blur.uniforms.uProject.value);
       cardUniforms.uTime.value = time;
       cardUniforms.uCamera.value.copy(camera.position);
@@ -523,12 +551,21 @@ export function createPost(renderer, gobo, seedRandom) {
         upPass.uniforms.uTexel.value.set(1 / from.width, 1 / from.height);
         draw(upPass, up[i]);
       }
-      composite.uniforms.uTime.value = time;
-      draw(composite, null);
+      draw(merge, mergedTarget);
+      let wide = mergedTarget.texture;
+      downPass.uniforms.uThreshold.value = 0;
+      for (const target of soft) {
+        downPass.uniforms.tSource.value = wide;
+        downPass.uniforms.uTexel.value.set(.5 / target.width, .5 / target.height);
+        draw(downPass, target);
+        wide = target.texture;
+      }
+      grade.uniforms.uTime.value = time;
+      draw(grade, null);
     },
     dispose() {
-      for (const target of [sceneTarget, volumeA, volumeB, cardTarget, ...down, ...up]) target.dispose();
-      for (const material of [volume, blur, downPass, upPass, composite]) material.dispose();
+      for (const target of [sceneTarget, mergedTarget, volumeA, volumeB, cardTarget, ...down, ...up, ...soft]) target.dispose();
+      for (const material of [volume, blur, downPass, upPass, merge, grade]) material.dispose();
       depthTexture.dispose(); mist.dispose(); quad.geometry.dispose();
     },
   };

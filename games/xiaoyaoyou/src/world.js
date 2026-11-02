@@ -136,7 +136,14 @@ function rockMaterial(shared, instanced) {
           float foot=1.-smoothstep(0.,rise,vWorld.y);
           c=mix(c,mix(uAbyss*1.1,low,f),foot*foot*.92);
         #endif
-        gl_FragColor=vec4(c,0.);
+        // Stone ends at its own uneven height. A negative alpha asks the composite to melt it
+        // into a blur of the scene, so a pillar has no lower contour to trace.
+        float melt=0.;
+        #ifdef USE_ROCK_INSTANCING
+          float footing=uFoot*(.16+.9*fbm2(vWorld.xz*.011/uViewScale+vec2(uTime*.008,0.)));
+          melt=1.-smoothstep(footing*.1,footing,vWorld.y);
+        #endif
+        gl_FragColor=vec4(c,-melt);
         #include <colorspace_fragment>
       }`,
   });
