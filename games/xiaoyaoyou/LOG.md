@@ -746,10 +746,12 @@ What I learned tuning it, every step measured with `tools/view_angle.mjs`:
 
 | Share of play | ec40098 | Flank, no clearance | Final |
 |---|---:|---:|---:|
-| Desktop, stone in front of Kun | 1% | 4% | **0%** |
+| Desktop, stone in front of Kun | 1% | 3% | **0%** |
 | Narrow, stone in front of Kun | 5% | 4% | **2%** |
 | Desktop, over 45° off the tail | 3% | 100% | **93%** |
 | Narrow, over 30° off the tail | 0% | 100% | **77%** |
+
+All three columns are measured with the same final sight-line test, on the same journey. The first measurement used a cruder height test, which is why the paragraph above says 4% for desktop.
 
 The narrow number is the cost of this fix and it is real: for about a fifth of play on a phone the camera is well behind Kun, and the tail-on silhouette he objected to returns while stone goes by. `CLEARANCE_PORTRAIT.closest` is the single dial: 0.55 gives 85% over 30° and stone in front 4% of the time.
 
