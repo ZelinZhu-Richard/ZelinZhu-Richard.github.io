@@ -1,5 +1,77 @@
 # MORNING.md: report
 
+## Fin pass, 2026-11-02
+
+**Recommendation: keep it. In gameplay Kun now reads as a whale at a glance, body first and fins secondary, and this is clearly better than `ec40098`, which stays in git as the fallback.** M3, M4 and M5 all PASS on `a07d303`. Done in 1 h 28 min of the 2-hour box. M4's box is yours to tick; I left it. No M6, nothing pushed, nothing outside `games/xiaoyaoyou/`.
+
+### Before and after
+
+Each sheet is key art, `ec40098`, new. To open them, run `python3 -m http.server 8101 --bind 127.0.0.1` from the worktree root, then visit `http://127.0.0.1:8101/games/xiaoyaoyou/_dev/evidence/compare-fins/gameplay-desktop.png`. They are gitignored, on this machine; `python3 tools/before_after.py` rebuilds them.
+
+| Shot | Desktop | Narrow |
+|---|---|---|
+| Gameplay | [sheet](_dev/evidence/compare-fins/gameplay-desktop.png) | [sheet](_dev/evidence/compare-fins/gameplay-narrow.png) |
+| Full growth | [sheet](_dev/evidence/compare-fins/full-growth-desktop.png) | [sheet](_dev/evidence/compare-fins/full-growth-narrow.png) |
+| Title | [sheet](_dev/evidence/compare-fins/title-desktop.png) | [sheet](_dev/evidence/compare-fins/title-narrow.png) |
+
+Twelve moments across the journey, new build: [desktop](_dev/evidence/gameplay/gameplay-sheet-desktop.png), [narrow](_dev/evidence/gameplay/gameplay-sheet-narrow.png). Look at these too, because you asked for "most of the time".
+
+### IoU
+
+| Fin scale | Sweep upper/lower | Side IoU | Top IoU | Status |
+|---:|---:|---:|---:|---|
+| 1.95 | 84/78 | 0.6240 | 0.5800 | `ec40098` |
+| **1.7** | **84/78** | **0.6500** | **0.6617** | **New.** Not a gate, as you said |
+
+The fins still trail along the body at 1.7, so sweep stayed. Only the four `kun_fin_*` meshes changed; the other 26 objects, all UVs, the swim shader and triangle counts are identical.
+
+### What changed
+
+| Your item | Result |
+|---|---|
+| a. Fin scale | 1.7, sweep kept |
+| b. Dissolve | Alpha reaches exactly 0 on the outline, so no cut line can show. The fade is about 16% of the membrane's width per side, and 29% on the two long straight edges. By area that is more than "the outer 20%": a thin sheet is nearly all edge, so 47% stays solid |
+| c. Soft ink | The ink bleeds and lifts to a mid wash, undersides most. The body's paint is untouched, and fins take less of the key light, so the body is the brightest thing |
+| d. Camera | Measured first: it was already 43° off the tail on desktop and 19° on narrow, so "20 to 30°" from dead behind would have moved desktop backward. I moved it that far from where it sat: now 65° and 46°, and 9.4° below Kun instead of 3.2° |
+
+M3's numbers all hold: journey 115.0 s, Kun's height +10.2% and +9.2%, `ref-pillar-1` 0.236× and 0.221×, input unchanged. Title, portrait title, social image and making-of images and numbers are regenerated from the final build.
+
+### What you should know
+
+1. **On a phone, the fix for hidden Kun costs some flank.** Codex failed the first build because a pillar hid Kun completely on narrow. That was already happening in `ec40098`, 5% of play on narrow. The camera now swings in behind Kun as stone passes, so the tail-and-fin-tops view you objected to comes back for about a fifth of play on a phone. Your call: `CLEARANCE_PORTRAIT.closest` in `src/journey.js` is the one dial. Now 0.3; at 0.55 the flank holds more but stone hides Kun more.
+
+   | Share of play | `ec40098` | New |
+   |---|---:|---:|
+   | Desktop: over 45° off the tail | 3% | **93%** |
+   | Desktop: stone hides Kun | 1% | **0%** |
+   | Narrow: over 30° off the tail | 0% | **77%** |
+   | Narrow: stone hides Kun | 5% | **2%** |
+
+2. **I added one thing you didn't ask for.** From the flank, what lies ahead is off the frame: without a fix the next mote was in frame 0% of the time on narrow (19% before), and no M3 metric catches that. So the mote's red glow now reaches in from the frame edge until it swims into view. Set `gain` in `MOTE_EDGE`, `src/world.js`, to 0 to remove it.
+3. **The fins' mesh has a defect, worked around and not fixed.** The traced sheet has overlapping coplanar triangles, which drew a fan of pale ribs once the fins went translucent. A stencil hides it and the mesh is unchanged, because geometry is frozen. It belongs in v1.1, and the tail is the same kind of sheet.
+4. **The tail did change, slightly.** The rim fix makes its rim about a pixel slimmer on some edges. Same by eye. From the flank the fluke now reads thin or claw-like in some frames; I left that for v1.1 as you said.
+5. **Full growth and the title lost some highlight.** The cream fins were carrying part of the bright range: p95 at full growth went from 180 to 118, against the key art's 171. The fins are meant to be secondary, so I left it, but it is a real change to a frame you approved.
+6. **Two lines of your making-of copy are now wrong.** I didn't edit them. "The fins have the crisp edge of cut paper instead of dissolving into the water" is no longer true. "the fins were pushed well past the sheet" describes the old 1.95 build.
+7. **The phone is still untested,** and the 60 fps check is still yours. This Mac holds 60.0 at both pixel ratios at four journey points.
+
+### Codex
+
+Model `gpt-6.1-sol`, read-only, evidence bundles only. The reviewer prompt now carries your decision in your words. I did not explain the edge glow to it, so it was judged cold.
+
+| Milestone | Review | Commit | Verdict | Main finding |
+|---|---:|---|---|---|
+| M4 / M3 | 13 / 10 | `c72ecfa` | FIX | A pillar hides Kun on narrow. Everything you reopened passed |
+| M5 | 8 | `c72ecfa` | BLOCK | My mistake: gameplay sheets left out of the bundle |
+| M4 / M3 | 14 / 11 | `95146a0` | PASS | |
+| M5 | 9 | `95146a0` | FIX | A straight cut line left on the far upper fin. M4's reviewer had passed the same frames, but the finding was right |
+| **M4 / M3 / M5** | **15 / 12 / 10** | **`a07d303`** | **PASS** | Final. One minor note: fine streaks inside the pale fin |
+
+Automated checks on `a07d303`: 27 of 27, 31 of 31 and 35 of 35 true, clean console. Peak 79 draw calls, 284,429 triangles, 10.8 MB download, ready in 0.6 s. Full reasoning is in LOG.md.
+
+---
+
+# Second run report (2026-11-01, superseded where it differs from the above)
+
 **Second run:** started 2026-11-01 21:37 EST, finished 23:57 EST the same night, against a 7-hour limit. M4's 3-hour box ran 21:42 to 00:42, and the last M4 review finished at 00:07.
 Status: FINAL. Final code commit: `ec40098`. M4 was reviewed once more at `f54cf31`, with the same game build and a PASS. Only notes changed after that. Nothing pushed, nothing outside `games/xiaoyaoyou/` changed. Boxes stay unticked, because you kept NIGHT.md's rule: M2's approval and M3's clearance are recorded in LOG.md.
 

@@ -682,3 +682,101 @@ Boxes stay unticked. Details and the open decision are in MORNING.md.
 ### M4 review 12 on f54cf31 (2026-11-02 00:07 EST)
 
 **PASS**, 4 of 4 criteria, on a fresh capture of the last commit: 31 of 31 checks, clean. The game build is identical to ec40098; between them only notes and the making-of page's images and numbers changed. Two minor notes: shaft streaks and surface flecks. Commits after f54cf31 touch only LOG.md and MORNING.md, which do not make evidence stale under REVIEW_RUBRIC §1.
+
+## Richard's morning decisions (2026-11-02 00:29 EST; fin pass begins, box ends 02:29)
+
+M2, M3 and M5 approved, boxes ticked in `34b8d49`. M4: "environment, light and composition approved. Kun's fins are reopened." Box stays unticked until the pass lands. 6A: "not waiving 1.95." "IoU is no longer the gate; readability is." His full wording is in PLAN.md Decisions, because the reviewer reads that file. `ec40098` is kept as the fallback, its frames copied to `_dev/evidence/ec40098/` before any capture overwrote them.
+
+### Measured before anything changed
+
+The brief says "offset 20 to 30 degrees". The camera was not dead behind, so I measured where it really sat, with `tools/view_angle.mjs`, over the journey's play phase: 43° off the tail on desktop, 19° on narrow, 3.2° below Kun. A 20 to 30° camera taken literally would have moved desktop back toward the tail, the opposite of his goal. So I read it as 20 to 30° further round from where each camera sat, and logged that here.
+
+### What changed
+
+| Item | ec40098 | Now |
+|---|---:|---:|
+| PECTORAL_FIN_SCALE | 1.95 | **1.7** |
+| UPPER_FIN_SWEEP_DEGREES | 84 | 84, fins still trail along the body |
+| LOWER_FIN_SWEEP_DEGREES | 78 | 78 |
+| Side IoU | 0.6240 | **0.6500** |
+| Top IoU | 0.5800 | **0.6617** |
+| Camera off the tail at rest, desktop | 43° | 65°, +22° |
+| Camera off the tail at rest, narrow | 19° | 46°, +27° |
+| Camera below Kun | 3.2° | 9.4° |
+
+`tools/check_kun.py --fin-constants --scale 1.7`: only the four `kun_fin_*` meshes changed, 26 other objects identical, all UVs, the swim shader and triangle counts identical.
+
+- **Dissolve.** `tools/fin_edge.py` bakes `assets/fin-edge.webp`, 8 KB, procedural, in fin UV space. The noise only subtracts, so alpha is exactly 0 on the traced outline and the cut line cannot show. It is applied only in the sea look, so the grey `?view=` sheets still compare with Blender, and only on the four fins, so the tail is unchanged. The fade runs about 16% of the membrane's width per side on the ragged edges and about 29% on the two straight runs (outline points 30 to 50), which is where he asked for the break. By area that is more than "the outer 20%": 47% of the membrane stays solid, 33% is in the fade and 21% is gone, because a thin sheet is nearly all edge. The area round the root is held, so fins stay attached.
+- **Soft ink.** The paint's low mips bleed the blotch edges, the darks lift to a mid wash, undersides most, and alpha comes from the bled paint. Undersides see only the fill light, which keeps every value ratio, so lifting the darks alone did nothing: they also have their value range narrowed. The body's landscape paint is untouched. Fins also take 66% of the key, so the body is the brightest large form.
+- **Post rim.** It is drawn from alpha coverage, saturating at alpha 0.14, so it put a pale contour along every dissolving edge. It now needs the pixel itself to be properly opaque. Body and tail keep theirs.
+
+### Found on the way
+
+**The pale ribs were a mesh defect, not a shading one.** Long fine bright lines fanned across the fins. I guessed three times and was wrong each time: caustics, sliver normals, flipped winding. Each "fix" seemed to help a little on a single frame, because I was changing brightness. So I stopped guessing and isolated it: flat albedo kept them, constant alpha only dimmed them, removing the paper term and the rim did nothing, a facing debug showed every fragment front-facing. Constant grey at half alpha still showed them, and a uniform half-alpha sheet can only get brighter by being drawn twice. **The traced fin sheet has coplanar overlapping triangles.** They have been there since the sheet was built; opaque ink and bright cream hid them. Depth writes cannot help because coplanar layers pass the depth test. Geometry is frozen, so a stencil now lets each fin draw a pixel once. The three wrong patches were all removed. The real cure is at the mesh, as v1.1 work. The tail is the same kind of sheet and may have the same defect; it is out of scope and untouched.
+
+**The two-pass draw.** Three.js draws transparent double-sided materials in two passes, so `DOUBLE_SIDED` is never defined for them and `n` keeps the mesh's own side. That existing `#ifdef` is dead code. `under` therefore has to work out the viewer's side itself.
+
+**The flank camera hides the next mote.** No M3 metric would have caught this. From 66° off the tail anything dead ahead is outside a ±32° view, and narrow has only about ±10°.
+
+| Mote in frame while active | ec40098 | Flank camera alone |
+|---|---:|---:|
+| Desktop | 32%, first seen at 16.7 body lengths | 9%, first seen at 1.8 |
+| Narrow | 19% | **0%** |
+
+Swinging the camera back for each mote would undo what he asked for, and moving the motes risks M3's pacing. So when the mote is off the frame, its glow reaches in from that edge and gives way to the mote as it comes into view. This is mine, not his: `MOTE_EDGE` in `src/world.js`, and a gain of 0 removes it.
+
+**Stone in front of Kun.** Twelve frames across the journey showed narrow's t78 with Kun hidden behind a pillar. Measured: desktop 1% to 4% of play, narrow 5% to 4%. About 4 seconds in total, passing, and he asked for pillars close by, so I left it and listed it.
+
+### Reviews on the first candidate, c72ecfa
+
+M4 review 13 and M3 review 10 both returned **FIX** on one major finding, and passed everything he reopened: "A stranger would call the visible creature a whale." The finding: a foreground pillar hides Kun completely in one narrow sample. M5 review 8 returned BLOCK, which was my mistake: the prompt requires the gameplay sheets, and I had not passed them to the M5 bundle.
+
+I had seen that frame, measured it and left it as passing parallax: 1% to 4% on desktop, 5% to 4% on narrow, so not a regression. Both reviewers disagreed and they were right that it is a defect, whether or not it was new. M3 had passed before only because no evidence frame happened to land on it, and this time twelve frames across the journey did.
+
+### The camera keeps stone out of the sight line
+
+The sight line sweeps forward with Kun, so a pillar in the swept area is crossed unless the camera passes inside it. Fading stone would bring back the stipple Codex rejected in review 4, and clearing a sphere round the camera would remove the close stone he asked for. So the camera swings in behind Kun, lets the stone slide past outside it, and returns to the flank. `CLEARANCE` in `src/journey.js`.
+
+What I learned tuning it, every step measured with `tools/view_angle.mjs`:
+
+- The first version went almost dead behind, and the frames showed the tail-and-fin-tops view he objected to. It was swapping a 2-second blackout for 6 seconds of the wrong silhouette.
+- Half the swings were false alarms. My height test used the camera's height, and the camera now sits low. A crown below the sight line where they cross passes under it. Testing the true sight line kept 92% of desktop play above 45°, up from 87%.
+- A pure swing cannot both keep the flank and clear a pillar beside Kun. Closing up as it swings clears the stone at a wider angle, because both shrink the camera's sideways reach. I assumed Kun would then hold its size on screen. It did not: at 0.68 of the distance, perspective swelled the near tail and Kun reached 116% of the frame. 0.85 fits desktop.
+- Narrow has no width to spare. Any close-up put the tail off the left edge, so portrait only swings, floored at 17° off the tail.
+
+| Share of play | ec40098 | Flank, no clearance | Final |
+|---|---:|---:|---:|
+| Desktop, stone in front of Kun | 1% | 4% | **0%** |
+| Narrow, stone in front of Kun | 5% | 4% | **2%** |
+| Desktop, over 45° off the tail | 3% | 100% | **93%** |
+| Narrow, over 30° off the tail | 0% | 100% | **77%** |
+
+The narrow number is the cost of this fix and it is real: for about a fifth of play on a phone the camera is well behind Kun, and the tail-on silhouette he objected to returns while stone goes by. `CLEARANCE_PORTRAIT.closest` is the single dial: 0.55 gives 85% over 30° and stone in front 4% of the time.
+
+### Review 14 and the last cut line (95146a0)
+
+M4 review 14 and M3 review 11: **PASS**. M5 review 9 passed its own four criteria and raised one fin finding: a thin straight contour on the far upper fin, in `kun-view-three-quarter-desktop.png` and `north-text-desktop.png`. M4's reviewer had passed the same frames. I looked, and M5's was right: it is the cut line he told me to remove. The dissolve was correct in fin space, but a sheet seen nearly edge-on squeezes a wide fade into a few pixels, steep enough to trip the rim again.
+
+Two changes. The veil thins as a fin turns edge-on. The first try used per-vertex normals and drew dark hatching, for the same reason as above, so it reads the fin's mean normal. And the rim's neighbour test now counts even faint alpha as covered, so only truly hard silhouettes qualify.
+
+That rim change touches the tail, which is out of scope. Compared at a pinned swim phase its rim is about a pixel slimmer on some edges (mean difference 0.36 of 255 in the tail's box). It is still there, and the two are the same by eye. The rim needs alpha coverage and has no way to tell a fin from a tail, so I accepted this rather than add plumbing to the merge pass.
+
+### Final verdicts, fin pass (2026-11-02 01:57 EST)
+
+M4 review 15: **PASS**, M3 review 12: **PASS**, M5 review 10: **PASS**, all on a07d303, 1 h 28 min into the 2-hour box. One minor note, from M5: fine parallel dark streaks inside the pale fin in the close-up and at full growth. That is the 14% of sharp paint left in the wash. Left as it is, because the PASS was on this build.
+
+| Milestone | Review | Commit | Verdict | Findings |
+|---|---:|---|---|---|
+| M4 | 13 | c72ecfa | FIX | Pillar hides Kun on narrow. Everything reopened passed |
+| M3 | 10 | c72ecfa | FIX | Same |
+| M5 | 8 | c72ecfa | BLOCK | Gameplay sheets missing from the bundle, my mistake |
+| M4 | 14 | 95146a0 | PASS | |
+| M3 | 11 | 95146a0 | PASS | |
+| M5 | 9 | 95146a0 | FIX | Straight cut line on the far upper fin. Own criteria pass |
+| M4 | 15 | a07d303 | **PASS** | Final |
+| M3 | 12 | a07d303 | **PASS** | Final |
+| M5 | 10 | a07d303 | **PASS** | Final. One minor note |
+
+Final capture on a07d303: 27 of 27, 31 of 31 and 35 of 35 checks true, clean console, 79 draw calls, 284,429 triangles, 10,846,225 bytes, ready in 0.56 s, journey 115.0 s. Kun's height changes +10.2% desktop and +9.2% narrow, `ref-pillar-1` 0.236× and 0.221×. 60.0 fps at both pixel ratios at four journey points on this Mac. IoU side 0.6500, top 0.6617.
+
+M4's box stays unticked: this is the reviewer's PASS, and PLAN Decisions tick a box only on Richard's OK.
