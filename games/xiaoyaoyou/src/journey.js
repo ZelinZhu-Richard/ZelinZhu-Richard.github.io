@@ -73,7 +73,7 @@ export function createJourney(pillars) {
     const scale = j.targetScale;
     const speed = SPEED.held * BODY_LENGTH * Math.pow(scale, .96);
     const distance = speed * MOTE.spawnSeconds;
-    const radius = 620 + (scale - 1) * 206;
+    const radius = 620 + (scale - 1) * 226;
     const bearing = Math.atan2(j.x - PILLAR_CENTER.x, j.z - PILLAR_CENTER.z);
     const a = bearing + distance / Math.max(radius, radial() + 1);
     const ox = PILLAR_CENTER.x + Math.sin(a) * radius, oz = PILLAR_CENTER.z + Math.cos(a) * radius;
@@ -216,7 +216,8 @@ export function createJourney(pillars) {
     const aimX = j.x + sideX + lookYaw[0] * ahead * size;
     const aimY = baseY;
     const aimZ = j.z + sideZ + lookYaw[2] * ahead * size;
-    const follow = j.cam.ready ? Math.min(1, dt * 4) : 1;
+    // The posed shots follow tightly, so Kun's first strokes stay in the composed frame.
+    const follow = j.cam.ready ? Math.min(1, dt * (4 + 14 * mix)) : 1;
     const cam = j.cam;
     cam.x += (j.x + sideX + c[0] * distance - cam.x) * follow;
     cam.y += (baseY + c[1] * distance - cam.y) * follow;
