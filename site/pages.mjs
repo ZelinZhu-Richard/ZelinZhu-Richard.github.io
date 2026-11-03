@@ -1,11 +1,12 @@
 import { LINKS, ABOUT, EXPERIENCE, PROJECTS, SKILLS } from './content.mjs';
+import { skillsPage } from '../workspace/skills/page.mjs';
 import { videoPage } from '../workspace/video/page.mjs';
 import { nowPage } from '../workspace/now/page.mjs';
 import { NOW } from '../workspace/now/now.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
-const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/now/','Now'],['/daily/','Daily'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],['/github/stars/','Stars'],[LINKS.resume,'CV'],['/contacts/','Contact']];
+const nav = [['/work/','Work'],['/about/','About'],['/research/','Research'],['/skills/','Skills'],['/now/','Now'],['/daily/','Daily'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],['/github/stars/','Stars'],[LINKS.resume,'CV'],['/contacts/','Contact']];
 const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet } = {}) => `<!doctype html>
 <html lang="en">
 <head>
@@ -105,6 +106,7 @@ export function pages() {
 <div class="actions">${link('/work/','Explore the projects')}${link(LINKS.github,'GitHub')}</div>
 </section>`;
   return new Map([
+    ['skills/index.html',frame('/skills/','Skills','AI agent skills Richard Zhu uses and creates, with source repositories and notes on design and testing.',skillsPage,{ stylesheet: '/skills/style.css' })],
     ['video/index.html',frame('/video/','Neon Rain — Video','Neon Rain: an agentic AI filmmaking experiment by Richard Zhu, combining GPT Image, computer graphics, and temporal validation into a 10-second sci-fi noir film.',videoPage,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: '/video/style.css' })],
     ['now/index.html',frame('/now/','Now','What Richard Zhu is studying, has shipped, and plans next: a running log, updated as things move.',nowPage(NOW),{ stylesheet: '/now/style.css' })],
     ['work/index.html',frame('/work/','Work','Projects by Richard Zhu: Nexus Tensor Alpha, EqualVoice, Apex Analysis, Paper Piano, Gym, Domain Expansion, Neon Rain, and Daily.',work)],

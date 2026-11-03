@@ -20,3 +20,39 @@ artifacts/
 /workspace/polaris-capstone/
 /workspace/daily/_private/
 /workspace/hq/_private/
+
+# Private material stays local throughout the workspace.
+**/_private/
+
+# Independent local repositories and tooling.
+/workspace/ascii-sharks-site/
+/workspace/github-stars-site/
+/workspace/hair-cut-site/
+/workspace/skills-site/
+/workspace/video-site/
+/workspace/game-prompts/
+/workspace/daily-worktree/
+/workspace/supabase-worktree/
+/workspace/security-check/
+/workspace/domainexp/integrate.py
+/.claude/worktrees/
+/.claude/settings.local.json
+
+# Local integration worktrees and review evidence.
+/workspace/site-sync-*/
+/workspace/sync-review-*/
+
+# Personal application and deadline planning from the local WIP snapshot.
+/site/future-plan.mjs
+/site/execution-plan.mjs
+/site/execution-view.mjs
+
+# Generated previews and GitHub Stars acquisition intermediates.
+/workspace/name-centered.png
+/workspace/github-stars/data/page-*.json
+/workspace/github-stars/data/headers.txt
+/workspace/github-stars/data/readme-*.txt
+/workspace/github-stars/data/review.txt
+/workspace/github-stars/data/classifications-first.json
+/workspace/github-stars/data/classifications-middle.json
+/workspace/github-stars/data/classifications-last.json
