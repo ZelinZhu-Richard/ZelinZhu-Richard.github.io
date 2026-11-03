@@ -347,7 +347,7 @@ void main(){ vec4 p = texture(t_src, v_uv); o = vec4(p.w > 0.0 ? max(-p.y, 0.0) 
         if st.steam is not None:
             rows = st.steam.puffs(st.t, st.cam, W, H, mirror=True)
             self.steam.draw(self.f_refl, rows, W, H, depth_tex=cel.t_p if (items or plat_items) else None, mirror=True,
-                            gain=0.85)
+                            gain=0.85, line_min_r=st.steam.line_min_r)
         if st.sky_clouds:
             self.steam.draw(self.f_refl, self.clouds.rows(st.t, st.cam, W, H, mirror=True), W, H, mirror=True,
                             colors=CLOUD_COLORS, line_w=1.0, hi=0.6, line_on=0.0)
@@ -410,7 +410,8 @@ void main(){ vec4 p = texture(t_src, v_uv); o = vec4(p.w > 0.0 ? max(-p.y, 0.0) 
         self.f_fxf.use(); self.f_fxf.clear(0, 0, 0, 0)
         if st.steam is not None:
             rows = st.steam.puffs(st.t, st.cam, W, H)
-            self.steam.draw(self.f_fxf, rows, W, H, depth_tex=cel.t_p if (items or plat_items) else None)
+            self.steam.draw(self.f_fxf, rows, W, H, depth_tex=cel.t_p if (items or plat_items) else None,
+                            line_min_r=st.steam.line_min_r)
         if st.sky_clouds:
             self.steam.draw(self.f_fxb, self.clouds.rows(st.t, st.cam, W, H), W, H, colors=CLOUD_COLORS, line_w=1.2,
                             hi=0.6, line_on=0.0)

@@ -19,6 +19,7 @@ uniform float u_lineW;
 uniform float u_mirror;
 uniform float u_hiAmt;
 uniform float u_lineOn;
+uniform float u_lineMinR;   // puffs smaller than this (px) carry no interior lines
 uniform float u_thinAlpha;
 uniform float u_gain;       // overall opacity (reflections)
 out vec4 o;
@@ -85,7 +86,7 @@ void main(){
   // interior lines between billows: few, mostly continuous, a colour between the line and the shade
   float il = (1.0 - smoothstep(lw*0.4, lw*0.4 + 0.8, f1.x))*f1.y*u_lineOn;
   il *= smoothstep(0.18, 0.38, vnoise(vec2(phase*0.53, 3.0) + p/(R*0.6)));
-  il *= inside;
+  il *= inside*smoothstep(u_lineMinR*0.7, u_lineMinR*1.3 + 1e-3, R);
   vec3 ilc = mix(mix(u_line, u_shade, 0.4), u_line*0.85, shade);
   c = mix(c, ilc, il*0.85);
   float aD = max(inside, edge);

@@ -42,8 +42,14 @@ def _whistle(a):
 class Steam:
     """s_of_t: callable t -> loco front track distance. mode_of_t: t -> ('work'|'coast'|'off', strength)."""
 
-    def __init__(self, s_of_t, mode_of_t, whistles=(), life=82, seed=1, rel_speed=None, sparkle=False):
+    def __init__(self, s_of_t, mode_of_t, whistles=(), life=82, seed=1, rel_speed=None, sparkle=False, emit_every=None,
+                 lift=0.0, line_min_r=0.0):
         self.s_of_t, self.mode_of_t = s_of_t, mode_of_t
+        self.lift = lift              # extra rise (m) the exhaust gains as it ages, so a far plume clears the train
+        self.line_min_r = line_min_r  # puffs smaller than this (px) carry no interior lines
+        # a fixed cadence (frames per exhaust beat) for an accelerating engine far down the line, where the
+        # beat-by-distance rule (whose beat length grows with speed) would all but stop emitting
+        self.emit_every = emit_every
         self.rel_speed = rel_speed    # follow shots: plume streams back at this speed relative to the engine
         self.sparkle = sparkle
         self.whistles = whistles      # list of (t0, t1)
@@ -63,6 +69,9 @@ class Steam:
             s = self.s_of_t(tf)
             if mode == 'work' and self.rel_speed is not None:
                 if f % 6 == 0:
+                    out.append((tf, 0, strength, f))
+            elif mode == 'work' and self.emit_every:
+                if f % self.emit_every == 0:
                     out.append((tf, 0, strength, f))
             elif mode == 'work':
                 v = abs(self.s_of_t(tf + 0.05) - self.s_of_t(tf - 0.05)) / 0.1
@@ -140,6 +149,7 @@ class Steam:
                 size = _size(aq) * strength * vs * (1.0 + 0.035 * max(abs(v_e) - 10.0, 0.0))
                 R = CHIMNEY_R * size * 1.5
                 rise += vy * 0.4 * R * min(aq / 20.0, 1.0)
+                rise += self.lift * float(np.clip((aq - 6.0) / 40.0, 0, 1)) ** 0.8
             elif kind == 1:
                 rise = 1.1 * (1 - math.exp(-aq / 12.0)) + 0.012 * aq
                 drift = v_e * 0.25 * (8.0 / FPS) * (1 - math.exp(-aq / 8.0))
@@ -226,7 +236,7 @@ class SteamPainter:
             self.size = (w, h)
 
     def draw(self, fbo, rows, w, h, depth_tex=None, mirror=False, colors=None, line_w=1.5, hi=0.35, line_on=1.0,
-             thin_alpha=0.5, gain=1.0):
+             thin_alpha=0.5, gain=1.0, line_min_r=0.0):
         if len(rows) == 0:
             return
         self._targets(w, h)
@@ -242,7 +252,7 @@ class SteamPainter:
         u = {'u_res': (w, h), 'u_margin': float(self.MARGIN), 'u_useDepth': 1.0 if depth_tex else 0.0,
              'u_light': (-0.45, 0.89), 'u_base': c['base'], 'u_shade': c['shade'], 'u_line': c['line'], 'u_hi': c['hi'],
              'u_warm': c['warm'], 'u_lineW': line_w, 'u_mirror': 1.0 if mirror else 0.0, 'u_hiAmt': hi,
-             'u_lineOn': line_on, 'u_thinAlpha': thin_alpha, 'u_gain': gain}
+             'u_lineOn': line_on, 'u_thinAlpha': thin_alpha, 'u_gain': gain, 'u_lineMinR': line_min_r}
         tex = {'t_f0': self.t0, 't_f1': self.t1, 't_f2': self.t2}
         if depth_tex:
             tex['t_depth'] = depth_tex

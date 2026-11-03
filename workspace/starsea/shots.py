@@ -337,7 +337,7 @@ class S10(Shot):
         return Camera(pos=(640, 8, 265), yaw=14, pitch=0, vfov=50, shift=(0.0, 0.40 + 0.42 * u))
 
     def steam(self):
-        return Steam(self.s, lambda t: ('work', 1.4), sparkle=True)
+        return Steam(self.s, lambda t: ('work', 1.75), sparkle=True, emit_every=2, lift=5.0, line_min_r=45.0)
 
     def state(self, T, frame):
         s = self.s(q2(T, 2))
