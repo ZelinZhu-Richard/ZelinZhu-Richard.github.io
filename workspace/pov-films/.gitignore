@@ -1,0 +1,16 @@
+# Large or third-party material stays local.
+assets/*
+!assets/LICENSES.md
+reference/
+renders/
+out/
+films/*/stills/*.png
+films/*/web/*
+!films/*/web/viewer.json
+*.blend
+*.blend1
+kit_frozen/
+films/*/build_render.py
+__pycache__/
+films/*/plates/
+films/*/audio.wav

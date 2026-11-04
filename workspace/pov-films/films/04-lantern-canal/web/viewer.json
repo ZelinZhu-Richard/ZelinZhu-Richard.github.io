@@ -1,0 +1,19 @@
+{
+  "view": "neutral",
+  "exposure": -0.4,
+  "saturation": 1.2,
+  "grade": { "split_tint": [0.86, 0.97, 1.14], "split_from": 0.003, "split_to": 0.06 },
+  "bloom": { "strength": 0.23, "radius": 0.28, "threshold": 0.5, "knee": 0.8, "saturation": 1.15 },
+  "world_light": { "gain": 0.05, "tint": [0.55, 0.7, 1.0], "ambient": [0.005, 0.009, 0.04] },
+  "env_intensity": 1.0,
+  "post": { "vignette": 0.3, "vignette_radius": 0.62, "grain": 0.016, "dispersion": 0.0 },
+  "fog_density": 0.002,
+  "light_units": "spec",
+  "lights": {
+    "point": 32,
+    "spot": 8,
+    "priority": { "^FestLight": 4, "^BridgeLamp": 2, "^LotusLight": 0.3, "^BoatLight": 0.5 },
+    "specular": { "^MoonLight$": 0 }
+  },
+  "mirror": { "strength": 0.9 }
+}

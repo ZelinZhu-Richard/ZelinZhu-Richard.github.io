@@ -1,0 +1,20 @@
+{
+  "_note": "Film finish: Khronos PBR Neutral, comp saturation 1.4, black point 0.003 and luma contrast 1.12 (post_grade), world gain 0 with the film's blue ambient. Exposure -0.9 (film -0.95): the web has no volume in-scatter or DOF bloom, so mid thirds ran 7-14 percent dark at -0.95. Bloom 0.2 / 0.3 / 1.4: the kit-proportional 0.085 / 0.7 put a warm veil over the window sky (top +15 percent at 1 and 4 s); a tighter kernel with more strength keeps the glow round the windows. Spot budget 16 and priorities: BlueFill's stand-in (priority 40 in the glb) and the teddy's rims take 3 slots all film, BearCool / BearWarm / PillowWash light the teddy's face and DollUp / DollSpill the dollhouse facade at 1-4 s. MoonSun specular 0.3: in Blender it is light-linked off the floor, and at full specular it lays a wide cool highlight on the floor in the bottom corners. BearRim specular 0.3: at grazing angles the 145 kW rim stand-ins drew white outlines round the muzzle and ears. The floor mirror comes from the Floor's mirror_strength / mirror_streak extras.",
+  "view": "neutral",
+  "exposure": -0.9,
+  "saturation": 1.4,
+  "grade": { "black": 0.003, "contrast": 1.12, "contrast_mode": "luma" },
+  "bloom": { "strength": 0.2, "radius": 0.3, "threshold": 1.4, "knee": 2.0, "saturation": 1.15 },
+  "world_light": { "gain": 0.0, "tint": [0.7, 0.8, 1.0], "ambient": [0.002, 0.008, 0.045] },
+  "env_intensity": 1.0,
+  "post": { "vignette": 0.3, "vignette_radius": 0.62, "grain": 0.022, "dispersion": 0.006 },
+  "fog_density": 0.0017,
+  "light_units": "spec",
+  "lights": {
+    "spot": 16,
+    "priority": { "^BearCool": 40, "^BearWarm|^PillowWash": 16, "^DollUp|^DollSpill": 6 },
+    "specular": { "^MoonSun$": 0.3, "^BearRim": 0.3 },
+    "exclude": { "^MoonSun$": "^Floor$" }
+  },
+  "mirror": { "strength": 1.3, "streak": 1.8 }
+}

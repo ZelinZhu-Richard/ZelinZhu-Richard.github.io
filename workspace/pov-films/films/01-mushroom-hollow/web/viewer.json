@@ -1,0 +1,14 @@
+{
+  "view": "neutral",
+  "exposure": -0.15,
+  "saturation": 1.22,
+  "grade": { "black": 0.006, "contrast": 1.2, "contrast_mode": "rgb" },
+  "bloom": { "strength": 0.65, "radius": -0.3, "threshold": 2.0, "knee": 0.5, "saturation": 1.5 },
+  "world_light": { "gain": 0.25, "tint": [0.45, 0.62, 1.0], "ambient": [0.009, 0.024, 0.095] },
+  "env_intensity": 1.0,
+  "post": { "vignette": 0.28, "vignette_radius": 0.62, "grain": 0.014, "dispersion": 0.0 },
+  "fog_density": 0.0013,
+  "light_units": "spec",
+  "lights": { "point": 32, "spot": 8, "specular": { "^BloomGlow": 0 } },
+  "mirror": { "strength": 0.6, "streak": 1.5, "ground": "^Road$" }
+}
