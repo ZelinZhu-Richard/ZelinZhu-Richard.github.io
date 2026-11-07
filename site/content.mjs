@@ -124,6 +124,17 @@ export const PROJECTS = [
     repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/video',
   },
   {
+    id: 'xiaoyaoyou',
+    name: '逍遥游 · Free and Easy Wandering',
+    context: 'Personal · Browser Game',
+    year: '2026',
+    oneLiner: 'Swim as Kun, the great fish of the northern sea.',
+    desc: 'A meditative 3D journey through the opening of Zhuangzi. Kun and the stone forest are modelled from Python in Blender and rendered live in three.js, with Claude building and Codex reviewing from evidence alone. A making-of page shows how the concept art became the game.',
+    tags: ['Browser Game', 'three.js', 'Blender'],
+    live: '/games/xiaoyaoyou/',
+    repo: 'https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/games/xiaoyaoyou',
+  },
+  {
     id: 'daily',
     name: 'Daily',
     context: 'Personal · Habit Game',

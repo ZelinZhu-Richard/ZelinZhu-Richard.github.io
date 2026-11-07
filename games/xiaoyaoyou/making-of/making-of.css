@@ -1,0 +1,88 @@
+@font-face { font-family: "LXGW WenKai"; src: url("../fonts/wenkai.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "EB Garamond"; src: url("../fonts/garamond.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+:root {
+  color-scheme: dark;
+  --abyss: #0b161c; --deep: #172a35; --sea: #30444e; --haze: #607277;
+  --paper: #efe7d6; --paper-shade: #d9cfbb; --ink: #17171c; --vermilion: #d4432c;
+  --gutter: clamp(20px, 9vw, 150px);
+}
+* { box-sizing: border-box; }
+html { background: var(--abyss); -webkit-text-size-adjust: 100%; }
+body { margin: 0; color: var(--paper); font: 400 clamp(19px, 1.5vw, 22px)/1.62 "EB Garamond", serif; }
+img { display: block; width: 100%; height: auto; }
+a { color: inherit; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px; }
+::selection { background: var(--paper); color: var(--deep); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* The opening: drag between the painting and the game. Everything else on the page stays quiet. */
+.wipe { --at: 50%; position: relative; height: min(100svh, 62vw); min-height: 460px; overflow: hidden; background: var(--deep); }
+.wipe-after, .wipe-before, .wipe-before img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.wipe-before { clip-path: inset(0 calc(100% - var(--at)) 0 0); }
+.wipe-line { position: absolute; top: 0; bottom: 0; left: var(--at); width: 1px; background: var(--paper); pointer-events: none; }
+.wipe-line::after { content: ""; position: absolute; top: 50%; left: -13px; width: 27px; height: 56px; margin-top: -28px; border: 1px solid var(--paper); border-radius: 14px; background: rgba(11, 22, 28, .55); }
+.wipe-label { position: absolute; top: 20px; margin: 0; padding: 4px 12px; background: rgba(11, 22, 28, .62); color: var(--paper); font-size: 19px; line-height: 1.3; pointer-events: none; }
+.wipe-label-before { left: 20px; }
+.wipe-label-after { right: 20px; }
+.wipe-control { position: absolute; inset: 0; display: block; }
+.wipe-control input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; appearance: none; background: transparent; cursor: ew-resize; opacity: 0; }
+.wipe-control input:focus-visible { opacity: 1; outline: 2px solid var(--paper); outline-offset: -6px; }
+.wipe-control input::-webkit-slider-thumb { appearance: none; width: 44px; height: 100vh; background: transparent; }
+.wipe-control input::-moz-range-thumb { width: 44px; height: 100vh; border: 0; background: transparent; }
+.masthead { position: absolute; left: var(--gutter); bottom: clamp(20px, 5vh, 48px); padding-right: 20px; pointer-events: none; }
+h1 { margin: 0; font-size: clamp(26px, 3.2vw, 44px); font-weight: 400; line-height: 1.2; text-shadow: 0 0 22px rgba(11, 22, 28, .95), 0 0 6px rgba(11, 22, 28, .7); }
+h1 span { display: block; font-family: "LXGW WenKai", serif; font-size: clamp(54px, 7vw, 100px); letter-spacing: .13em; line-height: 1.3; }
+
+.text { width: min(100%, calc(60ch + var(--gutter) + 20px)); padding: 0 20px 0 var(--gutter); }
+main > section, main > section.text { padding-top: clamp(52px, 8vw, 110px); }
+.text p { margin: 0 0 1.05em; }
+.lead { font-size: 1.18em; line-height: 1.5; }
+h2 { margin: 0 0 .6em; font-size: clamp(30px, 3.4vw, 46px); font-weight: 400; line-height: 1.16; }
+figure { margin: 0; }
+figcaption { padding: 12px 20px 0 var(--gutter); color: var(--paper-shade); font-size: .86em; line-height: 1.45; max-width: calc(64ch + var(--gutter)); }
+.wide { margin-top: clamp(26px, 4vw, 48px); }
+.wide + .wide { margin-top: clamp(26px, 3vw, 40px); }
+.play { display: inline-block; padding: 8px 0; color: var(--paper); font-size: 1.1em; }
+
+.layers img { background: var(--deep); aspect-ratio: 8 / 5; object-fit: cover; }
+.layers figcaption { min-height: 4.2em; }
+.layer-buttons { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 20px 0 var(--gutter); }
+.layer-buttons button { min-height: 44px; padding: 8px 16px; border: 1px solid var(--haze); border-radius: 0; background: transparent; color: var(--paper); font: inherit; font-size: .9em; cursor: pointer; }
+.layer-buttons button:hover { border-color: var(--paper); }
+.layer-buttons button[aria-pressed="true"] { border-color: var(--paper); background: var(--paper); color: var(--deep); }
+
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: clamp(26px, 4vw, 48px); padding: 0 10px; }
+.pair img { aspect-ratio: 8 / 5; object-fit: cover; }
+.pair figcaption { padding: 8px 2px 14px; }
+
+/* The one turn of the page: from the sea onto the paper of the end card. */
+main > .paper { margin-top: clamp(52px, 8vw, 110px); padding: clamp(52px, 7vw, 96px) 0; background: var(--paper) url("../assets/paper.webp") center / cover; color: var(--ink); }
+.paper a { color: var(--ink); }
+.paper :focus-visible { outline-color: var(--ink); }
+.pipeline { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: clamp(22px, 3vw, 36px) 20px clamp(28px, 4vw, 44px) var(--gutter); padding: 0; list-style: none; counter-reset: stage; font-size: .9em; line-height: 1.4; }
+.pipeline li { position: relative; padding: 16px 20px 0 0; border-top: 1px solid var(--ink); counter-increment: stage; }
+.pipeline li::before { content: ""; position: absolute; top: -5px; left: 0; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+.pipeline li:last-child::before { background: var(--vermilion); }
+.pipeline strong { display: block; margin-bottom: 4px; font-size: 1.14em; font-weight: 500; }
+
+.numbers { width: calc(100% - var(--gutter) - 20px); max-width: 780px; margin: 0 20px 0 var(--gutter); border-collapse: collapse; font-size: .96em; }
+.numbers th { padding: 11px 24px 11px 0; border-bottom: 1px solid var(--sea); color: var(--paper-shade); font-weight: 400; text-align: left; vertical-align: top; }
+.numbers td { padding: 11px 0; border-bottom: 1px solid var(--sea); text-align: right; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+.credits { font-size: .92em; color: var(--paper-shade); }
+.credits h2 { color: var(--paper); }
+.colophon { display: flex; align-items: center; gap: 22px; padding: clamp(46px, 7vw, 90px) 20px clamp(40px, 7vw, 80px) var(--gutter); }
+.seal { width: 62px; height: 62px; flex-shrink: 0; }
+.seal rect { fill: var(--vermilion); }
+.seal text { fill: var(--paper); font: 42px "LXGW WenKai", serif; }
+
+@media (max-width: 720px) {
+  .wipe { height: 100svh; max-height: 760px; }
+  .wipe-after { object-position: 62% 50%; }
+  .wipe-before img { object-position: 74% 50%; }
+  .pair { grid-template-columns: 1fr; padding: 0; }
+  .pair figcaption { padding: 8px 20px 18px; }
+  .pipeline { grid-template-columns: 1fr; margin-left: 20px; }
+  .pipeline li { padding: 0 0 18px 22px; border-top: 0; border-left: 1px solid var(--ink); }
+  .pipeline li::before { top: 4px; left: -5px; }
+  .pipeline li:last-child { border-left-color: transparent; }
+}

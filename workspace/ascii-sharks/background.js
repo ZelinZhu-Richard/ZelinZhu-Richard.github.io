@@ -40,7 +40,8 @@ function sync() {
 }
 
 function start() {
-  if (!canvas || engine) return;
+  // A page that covers the viewport with its own opaque canvas (the 逍遥游 game) opts out.
+  if (!canvas || engine || document.body.dataset.sharks === 'off') return;
   try {
     const mobile = window.innerWidth < 700;
     engine = new OceanEngine(canvas, mobile ? [
