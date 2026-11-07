@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#172A35">
+  <title>How 逍遥游 was built</title>
+  <meta name="description" content="How a piece of concept art became a real-time browser game: code-built Blender models, three.js, and an independent AI reviewer.">
+  <link rel="canonical" href="https://zelinzhu-richard.github.io/games/xiaoyaoyou/making-of/">
+  <meta property="og:title" content="How 逍遥游 was built">
+  <meta property="og:description" content="How a piece of concept art became a real-time browser game: code-built Blender models, three.js, and an independent AI reviewer.">
+  <meta property="og:image" content="https://zelinzhu-richard.github.io/games/xiaoyaoyou/assets/og.jpg">
+  <meta property="og:url" content="https://zelinzhu-richard.github.io/games/xiaoyaoyou/making-of/">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./making-of.css">
+  <script type="module" src="./making-of.js"></script>
+</head>
+<body>
+  <header class="wipe" id="wipe">
+    <img class="wipe-after" src="./img/frame-full.jpg" alt="The finished game: Kun, a pale fish with a painted landscape on its back, swimming above a misty forest of stone pillars, rendered live in the browser." width="2560" height="1440">
+    <div class="wipe-before">
+      <img src="./img/concept.jpg" alt="Concept art: an AI painting of a vast white whale over a stone forest, used as the target for the look." width="1672" height="941">
+    </div>
+    <span class="wipe-line" aria-hidden="true"></span>
+    <p class="wipe-label wipe-label-before">Concept art</p>
+    <p class="wipe-label wipe-label-after">In the game</p>
+    <label class="wipe-control">
+      <span class="visually-hidden">Compare the concept art with the game</span>
+      <input id="wipe-range" type="range" min="0" max="100" value="50">
+    </label>
+    <div class="masthead">
+      <h1><span lang="zh-Hans">逍遥游</span> How it was built</h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="text">
+      <p class="lead">This is a short browser game about the opening of the Zhuangzi. You are Kun, a small fish in a dark northern sea, and you grow until the stone forest below looks small. Drag the line above. The left side is the painting it started from. The right side is one frame of the game, rendered live.</p>
+      <p>The painting is AI concept art. It set the target and it stays out of the game: nothing you see while playing is drawn from it. The rest of this page is how the right side got made, and where it still falls short of the left.</p>
+      <p><a class="play" href="../">Play the game</a> or <a class="play" href="../?showcase=1">watch a 73-second flythrough</a></p>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>Start from drawings, not from a mesh</h2>
+        <p>The painting says how the sea should feel. It can't say how Kun is built, so a reference sheet does that job: side, top and front views on flat grey, plus the two textures that cover the body and fins.</p>
+      </div>
+      <figure class="wide">
+        <img src="./img/sheet-kun.jpg" alt="Reference sheet showing Kun from the side, top and front on a grey background." loading="lazy" width="1600" height="560">
+        <figcaption>The model sheet, also AI-generated. These images are the only input to the modeling step.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>Kun is written, not sculpted</h2>
+        <p>Every mesh in the game comes from Python running inside Blender: cross-sections lofted along a curved spine, fins as thin sheets traced from the sheet, UVs laid out in code. There are no downloaded or AI-generated models.</p>
+        <p>Each build is scored against the sheet. A script renders the model through a matched orthographic camera and overlays it on the reference, so a mismatch shows as a number and as colored pixels instead of as an opinion.</p>
+      </div>
+      <figure class="wide">
+        <img src="./img/overlay-side.jpg" alt="Three panels: the reference side view, the Blender render, and a mask overlay of the two." loading="lazy" width="1536" height="512">
+        <figcaption>Reference, Blender render, overlay. Grey is agreement, blue is the sheet alone, red is the model alone.</figcaption>
+      </figure>
+      <figure class="wide">
+        <img src="./img/overlay-top.jpg" alt="Three panels: the reference top view, the Blender render, and a mask overlay of the two." loading="lazy" width="1536" height="512">
+        <figcaption>The red is deliberate. The sheet and the painting disagree about the fins, and the painting won, so the fins were pushed well past the sheet. That costs score: <span data-number="iou"></span>.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>One frame, one layer at a time</h2>
+        <p>Geometry alone looks like a toy. Nearly all of the mood comes from light moving through water, and it is computed live, every frame, in the browser.</p>
+      </div>
+      <figure class="layers wide" id="layers">
+        <img id="layer-image" src="./img/layer-1.jpg" alt="" width="1600" height="1000" loading="lazy">
+        <figcaption id="layer-note"></figcaption>
+        <div class="layer-buttons" role="group" aria-label="Choose a layer">
+          <button type="button" data-layer="1" data-note="The models as they leave Blender, in fog, with plain lighting." aria-pressed="true">Models</button>
+          <button type="button" data-layer="2" data-note="A warm pool of light on Kun's back, and cold light everywhere else. This warm and cold contrast does more than anything else here." aria-pressed="false">Warm light</button>
+          <button type="button" data-layer="3" data-note="Shafts: a volume marched through the water, broken into separate rays with their own lengths." aria-pressed="false">Light shafts</button>
+          <button type="button" data-layer="4" data-note="Mist in three layers: a soft marched volume, a low fog bank the stone sinks into, and more than a thousand painted wisps in front of the pillar feet." aria-pressed="false">Mist</button>
+          <button type="button" data-layer="5" data-note="Bloom and the final color curve. This is the frame as a player sees it." aria-pressed="false">Final</button>
+        </div>
+      </figure>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>Composition is camera work</h2>
+        <p>For a long time the game looked wrong in a way no shader could fix. Fog, shafts and materials were all improving, and the frame still felt nothing like the painting. The reason was composition. The camera sat too far back and too level, so Kun was small and the world was empty.</p>
+        <p>Moving the camera low and close, looking up, did more in an hour than the previous rounds of lighting work. Dark cliffs at the edges of the frame, a stone forest in three layers, and a warm key light finished the job. These are the same frames before and after that change.</p>
+      </div>
+      <figure class="pair">
+        <div><img src="./img/before-opening.jpg" alt="Earlier version of the opening: a small pale fish in flat blue fog." loading="lazy" width="1000" height="625"><figcaption>Opening, before</figcaption></div>
+        <div><img src="./img/frame-opening.jpg" alt="Current opening: the camera looks up at a large Kun, lit warm from above, with stone pillars in mist below." loading="lazy" width="1600" height="1000"><figcaption>Opening, now</figcaption></div>
+        <div><img src="./img/before-play.jpg" alt="Earlier gameplay view: a small fish in an empty fog bank." loading="lazy" width="1000" height="625"><figcaption>While playing, before</figcaption></div>
+        <div><img src="./img/frame-play.jpg" alt="Current gameplay view: Kun larger in frame, with stone pillars close by and light shafts behind." loading="lazy" width="1600" height="1000"><figcaption>While playing, now</figcaption></div>
+      </figure>
+    </section>
+
+    <section class="paper">
+      <div class="text">
+        <h2>Who did what</h2>
+        <p>I wrote the brief, chose the look and approved each milestone. Claude Code builds and Codex reviews. Codex built the earliest milestones, including Kun's first model, before the roles split this way. As reviewer it sees only fresh screenshots, measurements and the concept art. It never sees the source or the builder's notes, so it can only judge what the game actually renders.</p>
+      </div>
+      <ol class="pipeline">
+        <li><strong>Images</strong> Concept art and reference sheets set the target.</li>
+        <li><strong>Python in Blender</strong> Code builds each mesh, scored against the sheet.</li>
+        <li><strong>three.js</strong> Static modules, with custom shaders for light, water and mist.</li>
+        <li><strong>Capture</strong> A headless browser on a real GPU records screenshots and metrics from a clean commit.</li>
+        <li><strong>Independent review</strong> Codex returns pass, fix or block. A fix goes back to the top.</li>
+      </ol>
+      <div class="text">
+        <p>Separating the builder from the reviewer mattered more than expected. The reviewer caught a camera change that clipped Kun's tail on phones, and refused pillars that looked manufactured. It also could not see intent, so it kept flagging small artifacts while the bigger problem was composition. That diagnosis came from a human looking at the frames.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="text">
+        <h2>Numbers</h2>
+      </div>
+      <table class="numbers">
+        <tbody id="numbers"></tbody>
+      </table>
+    </section>
+
+    <section class="text">
+      <h2>Where it still falls short</h2>
+      <p>Side by side with the painting, the differences are easy to find. Kun's tail is a small fluke where the painting has a sweeping veil. The fins have the crisp edge of cut paper instead of dissolving into the water. The painted forest has far more small detail than a real-time scene can hold. And on a phone the journey is still untested on real hardware.</p>
+      <p>The title screen uses a real frame from the game for the same reason this page exists: the painting promises more than the game shows, and a visitor should see what they'll get.</p>
+    </section>
+
+    <section class="text credits">
+      <h2>Credits</h2>
+      <p>Text: Zhuangzi, public domain. Source lines and English are drafts pending review.</p>
+      <p>AI-generated images: the concept art and reference sheets, and the rock, paper, mist and fin paint textures in the game. All 3D models are built from code.</p>
+      <p>Three.js (MIT). LXGW WenKai and EB Garamond (SIL Open Font License).</p>
+    </section>
+
+    <footer class="colophon">
+      <svg class="seal" viewBox="0 0 100 100" role="img" aria-label="Seal reading 逍遥"><rect width="100" height="100" rx="5"/><text x="50" y="46" text-anchor="middle">逍</text><text x="50" y="88" text-anchor="middle">遥</text></svg>
+      <a class="play" href="../">Play the game</a>
+    </footer>
+  </main>
+</body>
+</html>

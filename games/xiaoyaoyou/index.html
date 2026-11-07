@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#172A35">
+  <title>逍遥游 · Free and Easy Wandering</title>
+  <meta name="description" content="A meditative 3D journey through Zhuangzi's 逍遥游. Swim as Kun, the great fish of the northern sea.">
+  <link rel="canonical" href="https://zelinzhu-richard.github.io/games/xiaoyaoyou/">
+  <meta property="og:title" content="逍遥游 · Free and Easy Wandering">
+  <meta property="og:description" content="A meditative 3D journey through Zhuangzi's 逍遥游. Swim as Kun, the great fish of the northern sea.">
+  <meta property="og:image" content="https://zelinzhu-richard.github.io/games/xiaoyaoyou/assets/og.jpg">
+  <meta property="og:url" content="https://zelinzhu-richard.github.io/games/xiaoyaoyou/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+    {"imports":{"three":"./vendor/three/build/three.module.min.js","three/addons/":"./vendor/three/addons/"}}
+  </script>
+  <script defer src="./src/boot.js"></script>
+</head>
+<body>
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div id="hud" class="hud" hidden>
+    <button id="toggle-translation" class="toggle" type="button" aria-pressed="true">
+      <span lang="en" data-text="translation" data-lang="en"></span>
+    </button>
+    <p id="hint" class="hint" lang="en" data-text="hint" data-lang="en"></p>
+    <section id="line" class="line" aria-live="polite">
+      <p id="line-zh" class="line-zh" lang="zh-Hans"></p>
+      <p id="line-en" class="line-en" lang="en"></p>
+    </section>
+  </div>
+  <main id="title-screen" class="title-screen">
+    <picture>
+      <source media="(max-aspect-ratio: 3/4)" srcset="./assets/title-narrow.webp">
+      <img id="title-art" class="title-art" src="./assets/title.webp" alt="" aria-hidden="true">
+    </picture>
+    <div class="title-group">
+      <h1 data-text="title" data-lang="zh"></h1>
+      <p class="subtitle" lang="en" data-text="title" data-lang="en"></p>
+      <span class="title-rule" aria-hidden="true"></span>
+      <button id="begin" type="button" disabled hidden>
+        <span lang="en" data-text="begin" data-lang="en"></span>
+        <svg viewBox="0 0 32 16" width="32" height="16" aria-hidden="true"><path d="M1 8h28m-6-6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </main>
+  <section id="end-card" class="end-card" hidden>
+    <div class="colophon">
+      <h2 data-text="title" data-lang="zh"></h2>
+      <svg class="seal" viewBox="0 0 100 100" role="img" aria-labelledby="seal-label">
+        <title id="seal-label" data-text="seal" data-lang="en"></title>
+        <defs>
+          <filter id="stamp" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="3" seed="7" result="edge"/>
+            <feDisplacementMap in="SourceGraphic" in2="edge" scale="3.2"/>
+          </filter>
+          <mask id="seal-cut">
+            <rect width="100" height="100" fill="#fff"/>
+            <text class="seal-glyph" x="50" y="46" text-anchor="middle" data-text-first="seal"></text>
+            <text class="seal-glyph" x="50" y="88" text-anchor="middle" data-text-second="seal"></text>
+          </mask>
+        </defs>
+        <rect class="seal-block" x="4" y="4" width="92" height="92" rx="5" mask="url(#seal-cut)" filter="url(#stamp)"/>
+      </svg>
+    </div>
+    <p class="end-subtitle" lang="en" data-text="title" data-lang="en"></p>
+    <button id="replay" type="button">
+      <span lang="en" data-text="replay" data-lang="en"></span>
+      <svg viewBox="0 0 32 16" width="32" height="16" aria-hidden="true"><path d="M1 8h28m-6-6 6 6-6 6"/></svg>
+    </button>
+  </section>
+  <section id="loading" class="status" role="status" aria-live="polite">
+    <p lang="en" data-text="loading" data-lang="en"></p>
+    <progress id="load-progress" max="1" value="0.05"></progress>
+  </section>
+  <section id="load-error" class="status error" role="alert" hidden>
+    <svg class="error-symbol" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><path d="M16 5 29 27H3Zm0 7v8m0 3v1"/></svg>
+    <p lang="en" data-text="load-error" data-lang="en"></p>
+    <button id="retry" type="button">
+      <span lang="en" data-text="retry" data-lang="en"></span>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2 6m2-13v7h-7"/></svg>
+    </button>
+  </section>
+</body>
+</html>
