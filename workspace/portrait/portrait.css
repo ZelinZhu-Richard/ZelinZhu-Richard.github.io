@@ -1,0 +1,11 @@
+/* Living portrait on the About page. The stage takes exactly the photo's box (4:5, same max height),
+   so swapping the photo for the canvas causes no layout shift. Rules: site/DESIGN.md */
+.portrait-trigger{display:block;position:relative;width:100%;padding:0;border:0;background:none;color:inherit;cursor:pointer;font:inherit;text-align:left}
+.portrait-trigger:focus-visible,.portrait-label:focus-visible,.portrait-back:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.portrait-hint,.portrait-label{position:absolute;left:8px;bottom:8px;margin:0;padding:3px 7px;font-family:var(--font-mono);font-size:11px;line-height:1.4;letter-spacing:0;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:0}
+.portrait-trigger:hover .portrait-hint{border-color:var(--ink)}
+.portrait-stage{position:relative;width:100%;aspect-ratio:4/5;max-height:620px;background:#f4f3ee;overflow:hidden}
+.portrait-stage canvas{display:block;width:100%;height:100%;cursor:pointer;touch-action:pan-y}
+.portrait-label{cursor:pointer}
+.portrait-label:hover{border-color:var(--ink)}
+.portrait-back{padding:0;border:0;background:none;color:var(--ink);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}

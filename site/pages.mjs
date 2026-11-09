@@ -8,7 +8,7 @@ const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<'
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
 // The site menu is the seven stones (workspace/stones/parts.mjs); CV, Contact, Stars and Skills live at the bottom of About.
-const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet, bodyClass } = {}) => `<!doctype html>
+const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet, script, bodyClass } = {}) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -27,7 +27,7 @@ const frame = (path, title, description, body, { image = '/richard.jpg', stylesh
 ${stylesheet ? `<link rel="stylesheet" href="${escape(stylesheet)}">` : ''}
 <script src="/portfolio.js" defer>
 </script>
-</head>
+${script ? `<script type="module" src="${escape(script)}"></script>\n` : ''}</head>
 <body${bodyClass ? ` class="${escape(bodyClass)}"` : ''}>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
@@ -108,8 +108,11 @@ ${list.map((p, i) => item(p, i + 1)).join('')}
   const about = intro('About','Richard Zhu','High school senior. I work on computer science and economics, and do machine learning research at UNC PRIMES.') + `<section class="biography">
 <div>${ABOUT.paragraphs.map(p=>`<p>${escape(p)}</p>`).join('')}<div class="actions">${link(LINKS.resume,'CV (PDF)')}${link('/contacts/','Contact')}</div>
 </div>
-<figure>
-<img src="/richard.jpg" alt="Richard Zhu smiling at the camera" width="800" height="1000">
+<figure data-portrait-figure>
+<button type="button" class="portrait-trigger" aria-label="Photo of Richard Zhu smiling at the camera. Click to see a living portrait of him drawn in code.">
+<img src="/richard.jpg" alt="" width="800" height="1000">
+<span class="portrait-hint" aria-hidden="true">Click to see me drawn in code</span>
+</button>
 <figcaption>Me, 2026.</figcaption>
 </figure>
 </section>
@@ -159,7 +162,7 @@ ${list.map((p, i) => item(p, i + 1)).join('')}
     ['work/index.html',frame('/work/','Work','Eight projects by Richard Zhu: a quant research system, an accent-bias benchmark for speech recognition, a stock analysis app, and five browser experiments.',work,{ stylesheet: '/work/style.css' })],
     ['projects/index.html',frame('/projects/','Projects','Projects by Richard Zhu: Nexus Tensor Alpha, a quant research system; EqualVoice, an accent-bias benchmark for speech recognition; and Apex Analysis, an open-source stock analysis app.',projects,{ stylesheet: '/work/style.css' })],
     ['experiments/index.html',frame('/experiments/','Experiments','Browser experiments by Richard Zhu: Paper Piano, Gym and Domain Expansion. Webcam hand and pose tracking that runs locally.',experiments,{ stylesheet: '/work/style.css' })],
-    ['about/index.html',frame('/about/','About','About Richard Zhu, a high school senior working on computer science, economics and machine learning research.',about)],
+    ['about/index.html',frame('/about/','About','About Richard Zhu, a high school senior working on computer science, economics and machine learning research.',about,{ stylesheet: '/portrait/portrait.css', script: '/portrait/about.js' })],
     ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES and related projects.',research)],
     ['404.html',frame('/404.html','Page not found','This page could not be found.',intro('404','Page not found','Nothing lives at this address. It may have moved.')+`<div class="actions">${link('/work/','Work')}${link('/','Homepage')}</div>`)],
   ]);
