@@ -28,9 +28,11 @@ async function open() {
   trigger.replaceWith(stage); // same box size as the photo, so nothing on the page moves
   caption.innerHTML = '<span id="portrait-help">Drawn in code from two selfies. Click it, or the label, for the next style.</span> <button type="button" class="portrait-back">Show the photo</button>';
   const back = caption.querySelector('.portrait-back');
-  let portrait;
+  let portrait, closed = false;
   back.addEventListener('click', () => {
+    closed = true; // a mount still loading sees this and cleans itself up
     portrait?.destroy();
+    portrait = null;
     stage.replaceWith(trigger);
     caption.innerHTML = before;
     trigger.focus();
@@ -38,11 +40,15 @@ async function open() {
   label.addEventListener('click', () => portrait?.next());
   try {
     const { mountPortrait } = await load();
+    if (closed) return; // closed while the module was loading: never mount
     const count = Number(new URLSearchParams(location.search).get('portrait-count')) || undefined; // for testing low-end pools
-    portrait = await mountPortrait(canvas, { label, count });
+    const mounted = await mountPortrait(canvas, { label, count });
+    if (closed) { mounted.destroy(); return; } // closed while the photo data was loading
+    portrait = mounted;
     canvas.livingPortrait = portrait;
     label.focus({ preventScroll: true });
   } catch (error) {
+    if (closed) return;
     label.textContent = 'Could not draw the portrait';
     console.error(error);
   }

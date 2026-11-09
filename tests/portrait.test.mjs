@@ -39,3 +39,13 @@ test('About page photo opens the living portrait', () => {
   assert.match(html, /<link rel="stylesheet" href="\/portrait\/portrait\.css">/);
   assert.match(html, /<img src="\/richard\.jpg" alt="" width="800" height="1000">/, 'the photo stays the no-JS fallback');
 });
+
+// Codex review on PR #8: closing the portrait while it was still loading left a renderer mounted on the
+// detached canvas (observers and listeners with no way to destroy them). Checked in a browser too.
+test('closing the portrait while it loads never leaves a renderer running', async () => {
+  const source = await readFile(`${dir}about.js`, 'utf8');
+  const close = source.indexOf('closed = true');
+  assert.ok(close > 0 && close < source.indexOf('portrait?.destroy()'), 'Show the photo marks this opening closed');
+  assert.match(source, /await load\(\);\s*if \(closed\) return;/, 'no mount after closing during the module load');
+  assert.match(source, /await mountPortrait\([^)]*\);\s*if \(closed\) \{ mounted\.destroy\(\); return; \}/, 'a mount that resolves after closing is destroyed');
+});
