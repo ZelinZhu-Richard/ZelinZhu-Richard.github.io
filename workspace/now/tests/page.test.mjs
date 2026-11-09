@@ -12,20 +12,20 @@ test('/now/ is rendered through the site frame with production metadata', () => 
   assert.ok(html.includes('<link rel="canonical" href="https://zelinzhu-richard.github.io/now/">'));
   assert.ok(html.includes('<meta property="og:url" content="https://zelinzhu-richard.github.io/now/">'));
   assert.ok(html.includes('<link rel="stylesheet" href="/now/style.css">'));
-  assert.ok(html.includes('<a href="/now/" aria-current="page">Now</a>'));
+  assert.match(html, /<a href="\/now\/" aria-current="page"><span>\d\d<\/span>Now<\/a>/);
   assert.ok(!/localhost|127\.0\.0\.1|noindex/.test(html));
 });
 
 test('hero shows the updated date, the title and the currently pill with a caret', () => {
   assert.ok(html.includes('<p class="eyebrow now-mono">Now · updated <time datetime="2026-10-24">Oct 24, 2026</time></p>'));
-  assert.ok(html.includes('<h1>Learning, <em>in public.</em></h1>'));
+  assert.ok(html.includes('<h1>Learning in public</h1>'));
   // The caret is glued to the last item so it cannot wrap onto a line of its own.
   assert.ok(html.includes('<span class="now-currently-items">MATH 347 · ILO prep · <span class="now-currently-last">qbench preprint<span class="now-caret" aria-hidden="true">▍</span></span></span>'));
   assert.equal(count(html, 'class="now-caret" aria-hidden="true"'), 1);
 });
 
 test('section 01 has the term heading, one row per course and a chip class per status', () => {
-  assert.ok(html.includes('<h2 id="now-term">Fall <em>2026</em></h2>'));
+  assert.ok(html.includes('<h2 id="now-term">Fall 2026</h2>'));
   assert.ok(html.includes('01 — Coursework &amp; study'));
   assert.equal(count(html, '<li class="now-course">'), NOW.courses.length);
   for (const status of ['enrolled', 'sitting-in', 'auditing', 'self-study']) {
@@ -43,7 +43,7 @@ test('section 01 has the term heading, one row per course and a chip class per s
 });
 
 test('section 02 has one timeline item per milestone and exactly one next item', () => {
-  assert.ok(html.includes('Shipped, <em>and next</em>'));
+  assert.ok(html.includes('<h2 id="now-milestones-title">Shipped and next</h2>'));
   assert.equal(count(html, '<li class="now-milestone '), NOW.milestones.length);
   assert.equal(count(html, 'now-milestone--next"'), 1);
   assert.equal(count(html, 'class="now-pulse"'), 1);
@@ -65,7 +65,7 @@ test('the month strip starts hidden and the closing line is small text with the 
   assert.ok(html.includes('<script type="module" src="/now/strip.js"></script>'));
   assert.ok(html.includes('href="/daily/"'));
   assert.ok(html.includes('03 — Daily receipts · <span data-now-month-key></span>'));
-  assert.ok(html.includes('<p class="now-closing">Build. Learn. Repeat. · Last updated <time datetime="2026-10-24">Oct 24, 2026</time></p>'));
+  assert.ok(html.includes('<p class="now-closing">Last updated <time datetime="2026-10-24">Oct 24, 2026</time></p>'));
   assert.ok(html.indexOf('now-closing') < html.indexOf('</main>'));
 });
 

@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { PARTS, stoneHash } from '../workspace/stones/parts.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { pages } from '../site/pages.mjs';
@@ -23,11 +25,10 @@ test('every phoenix crystal has a real personal destination and every scene fits
   const output = pages();
   assert.equal(story.cards.length, 7);
   assert.equal(story.scenes.length, 17);
-  for (const { href } of story.cards) {
-    const [path, anchor] = href.split('#');
-    if (path.endsWith('.pdf')) { assert.equal(path, LINKS.resume); continue; }
-    const html = output.get(path.slice(1) + 'index.html');
-    assert.ok(html, `Missing page for ${href}`);
-    if (anchor) assert.ok(html.includes(`id="${anchor}"`));
+  // Each crystal hands off to one part of the site through a homepage hash (workspace/stones).
+  assert.deepEqual(story.cards.map(c => c.href), PARTS.map(stoneHash));
+  for (const { href } of PARTS) {
+    if (href === '/daily/') { assert.ok(existsSync('workspace/daily/pages/index.html')); continue; }
+    assert.ok(output.get(href.slice(1) + 'index.html'), `Missing page for ${href}`);
   }
 });

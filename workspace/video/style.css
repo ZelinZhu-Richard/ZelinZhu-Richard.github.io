@@ -1,17 +1,18 @@
 .film-intro {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 32px;
-  padding: 64px 0 48px;
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  align-items: end;
+  gap: 24px 6%;
+  padding: 64px 0 40px;
 }
 .film-intro .eyebrow { margin-bottom: 24px; }
 .film-intro h1 { margin-bottom: 0; }
 .film-deck {
   margin: 0 0 6px;
+  max-width: 34ch;
   color: var(--muted);
-  font-size: 23px;
-  line-height: 1.5;
+  font-size: 22px;
+  line-height: 1.45;
 }
 .film-player { margin: 0; }
 .film-player video {
@@ -19,8 +20,9 @@
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
-  background: #080914;
-  border: 1px solid var(--line);
+  background: var(--stage);
+  border: 1px solid var(--ink);
+  box-shadow: var(--shadow);
 }
 .film-player video:focus-visible {
   outline: 2px solid var(--accent);
@@ -32,69 +34,73 @@
   gap: 16px;
   margin-top: 18px;
   color: var(--muted);
-  font-size: 14px;
 }
 .film-player figcaption span:last-child { white-space: nowrap; }
 .film-specs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  padding: 32px 0;
-  margin: 40px 0 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
+  grid-template-columns: 2fr 1fr 2fr 2fr;
+  gap: 0;
+  padding: 0;
+  margin: 48px 0 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
 }
+.film-specs > div { padding: 14px 16px 14px 0; }
+.film-specs > div + div { padding-left: 16px; border-left: 1px solid var(--line); }
 .film-specs dt {
+  font-family: var(--font-mono);
   color: var(--muted);
-  font-size: 12px;
-  letter-spacing: .1em;
+  font-size: 11px;
+  letter-spacing: .06em;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
-.film-specs dd { margin: 0; font-size: 18px; }
+.film-specs dd { margin: 0; font-family: var(--font-mono); font-size: 16px; }
 .film-story {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 9%;
-  padding: 80px 0;
+  grid-template-columns: 4fr 8fr;
+  gap: 6%;
+  padding: 88px 0 72px;
 }
-.film-copy > p:not(.project-lede) { color: var(--muted); }
-.film-copy .project-lede em { font-family: inherit; color: inherit; }
-.film-download-size { color: var(--muted); font-size: 13px; }
+.film-story h2 { max-width: 12ch; }
+.film-copy { max-width: 64ch; }
+.film-download-size { opacity: .75; font-size: 12px; }
 .film-copy .actions a { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
 .film-copy .actions a span { margin-left: 0; }
-.film-continuity { border-top: 1px solid var(--line); }
+.film-continuity { border-top: 1px solid var(--line); padding-top: 56px; }
 .film-copy > .film-question {
   color: var(--ink);
-  border-left: 2px solid var(--accent);
-  padding-left: 24px;
-  margin-top: 32px;
-  font-size: 21px;
+  background: var(--paper-2);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  margin-top: 28px;
+  font-size: 19px;
 }
 .film-credits {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
-  gap: 9%;
+  grid-template-columns: 4fr 8fr;
+  gap: 6%;
   margin: 0;
-  padding: 40px 0 60px;
-  border-top: 1px solid var(--line);
+  padding: 32px 0 48px;
+  border-top: 1px solid var(--ink);
 }
 .film-credits dt {
-  font-size: 13px;
-  letter-spacing: .1em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .06em;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  color: var(--muted);
+  margin-bottom: 8px;
 }
-.film-credits dd { margin: 0; color: var(--muted); }
+.film-credits dd { margin: 0; }
 @media (max-width: 700px) {
-  .film-intro { display: block; padding: 36px 0 30px; }
-  .film-intro .eyebrow { font-size: 11px; }
-  .film-intro h1 { font-size: clamp(58px, 15vw, 96px); }
-  .film-deck { margin-top: 22px; font-size: 19px; }
-  .film-deck br { display: none; }
+  .film-intro { display: block; padding: 36px 0 28px; }
+  .film-deck { margin-top: 12px; font-size: 19px; }
   .film-player figcaption { flex-direction: column; gap: 6px; font-size: 13px; }
-  .film-specs { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; margin-top: 28px; padding: 24px 0; }
-  .film-specs dd { font-size: 16px; }
+  .film-specs { grid-template-columns: 1fr 1fr; margin-top: 32px; }
+  .film-specs > div:nth-child(3) { padding-left: 0; border-left: 0; }
+  .film-specs > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .film-specs dd { font-size: 15px; }
   .film-story { grid-template-columns: 1fr; gap: 16px; padding: 48px 0; }
   .film-credits { grid-template-columns: 1fr; gap: 32px; padding: 32px 0 40px; }
 }

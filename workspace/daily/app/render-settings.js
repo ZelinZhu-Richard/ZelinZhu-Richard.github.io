@@ -56,7 +56,7 @@ export function renderSettings(vm, ctx, defaults) {
   const pets = vm.pets?.active || [];
   const tasks = vm.today?.tasks || [];
   const nextMonth = ctx.nextMonthKey ? monthName(ctx.nextMonthKey) : 'next month';
-  return html`<div class="section-head"><h2 class="section-title">Set<em>tings</em></h2><p class="mono-label">owner only · ${ctx.cloud ? 'synced' : 'this device'}</p></div>
+  return html`<div class="section-head"><h2 class="section-title">Settings</h2><p class="mono-label">owner only · ${ctx.cloud ? 'synced' : 'this device'}</p></div>
 <div class="settings-grid">
 <details class="settings-block" open><summary>Companion and reminders</summary><form data-form="settings">
 <label class="field"><span>Companion beside the pool</span><select name="companionId">${pets.map(p => html`<option value="${p.id}"${ctx.focusPet?.id === p.id ? raw(' selected') : ''}>${p.name}</option>`)}</select></label>

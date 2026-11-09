@@ -39,7 +39,7 @@ test('today list: one row per task, 56 px ticks, receipt state, undo window', ()
   assert.match(out, /aria-label="Undo Eat vegetables \(within 5 minutes\)"/);
   assert.match(out, /class="undo-ring"/);
   assert.match(out, /aria-label="Tick Read: Medium, 45 pages, \+120 food"/);
-  assert.match(out, /A little progress, <em>every day\.<\/em>/);
+  assert.match(out, /<h2 id="today-title" class="section-title">Today's list<\/h2>/);
   assert.match(out, /\+20% commitment bonus alive · committed at Easy/);
   assert.equal(count(out, /data-action="raise-toggle"/g), 3, 'raise only on unticked tasks');
 });

@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="paper">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Domain Expansion — Richard Zhu</title>
-  <meta name="description" content="Frame a pixelated domain, cast a fireball, or release 尘遁 with your hands. Browser-local camera effects by Richard Zhu.">
+  <meta name="description" content="A webcam hand-tracking toy. Frame a window with your thumbs and index fingers to pixelate it, cast a fireball from an open palm, or release 尘遁 with both palms. Runs in the browser.">
   <link rel="canonical" href="https://zelinzhu-richard.github.io/domainexp/">
   <meta property="og:title" content="Domain Expansion — Richard Zhu">
-  <meta property="og:description" content="Three hand-tracked camera effects: Domain Expansion, Fireball, and Dust Release / 尘遁.">
+  <meta property="og:description" content="Three hand-tracked webcam effects that run in the browser: Domain Expansion, Fireball / 火球 and Dust Release / 尘遁.">
   <meta property="og:url" content="https://zelinzhu-richard.github.io/domainexp/">
   <meta property="og:type" content="website">
   <meta property="og:image" content="https://zelinzhu-richard.github.io/richard.jpg">
-  <meta name="theme-color" content="#111022">
+  <meta name="theme-color" content="#f4f3ee">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/portfolio.css">
   <link rel="stylesheet" href="./style.css">
@@ -19,12 +19,15 @@
   <script type="module" src="./app.js"></script>
 </head>
 <body class="domain-page">
-  <a class="skip-link" href="#main">Skip to experience</a>
+  <a class="skip-link" href="#main">Skip to the camera</a>
   <!-- PORTFOLIO_HEADER -->
   <main id="main" class="domain-main">
     <div class="title-row">
-      <h1>Domain <em>Expansion.</em><span lang="zh-Hans">领域展开</span></h1>
-      <p id="title-copy">Your hands draw the boundary.<br> The world inside becomes pixels.</p>
+      <div class="title-block">
+        <p class="eyebrow">Webcam experiment · MediaPipe Hands · runs in your browser</p>
+        <h1>Domain Expansion<span lang="zh-Hans">领域展开</span></h1>
+      </div>
+      <p id="title-copy">Hold up both hands and make an L with each thumb and index finger. Everything inside the rectangle turns to pixels.</p>
     </div>
     <section class="experience" aria-label="Domain Expansion camera experience">
       <div class="effect-picker"><span id="effect-label">Effect</span><div role="radiogroup" aria-labelledby="effect-label">
@@ -40,48 +43,45 @@
           <div class="frame-guide" id="domain-guide" aria-hidden="true">
             <svg viewBox="0 0 560 240" fill="none">
               <defs>
-                <pattern id="pixels" width="24" height="24" patternUnits="userSpaceOnUse"><path fill="#7c4dbb" fill-opacity=".15" d="M0 0h24v24H0z"/><path fill="#b18adf" fill-opacity=".18" d="M0 0h12v12H0zM12 12h12v12H12z"/></pattern>
-                <linearGradient id="frame-light" x1="183" y1="60" x2="377" y2="190" gradientUnits="userSpaceOnUse"><stop stop-color="#d7b5ff"/><stop offset="1" stop-color="#8956d6"/></linearGradient>
+                <pattern id="pixels" width="24" height="24" patternUnits="userSpaceOnUse"><path fill="#f4f3ee" fill-opacity=".06" d="M0 0h24v24H0z"/><path fill="#f4f3ee" fill-opacity=".16" d="M0 0h12v12H0zM12 12h12v12H12z"/></pattern>
               </defs>
-              <path d="M183 55H377V185H183Z" fill="url(#pixels)" stroke="url(#frame-light)" stroke-width="1.5"/>
-              <g stroke="#d7c2ed" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M183 55H377V185H183Z" fill="url(#pixels)" stroke="#f4f3ee" stroke-width="1.5"/>
+              <g stroke="#b4b0a7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M130 218l-13-24c-4-8-8-18-8-30v-44c0-13 16-13 16 0v22-36c0-13 16-13 16 0v32-45c0-13 16-13 16 0v38-65c0-17 23-17 23 0v83l37 20c12 7 3 25-9 19l-37-14-5 44"/>
                 <path d="M430 22l13 24c4 8 8 18 8 30v44c0 13-16 13-16 0V98v36c0 13-16 13-16 0v-32 45c0 13-16 13-16 0v-38 65c0 17-23 17-23 0V91l-37-20c-12-7-3-25 9-19l37 14 5-44"/>
               </g>
-              <g fill="#f1e6ff"><circle cx="183" cy="55" r="4"/><circle cx="377" cy="55" r="4"/><circle cx="183" cy="185" r="4"/><circle cx="377" cy="185" r="4"/></g>
+              <g fill="#f4f3ee"><path d="M179 51h8v8h-8zM373 51h8v8h-8zM179 181h8v8h-8zM373 181h8v8h-8z"/></g>
             </svg>
           </div>
           <div class="frame-guide fire-guide" id="fire-guide" aria-hidden="true" hidden>
             <svg viewBox="0 0 560 240" fill="none">
-              <defs><radialGradient id="fire-guide-light"><stop stop-color="#fff0b4"/><stop offset=".45" stop-color="#ff9b42"/><stop offset="1" stop-color="#ff5c2100"/></radialGradient></defs>
-              <g stroke="#c5a3e5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <g stroke="#b4b0a7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M250 212l-48-52-37-36m85 88-26-79-10-54-6-38m42 171 7-85 0-65-1-37m-6 187 35-77 13-54 5-39m-53 170 61-56 24-39 16-33M202 160l22-27 33-6 28 8 26 21"/>
               </g>
-              <g fill="#eadbfa"><circle cx="165" cy="124" r="4"/><circle cx="208" cy="41" r="4"/><circle cx="256" cy="25" r="4"/><circle cx="303" cy="42" r="4"/><circle cx="351" cy="84" r="4"/></g>
-              <circle cx="258" cy="155" r="51" fill="url(#fire-guide-light)"/>
-              <path d="M303 143l57-31m-13-5 13 5-4 13" stroke="#ffd390" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <g fill="#f4f3ee"><path d="M161 120h8v8h-8zM204 37h8v8h-8zM252 21h8v8h-8zM299 38h8v8h-8zM347 80h8v8h-8z"/></g>
+              <circle cx="258" cy="155" r="44" stroke="#f4f3ee" stroke-width="1.5" stroke-dasharray="4 5"/>
+              <circle cx="258" cy="155" r="20" fill="#b93c0b"/>
+              <path d="M303 143l57-31m-13-5 13 5-4 13" stroke="#f4f3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
           <div class="frame-guide dust-guide" id="dust-guide" aria-hidden="true" hidden>
             <svg viewBox="0 0 560 240" fill="none">
-              <defs><radialGradient id="dust-guide-light"><stop stop-color="#ffffff"/><stop offset=".35" stop-color="#d9ffed99"/><stop offset="1" stop-color="#d9ffed00"/></radialGradient></defs>
-              <g stroke="#c5a3e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <g stroke="#b4b0a7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M132 213l31-43 39-25 57 25m-127 43 42-76 37-53 47-20m-126 149-13-73 7-56 14-36m-8 165-36-66-5-51 3-35m38 152-55-48-19-39-6-30M119 140l44 30 11-33"/>
                 <path d="M428 213l-31-43-39-25-57 25m127 43-42-76-37-53-47-20m126 149 13-73-7-56-14-36m8 165 36-66 5-51-3-35m-38 152 55-48 19-39 6-30M441 140l-44 30-11-33"/>
               </g>
-              <g stroke="#dbfff0" stroke-width="1.5"><path d="M250 98h55v56h-55zM265 83h55v56h-55zM250 98l15-15m40 15 15-15m-15 71 15-15m-70 15 15-15"/></g>
-              <circle cx="284" cy="119" r="46" fill="url(#dust-guide-light)"/>
-              <g fill="#eafff5"><circle cx="258" cy="64" r="4"/><circle cx="302" cy="64" r="4"/><circle cx="259" cy="170" r="4"/><circle cx="301" cy="170" r="4"/></g>
-              <path d="M267 64h26m-26 106h26" stroke="#d9ffed" stroke-dasharray="3 4" stroke-width="1.5"/>
+              <g stroke="#f4f3ee" stroke-width="1.5"><path d="M250 98h55v56h-55zM265 83h55v56h-55zM250 98l15-15m40 15 15-15m-15 71 15-15m-70 15 15-15"/></g>
+              <g fill="#f4f3ee"><path d="M254 60h8v8h-8zM298 60h8v8h-8zM255 166h8v8h-8zM297 166h8v8h-8z"/></g>
+              <path d="M267 64h26m-26 106h26" stroke="#b4b0a7" stroke-dasharray="3 4" stroke-width="1.5"/>
             </svg>
           </div>
-          <h2><span id="intro-lead">Make room for</span><br><em id="intro-emphasis">another reality.</em></h2>
-          <p id="intro-instruction">Show both hands, then spread your thumbs and index fingers.<br>The finger outlines help you frame a window.</p>
+          <h2><span id="intro-lead">Frame a window</span> <span id="intro-emphasis">with both hands.</span></h2>
+          <p id="intro-instruction">Start the camera and show both palms. An outline appears on each finger. Spread your thumbs and index fingers apart: the four fingertips become the corners of the window.</p>
           <button class="primary start-trigger" id="intro-start" type="button">Start camera <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg></button>
-          <span class="local-note">Your camera stays on your device.</span>
+          <span class="local-note">Video is processed in this browser. It is never uploaded or recorded.</span>
         </div>
-        <div class="loading" id="loading" hidden><span class="loading-mark" aria-hidden="true"></span><p id="loading-text">Opening camera…</p><span>You can stop at any time.</span></div>
-        <div class="arena-bottom"><div class="status"><span class="status-dot" aria-hidden="true"></span><span id="status" role="status" aria-live="polite">Ready when you are</span></div><span id="domain-label" aria-hidden="true">FRAME / TRANSFORM</span></div>
+        <div class="loading" id="loading" hidden><span class="loading-mark" aria-hidden="true"></span><p id="loading-text">Opening camera…</p><span>Press Stop below the camera to cancel.</span></div>
+        <div class="arena-bottom"><div class="status"><span class="status-dot" aria-hidden="true"></span><span id="status" role="status" aria-live="polite">Press Start camera to begin</span></div><span id="domain-label" aria-hidden="true">DOMAIN · 2 HANDS</span></div>
       </div>
       <div class="control-bar">
         <div class="camera-controls"><button type="button" id="start" class="primary start-trigger">Start camera</button><button type="button" id="stop" disabled>Stop</button></div>
@@ -90,10 +90,10 @@
       </div>
       <p class="error" id="error" role="alert" hidden></p>
     </section>
-    <div class="below-stage"><p id="effect-instruction">Frame with both hands. Move to reshape. Lower a hand to release.</p><span>Made to be played with.</span></div>
-    <details class="help" id="dust-help" hidden><summary>Releasing 尘遁</summary><div><p>Face both open palms toward the camera. Bring your left and right thumb tips close together, and do the same with your index fingertips. Leave a window between the thumb pair and index pair. A small gap is fine; touching is not required.</p><p>Hold the seal briefly. A white cube charges between your fingers and releases forward into dust. Separate your hands, then form the seal again to recast. The gap tolerance follows your hand size on screen, so an exact 2 cm distance is not measured.</p><p>Keep both palms at a similar distance from the camera and all four fingertips visible. If the seal is not recognized, follow the prompt along the bottom of the camera view. Reduced motion keeps a stationary cube that fades gently, with no flight or scattering particles.</p><p>Everything stays in this browser. No recording, uploads, microphone, or sound. Switching effects shares the same camera; Stop or leaving the tab ends it.</p></div></details>
-    <details class="help" id="fire-help" hidden><summary>Casting a fireball</summary><div><p>Show one open palm toward the camera and keep it visible for a moment. A fireball launches from your palm toward you. Close your hand briefly, then reopen it to cast again. Both hands can cast independently.</p><p>Keep your fingers visible and use even lighting. A brief cooldown separates casts. With reduced motion enabled, the fireball becomes a soft, stationary glow without flying embers.</p><p>Camera images stay in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs stops the camera; press Start camera to resume. Tracking uses the same local MediaPipe model as Domain Expansion.</p></div></details>
-    <details class="help" id="domain-help"><summary>A little help opening your domain</summary><div><p>Show your palms and look for the violet finger outlines. Gold dots mark your thumbs and index fingers. Spread those four fingertips into a window; your fingers can stay relaxed. Turn one hand upside down for a wider frame.</p><p>If only one outline appears, bring the other hand fully into view. Bright, even lighting helps. Crossed or overlapping hands can hide fingertips; separate them to restore your domain. No outlines? Move your hands closer to the camera, or Stop and start again.</p><p>Camera images are processed in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs turns the camera off; press Start camera to resume.</p><p>Hand tracking uses <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker" target="_blank" rel="noopener noreferrer">MediaPipe</a> · <a href="./vendor/MEDIAPIPE-LICENSE.txt">Apache 2.0 license</a>.</p></div></details>
+    <div class="below-stage"><p id="effect-instruction">Move your hands to resize the window. Lower either hand and the pixels go away.</p><span>This is a toy, not a privacy filter. When tracking loses a hand, the plain camera image shows.</span></div>
+    <details class="help" id="dust-help" hidden><summary>How to release 尘遁</summary><div><p>Face both open palms toward the camera. Bring your left and right thumb tips close together, and do the same with your index fingertips. Leave a window between the thumb pair and the index pair. A small gap is fine; touching is not required.</p><p>Hold the seal briefly. A white cube charges between your fingers and flies toward you, then breaks into dust. Separate your hands, then form the seal again to repeat. The gap tolerance scales with your hand size on screen; no exact distance in centimetres is measured.</p><p>Keep both palms at a similar distance from the camera and all four fingertips visible. If the seal is not recognised, follow the prompt along the bottom of the camera view. With reduced motion on, the cube stays still and fades, with no flight or particles.</p><p>Everything runs in this browser. Nothing is recorded or uploaded, and there is no microphone or sound. Switching effects keeps the same camera; Stop or leaving the tab turns it off.</p></div></details>
+    <details class="help" id="fire-help" hidden><summary>How to cast a fireball</summary><div><p>Show one open palm toward the camera and keep it visible for a moment. A fireball launches from your palm toward you. Close your hand briefly, then reopen it to cast again. Each hand casts on its own.</p><p>Keep your fingers visible and use even lighting. There is a short cooldown between casts. With reduced motion on, the fireball becomes a still glow that fades, with no flying embers.</p><p>Camera images stay in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs turns the camera off; press Start camera to resume. Tracking uses the same local MediaPipe model as Domain Expansion.</p></div></details>
+    <details class="help" id="domain-help"><summary>How to frame the window</summary><div><p>Show your palms and look for the violet finger outlines. Gold dots mark your thumbs and index fingers. Spread those four fingertips apart to make a window; your fingers can stay relaxed. Turn one hand upside down for a wider frame.</p><p>If only one outline appears, bring the other hand fully into view. Bright, even lighting helps. Crossed or overlapping hands can hide fingertips; separate them and the window comes back. No outlines? Move your hands closer to the camera, or Stop and start again.</p><p>Camera images are processed in this browser. Nothing is recorded or uploaded, and no microphone is requested. Switching tabs turns the camera off; press Start camera to resume.</p><p>Hand tracking uses <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker" target="_blank" rel="noopener noreferrer">MediaPipe</a> · <a href="./vendor/MEDIAPIPE-LICENSE.txt">Apache 2.0 license</a>.</p></div></details>
     <footer class="domain-footer"><a href="/work/">More experiments by Richard Zhu</a><a href="https://github.com/ZelinZhu-Richard/ZelinZhu-Richard.github.io/tree/main/workspace/domainexp" target="_blank" rel="noopener noreferrer">View source</a></footer>
   </main>
 </body>

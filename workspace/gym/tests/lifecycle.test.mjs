@@ -30,7 +30,7 @@ test('production Gym build verifies pinned assets and excludes development files
 });
 test('Gym is reachable from both navigation systems and has a stable Work anchor',async()=>{
   const root=new URL('../../../',import.meta.url);
-  for(const path of ['site/pages.mjs','public/index.html','public/contacts/index.html','tools/build.mjs'])assert.ok((await readFile(new URL(path,root),'utf8')).includes('/gym/'),path);
+  for(const path of ['site/content.mjs','public/index.html','public/contacts/index.html','tools/build.mjs'])assert.ok((await readFile(new URL(path,root),'utf8')).includes('/gym/'),path);
   const runtime=await readFile(new URL('public/_nuxt/CbdjwYMp.js',root),'utf8');assert.ok(runtime.includes('to:"/gym/"'));assert.ok(runtime.includes('link:"/gym/",text:"Gym"'));
   const {PROJECTS}=await import('../../../site/content.mjs');assert.equal(PROJECTS.find(p=>p.id==='gym').live,'/gym/');
   const {pages}=await import('../../../site/pages.mjs');assert.ok(pages().get('work/index.html').includes('id="gym"'));

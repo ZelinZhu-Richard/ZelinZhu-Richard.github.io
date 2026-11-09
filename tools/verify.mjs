@@ -25,6 +25,8 @@ function localReference(ref, from) {
   try { path = decodeURIComponent(url.pathname).slice(1); } catch { errors.push(`Invalid URL encoding in ${from}`); return; }
   const target = names.has(path) ? path : `${path.replace(/\/$/, '')}${path ? '/' : ''}index.html`;
   if (!names.has(target)) { errors.push(`Missing local target: ${ref} in ${from}`); return; }
+  // Phoenix stones link to #to-<part> on the homepage; workspace/stones/home.js resolves them to real pages.
+  if (url.hash.startsWith('#to-') && target === 'index.html') return;
   if (url.hash && target.endsWith('.html')) {
     const html = documents.get(target) || '';
     const id = decodeURIComponent(url.hash.slice(1));
