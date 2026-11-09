@@ -115,7 +115,6 @@ function syncHash() {
   if (id) openPopup(id); else closePopup();
 }
 window.addEventListener('hashchange', syncHash);
-syncHash();
 
 /* ---------- hover: 2-second ring ---------- */
 const ring = document.createElement('div');
@@ -250,3 +249,6 @@ function watchScene(tries = 0) {
 watchScene();
 // If the 3D scene never finishes loading (no WebGL, say), the menu must still appear.
 setTimeout(() => menu.classList.add('is-ready'), 20000);
+
+// Last, once every piece of state above exists: open the popup for a bookmarked or reloaded #to-<part>.
+syncHash();
