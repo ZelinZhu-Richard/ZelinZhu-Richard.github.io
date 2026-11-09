@@ -31,18 +31,18 @@ export function renderHeaderStats(header, ctx) {
   const win = windowText(ctx.window || header.window, ctx.now);
   const k = header.keeper || { level: 0, xp: 0, xpNext: 1 };
   return html`
-<div class="stat stat--streak"><p class="stat-label">Streak</p><p class="stat-value"><span class="big" style="color:${AMBER}">${num(header.streak)}</span><span>days</span></p><p class="stat-note">${streakLine(header)}${header.best ? ` Best ${num(header.best)}.` : ''}</p></div>
-<div class="stat"><p class="stat-label">Freezes</p><p class="stat-value"><span class="big" style="color:#9fd4ff">${header.freezes}</span><span>/ ${header.freezeCap ?? 3} max</span></p><p class="stat-note">Used automatically on an unfinished day. Shop only.</p></div>
+<div class="stat stat--streak"><p class="stat-label">Streak</p><p class="stat-value"><span class="big" style="color:var(--accent)">${num(header.streak)}</span><span>days</span></p><p class="stat-note">${streakLine(header)}${header.best ? ` Best ${num(header.best)}.` : ''}</p></div>
+<div class="stat"><p class="stat-label">Freezes</p><p class="stat-value"><span class="big">${header.freezes}</span><span>/ ${header.freezeCap ?? 3} max</span></p><p class="stat-note">Used automatically on an unfinished day. Shop only.</p></div>
 <div class="stat"><p class="stat-label">Day window</p><p class="stat-window">${win.main}</p><p class="stat-note">${win.sub}</p></div>
-<div class="stat stat--keeper"><p class="stat-label">Keeper level</p><p class="stat-value"><span class="big" style="color:var(--accent)">${k.level}</span></p><div class="bar bar--thin" role="img" aria-label="${num(k.xp)} of ${num(k.xpNext)} Keeper XP"><span style="width:${percentWidth(k.xp, k.xpNext)}%;background:var(--accent)"></span></div><p class="stat-note">Permanent. Never lost, even if pets die.</p></div>`;
+<div class="stat stat--keeper"><p class="stat-label">Keeper level</p><p class="stat-value"><span class="big">${k.level}</span></p><div class="bar bar--thin" role="img" aria-label="${num(k.xp)} of ${num(k.xpNext)} Keeper XP"><span style="width:${percentWidth(k.xp, k.xpNext)}%;background:var(--ink)"></span></div><p class="stat-note">Permanent. Never lost, even if pets die.</p></div>`;
 }
 
 // ---------- compact status line + Phoenix ----------
 const HUNGER = {
-  fed: { label: 'Fed', color: '#7ee0c3', text: 'Every task finished yesterday and everyone ate.' },
+  fed: { label: 'Fed', color: '#7fc48c', text: 'Every task finished yesterday and everyone ate.' },
   hungry: { label: 'Hungry', color: AMBER, text: "Yesterday wasn't finished. The streak reset and every pet lost 2 levels; they earn 2× XP until they're back." },
-  starving: { label: 'Starving', color: '#ff9fb2', text: 'Two unfinished days in a row. Every pet lost 5 more levels. One more and the active pets die.' },
-  dead: { label: 'Dead', color: '#ff6b81', text: 'Three unfinished days. The active pets are ashes and the backpack lost half. Keeper level and the Petdex are untouched.' },
+  starving: { label: 'Starving', color: '#ef7b6f', text: 'Two unfinished days in a row. Every pet lost 5 more levels. One more and the active pets die.' },
+  dead: { label: 'Dead', color: '#a8a398', text: 'Three unfinished days. The active pets are ashes and the backpack lost half. Keeper level and the Petdex are untouched.' },
 };
 
 export function renderStatusLine(header, pets) {
@@ -112,7 +112,7 @@ export function renderRing(today, header, now) {
   const flame = flameState(today, header, now);
   const { done, total } = today.progress || { done: 0, total: tasks.length };
   return html`<div class="today-ring ring--${flame.kind}" role="img" aria-label="${done} of ${total} tasks done. Streak ${header.streak} days. ${flame.text}.">
-<svg viewBox="0 0 132 132" width="132" height="132" aria-hidden="true"><g transform="rotate(-90 66 66)">${tasks.map((t, i) => html`<circle class="ring-seg${t.ticked ? ' is-done' : ''}" data-seg="${t.id}" cx="66" cy="66" r="${r}" fill="none" stroke="${t.ticked ? levelColor(t.level) : '#ffffff1f'}" stroke-width="10" stroke-dasharray="${seg.toFixed(2)} ${(C - seg).toFixed(2)}" stroke-dashoffset="${(-i * C / n).toFixed(2)}"/>`)}</g>
+<svg viewBox="0 0 132 132" width="132" height="132" aria-hidden="true"><g transform="rotate(-90 66 66)">${tasks.map((t, i) => html`<circle class="ring-seg${t.ticked ? ' is-done' : ''}" data-seg="${t.id}" cx="66" cy="66" r="${r}" fill="none" stroke="${t.ticked ? levelColor(t.level) : '#2d2b34'}" stroke-width="10" stroke-dasharray="${seg.toFixed(2)} ${(C - seg).toFixed(2)}" stroke-dashoffset="${(-i * C / n).toFixed(2)}"/>`)}</g>
 <g class="flame" transform="translate(66 50)"><path class="flame-outer" d="M0-26C9-14 18-6 18 7A18 18 0 0 1-18 7C-18-3-10-8-8-18-3-12 0-10 0-26Z"/><path class="flame-inner" d="M0-8C4-2 8 2 8 8A8 8 0 0 1-8 8C-8 3-4 0 0-8Z"/></g>
 <text x="66" y="92" text-anchor="middle" class="ring-streak">${header.streak}</text></svg>
 <p class="ring-caption ring-caption--${flame.kind}">${flame.text}</p></div>`;
@@ -222,7 +222,7 @@ ${ctx.owner ? html`<button type="button" class="button button--accent" data-acti
 
 export function renderToday(today, header, ctx) {
   const { done, total } = today.progress || { done: 0, total: 0 };
-  return html`<div class="today-head">${renderRing(today, header, ctx.now)}<div class="today-title"><p class="eyebrow-mono">Today · ${dayLabel(today.dayKey)} · list locked for ${monthName(today.listMonth)}</p><h2 id="today-title" class="section-title">A little progress, <em>every day.</em></h2>
+  return html`<div class="today-head">${renderRing(today, header, ctx.now)}<div class="today-title"><p class="eyebrow-mono">Today · ${dayLabel(today.dayKey)} · list locked for ${monthName(today.listMonth)}</p><h2 id="today-title" class="section-title">Today's list</h2>
 <p class="mono muted">${done}/${total} done · ${today.goddamnCount ?? 0}/${today.goddamnMax ?? 2} Goddamn</p></div></div>
 ${renderDayPicker(today, ctx)}
 <ul class="task-list">${(today.tasks || []).map(t => renderTask(t, today, ctx))}</ul>
@@ -262,7 +262,7 @@ ${f.upkeep ? html`<p class="pool-note">${num(f.upkeep)} reserved for backpack up
 <dt>Soft cap</dt><dd>${num(f.cap ?? 1200)}, then ${Math.round((f.capRate ?? 0.5) * 100)}%</dd>
 <dt>Active pets need (${activeN} × 100)</dt><dd>${num(f.activeNeed)}</dd>
 <dt>Backpack upkeep (${backN} × 10)</dt><dd>${num(f.upkeep)}</dd>
-<dt class="total">Left for growth</dt><dd class="total" style="color:${(f.leftForGrowth ?? 0) >= 0 ? 'var(--accent)' : AMBER}">${signed(f.leftForGrowth ?? 0)}</dd></dl>
+<dt class="total">Left for growth</dt><dd class="total" style="color:${(f.leftForGrowth ?? 0) >= 0 ? 'var(--ok)' : AMBER}">${signed(f.leftForGrowth ?? 0)}</dd></dl>
 ${ctx.owner ? html`<div class="feed-actions"><button type="button" class="button button--accent" data-action="feed-dinner"${plan.meal ? '' : raw(' disabled')}>Feed to dinner</button><button type="button" class="button" data-action="feed-surplus"${plan.growth && focus ? '' : raw(' disabled')}>Feed surplus</button></div>
 <p class="feed-preview">${num(plan.meal)} to dinner · ${num(plan.growth)} growth food → +${num(plan.growth)} XP · +${num(plan.growth)} egg meter${plan.growth ? ` (surplus goes to ${surplusTo})` : ''}</p>` : ''}`;
 }
@@ -302,7 +302,7 @@ export function renderPetCard(p, ctx, { pool = 0, treats = [] } = {}) {
   const c = tierColor(p.tier);
   const dead = p.mood === 'dead';
   const fedPct = percentWidth(p.fedToday, p.need || 100);
-  const fedColor = p.fedToday >= (p.need || 100) ? 'var(--accent)' : AMBER;
+  const fedColor = p.fedToday >= (p.need || 100) ? 'var(--ok)' : AMBER;
   const div = p.dividend || {};
   const canFeed = ctx.owner && !dead && pool > 0;
   const trinketNote = p.tier >= 3 ? `${p.trinkets?.length || 0} / 5 trinkets${p.trinkets?.length ? `: ${p.trinkets.map(t => t.name).join(', ')}` : ''}` : 'Trinkets unlock at Epic';
@@ -330,14 +330,14 @@ ${treats.length ? html`<button type="button" class="text-button" data-action="pe
 export function renderPets(pets, today, ctx, eggs) {
   const pool = today?.food?.pool || 0;
   const active = pets.active || [];
-  return html`<div class="section-head">${raw('<h2 class="section-title">Active <em>pets</em></h2>')}<p class="mono-label">${seatsLine(pets)}</p></div>
+  return html`<div class="section-head">${raw('<h2 class="section-title">Active pets</h2>')}<p class="mono-label">${seatsLine(pets)}</p></div>
 ${active.length ? html`<div class="pet-grid">${active.map(p => renderPetCard(p, ctx, { pool, treats: eggs?.treats || [] }))}</div>` : html`<p class="empty">No active pets right now.${ctx.owner ? ' Hatch a pet egg or move one in from the backpack.' : ''}</p>`}`;
 }
 
 export function renderBackpack(pets, ctx) {
   const list = pets.backpack || [];
   const freeSeat = (pets.seats?.used ?? pets.active?.length ?? 0) < (pets.seats?.total ?? 3);
-  return html`<div class="section-head">${raw('<h2 class="section-title">Back<em>pack</em></h2>')}<p class="mono-label">${list.length} / ${pets.backpackCap ?? 12} · 10 food each a day · no eggs, no dividends, no seat abilities</p></div>
+  return html`<div class="section-head">${raw('<h2 class="section-title">Backpack</h2>')}<p class="mono-label">${list.length} / ${pets.backpackCap ?? 12} · 10 food each a day · no eggs, no dividends, no seat abilities</p></div>
 ${list.length ? html`<ul class="backpack">${list.map(p => html`<li class="backpack-item" data-pet="${p.id}" style="--tier:${tierColor(p.tier)}">${raw(ctx.art.renderPet({ species: p.species, tier: p.tier, mood: p.mood, stars: p.stars, cosmetic: p.cosmetic, size: 72, name: p.name, level: p.level, focus: false, animate: false }))}
 <div class="backpack-copy"><p class="backpack-name">${p.name}</p><p class="mono small muted">${tierName(p.tier)} ${p.speciesName || p.species} · ${stars(p.stars).replace(/☆/g, '')} · Lv ${p.level} / ${p.cap}${p.beacon ? ' · Beacon' : ''}</p>
 ${ctx.owner ? html`<div class="manage-row"><button type="button" class="text-button" data-action="pet-activate" data-pet="${p.id}">${freeSeat || p.tier >= 2 ? 'Make active' : 'Make active (no free seat)'}</button><button type="button" class="text-button danger" data-action="pet-release" data-pet="${p.id}">Release…</button></div>` : ''}</div></li>`)}</ul>` : html`<p class="empty">The backpack is empty.</p>`}`;
@@ -349,8 +349,8 @@ const RECEIPTS = [['pagesRead', 'Pages read', v => num(v)], ['hoursOutside', 'Ho
 export function renderReceipts(receipts, ctx) {
   const scope = ui(ctx).receiptsScope === 'lifetime' ? 'lifetime' : 'month';
   const data = receipts?.[scope] || {};
-  return html`<div class="section-head">${raw('<h2 class="section-title">Re<em>ceipts</em></h2>')}<div class="picker-row" role="group" aria-label="Receipts period">${['month', 'lifetime'].map(s => html`<button type="button" class="chip-button" data-action="receipts-scope" data-scope="${s}" aria-pressed="${scope === s}" style="--chip:var(--accent)">${s === 'month' ? 'This month' : 'Lifetime'}</button>`)}</div></div>
-<p class="mono-label">What the pets actually stand for</p>
+  return html`<div class="section-head">${raw('<h2 class="section-title">Receipts</h2>')}<div class="picker-row" role="group" aria-label="Receipts period">${['month', 'lifetime'].map(s => html`<button type="button" class="chip-button" data-action="receipts-scope" data-scope="${s}" aria-pressed="${scope === s}" style="--chip:var(--ink)">${s === 'month' ? 'This month' : 'Lifetime'}</button>`)}</div></div>
+<p class="mono-label">What I actually did</p>
 <dl class="receipts">${RECEIPTS.map(([key, label, f]) => html`<div><dt>${label}</dt><dd>${data[key] === undefined || data[key] === null ? '—' : f(data[key])}</dd></div>`)}</dl>
 ${ctx.owner && receipts?.goals?.length ? html`<p class="mono-label goals-label">Goals (private)</p><ul class="goals">${receipts.goals.map(g => html`<li>${g.goal} <span class="mono muted">${plural(g.tasksDone, 'task')}</span></li>`)}</ul>` : ''}`;
 }
@@ -358,10 +358,10 @@ ${ctx.owner && receipts?.goals?.length ? html`<p class="mono-label goals-label">
 export function renderLadder(ladder) {
   const levels = ladder?.levels || LEVELS;
   const food = l => (Array.isArray(ladder?.foodRow) ? ladder.foodRow[levelIndex(l)] : ladder?.foodRow?.[l]);
-  return html`<div class="section-head">${raw('<h2 class="section-title">Difficulty <em>ladder</em></h2>')}<p class="mono-label">quantity × Chill: 1 / 1.5 / 3 / 5 / 20 · food × 1 / 2 / 4 / 12 / 50</p></div>
+  return html`<div class="section-head">${raw('<h2 class="section-title">Difficulty ladder</h2>')}<p class="mono-label">quantity × Chill: 1 / 1.5 / 3 / 5 / 20 · food × 1 / 2 / 4 / 12 / 50</p></div>
 <div class="table-wrap" tabindex="0" role="region" aria-label="Difficulty ladder table"><table class="ladder"><thead><tr><th scope="col">Task</th>${levels.map(l => html`<th scope="col"><span class="chip chip--solid" style="--chip:${levelColor(l)}">${levelLabel(l)}${l === 'easy' ? ' · default' : l === 'goddamn' ? ' · max 2/day' : ''}</span></th>`)}</tr></thead>
 <tbody>${(ladder?.rows || []).map(r => html`<tr><th scope="row">${r.name}${r.note ? html`<span class="row-note">${r.note}</span>` : ''}</th>${levels.map(l => html`<td>${r.cells?.[l] ?? '—'}</td>`)}</tr>`)}
-<tr class="food-row"><th scope="row">Pet food<span class="row-note">this list</span></th>${levels.map(l => html`<td style="${l === 'hard' ? `color:${AMBER}` : l === 'goddamn' ? 'color:#ff9fb2' : ''}">${food(l) === undefined ? '—' : num(food(l))}</td>`)}</tr></tbody></table></div>`;
+<tr class="food-row"><th scope="row">Pet food<span class="row-note">this list</span></th>${levels.map(l => html`<td style="${l === 'hard' ? `color:${AMBER}` : l === 'goddamn' ? 'color:#ef7b6f' : ''}">${food(l) === undefined ? '—' : num(food(l))}</td>`)}</tr></tbody></table></div>`;
 }
 
 // Orb count for the receipt-then-reward animation (CONTENT.md §I.2).

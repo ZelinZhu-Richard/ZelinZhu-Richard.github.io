@@ -108,7 +108,7 @@ async function onEvents(events, before, c) {
     if (ev.type === 'commit.bonus') c.announce(`Commitment bonus: +${num(ev.amount)} growth for your pets.`);
     if (ev.type === 'pet.fed') {
       const target = petEl(ev.petId);
-      await flyOrbs(qs('#pool-count'), target, Math.min(8, Math.max(2, Math.round(ev.amount / 20))), '#dfccff', 500);
+      await flyOrbs(qs('#pool-count'), target, Math.min(8, Math.max(2, Math.round(ev.amount / 20))), '#e8743b', 500);
       petMotion(target, 'pet--eat', 900);
       if (qs(`.companion[data-pet="${CSS.escape(ev.petId)}"]`)) petMotion(qs('#companion .companion'), 'pet--eat', 900);
     }

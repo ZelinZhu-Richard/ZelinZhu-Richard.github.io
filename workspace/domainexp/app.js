@@ -12,18 +12,18 @@ const camera = new CameraSession(video), tracker = new FrameTracker(), domain = 
 const fireball = new FireballState();
 const dust = new DustState();
 const effects = {
-  domain: {state: domain, guide: 'domain', label: 'FRAME / TRANSFORM', active: 'DOMAIN EXPANDED', prompt: 'Show both hands',
-    title: 'Your hands draw the boundary. The world inside becomes pixels.', lead: 'Make room for', emphasis: 'another reality.',
-    instruction: 'Show both hands, then spread your thumbs and index fingers. The finger outlines help you frame a window.',
-    below: 'Frame with both hands. Move to reshape. Lower a hand to release.', aria: 'Mirrored webcam with a pixelated window between your thumbs and index fingers'},
-  fireball: {state: fireball, guide: 'fire', label: 'PALM / CAST', active: 'FIREBALL CAST', prompt: 'Show an open palm',
-    title: 'An open palm starts the fire. Cast a fireball toward the camera.', lead: 'Fire at', emphasis: 'your fingertips.',
-    instruction: 'Show an open palm to cast. Close and reopen your hand to cast again.',
-    below: 'One open palm. One fireball. Close, reopen, and cast again.', aria: 'Mirrored webcam with fireballs launched from your open palms'},
-  dust: {state: dust, guide: 'dust', label: 'SEAL / RELEASE', active: '尘遁 · DUST RELEASE', prompt: 'Show both palms toward the camera',
-    title: 'Bring your fingertips close. Release a cube of light into dust.', lead: 'A world within', emphasis: 'your hands.',
+  domain: {state: domain, guide: 'domain', label: 'DOMAIN · 2 HANDS', active: 'DOMAIN EXPANDED', prompt: 'Show both hands',
+    title: 'Hold up both hands and make an L with each thumb and index finger. Everything inside the rectangle turns to pixels.', lead: 'Frame a window', emphasis: 'with both hands.',
+    instruction: 'Start the camera and show both palms. An outline appears on each finger. Spread your thumbs and index fingers apart: the four fingertips become the corners of the window.',
+    below: 'Move your hands to resize the window. Lower either hand and the pixels go away.', aria: 'Mirrored webcam with a pixelated window between your thumbs and index fingers'},
+  fireball: {state: fireball, guide: 'fire', label: 'FIREBALL · 1 PALM', active: 'FIREBALL CAST', prompt: 'Show an open palm',
+    title: 'Hold one open palm toward the camera. A fireball flies from it toward you. Close and reopen your hand to cast another.', lead: 'Show one', emphasis: 'open palm.',
+    instruction: 'Hold an open palm toward the camera for a moment to cast. Close your hand and open it again to cast another. Each hand casts on its own.',
+    below: 'One cast per open palm. Close and reopen the hand to cast again, after a short cooldown.', aria: 'Mirrored webcam with fireballs launched from your open palms'},
+  dust: {state: dust, guide: 'dust', label: 'DUST RELEASE · 2 PALMS', active: '尘遁 · DUST RELEASE', prompt: 'Show both palms toward the camera',
+    title: 'Face both palms to the camera, thumb near thumb and index near index. Hold the pose and a white cube forms between your fingers, then breaks into dust.', lead: 'Make the seal', emphasis: 'with both palms.',
     instruction: 'Palms toward the camera. Bring thumb to thumb and index to index, leaving a small gap. Hold to release.',
-    below: 'Two palms. Four fingertips. Hold to release 尘遁, then separate to cast again.', aria: 'Mirrored webcam with a luminous Dust Release cube between both hands'},
+    below: 'Hold the seal to release 尘遁. Pull your hands apart, then make the seal again to repeat.', aria: 'Mirrored webcam with a white Dust Release cube between both hands'},
 };
 const resetEffects = () => { tracker.reset(); Object.values(effects).forEach(({state}) => state.reset()); };
 let effect = 'domain', effectRevision = 0;
@@ -32,7 +32,7 @@ let vision = null, generation = 0, animation = 0, running = false, busy = false,
 function say(text) { if (status.textContent !== text) status.textContent = text; }
 function controls(active) { startButtons.forEach(button => button.disabled = active); $('stop').disabled = !active; }
 
-function stop(message = 'Camera off. Ready when you are.') {
+function stop(message = 'Camera off. Press Start camera to begin again.') {
   generation++; running = false; busy = false; cancelAnimationFrame(animation);
   camera.stop(); vision?.stop(); vision = null; resetEffects();
   lastInference = -Infinity; lastVideoTime = -1;
@@ -106,7 +106,7 @@ document.querySelectorAll('input[name="effect"]').forEach(input => input.addEven
   $('view').setAttribute('aria-label', config.aria);
   $('domain-label').textContent = config.label;
   if (running) say(config.prompt);
-  else if (arena.dataset.state !== 'starting') say('Ready when you are');
+  else if (arena.dataset.state !== 'starting') say('Press Start camera to begin');
 }));
 
 startButtons.forEach(button => button.addEventListener('click', start));

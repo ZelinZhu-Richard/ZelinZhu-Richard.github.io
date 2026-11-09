@@ -77,7 +77,7 @@ test('static build includes the full standalone page and excludes authoring and 
 test('all website navigation surfaces and deployment checks include Flash', async () => {
   const root = new URL('../../../', import.meta.url);
   const [pages, runtime, build, verify] = await Promise.all(['site/pages.mjs','public/_nuxt/CbdjwYMp.js','tools/build.mjs','tools/verify.mjs'].map(file => readFile(new URL(file, root), 'utf8')));
-  assert.ok(pages.includes("['/flash/','Flash']"));
+  assert.ok(pages.includes("link('/flash/','Flash')"), 'Flash is linked from the Experiments page');
   assert.ok(runtime.includes('to:"/flash/"'));
   assert.ok(runtime.includes('link:"/flash/",text:"Flash"'));
   assert.ok(build.includes("await buildFlash('dist')"));

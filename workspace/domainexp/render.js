@@ -155,7 +155,7 @@ export class Renderer {
     const width = Math.max(1, Math.round(bounds.width * scale)), height = Math.max(1, Math.round(bounds.height * scale));
     if (this.canvas.width !== width || this.canvas.height !== height) { this.canvas.width = width; this.canvas.height = height; }
     const ctx = this.ctx;
-    ctx.fillStyle = '#090713'; ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = '#161514'; ctx.fillRect(0, 0, width, height);
     if (!video.videoWidth || video.readyState < 2) return;
     const rect = containRect(video.videoWidth, video.videoHeight, width, height);
     drawCamera(ctx, video, rect);

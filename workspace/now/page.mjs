@@ -63,16 +63,16 @@ export function nowPage(data) {
   const updatedTime = `<time datetime="${escape(data.updated)}">${escape(updated)}</time>`;
   return `<section class="page-intro now-intro">
 <p class="eyebrow now-mono">Now · updated ${updatedTime}</p>
-<h1>Learning, <em>in public.</em></h1>
+<h1>Learning in public</h1>
 <p class="lede now-lede">A running log of what I'm studying, what I've shipped, and what's next. I update it as things move — wins and misses both.</p>
 <p class="now-currently"><span class="now-currently-label">currently${arrow}</span> <span class="now-currently-items">${currently(data.currently)}</span></p>
 </section>
 <section class="experience now-section now-courses" aria-labelledby="now-term">
-${head('now-term', `${escape(data.term.label)} <em>${escape(data.term.emphasis)}</em>`, '01 — Coursework &amp; study')}
+${head('now-term', `${escape(data.term.label)} ${escape(data.term.emphasis)}`, '01 — Coursework &amp; study')}
 <ol>${data.courses.map(course).join('')}</ol>
 </section>
 <section class="now-section now-milestones" aria-labelledby="now-milestones-title">
-${head('now-milestones-title', 'Shipped, <em>and next</em>', '02 — Milestones')}
+${head('now-milestones-title', 'Shipped and next', '02 — Milestones')}
 <ol class="now-timeline">${data.milestones.map(milestone).join('')}</ol>
 </section>
 <section class="now-section now-month" aria-labelledby="now-month-title" data-now-month hidden>
@@ -83,6 +83,6 @@ ${head('now-milestones-title', 'Shipped, <em>and next</em>', '02 — Milestones'
 <dl class="now-stats" data-now-stats></dl>
 <a class="now-month-link" href="/daily/">See the receipts on Daily <span aria-hidden="true">↗</span></a>
 </section>
-<p class="now-closing">Build. Learn. Repeat. · Last updated ${updatedTime}</p>
+<p class="now-closing">Last updated ${updatedTime}</p>
 <script type="module" src="/now/strip.js"></script>`;
 }

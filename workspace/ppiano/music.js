@@ -2,7 +2,7 @@ export const NOTE_NAMES = ['C', 'D♭', 'D', 'E♭', 'E', 'F', 'G♭', 'G', 'A�
 export const DEGREES = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'I ↑'];
 export const WHITE_NOTES = [60, 62, 64, 65, 67, 69, 71, 72];
 export const BLACK_NOTES = [61, 63, 66, 68, 70];
-export const CHORD_COLORS = ['#f4b354','#e364a3','#c88ce6','#f5df67','#ff9a58','#f57878','#8dd9ef','#f4b354'];
+export const CHORD_COLORS = ['#e9b949','#e07a5f','#d9a6a0','#f2e3b3','#d98c5f','#9fc2a4','#9cc3d5','#e9b949'];
 const MAJOR_ROOT_NAMES = [
   'C D E F G A B', 'D♭ E♭ F G♭ A♭ B♭ C', 'D E F♯ G A B C♯',
   'E♭ F G A♭ B♭ C D', 'E F♯ G♯ A B C♯ D♯', 'F G A B♭ C D E',

@@ -1,18 +1,20 @@
+/* /skills/ — paper-and-ink tokens from /portfolio.css (site/DESIGN.md). */
 .skills-intro {
-  padding-bottom: 64px;
+  padding-bottom: 72px;
 }
 
+/* Heading left, entries right: a 4/6 split, not a card grid. */
 .skill-section {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
   gap: 8%;
-  padding: 56px 0 64px;
-  border-top: 1px solid var(--line);
+  padding: 48px 0 80px;
+  border-top: 1px solid var(--ink);
   scroll-margin-top: 32px;
 }
 
 .skill-section h2 {
-  font-size: clamp(34px, 3.5vw, 52px);
+  font-size: clamp(30px, 3.4vw, 46px);
   margin-bottom: 0;
   text-wrap: balance;
 }
@@ -29,27 +31,32 @@
 }
 
 .skill-list li + li {
-  margin-top: 36px;
-  padding-top: 36px;
+  margin-top: 32px;
+  padding-top: 32px;
   border-top: 1px solid var(--line);
 }
 
 .skill-heading {
   display: flex;
   align-items: baseline;
-  gap: 12px 20px;
+  gap: 6px 16px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .skill-heading h3 {
-  font-size: 30px;
+  font-size: 28px;
   margin: 0;
   overflow-wrap: anywhere;
 }
 
+.skill-heading h3 a {
+  border-bottom: 1px solid transparent;
+}
+
 .skill-author {
-  font-size: 15px;
+  font-family: var(--font-mono);
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -61,7 +68,13 @@
 }
 
 .skill-list .actions {
-  margin-top: 22px;
+  margin-top: 20px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .skill-heading h3 a:hover {
+    border-color: var(--ink);
+  }
 }
 
 @media (max-width: 700px) {
@@ -71,7 +84,11 @@
 
   .skill-section {
     grid-template-columns: 1fr;
-    gap: 32px;
-    padding: 38px 0 46px;
+    gap: 24px;
+    padding: 36px 0 48px;
+  }
+
+  .skill-heading h3 {
+    font-size: 24px;
   }
 }

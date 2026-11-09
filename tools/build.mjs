@@ -15,6 +15,8 @@ import { buildDaily } from '../workspace/daily/build.mjs';
 import { buildHq } from '../workspace/hq/build.mjs';
 import { buildSharkBackground } from '../workspace/ascii-sharks/build.mjs';
 import { buildStars } from '../workspace/github-stars/build.mjs';
+import { buildWork } from '../workspace/work/build.mjs';
+import { buildStones } from '../workspace/stones/build.mjs';
 await verifyManifest();
 await rm('dist', { recursive: true, force: true });
 await cp('public', 'dist', { recursive: true });
@@ -23,6 +25,7 @@ for (const [file, html] of pages()) {
   await mkdir(`dist/${file.substring(0, file.lastIndexOf('/') + 1)}`, { recursive: true });
   await writeFile(`dist/${file}`, html);
 }
+await buildWork('dist');
 await buildFlash('dist');
 await buildPaperPiano('dist');
 await buildGym('dist');
@@ -34,9 +37,10 @@ await buildNow('dist');
 await buildDaily('dist');
 await buildHq('dist');
 const researchUrls = await buildStars('dist');
+await buildStones('dist');
 await buildSharkBackground('dist');
 await writeFile('dist/.nojekyll', '');
-const urls = ['/', '/work/', '/about/', '/research/', '/skills/', '/now/', '/daily/', '/video/', '/contacts/', '/flash/', '/ppiano/', '/gym/', '/domainexp/', '/github/stars/', ...researchUrls];
+const urls = ['/', '/work/', '/projects/', '/experiments/', '/about/', '/research/', '/skills/', '/now/', '/daily/', '/video/', '/contacts/', '/flash/', '/ppiano/', '/gym/', '/domainexp/', '/github/stars/', ...researchUrls];
 await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(url => `<url><loc>https://zelinzhu-richard.github.io${url}</loc></url>`).join('')}</urlset>\n`);
 await writeFile('dist/robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://zelinzhu-richard.github.io/sitemap.xml\n');
 const check = spawnSync(process.execPath, ['tools/verify.mjs', 'dist'], { stdio: 'inherit' });

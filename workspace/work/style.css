@@ -1,0 +1,108 @@
+/* /work/ — builds on the tokens in /portfolio.css. Rules: site/DESIGN.md */
+
+/* Intro: title on the left, a plain index of projects on the right. */
+.work-intro{
+  display:grid;
+  grid-template-columns:7fr 5fr;
+  gap:40px 8%;
+  align-items:end;
+  padding:72px 0 104px
+}
+.work-intro h1{max-width:9ch}
+.work-intro .lede{margin-bottom:0}
+.work-index ol{list-style:none;margin:0;padding:0;border-bottom:1px solid var(--ink);font-family:var(--font-mono);font-size:14px}
+.work-index li{border-top:1px solid var(--line)}
+.work-index li:first-child{border-top-color:var(--ink)}
+.work-index a{display:grid;grid-template-columns:3ch 1fr auto;gap:14px;padding:9px 2px}
+.work-index a span:first-child,.work-index a span:last-child{color:var(--muted)}
+
+/* Groups */
+.work-group{padding-bottom:40px}
+.work-group-head{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:6px 24px;
+  padding:16px 0 0;
+  border-top:2px solid var(--ink)
+}
+.work-group-title{font-size:15px;font-family:var(--font-mono);letter-spacing:.02em;text-transform:uppercase;margin:0}
+.work-group-head p{margin:0;font-size:16px;color:var(--muted)}
+
+/* One project */
+.work-item{
+  display:grid;
+  gap:20px 6%;
+  padding:56px 0;
+  border-top:1px solid var(--line);
+  scroll-margin-top:24px
+}
+.work-group-head+.work-item{border-top:0;padding-top:40px}
+.work-head{min-width:0}
+.work-num{font-family:var(--font-mono);font-size:13px;color:var(--muted);margin:0 0 10px}
+.work-head h2{font-size:clamp(32px,3.4vw,48px);margin-bottom:8px}
+.work-context{font-family:var(--font-mono);font-size:13px;color:var(--muted);margin:0}
+.work-summary{
+  font-family:var(--font-display);
+  font-size:clamp(21px,1.9vw,26px);
+  line-height:1.28;
+  letter-spacing:-.015em;
+  margin-bottom:16px;
+  max-width:30ch
+}
+.work-desc{max-width:62ch;margin-bottom:22px}
+.work-facts{margin:0;display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--ink)}
+.work-facts div{padding:9px 14px 9px 0;border-bottom:1px solid var(--line)}
+.work-facts dt{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.work-facts dd{margin:2px 0 0;font-size:15px;line-height:1.4}
+.work-item .actions{margin-top:22px}
+
+/* Larger projects: name on the left (stays in view), write-up and a real artifact on the right. */
+.work-item--research{grid-template-columns:4fr 8fr;grid-template-areas:"head body" "head media"}
+.work-item--research .work-head{grid-area:head;align-self:start;position:sticky;top:24px}
+.work-item--research .work-body{grid-area:body}
+.work-item--research .work-code{grid-area:media}
+
+.work-code{margin:8px 0 0;border:1px solid var(--line);background:var(--stage);color:var(--on-stage)}
+.work-code figcaption{margin:0;padding:8px 14px;border-bottom:1px solid #ffffff2a;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#c9c5bb}
+.work-code pre{margin:0;padding:18px 16px 20px;overflow-x:auto;font-family:var(--font-mono);font-size:14px;line-height:1.7;tab-size:2}
+
+/* Site experiments: tighter rows, with a screenshot on the right. */
+.work-item--site{grid-template-columns:3fr 5fr 4fr;padding:44px 0}
+.work-item--site .work-head h2{font-size:clamp(28px,2.6vw,38px)}
+.work-item--site .work-summary{font-size:clamp(19px,1.6vw,22px)}
+.work-item--site .work-facts{grid-template-columns:1fr}
+.work-item--site .work-facts div{display:grid;grid-template-columns:7ch 1fr;gap:10px;align-items:baseline}
+.work-item--site .work-facts dd{margin:0}
+.work-shot{margin:4px 0 0;border:1px solid var(--ink);background:var(--card);box-shadow:var(--shadow);align-self:start}
+.work-shot img{display:block;width:100%;height:auto;aspect-ratio:16/10;object-fit:cover;object-position:top left}
+.work-item--site:nth-of-type(even) .work-shot{transform:rotate(.5deg)}
+.work-item--site:nth-of-type(odd) .work-shot{transform:rotate(-.4deg)}
+
+@media(hover:hover) and (pointer:fine){
+  .work-index a:hover span{color:var(--accent)}
+}
+
+@media(max-width:1000px){
+  .work-item--site{grid-template-columns:4fr 8fr;grid-template-areas:"head body" "head shot"}
+  .work-item--site .work-head{grid-area:head}
+  .work-item--site .work-body{grid-area:body}
+  .work-item--site .work-shot{grid-area:shot;max-width:520px}
+}
+@media(max-width:700px){
+  .work-intro{grid-template-columns:1fr;padding:44px 0 64px}
+  .work-item,.work-item--research,.work-item--site{grid-template-columns:1fr;grid-template-areas:none;padding:40px 0}
+  .work-item--research .work-head,.work-item--site .work-head{position:static;grid-area:auto}
+  .work-item--research .work-body,.work-item--research .work-code,.work-item--site .work-body,.work-item--site .work-shot{grid-area:auto}
+  .work-facts{grid-template-columns:1fr}
+  .work-code pre{font-size:13px}
+  .work-item--site .work-shot{transform:none;box-shadow:3px 3px 0 var(--ink)}
+}
+@media(prefers-reduced-motion:reduce){
+  .work-shot{transform:none!important}
+}
+
+/* Section pages (/projects/, /experiments/): a short intro, then the same project rows. */
+.work-intro--section{grid-template-columns:1fr;padding-bottom:56px}
+.work-intro--section h1{max-width:none}
+.work-intro--section+.work-group>.work-item:first-child{border-top:2px solid var(--ink);padding-top:40px}

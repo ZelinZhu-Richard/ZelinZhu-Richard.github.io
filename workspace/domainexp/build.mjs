@@ -12,8 +12,9 @@ export async function buildDomainExpansion(output) {
   await mkdir(target, {recursive: true});
   for (const file of runtime) await cp(join(source, file), join(target, file));
   const header = pages().get('work/index.html').match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0];
-  if (!header || !header.includes('/domainexp/')) throw new Error('Domain Expansion navigation is missing.');
-  const activeHeader = header.replaceAll(' aria-current="page"', '').replace('href="/domainexp/"', 'href="/domainexp/" aria-current="page"');
+  // The site menu is the seven stones; Domain Expansion sits under Experiments (workspace/stones marks it current).
+  if (!header || !header.includes('href="/experiments/"')) throw new Error('Site navigation to Experiments is missing.');
+  const activeHeader = header.replaceAll(' aria-current="page"', '');
   await writeFile(join(target, 'index.html'), (await readFile(join(source, 'index.html'), 'utf8')).replace('<!-- PORTFOLIO_HEADER -->', activeHeader));
   const manifest = JSON.parse(await readFile(join(shared, 'assets/manifest.json'), 'utf8'));
   if (manifest.mediapipe !== '0.10.14') throw new Error('Review the MediaPipe version before updating Domain Expansion.');

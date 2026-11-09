@@ -31,7 +31,7 @@ export function renderBreadcrumbs(catalog,current='') {
 export function renderChildFolders(catalog,current='') {
   const children=folderChildren(catalog,current);
   if(!children.length) return '';
-  return `<section class="child-folders" aria-labelledby="child-folders-heading"><h2 id="child-folders-heading">Explore folders</h2><ul>${children.map(folder=>`<li><a data-folder-link="${escape(folder.id)}" href="${folderUrl(folder.id)}">${folderIcon}<span class="child-folder-copy"><strong>${escape(folder.label)}</strong><span>${escape(folder.description)}</span></span><span class="folder-count">${folderCount(catalog,folder.id)}<span class="sr-only"> tools</span></span>${arrow}</a></li>`).join('')}</ul></section>`;
+  return `<section class="child-folders" aria-labelledby="child-folders-heading"><h2 id="child-folders-heading">Subfolders</h2><ul>${children.map(folder=>`<li><a data-folder-link="${escape(folder.id)}" href="${folderUrl(folder.id)}">${folderIcon}<span class="child-folder-copy"><strong>${escape(folder.label)}</strong><span>${escape(folder.description)}</span></span><span class="folder-count">${folderCount(catalog,folder.id)}<span class="sr-only"> tools</span></span>${arrow}</a></li>`).join('')}</ul></section>`;
 }
 
 export function researchRepoRow(repo,types) {

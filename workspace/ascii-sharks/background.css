@@ -13,9 +13,11 @@ body:has(> #ascii-sharks-background) {
   user-select: none;
   touch-action: auto;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  opacity: .46;
-  mix-blend-mode: screen;
-  filter: saturate(.45);
+  /* Dark pages screen light sharks over the page. Light pages (portfolio.css) set the
+     --sharks-* tokens so the same canvas prints as faint ink on paper. */
+  opacity: var(--sharks-opacity, .46);
+  mix-blend-mode: var(--sharks-blend, screen);
+  filter: var(--sharks-filter, saturate(.45));
   mask-image: linear-gradient(90deg, #0008, #000 65%);
 }
 .sharks-toggle {
@@ -28,15 +30,15 @@ body:has(> #ascii-sharks-background) {
   gap: 8px;
   min-height: 44px;
   padding: 10px 13px;
-  border: 1px solid #dfccff40;
-  border-radius: 4px;
-  background: #111022;
-  color: #dfccff;
-  font: 12px/1.4 Neoris, Arial, sans-serif;
+  border: 1px solid var(--sharks-toggle-line, #dfccff40);
+  border-radius: var(--sharks-toggle-radius, 4px);
+  background: var(--sharks-toggle-bg, #111022);
+  color: var(--sharks-toggle-ink, #dfccff);
+  font: 12px/1.4 var(--sharks-toggle-font, Neoris, Arial, sans-serif);
   cursor: pointer;
   touch-action: manipulation;
 }
-.sharks-toggle:hover { background: #242035; border-color: #dfccff90; }
+.sharks-toggle:hover { background: var(--sharks-toggle-hover, #242035); border-color: var(--sharks-toggle-ink, #dfccff90); }
 .sharks-toggle:focus-visible { outline: 2px solid #dfccff; outline-offset: 4px; }
 .sharks-toggle:active { transform: translateY(1px); }
 .sharks-toggle[hidden] { display: none; }
@@ -56,7 +58,7 @@ body:has(.station) .sharks-toggle { top: 16px; bottom: auto; right: calc(368px +
   body:has(.station) .sharks-toggle { right: 12px; }
 }
 @media (max-width: 700px) {
-  #ascii-sharks-background { opacity: .34; mask-image: linear-gradient(90deg, #0009, #000); }
+  #ascii-sharks-background { opacity: var(--sharks-opacity-small, .34); mask-image: linear-gradient(90deg, #0009, #000); }
   .sharks-toggle { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
 }
 @media print {
