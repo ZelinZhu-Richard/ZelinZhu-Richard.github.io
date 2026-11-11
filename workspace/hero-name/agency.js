@@ -1,10 +1,10 @@
 // Hero line on the phoenix homepage. The page opens on "Build. Learn. and repeat."; after a beat the
 // letters break into sand that settles into a thin line, and the line rises, grain by grain, into
-// "Agency, and good company." Written for this site in the spirit of Canvas UI's Particle Scroll
+// "Agency, and I’ll bring the snacks." Written for this site in the spirit of Canvas UI's Particle Scroll
 // (no code from it is used). Plain 2D canvas, no dependencies.
 
 export const LEAD = 'Agency,';
-export const REST = 'and good company.';
+export const REST = 'and I’ll bring the snacks.';
 export const LABEL = `${LEAD} ${REST}`;
 
 // Milliseconds. Each grain falls for `fall` and rises for `riseLen`; grains further right start later.
