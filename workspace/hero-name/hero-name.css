@@ -7,17 +7,30 @@
   src: url("/hero-name/ibarra-real-nova-italic.woff2") format("woff2");
 }
 
-/* "Richard Zhu" and the "and" in "Build. Learn. and repeat." above it. The `body` and `div` raise
+/* "Richard Zhu" and the whole "Build. Learn. and repeat." line above it. The `body` and `div` raise
    specificity above the captured runtime's own !important rules for these elements. */
 body .home-hero h1,
 body .home-hero h1 div.char,
+body .home-hero h2,
 body .home-hero h2 span,
-body .home-hero h2 span div {
+body .home-hero h2 div {
   font-family: "Ibarra Real Nova", TheSeasons, serif !important;
   font-style: italic;
   font-weight: 400 !important;
 }
 body .home-hero h1 { letter-spacing: -.02em !important; }
+
+/* The hero line agency.js turns "Build. Learn. and repeat." into: a large "Agency," over "and good company.". */
+body .home-hero h2 .hero-agency-lead {
+  display: inline-block;
+  font-size: 1.6em;
+  line-height: .95;
+  letter-spacing: -.02em;
+}
+body .home-hero h2 .hero-agency-rest {
+  display: inline-block;
+  margin-left: 1.1em;
+}
 
 /* Each letter paints its gradient with background-clip:text, so anything outside the letter's box is
    invisible. Italic ascenders, overhangs and i-dots reach past a tight box. Give the box room and cancel

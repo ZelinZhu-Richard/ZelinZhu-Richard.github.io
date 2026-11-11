@@ -5,13 +5,13 @@ import { join } from 'node:path';
 
 const source = fileURLToPath(new URL('.', import.meta.url));
 
-// The font, its license and the stylesheet. subset.py (which regenerates the font) does not ship.
-export const HERO_NAME_FILES = ['hero-name.css', 'ibarra-real-nova-italic.woff2', 'OFL.txt'];
+// The font, its license, the stylesheet and the hero-line animation. subset.py (which regenerates the font) does not ship.
+export const HERO_NAME_FILES = ['hero-name.css', 'agency.js', 'ibarra-real-nova-italic.woff2', 'OFL.txt'];
 
 // The captured homepage stays as committed; the built copy gets the stylesheet.
 export function withHeroName(html, version) {
   if (html.includes('/hero-name/hero-name.css')) return html;
-  const head = `<link rel="preload" href="/hero-name/ibarra-real-nova-italic.woff2?v=${version}" as="font" type="font/woff2" crossorigin>\n<link rel="stylesheet" href="/hero-name/hero-name.css?v=${version}">\n`;
+  const head = `<link rel="preload" href="/hero-name/ibarra-real-nova-italic.woff2?v=${version}" as="font" type="font/woff2" crossorigin>\n<link rel="stylesheet" href="/hero-name/hero-name.css?v=${version}">\n<script type="module" src="/hero-name/agency.js?v=${version}"></script>\n`;
   return html.replace(/<\/head\s*>/i, head + '</head>');
 }
 

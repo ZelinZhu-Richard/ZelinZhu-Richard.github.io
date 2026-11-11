@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 import { HERO_NAME_FILES, withHeroName, withHeroFontLoad } from '../workspace/hero-name/build.mjs';
+import { LABEL, DURATION, markup, pair, place, heroProgress } from '../workspace/hero-name/agency.js';
 
 const dir = 'workspace/hero-name/';
 
@@ -25,7 +26,7 @@ test('built homepage gets the stylesheet and preload once, before </head>', () =
   const html = '<html><head><title>x</title></head><body></body></html>';
   const once = withHeroName(html, 'abc');
   assert.match(once, /<link rel="preload" href="\/hero-name\/ibarra-real-nova-italic\.woff2\?v=abc" as="font" type="font\/woff2" crossorigin>/);
-  assert.match(once, /<link rel="stylesheet" href="\/hero-name\/hero-name\.css\?v=abc">\n<\/head>/);
+  assert.match(once, /<link rel="stylesheet" href="\/hero-name\/hero-name\.css\?v=abc">\n<script type="module" src="\/hero-name\/agency\.js\?v=abc"><\/script>\n<\/head>/);
   assert.equal(withHeroName(once, 'abc'), once);
 });
 
@@ -35,4 +36,32 @@ test('start.js waits for the hero font before SplitText measures the letters', a
   assert.ok(wait > 0 && wait < start.indexOf("import('./_nuxt/CbdjwYMp.js')"));
   assert.equal(withHeroFontLoad(start), start);
   assert.throws(() => withHeroFontLoad('await import("x")'), /font wait not found/);
+});
+
+test('hero line becomes "Agency, and good company."', () => {
+  assert.equal(LABEL, 'Agency, and good company.');
+  assert.equal(markup, '<span class="hero-agency-lead">Agency,</span><br><span class="hero-agency-rest">and good company.</span>');
+});
+
+test('sand grains start on the motto, gather on the line, and end on the new line', () => {
+  const source = [{ x: 0, y: 0 }, { x: 10, y: 5 }, { x: 20, y: 0 }];
+  const target = [{ x: 4, y: 2 }, { x: 8, y: 2 }, { x: 12, y: 2 }, { x: 16, y: 2 }, { x: 30, y: 4 }];
+  const grains = pair(source, target, 50, () => 0.5);
+  assert.equal(grains.length, 5, 'one grain per target pixel when the target has more');
+  assert.deepEqual(grains.map(g => g.lx), [0, 7.5, 15, 22.5, 30], 'line slots span both texts left to right');
+  for (const g of grains) {
+    assert.deepEqual(place(g, 0), { x: g.sx, y: g.sy });
+    const end = place(g, DURATION);
+    assert.ok(Math.abs(end.x - g.ex) < 1e-9 && Math.abs(end.y - g.ey) < 1e-9);
+  }
+  const onLine = place(grains[0], 1350);
+  assert.ok(Math.abs(onLine.y - 50) < 1e-9, 'every grain rests on the line between falling and rising');
+  assert.deepEqual(pair([], target, 50), []);
+});
+
+test('hero scroll progress comes from the name letters the runtime fades', () => {
+  const chars = o => o.map(opacity => ({ style: { opacity } }));
+  assert.equal(heroProgress(chars(['', '1'])), 0);
+  assert.equal(heroProgress(chars(['0.5', '0'])), 0.75);
+  assert.equal(heroProgress([]), 0);
 });
