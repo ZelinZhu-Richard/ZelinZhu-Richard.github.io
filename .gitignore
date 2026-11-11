@@ -21,6 +21,9 @@ artifacts/
 /workspace/daily/_private/
 /workspace/hq/_private/
 
+# Music player songs stay local unless they are cleared to publish (see workspace/music/playlist.js).
+/workspace/music/tracks/
+
 # Private material stays local throughout the workspace.
 **/_private/
 

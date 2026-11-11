@@ -7,6 +7,9 @@ import { PLAYLIST } from './playlist.js';
 export const VOLUME = 0.4; // the runtime's background loop played at gain 0.4
 
 export const nextIndex = (index, length) => (length ? (index + 1) % length : 0);
+export const prevIndex = (index, length) => (length ? (index - 1 + length) % length : 0);
+// "Last" restarts the song when it is more than 3 s in, like most players; otherwise it goes back one.
+export const lastAction = currentTime => (currentTime > 3 ? 'restart' : 'previous');
 export const trackLabel = track => (track.artist ? `${track.title} · ${track.artist}` : track.title);
 
 // What the runtime's sound switch should make the player do. `active` is the switch, `playing` the
@@ -20,6 +23,7 @@ export function follow({ active, playing, userPaused }) {
 const NOTE = '<svg class="vibe-note" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2.2 13 1v9.3a2.2 2.2 0 1 1-1.4-2V4.1L7.4 4.8v7.5a2.2 2.2 0 1 1-1.4-2Z"/></svg>';
 const BARS = '<span class="vibe-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
 const NEXT = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 1.5 7.5 6l-6 4.5Zm7 0h2v9h-2Z"/></svg>';
+const LAST = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M10.5 1.5 4.5 6l6 4.5Zm-7 0h-2v9h2Z"/></svg>';
 
 function start() {
   if (!PLAYLIST.length) return;
@@ -34,7 +38,7 @@ function start() {
   root.className = 'vibe-player';
   root.setAttribute('role', 'group');
   root.setAttribute('aria-label', 'Music');
-  root.innerHTML = `<button type="button" class="vibe-toggle">${NOTE}${BARS}</button><span class="vibe-now" aria-live="polite"></span>${PLAYLIST.length > 1 ? `<button type="button" class="vibe-next" aria-label="Next song">${NEXT}</button>` : ''}`;
+  root.innerHTML = `<button type="button" class="vibe-toggle">${NOTE}${BARS}</button><button type="button" class="vibe-last" aria-label="Last song">${LAST}</button><button type="button" class="vibe-next" aria-label="Next song">${NEXT}</button><span class="vibe-now" aria-live="polite"></span>`;
   const toggle = root.querySelector('.vibe-toggle');
   const now = root.querySelector('.vibe-now');
   const switchEl = () => document.querySelector('.sound-button');
@@ -61,10 +65,12 @@ function start() {
     if (want && !audio.paused) { userPaused = true; pause(); setSwitch(false); }
     else { userPaused = false; play(); setSwitch(true); }
   });
-  root.querySelector('.vibe-next')?.addEventListener('click', () => {
-    index = nextIndex(index, PLAYLIST.length);
-    load();
-    if (want) play(); else render();
+  // Last and next always play, so they also turn the runtime's sound back on.
+  const skipTo = i => { index = i; load(); userPaused = false; play(); setSwitch(true); };
+  root.querySelector('.vibe-next').addEventListener('click', () => skipTo(nextIndex(index, PLAYLIST.length)));
+  root.querySelector('.vibe-last').addEventListener('click', () => {
+    if (lastAction(audio.currentTime) === 'restart') { audio.currentTime = 0; userPaused = false; play(); setSwitch(true); }
+    else skipTo(prevIndex(index, PLAYLIST.length));
   });
   audio.addEventListener('ended', () => { index = nextIndex(index, PLAYLIST.length); load(); play(); });
   for (const event of ['play', 'pause']) audio.addEventListener(event, render);

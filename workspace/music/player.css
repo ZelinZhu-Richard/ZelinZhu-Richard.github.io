@@ -69,12 +69,17 @@ html.phoenix-dark .vibe-player { --vibe-ink: #fff; --vibe-glass: #ffffff1a; }
   pointer-events: none;
 }
 .vibe-player.playing .vibe-now { opacity: 1; transform: none; }
-.vibe-next { width: 36px; height: 36px; }
-.vibe-next svg { width: 11px; height: 11px; fill: currentColor; }
-.vibe-player:not(.playing) .vibe-next { display: none; }
+.vibe-last, .vibe-next { width: 36px; height: 36px; }
+.vibe-last svg, .vibe-next svg { width: 11px; height: 11px; fill: currentColor; }
+.vibe-last { margin-left: 2px; }
+.vibe-next { margin-left: -4px; }
 
+/* Phones: the slot is at the right edge, so last / next sit to the left of play/pause, and the title
+   is left out to keep clear of the "Reimagine Phoenix" pill. */
 @media (max-width: 1023px) {
-  .vibe-player { flex-direction: row-reverse; }
+  .vibe-player { gap: 6px; }
+  .vibe-toggle { order: 3; }
+  .vibe-last, .vibe-next { width: 32px; height: 32px; margin: 0; }
   .vibe-now { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
