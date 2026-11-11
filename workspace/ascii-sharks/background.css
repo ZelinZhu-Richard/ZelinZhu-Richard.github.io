@@ -50,6 +50,39 @@ body:has(> #__nuxt) > #ascii-sharks-background { z-index: 1; opacity: .32; }
 body:has(> #ascii-sharks-background) #smooth-wrapper { z-index: 2; }
 body:has(> #__nuxt) .sharks-toggle,
 .domain-page .sharks-toggle { bottom: max(86px, calc(env(safe-area-inset-bottom) + 70px)); }
+/* On the phoenix pages the toggle matches the runtime's glass "Reimagine Phoenix" pill. */
+body:has(> #__nuxt) .sharks-toggle {
+  isolation: isolate;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 20px 0 18px;
+  border: 0;
+  border-radius: 100px;
+  background: #ffffff40;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #29345a;
+  font: 18px/20px TTNeoris, Neoris, Arial, sans-serif;
+}
+body:has(> #__nuxt) .sharks-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #fff 0, transparent 35%, #fff 65%, transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: transform .4s ease-in-out;
+}
+body:has(> #__nuxt) .sharks-toggle:hover { background: #ffffff59; }
+body:has(> #__nuxt) .sharks-toggle:hover::before { transform: scaleX(-1); }
+body:has(> #__nuxt) .sharks-toggle:focus-visible { outline-color: currentColor; }
+body:has(> #__nuxt) .sharks-toggle svg { width: 13px; height: 13px; }
+html.phoenix-dark body:has(> #__nuxt) .sharks-toggle { background: #ffffff1a; color: #fff; }
 body:has(.station) .sharks-toggle { top: 16px; bottom: auto; right: calc(368px + 20px); }
 @media (min-width: 1600px) {
   body:has(.station) .sharks-toggle { right: calc(400px + 20px); }

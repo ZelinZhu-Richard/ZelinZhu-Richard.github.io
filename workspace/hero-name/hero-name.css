@@ -20,7 +20,7 @@ body .home-hero h2 div {
 }
 body .home-hero h1 { letter-spacing: -.02em !important; }
 
-/* The hero line agency.js turns "Build. Learn. and repeat." into: a large "Agency," over "and I’ll bring the snacks.". */
+/* The hero line agency.js turns "Build. Learn. and repeat." into: a large "Agency," over "with the right vibe.". */
 body .home-hero h2 .hero-agency-lead {
   display: inline-block;
   font-size: 1.6em;

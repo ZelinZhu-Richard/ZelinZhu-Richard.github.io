@@ -38,9 +38,9 @@ test('start.js waits for the hero font before SplitText measures the letters', a
   assert.throws(() => withHeroFontLoad('await import("x")'), /font wait not found/);
 });
 
-test('hero line becomes "Agency, and I’ll bring the snacks."', () => {
-  assert.equal(LABEL, 'Agency, and I’ll bring the snacks.');
-  assert.equal(markup, '<span class="hero-agency-lead">Agency,</span><br><span class="hero-agency-rest">and I’ll bring the snacks.</span>');
+test('hero line becomes "Agency, with the right vibe."', () => {
+  assert.equal(LABEL, 'Agency, with the right vibe.');
+  assert.equal(markup, '<span class="hero-agency-lead">Agency,</span><br><span class="hero-agency-rest">with the right vibe.</span>');
 });
 
 test('sand grains start on the motto, gather on the line, and end on the new line', () => {
