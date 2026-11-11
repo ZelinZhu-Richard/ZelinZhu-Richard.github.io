@@ -8,7 +8,10 @@ const source = fileURLToPath(new URL('.', import.meta.url));
 // The font, its license, the stylesheet and the hero-line animation. subset.py (which regenerates the font) does not ship.
 export const HERO_NAME_FILES = ['hero-name.css', 'agency.js', 'ibarra-real-nova-italic.woff2', 'OFL.txt'];
 
-// The captured homepage stays as committed; the built copy gets the stylesheet.
+// Both runtime entry pages: the contact page can navigate to the homepage without a reload.
+export const HERO_PAGES = ['index.html', 'contacts/index.html'];
+
+// The captured pages stay as committed; the built copies get the stylesheet.
 export function withHeroName(html, version) {
   if (html.includes('/hero-name/hero-name.css')) return html;
   const head = `<link rel="preload" href="/hero-name/ibarra-real-nova-italic.woff2?v=${version}" as="font" type="font/woff2" crossorigin>\n<link rel="stylesheet" href="/hero-name/hero-name.css?v=${version}">\n<script type="module" src="/hero-name/agency.js?v=${version}"></script>\n`;
@@ -34,8 +37,10 @@ export async function buildHeroName(output) {
   const version = hash.digest('hex').slice(0, 10);
   const css = await readFile(join(target, 'hero-name.css'), 'utf8');
   await writeFile(join(target, 'hero-name.css'), css.replace('ibarra-real-nova-italic.woff2', `ibarra-real-nova-italic.woff2?v=${version}`));
-  const index = join(output, 'index.html');
-  await writeFile(index, withHeroName(await readFile(index, 'utf8'), version));
+  for (const page of HERO_PAGES) {
+    const file = join(output, page);
+    await writeFile(file, withHeroName(await readFile(file, 'utf8'), version));
+  }
   const start = join(output, 'start.js');
   await writeFile(start, withHeroFontLoad(await readFile(start, 'utf8')));
 }

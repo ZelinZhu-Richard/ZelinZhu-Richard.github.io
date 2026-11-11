@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
-import { HERO_NAME_FILES, withHeroName, withHeroFontLoad } from '../workspace/hero-name/build.mjs';
+import { HERO_NAME_FILES, HERO_PAGES, withHeroName, withHeroFontLoad } from '../workspace/hero-name/build.mjs';
 import { LABEL, DURATION, markup, pair, place, heroProgress } from '../workspace/hero-name/agency.js';
 
 const dir = 'workspace/hero-name/';
@@ -28,6 +28,7 @@ test('built homepage gets the stylesheet and preload once, before </head>', () =
   assert.match(once, /<link rel="preload" href="\/hero-name\/ibarra-real-nova-italic\.woff2\?v=abc" as="font" type="font\/woff2" crossorigin>/);
   assert.match(once, /<link rel="stylesheet" href="\/hero-name\/hero-name\.css\?v=abc">\n<script type="module" src="\/hero-name\/agency\.js\?v=abc"><\/script>\n<\/head>/);
   assert.equal(withHeroName(once, 'abc'), once);
+  assert.deepEqual(HERO_PAGES, ['index.html', 'contacts/index.html'], 'Contact can navigate to Home without a reload');
 });
 
 test('start.js waits for the hero font before SplitText measures the letters', async () => {

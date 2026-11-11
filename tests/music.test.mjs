@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 import { MUSIC_FILES, MUSIC_PAGES, RUNTIME_CHUNK, availableTracks, withMusic, withoutRuntimeLoop } from '../workspace/music/build.mjs';
-import { sharksInSlot } from '../workspace/music/dock.js';
+import { clearOf, fallbackSlot, sharksInSlot } from '../workspace/music/dock.js';
 import { PLAYLIST } from '../workspace/music/playlist.js';
 import { VOLUME, follow, lastAction, nextIndex, prevIndex, trackLabel } from '../workspace/music/player.js';
 
@@ -69,4 +69,13 @@ test('the sharks toggle takes the Reimagine Phoenix slot only while that pill is
   assert.match(css, /width: var\(--slot-width, 220px\);\s*height: var\(--slot-height, 46px\);/);
   assert.match(css, /html\.sharks-in-slot body:has\(> #__nuxt\) \.sharks-toggle \{\s*opacity: 1;/);
   assert.match(css, /\.sharks-toggle::after \{[^}]*order: -1;[^}]*fill='%23000'/, 'black shark in front');
+});
+
+test('pages without the Reimagine Phoenix pill (Contact) still get the sharks toggle in its usual place', () => {
+  assert.deepEqual(fallbackSlot(1440, 900), { left: 1183, top: 829, width: 220, height: 46 }, 'matches the pill measured on the homepage');
+  assert.deepEqual(fallbackSlot(390, 844), { left: 20, top: 773, width: 220, height: 46 });
+  // Contact's footer links (measured at 1440 px) sit under that spot, so the toggle moves just above them.
+  const footer = [{ left: 1176, top: 850, width: 8, height: 20 }, { left: 1234, top: 850, width: 55, height: 20 }, { left: 40, top: 850, width: 60, height: 20 }];
+  assert.deepEqual(clearOf(fallbackSlot(1440, 900), footer), { left: 1183, top: 790, width: 220, height: 46 });
+  assert.deepEqual(clearOf(fallbackSlot(1440, 900), [{ left: 40, top: 850, width: 60, height: 20 }]), fallbackSlot(1440, 900), 'unmoved when nothing is under it');
 });
