@@ -92,7 +92,7 @@ test('full build: hq/index.html is the only noindex page; sitemap and robots.txt
     const pagesWithNoindex = [];
     for (const file of await htmlFiles(dist)) if (/noindex/i.test(await readFile(join(dist, file), 'utf8'))) pagesWithNoindex.push(file);
     assert.deepEqual(pagesWithNoindex, ['hq/index.html']);
-    for (const file of ['index.html', 'daily/index.html', 'now/index.html', 'gym/index.html', 'domainexp/index.html']) {
+    for (const file of ['index.html', 'daily/index.html', 'blog/index.html', 'gym/index.html', 'domainexp/index.html']) {
       assert.doesNotMatch(await readFile(join(dist, file), 'utf8'), /\/hq\//, `${file} links to /hq/`);
     }
     const sitemap = await readFile(join(dist, 'sitemap.xml'), 'utf8');

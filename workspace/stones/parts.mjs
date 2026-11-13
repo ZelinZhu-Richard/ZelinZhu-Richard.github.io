@@ -5,9 +5,9 @@ export const PARTS = [
   { id: 'about', title: 'About', subtitle: 'Who I am, CV, contact, stars', href: '/about/', ring: ['#1d2a00', '#5e8a00', '#a6e22e', '#dcf7a0', '#fbfff0'] },
   { id: 'projects', title: 'Projects', subtitle: 'Quant research, AI evaluation', href: '/projects/', ring: ['#0a1a4f', '#1f4fd1', '#19b4e6', '#8fd8ff', '#eef9ff'] },
   { id: 'research', title: 'Research', subtitle: 'Deep learning on brain images', href: '/research/', ring: ['#24104f', '#5b2fd0', '#9b6bff', '#cdb6ff', '#f6f1ff'] },
-  { id: 'experiments', title: 'Experiments', subtitle: 'Camera toys in your browser', href: '/experiments/', ring: ['#062e26', '#0f8a5f', '#2fd39a', '#a6f2d2', '#f0fff8'] },
-  { id: 'film', title: 'Film', subtitle: 'Neon Rain, ten seconds of noir', href: '/video/', ring: ['#3d0a2a', '#b0186a', '#ff4fa0', '#ffb3d6', '#fff2f8'] },
-  { id: 'now', title: 'Now', subtitle: 'What I’m studying this term', href: '/now/', ring: ['#3b1f00', '#b86a00', '#ffb000', '#ffe08a', '#fffbea'] },
+  { id: 'art', title: 'Art', subtitle: 'Neon Rain, me drawn in code', href: '/art/', ring: ['#3d0a2a', '#b0186a', '#ff4fa0', '#ffb3d6', '#fff2f8'] },
+  { id: 'fun', title: 'Fun', subtitle: 'Camera toys in your browser', href: '/fun/', ring: ['#062e26', '#0f8a5f', '#2fd39a', '#a6f2d2', '#f0fff8'] },
+  { id: 'blog', title: 'Blog', subtitle: 'Notes as I build', href: '/blog/', ring: ['#3b1f00', '#b86a00', '#ffb000', '#ffe08a', '#fffbea'] },
   { id: 'daily', title: 'Daily', subtitle: 'My to-do list feeds my pets', href: '/daily/', ring: ['#3f0d08', '#c2321f', '#ff6a4d', '#ffc0b0', '#fff3ef'] },
 ];
 
@@ -19,9 +19,9 @@ const OWNER = [
   [/^\/(about|contacts|skills)\/|^\/github\/stars\//, 'about'],
   [/^\/projects\//, 'projects'],
   [/^\/research\//, 'research'],
-  [/^\/(experiments|domainexp|ppiano|gym|flash)\//, 'experiments'],
-  [/^\/video\//, 'film'],
-  [/^\/now\//, 'now'],
+  [/^\/(art|video)\//, 'art'],
+  [/^\/(fun|domainexp|ppiano|gym|flash)\//, 'fun'],
+  [/^\/blog\//, 'blog'],
   [/^\/daily\//, 'daily'],
 ];
 export const ownerOf = path => OWNER.find(([re]) => re.test(path))?.[1] || '';
