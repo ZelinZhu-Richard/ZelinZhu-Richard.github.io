@@ -12,8 +12,8 @@ export async function buildDomainExpansion(output) {
   await mkdir(target, {recursive: true});
   for (const file of runtime) await cp(join(source, file), join(target, file));
   const header = pages().get('work/index.html').match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0];
-  // The site menu is the seven stones; Domain Expansion sits under Experiments (workspace/stones marks it current).
-  if (!header || !header.includes('href="/experiments/"')) throw new Error('Site navigation to Experiments is missing.');
+  // The site menu is the seven stones; Domain Expansion sits under Fun (workspace/stones marks it current).
+  if (!header || !header.includes('href="/fun/"')) throw new Error('Site navigation to Fun is missing.');
   const activeHeader = header.replaceAll(' aria-current="page"', '');
   await writeFile(join(target, 'index.html'), (await readFile(join(source, 'index.html'), 'utf8')).replace('<!-- PORTFOLIO_HEADER -->', activeHeader));
   const manifest = JSON.parse(await readFile(join(shared, 'assets/manifest.json'), 'utf8'));

@@ -1,14 +1,14 @@
 // The short version of each part, shown in the panel that opens over the phoenix scene.
 // Built from the same data as the full pages, so the two never disagree.
 import { PARTS } from './parts.mjs';
-import { LINKS, ABOUT, EXPERIENCE, PROJECTS } from '../../site/content.mjs';
-import { NOW } from '../now/now.mjs';
+import { LINKS, ABOUT, EXPERIENCE, PROJECTS, PUBLICATIONS } from '../../site/content.mjs';
+import { POSTS } from '../blog/posts.mjs';
+import { checkPosts, formatDate, postPath } from '../blog/page.mjs';
 
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ext = href => href.startsWith('http') ? ' target="_blank" rel="noopener noreferrer"' : '';
 const a = (href, label, cls = '') => `<a${cls ? ` class="${cls}"` : ''} href="${escape(href)}"${ext(href)}>${escape(label)}</a>`;
 const project = id => PROJECTS.find(p => p.id === id);
-const placeholder = text => /^\[.*\]$/.test(text || '');
 
 const row = p => `<li class="sp-row">
 <div class="sp-row-head"><h3>${escape(p.name)}</h3><span>${escape(p.year)}</span></div>
@@ -22,8 +22,6 @@ const shotRow = p => `<li class="sp-shot">
 <div><h3>${escape(p.name)}</h3><p>${escape(p.oneLiner)}</p><p class="sp-links">${a(p.live, p.liveLabel || 'Open')}</p></div>
 </li>`;
 
-const STATUS = { enrolled: 'Enrolled', 'sitting-in': 'Sitting in', auditing: 'Auditing', 'self-study': 'Self-study' };
-
 const BODY = {
   projects: () => ({
     lede: 'Three longer projects. All Python.',
@@ -34,27 +32,36 @@ const BODY = {
     return {
       lede: `${r.org}. ${r.desc}`,
       html: `<ul class="sp-tags">${r.tags.map(t => `<li>${escape(t)}</li>`).join('')}</ul>
+<h3 class="sp-sub">Publications</h3>
+<ul class="sp-plain">${PUBLICATIONS.map(p => `<li><b>${a(p.href, p.title)}</b><span>${escape(p.venue)} · ${escape(p.kind)}</span></li>`).join('')}</ul>
 <h3 class="sp-sub">Where the methods show up</h3>
 <ul class="sp-plain"><li><b>Nexus Tensor Alpha</b> forecasting models picked by market regime</li><li><b>EqualVoice</b> measuring speech-recognition bias by accent</li><li><b>Apex Analysis</b> open-source stock analysis</li></ul>`,
     };
   },
-  experiments: () => ({
-    lede: 'Camera toys that run in your browser with MediaPipe. Nothing is uploaded.',
-    html: `<ul class="sp-shots">${['paper-piano', 'gym', 'domain-expansion'].map(id => shotRow(project(id))).join('')}</ul>`,
-  }),
-  film: () => {
+  art: () => {
     const p = project('neon-rain');
     return {
-      lede: p.oneLiner,
-      html: `<figure class="sp-poster"><img src="${escape(p.image.src)}" alt="${escape(p.image.alt)}" loading="lazy" decoding="async"></figure><p>${escape(p.desc)}</p>
-<dl class="sp-facts"><div><dt>Length</dt><dd>10 s</dd></div><div><dt>Frames</dt><dd>240 at 24 fps</dd></div><div><dt>Size</dt><dd>1920 × 1080</dd></div></dl>`,
+      lede: 'A short film and a portrait of me, both made in code.',
+      html: `<figure class="sp-poster"><img src="${escape(p.image.src)}" alt="${escape(p.image.alt)}" loading="lazy" decoding="async"></figure>
+<h3 class="sp-sub">${escape(p.name)}</h3><p>${escape(p.oneLiner)}</p>
+<h3 class="sp-sub">Living portrait</h3><p>Me drawn in code from two selfies, in six styles from ASCII to pixel art.</p>
+<p class="sp-links">${a(p.live, 'Watch the film')}${a('/art/#portrait', 'See the portrait')}</p>`,
     };
   },
-  now: () => ({
-    lede: `${NOW.term.label} ${NOW.term.emphasis}. Updated ${new Date(NOW.updated + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}.`,
-    html: `<p class="sp-currently"><span>Currently</span>${NOW.currently.map(escape).join(' · ')}</p>
-<ul class="sp-plain sp-courses">${NOW.courses.map(c => `<li><b>${escape(c.title)}</b><span>${escape(STATUS[c.status] || c.status)}${c.statusNote ? ` · ${escape(c.statusNote)}` : ''}</span>${placeholder(c.note) ? '' : `<em>${escape(c.note)}</em>`}</li>`).join('')}</ul>`,
+  fun: () => ({
+    lede: 'Camera toys that run in your browser with MediaPipe. Nothing is uploaded.',
+    html: `<ul class="sp-shots">${['paper-piano', 'gym', 'domain-expansion'].map(id => shotRow(project(id))).join('')}</ul>
+<p class="sp-links">${a('/flash/', 'Flash, a card maker')}</p>`,
   }),
+  blog: () => {
+    const posts = checkPosts(POSTS).slice(0, 3);
+    return {
+      lede: 'Notes on what I’m building and learning, written as I go.',
+      html: posts.length
+        ? `<ul class="sp-plain">${posts.map(p => `<li><b>${a(postPath(p), p.title)}</b><span>${formatDate(p.date)}</span><em>${escape(p.summary)}</em></li>`).join('')}</ul>`
+        : '<p>No posts yet. The first ones are on the way.</p>',
+    };
+  },
   daily: () => {
     const p = project('daily');
     return {

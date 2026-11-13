@@ -17,6 +17,18 @@ export const ABOUT = {
   ],
 };
 
+// Papers and posters, newest first. Shown under Research.
+export const PUBLICATIONS = [
+  {
+    title: 'Validity-Constrained Agentic Quantitative Research: A Hidden-Ground-Truth Benchmark and a Bounded Scheduler Comparison',
+    authors: 'Zelin Zhu',
+    venue: 'Agenthon Workshop, NeurIPS 2026',
+    kind: 'Accepted poster',
+    when: 'Dec 2026',
+    href: 'https://www.agenthon.net/#posters',
+  },
+];
+
 export const EXPERIENCE = [
   {
     when: 'Now',

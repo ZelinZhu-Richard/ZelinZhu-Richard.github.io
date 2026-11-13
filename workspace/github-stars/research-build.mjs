@@ -5,7 +5,7 @@ import { createResearchCatalog,folderUrl,folderRepos } from './research-model.js
 import { escape,TYPE_LABELS,arrow } from './render.mjs';
 import { collectionNavigation,renderFolderTree,renderBreadcrumbs,renderChildFolders,renderResearchRows } from './research-render.mjs';
 const base=fileURLToPath(new URL('.',import.meta.url));
-const nav=[['/work/','Work'],['/about/','About'],['/research/','Research'],['/now/','Now'],['/daily/','Daily'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],['/github/stars/','Stars'],['/Zelin_Zhu_CV.pdf','CV'],['/contacts/','Contact']];
+const nav=[['/work/','Work'],['/about/','About'],['/research/','Research'],['/daily/','Daily'],['/video/','Video'],['/flash/','Flash'],['/ppiano/','Paper Piano'],['/gym/','Gym'],['/domainexp/','Domain Expansion'],['/github/stars/','Stars'],['/Zelin_Zhu_CV.pdf','CV'],['/contacts/','Contact']];
 
 export async function buildResearch(output,stars) {
   const manifest=JSON.parse(await readFile(resolve(base,'data/research-stack.json'),'utf8'));
