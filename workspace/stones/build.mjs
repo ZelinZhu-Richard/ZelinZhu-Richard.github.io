@@ -66,7 +66,9 @@ export async function buildStones(output) {
       // The captured pages still describe Richard as a UNC student; he is a high school senior.
       const described = html
         .replaceAll('computer science and economics at UNC Chapel Hill', 'high school senior, computer science and economics')
-        .replaceAll('Computer science and economics at UNC Chapel Hill.', 'High school senior. Computer science and economics.');
+        .replaceAll('Computer science and economics at UNC Chapel Hill.', 'High school senior. Computer science and economics.')
+        // Their no-JavaScript link list predates the seven sections: Now is retired, Art, Fun and Blog are new.
+        .replaceAll('<a href="/now/">Now</a>', '<a href="/art/">Art</a>, or <a href="/fun/">Fun</a>, or <a href="/blog/">Blog</a>');
       await writeFile(file, described.replace(/<\/head\s*>/i, `<link rel="stylesheet" href="/stones/stones.css?v=${v}">\n<script type="module" src="/stones/home.js?v=${v}"></script>\n</head>`));
     }
   }

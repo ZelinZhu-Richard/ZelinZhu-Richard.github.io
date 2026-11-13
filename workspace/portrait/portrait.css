@@ -9,3 +9,6 @@
 .portrait-label{cursor:pointer}
 .portrait-label:hover{border-color:var(--ink)}
 .portrait-back{padding:0;border:0;background:none;color:var(--ink);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+/* The Art page's copy of the portrait: a ruled row like the work items above it, with the About layout inside. */
+.art-portrait{padding:56px 0 0;border-top:1px solid var(--line);scroll-margin-top:24px}
+.art-portrait .work-head{margin-bottom:36px}

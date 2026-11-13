@@ -1,8 +1,8 @@
-import { LINKS, ABOUT, EXPERIENCE, PROJECTS, SKILLS } from './content.mjs';
+import { LINKS, ABOUT, EXPERIENCE, PROJECTS, PUBLICATIONS, SKILLS } from './content.mjs';
 import { skillsPage } from '../workspace/skills/page.mjs';
 import { videoPage } from '../workspace/video/page.mjs';
-import { nowPage } from '../workspace/now/page.mjs';
-import { NOW } from '../workspace/now/now.mjs';
+import { blogIndex, blogPost, checkPosts, postPath } from '../workspace/blog/page.mjs';
+import { POSTS } from '../workspace/blog/posts.mjs';
 import { stoneNav } from '../workspace/stones/parts.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
@@ -24,10 +24,10 @@ const frame = (path, title, description, body, { image = '/richard.jpg', stylesh
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/portfolio.css">
-${stylesheet ? `<link rel="stylesheet" href="${escape(stylesheet)}">` : ''}
+${[].concat(stylesheet || []).map(href => `<link rel="stylesheet" href="${escape(href)}">`).join('\n')}
 <script src="/portfolio.js" defer>
 </script>
-${script ? `<script type="module" src="${escape(script)}"></script>\n` : ''}</head>
+${[].concat(script || []).map(src => `<script type="module" src="${escape(src)}"></script>\n`).join('')}</head>
 <body${bodyClass ? ` class="${escape(bodyClass)}"` : ''}>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
@@ -47,6 +47,24 @@ ${stoneNav(path)}
 </body>
 </html>`;
 const tags = values => `<ul class="tags">${values.map(v=>`<li>${escape(v)}</li>`).join('')}</ul>`;
+// Experience tags float as poppable bubbles on About and Research (workspace/tag-bubbles).
+const BUBBLES = { stylesheet: '/tag-bubbles/bubbles.css', script: '/tag-bubbles/bubbles.js' };
+// One dated row of the Experience list, shared by About and Research.
+const experienceRow = x => `<li>
+<span>${escape(x.when)}</span>
+<div>
+<h3>${escape(x.title)}</h3>
+<p class="org">${escape(x.org)}</p>
+<p>${escape(x.desc)}</p>${tags(x.tags)}</div>
+</li>`;
+const publicationRow = p => `<li>
+<span>${escape(p.when)}</span>
+<div>
+<h3><a href="${escape(p.href)}" target="_blank" rel="noopener noreferrer">${escape(p.title)} <span aria-hidden="true">↗</span></a></h3>
+<p class="org">${escape(p.venue)} · ${escape(p.kind)}</p>
+<p>${escape(p.authors)}</p>
+</div>
+</li>`;
 const intro = (label, title, description) => `<section class="page-intro">
 <p class="eyebrow">${label}</p>
 <h1>${title}</h1>
@@ -102,9 +120,41 @@ ${list.map((p, i) => item(p, i + 1)).join('')}
 </section><aside class="related">
 <p>More</p>${other}</aside>`;
   const projects = section('Projects', 'Projects', 'Three longer projects: a quant research system, a benchmark for speech-recognition bias, and an open-source stock analysis app. All Python.',
-    PROJECTS.filter(p => p.group === 'research'), `${link('/experiments/','Experiments')}${link('/research/','Research')}${link('/work/','All work')}`);
-  const experiments = section('Experiments', 'Experiments', 'Small camera toys that run in your browser. They use your webcam with MediaPipe; nothing is uploaded. Open one and try it.',
-    PROJECTS.filter(p => ['paper-piano', 'gym', 'domain-expansion'].includes(p.id)), `${link('/flash/','Flash')}${link('/video/','Film')}${link('/projects/','Projects')}${link('/work/','All work')}`);
+    PROJECTS.filter(p => p.group === 'research'), `${link('/fun/','Fun')}${link('/research/','Research')}${link('/work/','All work')}`);
+  const fun = section('Fun', 'Fun', 'Small camera toys that run in your browser. They use your webcam with MediaPipe; nothing is uploaded. Open one and try it.',
+    PROJECTS.filter(p => ['paper-piano', 'gym', 'domain-expansion'].includes(p.id)), `${link('/flash/','Flash')}${link('/art/','Art')}${link('/projects/','Projects')}${link('/work/','All work')}`);
+  // Art: Neon Rain, then a second copy of the About page's living portrait (workspace/portrait/about.js binds to it).
+  const art = `<section class="work-intro work-intro--section">
+<div>
+<p class="eyebrow">Art</p>
+<h1>Art</h1>
+<p class="lede">Things I make to look at: a ten-second noir film, and a portrait of me drawn in code.</p>
+</div>
+</section><section class="work-group work-group--site">
+${item(PROJECTS.find(p => p.id === 'neon-rain'), 1)}
+</section><section id="portrait" class="art-portrait" aria-labelledby="portrait-title">
+<header class="work-head">
+<p class="work-num">02</p>
+<h2 id="portrait-title">Living portrait</h2>
+<p class="work-context">Code, 2026</p>
+</header>
+<div class="biography">
+<div>
+<p>Click the photo and it turns into me drawn in code. The portrait cycles through six styles: ASCII, pencil hatching, scribble ink, halftone, neon contours and pixel art.</p>
+<p>Between styles every stroke bursts outward as blue, purple and pink ink, then re-forms as the next one. The styles alternate between two selfies, and the second loop swaps them, so each style shows both poses. It is one small JavaScript module with no dependencies, and it loads only when you click.</p>
+<p>The same portrait lives on my <a href="/about/">About</a> page.</p>
+</div>
+<figure data-portrait-figure>
+<button type="button" class="portrait-trigger" aria-label="Photo of Richard Zhu smiling at the camera. Click to see a living portrait of him drawn in code.">
+<img src="/richard.jpg" alt="" width="800" height="1000" loading="lazy" decoding="async">
+<span class="portrait-hint" aria-hidden="true">Click to see me drawn in code</span>
+</button>
+<figcaption>Me, 2026.</figcaption>
+</figure>
+</div>
+</section><aside class="related">
+<p>More</p>${link('/video/','Neon Rain')}${link('/fun/','Fun')}${link('/about/','About me')}</aside>`;
+  const posts = checkPosts(POSTS);
   const about = intro('About','Richard Zhu','High school senior. I work on computer science and economics, and do machine learning research at UNC PRIMES.') + `<section class="biography">
 <div>${ABOUT.paragraphs.map(p=>`<p>${escape(p)}</p>`).join('')}<div class="actions">${link(LINKS.resume,'CV (PDF)')}${link('/contacts/','Contact')}</div>
 </div>
@@ -128,13 +178,7 @@ ${list.map((p, i) => item(p, i + 1)).join('')}
 </section>
 <section id="experience" class="experience">
 <h2>Experience</h2>
-<ol>${EXPERIENCE.map(x=>`<li>
-<span>${escape(x.when)}</span>
-<div>
-<h3>${escape(x.title)}</h3>
-<p class="org">${escape(x.org)}</p>
-<p>${escape(x.desc)}</p>${tags(x.tags)}</div>
-</li>`).join('')}</ol>
+<ol>${EXPERIENCE.map(experienceRow).join('')}</ol>
 </section>
 <section class="skills">
 <h2>Tools I use</h2>${SKILLS.buckets.map(x=>`<div>
@@ -154,26 +198,33 @@ ${list.map((p, i) => item(p, i + 1)).join('')}
 <li><a href="/skills/"><span>Skills</span><em>Agent skills I use and the ones I write.</em></a></li>
 </ul>
 </section>`;
-  const research = intro('Machine learning','Research','Deep learning on brain imaging data at UNC PRIMES, and the projects where I test ideas from it.') + `<section class="research">
-<p class="eyebrow">UNC PRIMES</p>
-<h2>${escape(EXPERIENCE[0].title)}</h2>
-<p class="project-lede">${escape(EXPERIENCE[0].desc)}</p>${tags(EXPERIENCE[0].tags)}<div class="actions">${link(LINKS.resume,'CV (PDF)')}${link('mailto:'+LINKS.email,'Email me about research')}</div>
+  // Research: only research roles go under Experience (UNC PRIMES for now); papers and posters under Publications.
+  const researchRoles = EXPERIENCE.filter(x => x.org === 'UNC PRIMES');
+  const research = intro('Machine learning','Research','Deep learning on brain imaging data at UNC PRIMES, a paper on agents for quantitative research, and the projects where I test the ideas.') + `<section id="experience" class="experience" aria-labelledby="research-experience">
+<h2 id="research-experience">Experience</h2>
+<ol>${researchRoles.map(experienceRow).join('')}</ol>
+</section>
+<section id="publications" class="experience publications" aria-labelledby="research-publications">
+<h2 id="research-publications">Publications</h2>
+<ol>${PUBLICATIONS.map(publicationRow).join('')}</ol>
 </section>
 <section class="research">
 <p class="eyebrow">Related projects</p>
 <h2>Where the methods show up</h2>
 <p>Forecasting models in Nexus Tensor Alpha. Measuring speech-recognition bias in EqualVoice. Open stock-analysis tools in Apex Analysis.</p>
-<div class="actions">${link('/work/','See the projects')}${link(LINKS.github,'GitHub')}</div>
+<div class="actions">${link('/projects/','See the projects')}${link(LINKS.resume,'CV (PDF)')}${link('mailto:'+LINKS.email,'Email me about research')}</div>
 </section>`;
   return new Map([
     ['skills/index.html',frame('/skills/','Skills','AI agent skills Richard Zhu uses and creates, with source repositories and notes on design and testing.',skillsPage,{ stylesheet: '/skills/style.css' })],
     ['video/index.html',frame('/video/','Neon Rain — Video','Neon Rain: an agentic AI filmmaking experiment by Richard Zhu, combining GPT Image, computer graphics, and temporal validation into a 10-second sci-fi noir film.',videoPage,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: '/video/style.css' })],
-    ['now/index.html',frame('/now/','Now','What Richard Zhu is studying, has shipped, and plans next: a running log, updated as things move.',nowPage(NOW),{ stylesheet: '/now/style.css' })],
+    ['art/index.html',frame('/art/','Art','Art by Richard Zhu: Neon Rain, a ten-second AI-made noir film, and a living portrait of him drawn in code.',art,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: ['/work/style.css', '/portrait/portrait.css'], script: '/portrait/about.js' })],
+    ['blog/index.html',frame('/blog/','Blog','Richard Zhu’s blog: notes on what he is building and learning.',blogIndex(posts),{ stylesheet: '/blog/style.css' })],
+    ...posts.map(p => [`${postPath(p).slice(1)}index.html`, frame(postPath(p), p.title, p.summary, blogPost(p), { stylesheet: '/blog/style.css' })]),
     ['work/index.html',frame('/work/','Work','Eight projects by Richard Zhu: a quant research system, an accent-bias benchmark for speech recognition, a stock analysis app, and five browser experiments.',work,{ stylesheet: '/work/style.css' })],
     ['projects/index.html',frame('/projects/','Projects','Projects by Richard Zhu: Nexus Tensor Alpha, a quant research system; EqualVoice, an accent-bias benchmark for speech recognition; and Apex Analysis, an open-source stock analysis app.',projects,{ stylesheet: '/work/style.css' })],
-    ['experiments/index.html',frame('/experiments/','Experiments','Browser experiments by Richard Zhu: Paper Piano, Gym and Domain Expansion. Webcam hand and pose tracking that runs locally.',experiments,{ stylesheet: '/work/style.css' })],
-    ['about/index.html',frame('/about/','About','About Richard Zhu, a high school senior working on computer science, economics and machine learning research.',about,{ stylesheet: '/portrait/portrait.css', script: '/portrait/about.js' })],
-    ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES and related projects.',research)],
+    ['fun/index.html',frame('/fun/','Fun','Browser toys by Richard Zhu: Paper Piano, Gym and Domain Expansion. Webcam hand and pose tracking that runs locally.',fun,{ stylesheet: '/work/style.css' })],
+    ['about/index.html',frame('/about/','About','About Richard Zhu, a high school senior working on computer science, economics and machine learning research.',about,{ stylesheet: ['/portrait/portrait.css', BUBBLES.stylesheet], script: ['/portrait/about.js', BUBBLES.script] })],
+    ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES, his NeurIPS 2026 Agenthon workshop poster, and related projects.',research,{ stylesheet: BUBBLES.stylesheet, script: BUBBLES.script })],
     ['404.html',frame('/404.html','Page not found','This page could not be found.',intro('404','Page not found','Nothing lives at this address. It may have moved.')+`<div class="actions">${link('/work/','Work')}${link('/','Homepage')}</div>`)],
   ]);
 }
