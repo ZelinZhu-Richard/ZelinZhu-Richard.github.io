@@ -266,3 +266,15 @@ Built on branch `daily-supabase` from origin/main. Code is ready, and nothing ch
 - **The cloud-mode UI in a browser:** sign-in button, upload prompt, "Owner view · synced", Suggest tier text, HQ's cloud gate and optimistic saves. The classes behind them are tested against the real stack, but the controller and `app.js` DOM wiring in cloud mode wasn't clicked through. No test user was signed in in the browser.
 - **Live calls.** Email delivery through Resend and a real Claude call from `generate-variants` (no keys locally).
 - **Visitor Cheers** (optional, PLAN.md section 1) is not built.
+
+## Space farm (2026-11-12)
+
+The pet grid on /daily/ was replaced by an isometric space farm (`app/farm.js`, `app/farm-canvas.js`).
+
+### Checked
+- `tests/ui-farm.test.mjs`: projection round trip on every tile, island inside the frame, plots / pet slots / decor never overlap and no pet hides a crop, crop choice for the default list, model (plots = tasks, grown = ticked, 12-plot cap, empty states), markup (canvas JSON, aria-label, overlay positions, visitors get only the view-only `farm-select`), escaping. `tests/ui-render.test.mjs` updated for one pet card under the farm.
+- Built-in browser on a local build with `?fixtures=owner`: farm draws at desktop width; picking a pet swaps the card and announces it; hovering a plot shows its tooltip and clicking it focuses the task's tick; an all-grown perfect day shows the aurora and rocket flame; reduced-motion still frame; 375 px: no horizontal overflow, pet buttons 44 px. Visitor view of the published snapshot: grey "field in ashes" state, no pets, no console errors.
+
+### Not checked
+- A real tick in the browser: the check ran after 10 PM New York, when ticks are closed, so the grow burst was triggered directly instead (`farmFx`). The browser pane was hidden, so animation frames were throttled and motion (float, tilt, bursts) was judged from single frames only.
+- Light theme, keyboard-only pass, and screen readers beyond the canvas label and the pet button labels.

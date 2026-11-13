@@ -5,6 +5,7 @@ import {
   AMBER, DAY_LEVELS, DEEP_WORK_TAGS, LEVELS, ORBS_BY_LEVEL, levelColor, levelIndex, levelLabel, listText, num, percentWidth, plural, signed, stars, tierColor, tierName,
 } from './format.js';
 import { clock, dayLabel, duration, liveWindow, monthName, nyMinutes } from './time.js';
+import { farmModel, renderFarm } from './farm.js';
 
 const ui = ctx => ctx.ui || {};
 
@@ -327,11 +328,15 @@ ${treats.length ? html`<button type="button" class="text-button" data-action="pe
 </article>`;
 }
 
-export function renderPets(pets, today, ctx, eggs) {
+// The pet screen is the space farm (app/farm.js): every task is a crop on a floating island and
+// the active pets live on it. Picking a pet in the scene shows its card underneath.
+export function renderPets(pets, today, ctx, eggs, header) {
   const pool = today?.food?.pool || 0;
-  const active = pets.active || [];
-  return html`<div class="section-head">${raw('<h2 class="section-title">Active pets</h2>')}<p class="mono-label">${seatsLine(pets)}</p></div>
-${active.length ? html`<div class="pet-grid">${active.map(p => renderPetCard(p, ctx, { pool, treats: eggs?.treats || [] }))}</div>` : html`<p class="empty">No active pets right now.${ctx.owner ? ' Hatch a pet egg or move one in from the backpack.' : ''}</p>`}`;
+  const model = farmModel(today, pets, header, { selectedId: ui(ctx).farmPet || ctx.focusPet?.id });
+  return html`<div class="section-head">${raw('<h2 class="section-title">Space farm</h2>')}<p class="mono-label">${seatsLine(pets)}</p></div>
+<p class="farm-intro muted">Every task on today's list is a crop. Finish it and it grows. Pick a pet to see it up close.</p>
+${renderFarm(model, ctx)}
+${model.selected ? html`<div class="farm-detail">${renderPetCard(model.selected, ctx, { pool, treats: eggs?.treats || [] })}</div>` : ''}`;
 }
 
 export function renderBackpack(pets, ctx) {

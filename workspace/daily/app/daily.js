@@ -11,6 +11,7 @@ import { levelColor, levelIndex, levelLabel, num, tierName } from './format.js';
 import { countTo, flyOrbs, petMotion, playOnce, reduced, wait } from './motion.js';
 import { liveWindow, nyMinutes } from './time.js';
 import { morningFrom } from './normalize.js';
+import { farmFx, mountFarm } from './farm-canvas.js';
 
 const currentMorning = vm => (vm.morning ? morningFrom(vm.morning) : store.get(MORNING_KEY));
 
@@ -61,7 +62,7 @@ const sections = (vm, ctx, c) => {
     quests: renderQuests(vm.today),
     season: renderSeason(vm.today),
     hunger: renderHunger(header, ctx.art),
-    pets: renderPets(vm.pets, vm.today, wctx, vm.eggs),
+    pets: renderPets(vm.pets, vm.today, wctx, vm.eggs, header),
     receipts: renderReceipts(vm.receipts, wctx),
     ladder: renderLadder(vm.ladder),
     backpack: renderBackpack(vm.pets, wctx),
@@ -70,7 +71,7 @@ const sections = (vm, ctx, c) => {
 };
 
 const qs = sel => document.querySelector(sel);
-const petEl = id => document.querySelector(`.pet-card[data-pet="${CSS.escape(id)}"] .pet-stage`) || document.querySelector(`.companion[data-pet="${CSS.escape(id)}"]`);
+const petEl = id => document.querySelector(`.farm-pet[data-pet="${CSS.escape(id)}"]`) || document.querySelector(`.pet-card[data-pet="${CSS.escape(id)}"] .pet-stage`) || document.querySelector(`.companion[data-pet="${CSS.escape(id)}"]`);
 
 // Receipt first, then reward: the real action, then orbs into the pool, the pool rolls up,
 // the check pops, the row flashes its level colour, the companion and patrons cheer.
@@ -92,6 +93,7 @@ async function onEvents(events, before, c) {
       petMotion(companion, 'pet--cheer', 1400);
       const cheer = ev.cheer || (Array.isArray(task?.patron) ? task.patron : []);
       for (const id of cheer) if (id !== c.ctx().focusPet?.id) petMotion(petEl(id), 'pet--cheer', 1400);
+      farmFx('grow', ev.taskId);
       if (!reduced()) await wait(250);
       await flyOrbs(tick, counter, orbsFor(ev.level), levelColor(ev.level));
       await countTo(qs('#pool-count'), poolBefore, poolAfter, 450);
@@ -102,6 +104,7 @@ async function onEvents(events, before, c) {
       const finish = qs('#finish');
       playOnce(qs('.today-ring'), 'is-lighting', 1200);
       playOnce(finish, 'is-arriving', 900);
+      farmFx('perfect');
       c.announce("Today's list: complete. You're done for today.");
     }
     if (ev.type === 'streak.eggs' && ev.count) c.announce(`Reward: ${ev.count} ${tierName(ev.tier)} egg${ev.count === 1 ? '' : 's'}${ev.lucky ? ', a lucky day' : ''}. Open them on the Eggs page.`);
@@ -202,6 +205,13 @@ const actions = {
     qs('#today .tick:not([disabled])')?.focus();
   },
   'receipts-scope': (el, ev, c) => { c.ui.receiptsScope = el.dataset.scope; c.render(); },
+  // View only (visitors too): picks which pet's card shows under the space farm.
+  'farm-select': (el, ev, c) => {
+    c.ui.farmPet = el.dataset.pet;
+    c.render();
+    const p = c.vm.pets.active.find(x => x.id === el.dataset.pet);
+    if (p) c.announce(`${p.name} selected. Details below the farm.`);
+  },
   'pet-companion': async (el, ev, c) => {
     if (await c.act({ type: 'settings/save', settings: { companionId: el.dataset.pet } })) c.announce('Companion changed.');
   },
@@ -220,6 +230,7 @@ const actions = {
   },
 };
 
-const controller = createController({ sections, actions, onEvents, onLoad });
+const afterRender = () => mountFarm(document.querySelector('#pets .farm'), { reduced: reduced() });
+const controller = createController({ sections, actions, onEvents, onLoad, afterRender });
 controller.ui = { receipts: {}, openRaise: null, receiptsScope: 'month' };
 controller.start();
