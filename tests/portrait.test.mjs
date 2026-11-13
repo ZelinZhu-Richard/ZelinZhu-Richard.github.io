@@ -49,3 +49,12 @@ test('closing the portrait while it loads never leaves a renderer running', asyn
   assert.match(source, /await load\(\);\s*if \(closed\) return;/, 'no mount after closing during the module load');
   assert.match(source, /await mountPortrait\([^)]*\);\s*if \(closed\) \{ mounted\.destroy\(\); return; \}/, 'a mount that resolves after closing is destroyed');
 });
+
+test('About page carries the two quotes between the biography and Experience', () => {
+  const html = pages().get('about/index.html');
+  const quotes = html.indexOf('<section class="about-quotes"');
+  assert.ok(quotes > html.indexOf('data-portrait-figure') && quotes < html.indexOf('id="experience"'));
+  assert.equal(html.match(/<figure class="about-quote">/g)?.length, 2);
+  assert.match(html, /What we outsource, we tend to lose\. And what we cultivate, we tend to keep\.”<\/p><\/blockquote>\s*<figcaption>— Eric So<\/figcaption>/);
+  assert.match(html, /Don’t change your mind before you let compounding compound\.”<\/p><\/blockquote>\s*<figcaption>— Alex Hormozi<\/figcaption>/);
+});

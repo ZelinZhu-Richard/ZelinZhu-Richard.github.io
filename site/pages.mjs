@@ -116,6 +116,16 @@ ${list.map((p, i) => item(p, i + 1)).join('')}
 <figcaption>Me, 2026.</figcaption>
 </figure>
 </section>
+<section class="about-quotes" aria-label="Quotes I keep in mind">
+<figure class="about-quote">
+<blockquote><p>“What we outsource, we tend to lose. And what we cultivate, we tend to keep.”</p></blockquote>
+<figcaption>— Eric So</figcaption>
+</figure>
+<figure class="about-quote">
+<blockquote><p>“Do so much volume it would be unreasonable for you to fail… Don’t change your mind before you let compounding compound.”</p></blockquote>
+<figcaption>— Alex Hormozi</figcaption>
+</figure>
+</section>
 <section id="experience" class="experience">
 <h2>Experience</h2>
 <ol>${EXPERIENCE.map(x=>`<li>
