@@ -129,8 +129,8 @@ test('visitor mode is read-only', () => {
   assert.equal(count(today, /class="tick"[^>]*disabled/g), 6);
   assert.doesNotMatch(today, /raise-toggle/);
   assert.doesNotMatch(s(renderFoodPanel(vm.today, vm.pets, v)), /data-action=/);
-  const pets = s(renderPets(vm.pets, vm.today, v, vm.eggs));
-  assert.doesNotMatch(pets, /data-action=/);
+  const pets = s(renderPets(vm.pets, vm.today, v, vm.eggs, vm.header));
+  assert.doesNotMatch(pets.replace(/data-action="farm-select"/g, ''), /data-action=/, 'only the view-only pet picker');
   assert.doesNotMatch(s(renderReceipts(vm.receipts, v)), /Goal A/, 'goals stay private');
   assert.doesNotMatch(s(renderToday(vm.today, vm.header, v)), /Goal A/);
 });
@@ -149,12 +149,15 @@ test('header stats, hunger ladder and Phoenix', () => {
 
 test('pet cards: seats line, comeback badge, feed buttons', () => {
   assert.equal(seatsLine(vm.pets), 'Seats: 3 base + 2 from abilities = 5 · 3 filled · each needs 100 food');
-  const out = s(renderPets(vm.pets, vm.today, ctx(), vm.eggs));
-  assert.equal(count(out, /class="pet-card"/g), 3);
-  assert.match(out, /2× comeback XP · 300 to go/);
-  assert.match(out, /−2 Lv/);
-  assert.equal(count(out, /data-action="feed"/g), 6);
+  const out = s(renderPets(vm.pets, vm.today, ctx(), vm.eggs, vm.header));
+  assert.equal(count(out, /class="farm-pet"/g), 3, 'every active pet stands on the farm');
+  assert.equal(count(out, /class="pet-card"/g), 1, 'one card: the picked pet');
+  assert.equal(count(out, /data-action="feed"/g), 2);
   assert.match(out, /Pays 46 coins \+ 2 diamond shards a day when fed 100/);
+  const mochi = s(renderPets(vm.pets, vm.today, ctx({ ui: { farmPet: 'p-mochi' } }), vm.eggs, vm.header));
+  assert.match(mochi, /2× comeback XP · 300 to go/);
+  assert.match(mochi, /−2 Lv/);
+  assert.match(mochi, /data-pet="p-mochi" aria-pressed="true"/);
   assert.match(s(renderBackpack(vm.pets, ctx())), /2 \/ 12 · 10 food each a day/);
 });
 
