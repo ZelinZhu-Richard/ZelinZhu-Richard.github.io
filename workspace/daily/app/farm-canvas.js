@@ -401,7 +401,11 @@ function createPainter(root, reducedAtStart) {
   for (const p of data.plots) if (!growth.has(p.id)) growth.set(p.id, p.grown ? 1 : 0);
 
   let isReduced = reducedAtStart;
-  let scale = 1, sky = null, island = null, raf = 0, last = 0, visible = true, alive = true;
+  let scale = 1, sky = null, island = null, raf = 0, last = 0, alive = true;
+  // The loop needs both: the farm on screen (IntersectionObserver) and the tab visible.
+  // Until the observer's first report, assume off screen (resize() still draws one frame).
+  let onScreen = !('IntersectionObserver' in globalThis);
+  const visible = () => onScreen && !document.hidden;
   let tilt = { x: 0, y: 0, tx: 0, ty: 0 }, hover = null;
   let aurora = data.perfect ? 1 : 0, shooting = [], nextShot = 2, burst = [];
   const r = rng(1234);
@@ -522,11 +526,11 @@ function createPainter(root, reducedAtStart) {
 
   function loop(now) {
     raf = 0;
-    if (!alive || !visible || isReduced) return;
+    if (!alive || !visible() || isReduced) return;
     frame(now);
     raf = requestAnimationFrame(loop);
   }
-  function start() { if (!raf && alive && visible && !isReduced && sky) { last = 0; raf = requestAnimationFrame(loop); } }
+  function start() { if (!raf && alive && visible() && !isReduced && sky) { last = 0; raf = requestAnimationFrame(loop); } }
   function stop() { if (raf) cancelAnimationFrame(raf); raf = 0; }
 
   const point = e => {
@@ -574,9 +578,9 @@ function createPainter(root, reducedAtStart) {
 
   const ro = 'ResizeObserver' in globalThis ? new ResizeObserver(() => { resize(); start(); }) : null;
   ro?.observe(canvas);
-  const io = 'IntersectionObserver' in globalThis ? new IntersectionObserver(([e]) => { visible = e.isIntersecting && !document.hidden; if (visible) { resize(); start(); } else stop(); }, { rootMargin: '80px' }) : null;
+  const io = 'IntersectionObserver' in globalThis ? new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; if (visible()) { resize(); start(); } else stop(); }, { rootMargin: '80px' }) : null;
   io?.observe(root);
-  const onVis = () => { visible = !document.hidden; visible ? start() : stop(); };
+  const onVis = () => { if (visible()) start(); else stop(); };
   document.addEventListener('visibilitychange', onVis);
   root.addEventListener('pointermove', onMove);
   root.addEventListener('pointerleave', onLeave);

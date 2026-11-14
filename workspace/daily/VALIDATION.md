@@ -272,6 +272,7 @@ Built on branch `daily-supabase` from origin/main. Code is ready, and nothing ch
 The pet grid on /daily/ was replaced by an isometric space farm (`app/farm.js`, `app/farm-canvas.js`).
 
 ### Checked
+- `tests/ui-farm-canvas.test.mjs` (fake DOM): the animation loop runs only while the farm is on screen and the tab is visible; returning to the tab never restarts it off screen; reduced motion never starts it.
 - `tests/ui-farm.test.mjs`: projection round trip on every tile, island inside the frame, plots / pet slots / decor never overlap and no pet hides a crop, crop choice for the default list, model (plots = tasks, grown = ticked, 12-plot cap, empty states), markup (canvas JSON, aria-label, overlay positions, visitors get only the view-only `farm-select`), escaping. `tests/ui-render.test.mjs` updated for one pet card under the farm.
 - Built-in browser on a local build with `?fixtures=owner`: farm draws at desktop width; picking a pet swaps the card and announces it; hovering a plot shows its tooltip and clicking it focuses the task's tick; an all-grown perfect day shows the aurora and rocket flame; reduced-motion still frame; 375 px: no horizontal overflow, pet buttons 44 px. Visitor view of the published snapshot: grey "field in ashes" state, no pets, no console errors.
 
