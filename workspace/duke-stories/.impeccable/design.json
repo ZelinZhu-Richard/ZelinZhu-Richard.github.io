@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-06T13:15:55.047550Z",
+  "title": "Design System: A Dragon at Duke",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Pause Ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.00616 261.58)",
+          "oklch(26.43% 0.00616 261.58)",
+          "oklch(37.86% 0.00616 261.58)",
+          "oklch(49.29% 0.00616 261.58)",
+          "oklch(60.71% 0.00616 261.58)",
+          "oklch(72.14% 0.00616 261.58)",
+          "oklch(83.57% 0.00616 261.58)",
+          "oklch(95.00% 0.00616 261.58)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Narration Paper",
+        "tonalRamp": [
+          "oklch(15.00% 0.01144 84.58)",
+          "oklch(26.43% 0.01144 84.58)",
+          "oklch(37.86% 0.01144 84.58)",
+          "oklch(49.29% 0.01144 84.58)",
+          "oklch(60.71% 0.01144 84.58)",
+          "oklch(72.14% 0.01144 84.58)",
+          "oklch(83.57% 0.01144 84.58)",
+          "oklch(95.00% 0.01144 84.58)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Quiet Copy",
+        "tonalRamp": [
+          "oklch(15.00% 0.02751 269.63)",
+          "oklch(26.43% 0.02751 269.63)",
+          "oklch(37.86% 0.02751 269.63)",
+          "oklch(49.29% 0.02751 269.63)",
+          "oklch(60.71% 0.02751 269.63)",
+          "oklch(72.14% 0.02751 269.63)",
+          "oklch(83.57% 0.02751 269.63)",
+          "oklch(95.00% 0.02751 269.63)"
+        ]
+      },
+      "royal": {
+        "role": "primary",
+        "displayName": "Duke Royal Blue",
+        "tonalRamp": [
+          "oklch(15.00% 0.13578 252.86)",
+          "oklch(26.43% 0.13578 252.86)",
+          "oklch(37.86% 0.13578 252.86)",
+          "oklch(49.29% 0.13578 252.86)",
+          "oklch(60.71% 0.13578 252.86)",
+          "oklch(72.14% 0.13578 252.86)",
+          "oklch(83.57% 0.13578 252.86)",
+          "oklch(95.00% 0.13578 252.86)"
+        ]
+      },
+      "navy": {
+        "role": "primary",
+        "displayName": "Duke Navy",
+        "tonalRamp": [
+          "oklch(15.00% 0.13084 262.28)",
+          "oklch(26.43% 0.13084 262.28)",
+          "oklch(37.86% 0.13084 262.28)",
+          "oklch(49.29% 0.13084 262.28)",
+          "oklch(60.71% 0.13084 262.28)",
+          "oklch(72.14% 0.13084 262.28)",
+          "oklch(83.57% 0.13084 262.28)",
+          "oklch(95.00% 0.13084 262.28)"
+        ]
+      },
+      "violet": {
+        "role": "secondary",
+        "displayName": "Galaxy Violet",
+        "tonalRamp": [
+          "oklch(15.00% 0.10402 304.09)",
+          "oklch(26.43% 0.10402 304.09)",
+          "oklch(37.86% 0.10402 304.09)",
+          "oklch(49.29% 0.10402 304.09)",
+          "oklch(60.71% 0.10402 304.09)",
+          "oklch(72.14% 0.10402 304.09)",
+          "oklch(83.57% 0.10402 304.09)",
+          "oklch(95.00% 0.10402 304.09)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Story Divider",
+        "tonalRamp": [
+          "oklch(15.00% 0.04853 262.41)",
+          "oklch(26.43% 0.04853 262.41)",
+          "oklch(37.86% 0.04853 262.41)",
+          "oklch(49.29% 0.04853 262.41)",
+          "oklch(60.71% 0.04853 262.41)",
+          "oklch(72.14% 0.04853 262.41)",
+          "oklch(83.57% 0.04853 262.41)",
+          "oklch(95.00% 0.04853 262.41)"
+        ]
+      },
+      "control-bg": {
+        "role": "neutral",
+        "displayName": "Control Night",
+        "tonalRamp": [
+          "oklch(15.00% 0.02470 265.00)",
+          "oklch(26.43% 0.02470 265.00)",
+          "oklch(37.86% 0.02470 265.00)",
+          "oklch(49.29% 0.02470 265.00)",
+          "oklch(60.71% 0.02470 265.00)",
+          "oklch(72.14% 0.02470 265.00)",
+          "oklch(83.57% 0.02470 265.00)",
+          "oklch(95.00% 0.02470 265.00)"
+        ]
+      },
+      "control-hover": {
+        "role": "neutral",
+        "displayName": "Control Hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.06375 261.10)",
+          "oklch(26.43% 0.06375 261.10)",
+          "oklch(37.86% 0.06375 261.10)",
+          "oklch(49.29% 0.06375 261.10)",
+          "oklch(60.71% 0.06375 261.10)",
+          "oklch(72.14% 0.06375 261.10)",
+          "oklch(83.57% 0.06375 261.10)",
+          "oklch(95.00% 0.06375 261.10)"
+        ]
+      },
+      "control-border": {
+        "role": "neutral",
+        "displayName": "Control Border",
+        "tonalRamp": [
+          "oklch(15.00% 0.04783 261.54)",
+          "oklch(26.43% 0.04783 261.54)",
+          "oklch(37.86% 0.04783 261.54)",
+          "oklch(49.29% 0.04783 261.54)",
+          "oklch(60.71% 0.04783 261.54)",
+          "oklch(72.14% 0.04783 261.54)",
+          "oklch(83.57% 0.04783 261.54)",
+          "oklch(95.00% 0.04783 261.54)"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus Ice",
+        "tonalRamp": [
+          "oklch(15.00% 0.06416 247.15)",
+          "oklch(26.43% 0.06416 247.15)",
+          "oklch(37.86% 0.06416 247.15)",
+          "oklch(49.29% 0.06416 247.15)",
+          "oklch(60.71% 0.06416 247.15)",
+          "oklch(72.14% 0.06416 247.15)",
+          "oklch(83.57% 0.06416 247.15)",
+          "oklch(95.00% 0.06416 247.15)"
+        ]
+      },
+      "link-hover": {
+        "role": "neutral",
+        "displayName": "Link Ice",
+        "tonalRamp": [
+          "oklch(15.00% 0.06409 251.41)",
+          "oklch(26.43% 0.06409 251.41)",
+          "oklch(37.86% 0.06409 251.41)",
+          "oklch(49.29% 0.06409 251.41)",
+          "oklch(60.71% 0.06409 251.41)",
+          "oklch(72.14% 0.06409 251.41)",
+          "oklch(83.57% 0.06409 251.41)",
+          "oklch(95.00% 0.06409 251.41)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Becoming Blue story title."
+      },
+      "display-night": {
+        "displayName": "Display Night",
+        "purpose": "The Night Duke Lost Its Blue story title."
+      },
+      "display-selector": {
+        "displayName": "Display Selector",
+        "purpose": "A dragon at Duke selector title."
+      },
+      "display-mobile": {
+        "displayName": "Display Mobile",
+        "purpose": "Both story titles at widths up to 700px."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Story-selection headings; mobile uses 33px."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base story and interface inheritance; mobile uses 16px."
+      },
+      "narration": {
+        "displayName": "Narration",
+        "purpose": "Story paragraphs; mobile uses 22px and line height 1.6."
+      },
+      "narration-emphasis": {
+        "displayName": "Narration Emphasis",
+        "purpose": "Large bold script emphasis; mobile uses 30px and line height 1.45."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Top navigation; mobile uses 11px."
+      },
+      "action": {
+        "displayName": "Action",
+        "purpose": "Begin and Replay; mobile uses 13px."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Motion toggle; mobile uses 12px."
+      }
+    },
+    "shadows": [
+      {
+        "name": "scene-edge",
+        "value": "inset 0 -35px 40px -26px #050608",
+        "purpose": "Inset box shadow on the bottom of scene artwork; removed for selected mobile scenes."
+      },
+      {
+        "name": "title-offset",
+        "value": "1px 0 #925aa9,-1px 0 #2d7693",
+        "purpose": "Text shadow on story title letters, not interface elevation."
+      },
+      {
+        "name": "spark-glow",
+        "value": "0 0 9px #29b7ff",
+        "purpose": "SVG spark filter drop-shadow, not a container shadow."
+      }
+    ],
+    "motion": [
+      {
+        "name": "action-arrow",
+        "value": "transform .2s ease",
+        "purpose": "Hover moves text-action arrows 6px; reduced motion removes the transition."
+      },
+      {
+        "name": "choice-art",
+        "value": "transform .35s ease",
+        "purpose": "Story art scales to 1.025 on hover; reduced motion removes the scale and transition."
+      },
+      {
+        "name": "scroll-progress",
+        "value": "clamp(-top / (height - viewport), 0, 1)",
+        "purpose": "Current geometry drives native sticky scenes and restores earlier states on reverse scroll."
+      },
+      {
+        "name": "smooth-progress",
+        "value": "t * t * (3 - 2 * t)",
+        "purpose": "Clamped smoothstep for camera, assembly, sparks, and adjacent dragon-state interpolation."
+      },
+      {
+        "name": "workshop-thresholds",
+        "value": "0.12, 0.30, 0.50, 0.70",
+        "purpose": "Four assembly arrivals, each resolving over a progress interval of 0.12."
+      },
+      {
+        "name": "rescue-hold",
+        "value": "0.76 <= progress < 0.88",
+        "purpose": "Hold after the cord catch and before the final light catch."
+      },
+      {
+        "name": "bounded-wind",
+        "value": "clamp(abs(dy) / dt / 2.5, 0, 1)",
+        "purpose": "Only wind strength responds to scroll velocity; it settles after 140ms without scrolling."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "(max-width:700px)"
+      },
+      {
+        "name": "short-desktop",
+        "value": "(max-height:650px) and (min-width:701px)"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Motion toggle",
+      "kind": "button",
+      "refersTo": "motion-toggle",
+      "description": "The actual motion control, shown without its viewport-fixed placement for the component preview. Runtime supplies the toggle behavior.",
+      "html": "<button class=\"ds-motion-toggle\" type=\"button\" aria-pressed=\"false\"><svg viewBox=\"0 0 18 18\" aria-hidden=\"true\"><path d=\"M6 3v12M12 3v12\"/></svg><span>Motion off</span></button>",
+      "css": ".ds-motion-toggle{display:flex;align-items:center;gap:9px;padding:12px 16px;border:1px solid #63738f;border-radius:30px;background:#090e19;color:var(--paper,#f8f4ec);font-family:system-ui,sans-serif;font-size:13px;line-height:1.6;cursor:pointer;min-height:44px}.ds-motion-toggle:hover{background:#172949}.ds-motion-toggle:focus-visible{outline:3px solid #b5dbff;outline-offset:7px}.ds-motion-toggle svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "text-action",
+      "description": "The serif anchor and authored arrow used by Begin and Replay.",
+      "html": "<a class=\"ds-text-action\" href=\"#edge\">Begin the story <svg viewBox=\"0 0 32 24\" aria-hidden=\"true\"><path d=\"M2 12h26M18 3l10 9-10 9\"/></svg></a>",
+      "css": ".ds-text-action{display:inline-flex;align-items:center;gap:22px;text-decoration:none;color:var(--paper,#f8f4ec);font-family:Merriweather,Georgia,serif;font-size:15px;line-height:1.6;padding-block:10px}.ds-text-action svg{width:31px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;transition:transform .2s ease}.ds-text-action:hover{color:#b7d9ff}.ds-text-action:hover svg{transform:translateX(6px)}.ds-text-action:focus-visible{outline:3px solid #b5dbff;outline-offset:7px}@media(prefers-reduced-motion:reduce){.ds-text-action svg{transition:none}}"
+    },
+    {
+      "name": "Story navigation",
+      "kind": "nav",
+      "refersTo": "story-navigation",
+      "description": "The quiet two-ended top navigation, shown in normal flow for the preview.",
+      "html": "<header class=\"ds-story-nav\"><a href=\"/duke/\" aria-label=\"A Dragon at Duke — story selector\">A dragon at Duke</a><a href=\"/work/\">Richard Zhu</a></header>",
+      "css": ".ds-story-nav{display:flex;justify-content:space-between;gap:20px;padding:26px 4vw;font-family:Merriweather,Georgia,serif;font-size:13px;line-height:1.6;letter-spacing:.015em;color:var(--paper,#f8f4ec)}.ds-story-nav a{color:inherit;text-decoration:none;padding:5px 0}.ds-story-nav a:hover{color:#b7d9ff}.ds-story-nav a:focus-visible{outline:3px solid #b5dbff;outline-offset:7px}@media(max-width:700px){.ds-story-nav{padding:20px 22px;font-size:11px}}"
+    },
+    {
+      "name": "Next scene",
+      "kind": "button",
+      "refersTo": "next-scene",
+      "description": "A down-arrow anchor with the story’s actual 48px target.",
+      "html": "<a class=\"ds-next-scene\" href=\"#credits\" aria-label=\"Continue to credits\"><svg viewBox=\"0 0 32 24\" aria-hidden=\"true\"><path d=\"M2 12h26M18 3l10 9-10 9\"/></svg></a>",
+      "css": ".ds-next-scene{display:flex;align-items:center;justify-content:center;width:48px;height:48px;margin:16px auto;color:var(--paper,#f8f4ec)}.ds-next-scene svg{width:31px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;transition:transform .2s ease;transform:rotate(90deg)}.ds-next-scene:hover{color:#b7d9ff}.ds-next-scene:focus-visible{outline:3px solid #b5dbff;outline-offset:7px}@media(prefers-reduced-motion:reduce){.ds-next-scene svg{transition:none}}"
+    },
+    {
+      "name": "Narration beat",
+      "kind": "custom",
+      "refersTo": "narrative-beat",
+      "description": "An actual rescue beat in the static reading style.",
+      "html": "<p class=\"ds-beat\"><span>The Blue Devil caught the cord.</span></p>",
+      "css": ".ds-beat{font-family:Merriweather,Georgia,serif;font-size:clamp(22px,2.4vw,31px);line-height:1.55;text-wrap:pretty;margin:72px auto;max-width:780px;text-align:center;color:var(--paper,#f8f4ec)}@media(max-width:700px){.ds-beat{font-size:22px;line-height:1.6;margin:54px auto}}"
+    },
+    {
+      "name": "Other story invitation",
+      "kind": "nav",
+      "refersTo": "other-story",
+      "description": "The divider-led cross-story link at the end of a story.",
+      "html": "<a class=\"ds-other-story\" href=\"/duke/becoming-blue/\"><span>Read the other story</span><strong>Becoming Blue</strong><svg viewBox=\"0 0 32 24\" aria-hidden=\"true\"><path d=\"M2 12h26M18 3l10 9-10 9\"/></svg></a>",
+      "css": ".ds-other-story{border-top:1px solid var(--line,#33415b);padding:35px 0;display:grid;gap:14px;justify-items:center;text-decoration:none;width:100%;color:var(--paper,#f8f4ec);font-family:Merriweather,Georgia,serif;line-height:1.6}.ds-other-story span{font-size:12px;color:var(--muted,#c5ccdf)}.ds-other-story strong{font-size:clamp(22px,3vw,34px);font-weight:700;line-height:1.4}.ds-other-story>svg{width:31px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;transition:transform .2s ease}.ds-other-story:hover{color:#b7d9ff}.ds-other-story:focus-visible{outline:3px solid #b5dbff;outline-offset:7px}@media(prefers-reduced-motion:reduce){.ds-other-story>svg{transition:none}}"
+    },
+    {
+      "name": "Completed workshop voices",
+      "kind": "custom",
+      "description": "The actual resolved assembly display. Positioning within the artwork is intentionally omitted; equal voice scale is the CSS fallback.",
+      "html": "<div class=\"ds-assembly-display\" aria-label=\"An illustrative prototype shows three different voice waveforms.\"><div class=\"ds-voice ds-voice-0\"><svg viewBox=\"0 0 200 32\" role=\"img\" aria-label=\"Voice 1 waveform\"><path d=\"M0 16h12l5-5 4 10 5-17 6 25 5-22 6 15 4-8 6 2h12l5-11 6 20 5-12 4 3h14l4-6 6 15 6-21 5 24 6-16 5 4h12l5-10 5 21 6-27 5 29 5-17 6 4h17\"/></svg></div><div class=\"ds-voice ds-voice-1\"><svg viewBox=\"0 0 200 32\" role=\"img\" aria-label=\"Voice 2 waveform\"><path d=\"M0 16h12l5-5 4 10 5-17 6 25 5-22 6 15 4-8 6 2h12l5-11 6 20 5-12 4 3h14l4-6 6 15 6-21 5 24 6-16 5 4h12l5-10 5 21 6-27 5 29 5-17 6 4h17\"/></svg></div><div class=\"ds-voice ds-voice-2\"><svg viewBox=\"0 0 200 32\" role=\"img\" aria-label=\"Voice 3 waveform\"><path d=\"M0 16h12l5-5 4 10 5-17 6 25 5-22 6 15 4-8 6 2h12l5-11 6 20 5-12 4 3h14l4-6 6 15 6-21 5 24 6-16 5 4h12l5-10 5 21 6-27 5 29 5-17 6 4h17\"/></svg></div><span class=\"ds-assembly-component\"><span></span><span></span><span></span></span></div>",
+      "css": ".ds-assembly-display{padding:3%;display:flex;flex-direction:column;justify-content:space-around;border:1px solid #607caf;background:#0e2145}.ds-voice{color:#b9e9ff;width:100%;transform:none;border-bottom:1px solid #425573;padding:2px 4px}.ds-voice svg{display:block;width:100%;height:auto;max-height:50px;fill:none;stroke:currentColor;stroke-width:2}.ds-voice-1{color:var(--violet,#c7a8ef)}.ds-voice-2{color:#f9d28b}.ds-assembly-component{display:flex;justify-content:space-around;gap:10px;margin-top:8px}.ds-assembly-component span{width:22%;height:12px;border:1px solid #b9cfff;background:#33557a}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A dragon grows without losing himself",
+    "overview": "A Dragon at Duke extends the user-approved Wings visual language with original loose-ink outlines and flat comic shading. Black pauses give white Merriweather narration room to breathe; Duke blues and purple galaxy wings carry the characters through the night into warm communal dawn. The interface stays quiet around the illustration.\n\nRichard remains recognizably the same dragon as his scales turn Duke blue and his horns become ivory devil horns. Preserve his face, purple eyes, galaxy wings, tail, pendant, and proportions. The blue-and-white humanoid Blue Devil is an active guide and teammate. These are approved identity constraints, not interchangeable decorative motifs.\n\nThis document records the implemented Duke feature only: the selector at /duke/, Becoming Blue at /duke/becoming-blue/, and The Night Duke Lost Its Blue at /duke/the-night-duke-lost-its-blue/. The first story remains explicitly an imagined Duke future; the second remains explicitly a fictional campus adventure. It does not define or revise the rest of the portfolio.",
+    "keyCharacteristics": [
+      "Large serif titles and centered narration against near-black reading space.",
+      "Original character art with ink contours, flat shading, recognizable campus settings, and warm dawn endings.",
+      "Native scroll, sticky illustration stages, reversible progress, and held moments of teamwork.",
+      "Separate mobile art and copy regions, plus a complete stacked reading mode."
+    ],
+    "rules": [
+      {
+        "name": "The Same Dragon Rule",
+        "body": "A transformation may change scale color and horns; it must retain Richard’s established face, purple eyes, galaxy wings, tail, pendant, and proportions.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Space Rule",
+        "body": "Keep narration in its own reading region below the scene art, including on mobile. Do not cover faces or action with story copy.",
+        "section": "typography"
+      },
+      {
+        "name": "The Complete Still Story Rule",
+        "body": "The static HTML and CSS must carry the complete story and resolved visual meaning before motion enhancement runs.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the approved dragon and humanoid Blue Devil identities through every scene and transformation state.",
+      "Do retain loose ink outlines, flat comic shading, black pauses, white serif narration, and warm dawn endings.",
+      "Do keep the imagined-future and fictional-adventure labels visible, and keep narrative wording and emphasis sourced from the locked scripts.",
+      "Do keep all story lettering in HTML and narration separate from the illustration on mobile.",
+      "Do make scroll states reversible and preserve complete reading, visible focus, keyboard replay, and the fixed motion control.",
+      "Do keep the workshop’s static voices equally visible and attach the static and animated rescue cord to the glove and lantern ring."
+    ],
+    "donts": [
+      "Don’t replace Richard with a human, lose his identifying features, or replace the humanoid Blue Devil with another dragon.",
+      "Don’t turn the imagined or fictional stories into claims of admission, affiliation, collaboration, or achievement.",
+      "Don’t hide story beats behind JavaScript, scroll-jack the page, or make motion necessary to understand the scene.",
+      "Don’t crop the rescue background short of the scene, detach the lantern cord, or retain unequal workshop voices in the resolved fallback.",
+      "Don’t apply this feature’s design contract to the root portfolio or change the accepted Wings visual direction through this document."
+    ]
+  }
+}

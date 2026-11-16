@@ -1,0 +1,306 @@
+{
+  "breakfast": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/breakfast.png",
+    "mobile": {
+      "key": "breakfast-mobile",
+      "width": 1280,
+      "height": 896
+    }
+  },
+  "brodhead": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/brodhead.png",
+    "mobile": {
+      "key": "brodhead-mobile",
+      "width": 1024,
+      "height": 1024
+    }
+  },
+  "chapel": {
+    "width": 1024,
+    "height": 1536,
+    "alpha": false,
+    "source": "art/production/chapel.png",
+    "mobile": {
+      "key": "chapel-mobile",
+      "width": 768,
+      "height": 1536
+    }
+  },
+  "dragon-flight": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": true,
+    "source": "art/production/dragon-flight.png"
+  },
+  "future-dawn": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/future-dawn.png",
+    "mobile": {
+      "key": "future-dawn-mobile",
+      "width": 1280,
+      "height": 1024
+    }
+  },
+  "lantern": {
+    "width": 1024,
+    "height": 1536,
+    "alpha": true,
+    "source": "art/production/lantern.png"
+  },
+  "ledge": {
+    "width": 2172,
+    "height": 724,
+    "alpha": true,
+    "source": "art/production/ledge.png"
+  },
+  "mascot-catch": {
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "source": "art/production/mascot-catch.png"
+  },
+  "mascot-run": {
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "source": "art/production/mascot-run.png"
+  },
+  "mascot": {
+    "width": 1024,
+    "height": 1536,
+    "alpha": true,
+    "source": "art/production/mascot.png"
+  },
+  "noodles": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/noodles.png",
+    "mobile": {
+      "key": "noodles-mobile",
+      "width": 1280,
+      "height": 896
+    }
+  },
+  "open-seat": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/open-seat.png",
+    "mobile": {
+      "key": "open-seat-mobile",
+      "width": 1280,
+      "height": 896
+    }
+  },
+  "prototype": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/prototype.png"
+  },
+  "quad": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/quad.png",
+    "mobile": {
+      "key": "quad-mobile",
+      "width": 1024,
+      "height": 1024
+    }
+  },
+  "table": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/table.png",
+    "mobile": {
+      "key": "table-mobile",
+      "width": 1536,
+      "height": 896
+    }
+  },
+  "transform-strip": {
+    "width": 2172,
+    "height": 724,
+    "alpha": true,
+    "source": "art/production/transform-strip.png"
+  },
+  "workshop": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/production/workshop.png"
+  },
+  "quad-mobile": {
+    "width": 1024,
+    "height": 1024,
+    "source": "art/production/quad.png",
+    "crop": [
+      256,
+      0,
+      1024,
+      1024
+    ]
+  },
+  "brodhead-mobile": {
+    "width": 1024,
+    "height": 1024,
+    "source": "art/production/brodhead.png",
+    "crop": [
+      256,
+      0,
+      1024,
+      1024
+    ]
+  },
+  "table-mobile": {
+    "width": 1536,
+    "height": 896,
+    "source": "art/production/table.png",
+    "crop": [
+      0,
+      128,
+      1536,
+      896
+    ]
+  },
+  "open-seat-mobile": {
+    "width": 1280,
+    "height": 896,
+    "source": "art/production/open-seat.png",
+    "crop": [
+      0,
+      128,
+      1280,
+      896
+    ]
+  },
+  "future-dawn-mobile": {
+    "width": 1280,
+    "height": 1024,
+    "source": "art/production/future-dawn.png",
+    "crop": [
+      128,
+      0,
+      1280,
+      1024
+    ]
+  },
+  "noodles-mobile": {
+    "width": 1280,
+    "height": 896,
+    "source": "art/production/noodles.png",
+    "crop": [
+      128,
+      128,
+      1280,
+      896
+    ]
+  },
+  "breakfast-mobile": {
+    "width": 1280,
+    "height": 896,
+    "source": "art/production/breakfast.png",
+    "crop": [
+      128,
+      128,
+      1280,
+      896
+    ]
+  },
+  "chapel-mobile": {
+    "width": 768,
+    "height": 1536,
+    "source": "art/production/chapel.png",
+    "crop": [
+      128,
+      0,
+      768,
+      1536
+    ]
+  },
+  "richard-0": {
+    "width": 434,
+    "height": 724,
+    "alpha": true,
+    "source": "art/production/transform-strip.png",
+    "crop": [
+      0,
+      0,
+      434,
+      724
+    ]
+  },
+  "richard-1": {
+    "width": 434,
+    "height": 724,
+    "alpha": true,
+    "source": "art/production/transform-strip.png",
+    "crop": [
+      428,
+      0,
+      434,
+      724
+    ]
+  },
+  "richard-2": {
+    "width": 434,
+    "height": 724,
+    "alpha": true,
+    "source": "art/production/transform-strip.png",
+    "crop": [
+      856,
+      0,
+      434,
+      724
+    ]
+  },
+  "richard-3": {
+    "width": 434,
+    "height": 724,
+    "alpha": true,
+    "source": "art/production/transform-strip.png",
+    "crop": [
+      1286,
+      0,
+      434,
+      724
+    ]
+  },
+  "richard-4": {
+    "width": 434,
+    "height": 724,
+    "alpha": true,
+    "source": "art/production/transform-strip.png",
+    "crop": [
+      1714,
+      0,
+      434,
+      724
+    ]
+  },
+  "welcome": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/gate-v1/04-blue-welcome.png",
+    "prompt": "04-blue-welcome"
+  },
+  "rescue-poster": {
+    "width": 1536,
+    "height": 1024,
+    "alpha": false,
+    "source": "art/gate-v1/03-lantern-rescue.png",
+    "prompt": "03-lantern-rescue"
+  }
+}

@@ -40,7 +40,7 @@ function sync() {
 }
 
 function start() {
-  if (!canvas || engine) return;
+  if (!canvas || engine || document.body.dataset.ambientBackground === 'off') return;
   try {
     const mobile = window.innerWidth < 700;
     engine = new OceanEngine(canvas, mobile ? [
