@@ -3,7 +3,7 @@
 Status: Richard approved all four character images with “Yes Approve”. Both local story drafts are complete; automated and browser verification is recorded in VERIFICATION.md.
 
 Branch: codex/duke-stories, fresh from fetched GitHub main at 7adc30210b8d665dc9e0dfa59c833f455d34e5ce.
-Updated with GitHub main 38aede6c1a389fc05c707910349db9806a0d95c2 on 2026-11-16 before opening the PR.
+Updated with GitHub main 7619eb97d4b8910542b6c0dfd80795fb5d44ed5e on 2026-11-16 before opening the PR.
 Review checkout: this session's workspace/site-duke-stories.
 Feature source: workspace/duke-stories in that checkout.
 Wings remains unchanged. On 2026-11-16 Richard authorized committing, pushing the branch and opening a PR, with all three routes unlisted. No merge or live deployment is authorized.

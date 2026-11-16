@@ -78,7 +78,7 @@ async function htmlFiles(dir, prefix = '') {
 
 // Runs the real tools/build.mjs (it writes ./dist relative to its working directory) in a scratch
 // folder under .qa/, so the checks below read the site exactly as it deploys.
-test('full build: only HQ and unlisted Duke routes are noindex; none are publicly listed', async () => {
+test('full build: only HQ, Choices and Duke routes are noindex; none are publicly listed', async () => {
   const work = join(hqDir, '.qa', `site-test-${process.pid}`);
   await rm(work, { recursive: true, force: true });
   try {
@@ -90,17 +90,20 @@ test('full build: only HQ and unlisted Duke routes are noindex; none are publicl
     const dist = join(work, 'dist');
 
     const pagesWithNoindex = [];
-    for (const file of await htmlFiles(dist)) if (/noindex/i.test(await readFile(join(dist, file), 'utf8'))) pagesWithNoindex.push(file);
-    assert.deepEqual(pagesWithNoindex, ['duke/becoming-blue/index.html', 'duke/index.html', 'duke/the-night-duke-lost-its-blue/index.html', 'hq/index.html']);
+    for (const file of await htmlFiles(dist)) {
+      const html = await readFile(join(dist, file), 'utf8');
+      if (/noindex/i.test(html)) pagesWithNoindex.push(file);
+      if (file !== 'choices/index.html') assert.doesNotMatch(html, /\/choices(?:\/|[?#"'])/, `${file} exposes /choices/`);
+    }
+    assert.deepEqual(pagesWithNoindex.sort(), ['choices/index.html', 'duke/becoming-blue/index.html', 'duke/index.html', 'duke/the-night-duke-lost-its-blue/index.html', 'hq/index.html']);
     for (const file of ['index.html', 'daily/index.html', 'blog/index.html', 'gym/index.html', 'domainexp/index.html']) {
       assert.doesNotMatch(await readFile(join(dist, file), 'utf8'), /\/hq\//, `${file} links to /hq/`);
       assert.doesNotMatch(await readFile(join(dist, file), 'utf8'), /href=["']\/duke(?:[\/"'#?])/, `${file} links to /duke/`);
     }
     const sitemap = await readFile(join(dist, 'sitemap.xml'), 'utf8');
     assert.match(sitemap, /<loc>https:\/\/zelinzhu-richard\.github\.io\/daily\/<\/loc>/);
-    assert.doesNotMatch(sitemap, /hq/);
-    assert.doesNotMatch(sitemap, /\/duke\//);
-    assert.doesNotMatch(await readFile(join(dist, 'robots.txt'), 'utf8'), /hq/);
+    assert.doesNotMatch(sitemap, /hq|choices|\/duke\//);
+    assert.doesNotMatch(await readFile(join(dist, 'robots.txt'), 'utf8'), /hq|choices/);
   } finally {
     await rm(work, { recursive: true, force: true });
   }

@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T04:03:45.701941+00:00",
+  "title": "Design System: Choices",
+  "extensions": {
+    "colorMeta": {
+      "night-paper": {
+        "role": "neutral",
+        "displayName": "Night Paper",
+        "tonalRamp": [
+          "oklch(15% 0.01242 292.69)",
+          "oklch(26% 0.01242 292.69)",
+          "oklch(38% 0.01242 292.69)",
+          "oklch(49% 0.01242 292.69)",
+          "oklch(61% 0.01242 292.69)",
+          "oklch(72% 0.01242 292.69)",
+          "oklch(84% 0.01242 292.69)",
+          "oklch(95% 0.01242 292.69)"
+        ]
+      },
+      "night-hover": {
+        "role": "neutral",
+        "displayName": "Night Hover",
+        "tonalRamp": [
+          "oklch(15% 0.01365 291.78)",
+          "oklch(26% 0.01365 291.78)",
+          "oklch(38% 0.01365 291.78)",
+          "oklch(49% 0.01365 291.78)",
+          "oklch(61% 0.01365 291.78)",
+          "oklch(72% 0.01365 291.78)",
+          "oklch(84% 0.01365 291.78)",
+          "oklch(95% 0.01365 291.78)"
+        ]
+      },
+      "night-card": {
+        "role": "neutral",
+        "displayName": "Night Card",
+        "tonalRamp": [
+          "oklch(15% 0.01394 291.64)",
+          "oklch(26% 0.01394 291.64)",
+          "oklch(38% 0.01394 291.64)",
+          "oklch(49% 0.01394 291.64)",
+          "oklch(61% 0.01394 291.64)",
+          "oklch(72% 0.01394 291.64)",
+          "oklch(84% 0.01394 291.64)",
+          "oklch(95% 0.01394 291.64)"
+        ]
+      },
+      "warm-ink": {
+        "role": "neutral",
+        "displayName": "Warm Ink",
+        "tonalRamp": [
+          "oklch(15% 0.01117 89.73)",
+          "oklch(26% 0.01117 89.73)",
+          "oklch(38% 0.01117 89.73)",
+          "oklch(49% 0.01117 89.73)",
+          "oklch(61% 0.01117 89.73)",
+          "oklch(72% 0.01117 89.73)",
+          "oklch(84% 0.01117 89.73)",
+          "oklch(95% 0.01117 89.73)"
+        ]
+      },
+      "muted-stone": {
+        "role": "neutral",
+        "displayName": "Muted Stone",
+        "tonalRamp": [
+          "oklch(15% 0.01667 86.44)",
+          "oklch(26% 0.01667 86.44)",
+          "oklch(38% 0.01667 86.44)",
+          "oklch(49% 0.01667 86.44)",
+          "oklch(61% 0.01667 86.44)",
+          "oklch(72% 0.01667 86.44)",
+          "oklch(84% 0.01667 86.44)",
+          "oklch(95% 0.01667 86.44)"
+        ]
+      },
+      "connector-stone": {
+        "role": "neutral",
+        "displayName": "Connector Stone",
+        "tonalRamp": [
+          "oklch(15% 0.01441 86.87)",
+          "oklch(26% 0.01441 86.87)",
+          "oklch(38% 0.01441 86.87)",
+          "oklch(49% 0.01441 86.87)",
+          "oklch(61% 0.01441 86.87)",
+          "oklch(72% 0.01441 86.87)",
+          "oklch(84% 0.01441 86.87)",
+          "oklch(95% 0.01441 86.87)"
+        ]
+      },
+      "quiet-line": {
+        "role": "neutral",
+        "displayName": "Quiet Line",
+        "tonalRamp": [
+          "oklch(15% 0.01636 295.56)",
+          "oklch(26% 0.01636 295.56)",
+          "oklch(38% 0.01636 295.56)",
+          "oklch(49% 0.01636 295.56)",
+          "oklch(61% 0.01636 295.56)",
+          "oklch(72% 0.01636 295.56)",
+          "oklch(84% 0.01636 295.56)",
+          "oklch(95% 0.01636 295.56)"
+        ]
+      },
+      "ember": {
+        "role": "primary",
+        "displayName": "Ember",
+        "tonalRamp": [
+          "oklch(15% 0.16004 44.72)",
+          "oklch(26% 0.16004 44.72)",
+          "oklch(38% 0.16004 44.72)",
+          "oklch(49% 0.16004 44.72)",
+          "oklch(61% 0.16004 44.72)",
+          "oklch(72% 0.16004 44.72)",
+          "oklch(84% 0.16004 44.72)",
+          "oklch(95% 0.16004 44.72)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The Choices page heading."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "The serif line beneath the page heading."
+      },
+      "headline": {
+        "displayName": "Guide section heading",
+        "purpose": "Introduces a section of the long-form guide."
+      },
+      "school-title": {
+        "displayName": "School heading",
+        "purpose": "Names the selected school plan."
+      },
+      "guide-subheading": {
+        "displayName": "Guide subheading",
+        "purpose": "Labels course sequences, school program ledgers, interest plans, campus opportunities, and transfer timing."
+      },
+      "title": {
+        "displayName": "Branch title",
+        "purpose": "Names a branch in the decision map."
+      },
+      "route-title": {
+        "displayName": "Course route title",
+        "purpose": "Names a proposed route in the closed summary."
+      },
+      "guide-row-title": {
+        "displayName": "Guide row title",
+        "purpose": "Names a focus plan, transfer path or timing window, research disclosure, or comparison row."
+      },
+      "guide-intro": {
+        "displayName": "Guide introduction",
+        "purpose": "Explains what a guide section helps the reader compare."
+      },
+      "guide-body": {
+        "displayName": "Guide facts",
+        "purpose": "Explains the aim, constraints, and next move in an expanded row."
+      },
+      "guide-note": {
+        "displayName": "Planning note",
+        "purpose": "Records assumptions and course-sequence caveats."
+      },
+      "body": {
+        "displayName": "Map description",
+        "purpose": "Explains a decision node."
+      },
+      "label": {
+        "displayName": "Map label",
+        "purpose": "Marks node status and similar compact metadata."
+      },
+      "guide-label": {
+        "displayName": "Guide label",
+        "purpose": "Marks route intensity, eligibility facts, statuses, and source links."
+      },
+      "guide-control": {
+        "displayName": "Guide control",
+        "purpose": "Labels index links and fellowship filters at desktop sizes."
+      },
+      "school-control": {
+        "displayName": "School control",
+        "purpose": "Labels the desktop school selectors."
+      }
+    },
+    "motion": [
+      {
+        "name": "control-transition",
+        "value": "160ms ease",
+        "purpose": "Map toolbar buttons, including the in-flow animation control, transition color, background, and border. Reduced-motion preference removes the transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-map",
+        "value": "1100px"
+      },
+      {
+        "name": "compact-guide",
+        "value": "900px"
+      },
+      {
+        "name": "mobile-outline",
+        "value": "760px"
+      },
+      {
+        "name": "stacked-guide",
+        "value": "600px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Selected layout",
+      "kind": "button",
+      "refersTo": "layout-selected",
+      "description": "Current Map or Outline state.",
+      "html": "<button class=\"ds-layout\" type=\"button\" aria-pressed=\"true\">Map</button>",
+      "css": ".ds-layout{min-height:44px;padding:10px 12px;font-family:var(--font-mono, ui-monospace, monospace);font-size:12px;border:1px solid transparent;border-radius:2px;cursor:pointer;background:var(--ink,#ece9e1);color:var(--paper,#100f15)}.ds-layout:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}"
+    },
+    {
+      "name": "Bulk expansion control",
+      "kind": "button",
+      "refersTo": "bulk-control",
+      "description": "Expand all or collapse branches, with disabled end states.",
+      "html": "<button class=\"ds-bulk\" type=\"button\">Expand all</button>",
+      "css": ".ds-bulk{min-height:44px;padding:10px 12px;font-family:var(--font-mono, ui-monospace, monospace);font-size:12px;border:1px solid transparent;border-radius:2px;cursor:pointer;background:transparent;color:var(--ink,#ece9e1);border-bottom-color:var(--line,#2d2b34);transition:color 160ms,background 160ms,border-color 160ms}.ds-bulk:disabled{color:var(--muted,#a8a398);opacity:.55;cursor:default}@media(hover:hover){.ds-bulk:not(:disabled):hover{background:var(--paper-2,#1a1920);border-color:var(--muted,#a8a398)}}.ds-bulk:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-bulk{transition:none}}"
+    },
+    {
+      "name": "Branch toggle",
+      "kind": "button",
+      "refersTo": "branch-toggle",
+      "description": "Collapsed branch plus icon; actual runtime also updates labels and children.",
+      "html": "<button class=\"ds-toggle\" type=\"button\" aria-expanded=\"false\" aria-label=\"Expand branch\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M3 8h10M8 3v10\"/></svg></button>",
+      "css": ".ds-toggle{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line,#2d2b34);border-radius:2px;background:transparent;color:var(--ink,#ece9e1);cursor:pointer}.ds-toggle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}@media(hover:hover){.ds-toggle:hover{background:var(--paper-2,#1a1920);border-color:var(--muted,#a8a398)}}.ds-toggle:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}"
+    },
+    {
+      "name": "Branch card",
+      "kind": "card",
+      "refersTo": "branch-card",
+      "description": "The bordered intermediate node; placeholder copy demonstrates hierarchy.",
+      "html": "<article class=\"ds-card\"><span class=\"ds-status\">Possibility</span><h3 class=\"ds-title\">A possible path</h3><p class=\"ds-description\">Explore the next decision.</p></article>",
+      "css": ".ds-card{width:260px;padding:18px 20px;border:1px solid var(--line,#2d2b34);border-radius:2px;background:var(--card,#16151c);color:var(--ink,#ece9e1)}.ds-status{display:block;margin-bottom:8px;color:var(--muted,#a8a398);font:11px/1.5 var(--font-mono, ui-monospace, monospace)}.ds-title{font-family:var(--font-display,Neoris,Arial,sans-serif);font-weight:400;font-size:23px;line-height:1.18;letter-spacing:-.025em;margin:0 0 10px}.ds-description{font-family:var(--font-body,Georgia,serif);color:var(--muted,#a8a398);font-size:16px;line-height:1.45;margin:0}"
+    },
+    {
+      "name": "Official-source link",
+      "kind": "custom",
+      "refersTo": "source-link",
+      "description": "An underlined monospace link with an arrow marks sources and guide jumps in the decision tree.",
+      "html": "<a class=\"ds-source\" href=\"#\">Official details<svg viewBox=\"0 0 20 20\" aria-hidden=\"true\"><path d=\"M3 10h13m-5-5 5 5-5 5\"/></svg></a>",
+      "css": ".ds-source{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--ink,#ece9e1);font:11px/1.4 var(--font-mono, ui-monospace, monospace);text-decoration:underline;text-underline-offset:4px}.ds-source svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.ds-source:hover{color:var(--accent,#e8743b)}.ds-source:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}"
+    },
+    {
+      "name": "Section index link",
+      "kind": "nav",
+      "refersTo": "section-link",
+      "description": "A wrapping index link to a main guide section.",
+      "html": "<a class=\"ds-section-link\" href=\"#\">Course plans</a>",
+      "css": ".ds-section-link{min-height:36px;display:inline-flex;align-items:center;color:var(--ink,#ece9e1);text-decoration:none;border-bottom:1px solid var(--line,#2d2b34);font:12px/1.5 var(--font-mono,ui-monospace,monospace)}.ds-section-link:hover{color:var(--accent,#e8743b);border-color:var(--accent,#e8743b)}.ds-section-link:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}@media(max-width:600px){.ds-section-link{font-size:11px}}"
+    },
+    {
+      "name": "School selector",
+      "kind": "button",
+      "refersTo": "school-selector",
+      "description": "A pressed button identifies the current school plan.",
+      "html": "<button class=\"ds-school\" type=\"button\" aria-pressed=\"true\">UNC–Chapel Hill</button>",
+      "css": ".ds-school{min-height:44px;padding:14px 22px;border:1px solid var(--line,#2d2b34);border-radius:2px;background:transparent;color:var(--ink,#ece9e1);font:14px/1.5 var(--font-mono,ui-monospace,monospace);cursor:pointer}.ds-school[aria-pressed=\"true\"]{background:var(--ink,#ece9e1);color:var(--paper,#100f15);border-color:var(--ink,#ece9e1)}.ds-school:not([aria-pressed=\"true\"]):hover{background:var(--paper-2,#1a1920);border-color:var(--muted,#a8a398)}.ds-school:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}@media(max-width:600px){.ds-school{padding:12px 16px;font-size:12px}}"
+    },
+    {
+      "name": "Fellowship filter",
+      "kind": "button",
+      "refersTo": "fellowship-filter",
+      "description": "A filter button narrows fellowship and alternative opportunities by type.",
+      "html": "<button class=\"ds-filter\" type=\"button\" aria-pressed=\"false\">College alternatives</button>",
+      "css": ".ds-filter{min-height:44px;padding:10px 16px;border:1px solid var(--line,#2d2b34);border-radius:2px;background:transparent;color:var(--ink,#ece9e1);font:12px/1.5 var(--font-mono,ui-monospace,monospace);cursor:pointer}.ds-filter[aria-pressed=\"true\"]{background:var(--ink,#ece9e1);color:var(--paper,#100f15);border-color:var(--ink,#ece9e1)}.ds-filter:not([aria-pressed=\"true\"]):hover{background:var(--paper-2,#1a1920);border-color:var(--muted,#a8a398)}.ds-filter:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}@media(max-width:600px){.ds-filter{padding:10px 12px;font-size:11px}}"
+    },
+    {
+      "name": "Course disclosure",
+      "kind": "custom",
+      "refersTo": "course-summary",
+      "description": "A closed course plan summary exposes intensity, degree, and workload. It expands natively.",
+      "html": "<details class=\"ds-course\"><summary class=\"ds-course-summary\"><span class=\"ds-course-title\"><span class=\"ds-course-mode\">Balanced · sustainable pace</span>Proposed course plan</span><span class=\"ds-course-degree\">Degree and subject pairing</span><span class=\"ds-course-load\">Estimated course load</span></summary><div class=\"ds-course-body\">Aim, tradeoffs, and the proposed term sequence.</div></details>",
+      "css": ".ds-course{border-block:1px solid var(--line,#2d2b34);color:var(--ink,#ece9e1);font:16px/1.6 var(--font-body,Georgia,serif)}.ds-course-summary{position:relative;display:grid;grid-template-columns:1.1fr 1.2fr .8fr;gap:20px;align-items:start;list-style:none;padding:26px 38px 26px 0;cursor:pointer}.ds-course-summary::-webkit-details-marker{display:none}.ds-course-summary::before,.ds-course-summary::after{content:'';position:absolute;right:8px;top:32px;width:12px;height:1px;background:var(--ink,#ece9e1)}.ds-course-summary::after{transform:rotate(90deg)}.ds-course[open] .ds-course-summary::after{transform:rotate(0)}.ds-course[open] .ds-course-summary{border-bottom:1px solid var(--line,#2d2b34)}.ds-course-summary:hover{color:var(--accent,#e8743b)}.ds-course-summary:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}.ds-course-title{font:22px/1.25 var(--font-display,Neoris,Arial,sans-serif);letter-spacing:-.02em}.ds-course-mode,.ds-course-load{color:var(--muted,#a8a398);font:11px/1.6 var(--font-mono,ui-monospace,monospace);letter-spacing:0}.ds-course-mode{display:block;margin-bottom:9px}.ds-course-degree{color:var(--muted,#a8a398)}.ds-course-body{padding:28px 0 40px}@media(max-width:900px){.ds-course-summary{grid-template-columns:1fr 1.2fr}.ds-course-load{grid-column:2;margin-top:-12px}}@media(max-width:600px){.ds-course-summary{grid-template-columns:minmax(0,1fr);gap:16px}.ds-course-load{grid-column:auto;margin-top:0}}"
+    },
+    {
+      "name": "Summer strategy note",
+      "kind": "custom",
+      "refersTo": "summer-note",
+      "description": "A toned inset closes an expanded course sequence.",
+      "html": "<p class=\"ds-summer\"><strong>Summer strategy.</strong> Develop a project or pursue a research placement.</p>",
+      "css": ".ds-summer{max-width:90ch;margin:0;padding:20px;background:var(--paper-2,#1a1920);color:var(--ink,#ece9e1);font:16px/1.6 var(--font-body,Georgia,serif)}.ds-summer strong{font-family:var(--font-display,Neoris,Arial,sans-serif);font-weight:400}"
+    },
+    {
+      "name": "School focus disclosure",
+      "kind": "custom",
+      "refersTo": "focus-summary",
+      "description": "A closed native summary shows the focus title and aim. Opening it reveals course links, access guidance, a timeline, and workload adaptations. Transfer paths reuse the title and question layout.",
+      "html": "<details class=\"ds-focus\"><summary class=\"ds-focus-summary\"><strong>AI safety and model evaluation</strong><span>Practice measuring model behavior and reporting limitations.</span></summary><div class=\"ds-focus-body\"><h5>Courses with a purpose</h5><ul class=\"ds-focus-courses\"><li><div><a href=\"#\">Course title</a></div><div><p>What this course prepares you to do.</p><p class=\"ds-focus-access\">Check prerequisites, registration priority, and term availability.</p></div></li></ul></div></details>",
+      "css": ".ds-focus{border-block:1px solid var(--line,#2d2b34);color:var(--ink,#ece9e1);font:16px/1.6 var(--font-body,Georgia,serif)}.ds-focus-summary{position:relative;display:grid;grid-template-columns:1fr 2fr;gap:24px;list-style:none;padding:22px 38px 22px 0;cursor:pointer}.ds-focus-summary::-webkit-details-marker{display:none}.ds-focus-summary::before,.ds-focus-summary::after{content:'';position:absolute;right:8px;top:32px;width:12px;height:1px;background:var(--ink,#ece9e1)}.ds-focus-summary::after{transform:rotate(90deg)}.ds-focus[open] .ds-focus-summary::after{transform:rotate(0)}.ds-focus[open] .ds-focus-summary{border-bottom:1px solid var(--line,#2d2b34)}.ds-focus-summary strong{font:21px/1.3 var(--font-display,Neoris,Arial,sans-serif);letter-spacing:-.02em}.ds-focus-summary>span,.ds-focus-access{color:var(--muted,#a8a398)}.ds-focus-summary:hover,.ds-focus-courses a:hover{color:var(--accent,#e8743b)}.ds-focus-summary:focus-visible,.ds-focus-courses a:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}.ds-focus-body{padding:24px 0 32px}.ds-focus-body h5{font:23px/1.3 var(--font-display,Neoris,Arial,sans-serif);letter-spacing:-.02em;margin:36px 0 16px}.ds-focus-courses{list-style:none;padding:0;margin:0}.ds-focus-courses>li{display:grid;grid-template-columns:1fr 2fr;gap:24px;padding:20px 0;border-top:1px solid var(--line,#2d2b34)}.ds-focus-courses p{margin:0;max-width:72ch}.ds-focus-courses .ds-focus-access{margin-top:10px;font-size:15px}.ds-focus-courses a{color:inherit;text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--faint,#7a766d)}@media(max-width:600px){.ds-focus-summary,.ds-focus-courses>li{grid-template-columns:minmax(0,1fr);gap:16px}}"
+    },
+    {
+      "name": "School program ledger",
+      "kind": "custom",
+      "refersTo": "school-commitment",
+      "description": "The chosen program lists three credentials in the shared facts grid, followed by a closed requirements audit.",
+      "html": "<section class=\"ds-commitment\" aria-labelledby=\"ds-commitment-title\"><h4 id=\"ds-commitment-title\">Chosen Duke program</h4><p>Use the same program across the workload options.</p><dl class=\"ds-commitment-facts\"><div><dt>Primary program</dt><dd>Interdepartmental major</dd></div><div><dt>Second major</dt><dd>Economics</dd></div><div><dt>Certificate</dt><dd>Innovation &amp; Entrepreneurship</dd></div></dl><details class=\"ds-commitment-audit\"><summary>How the requirements fit together</summary><dl class=\"ds-commitment-facts\"><div><dt>Planning check</dt><dd>Confirm how each course and experience counts toward the selected program.</dd></div></dl></details></section>",
+      "css": ".ds-commitment{margin:32px 0;padding:28px 0 0;border-top:1px solid var(--muted,#a8a398);color:var(--ink,#ece9e1);font:16px/1.6 var(--font-body,Georgia,serif)}.ds-commitment h4{font:25px/1.3 var(--font-display,Neoris,Arial,sans-serif);letter-spacing:-.02em;margin:0 0 16px}.ds-commitment>p{color:var(--muted,#a8a398);max-width:78ch;margin:0 0 24px}.ds-commitment-facts{display:grid;grid-template-columns:1fr 1fr;gap:24px 48px;margin:0}.ds-commitment-facts dt{font:11px/1.6 var(--font-mono,ui-monospace,monospace);color:var(--muted,#a8a398);margin-bottom:6px}.ds-commitment-facts dd{margin:0;line-height:1.55}.ds-commitment-audit{margin-top:24px;border-block:1px solid var(--line,#2d2b34)}.ds-commitment-audit>summary{position:relative;list-style:none;padding:22px 38px 22px 0;cursor:pointer;font:12px/1.6 var(--font-mono,ui-monospace,monospace)}.ds-commitment-audit>summary::-webkit-details-marker{display:none}.ds-commitment-audit>summary::before,.ds-commitment-audit>summary::after{content:'';position:absolute;right:8px;top:32px;width:12px;height:1px;background:var(--ink,#ece9e1)}.ds-commitment-audit>summary::after{transform:rotate(90deg)}.ds-commitment-audit[open]>summary{border-bottom:1px solid var(--line,#2d2b34)}.ds-commitment-audit[open]>summary::after{transform:rotate(0)}.ds-commitment-audit>summary:hover{color:var(--accent,#e8743b)}.ds-commitment-audit>summary:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}.ds-commitment-audit>dl{padding:24px 0}@media(max-width:600px){.ds-commitment-facts{grid-template-columns:minmax(0,1fr);gap:24px}}"
+    },
+    {
+      "name": "Research disclosure",
+      "kind": "custom",
+      "refersTo": "research-summary",
+      "description": "A closed research disclosure groups smaller comparison disclosures. Target summaries pair a name, type, and priority with the target outcome. Open rows use the shared facts grid for the next stretch and a short diagnostic.",
+      "html": "<details class=\"ds-research-block\"><summary>Awards and activities</summary><div class=\"ds-research-content\"><section class=\"ds-research-item\"><h6>Research programs and activities</h6><details class=\"ds-research-target\"><summary><strong>Research program<span class=\"ds-research-kind\">Activity · Priority target</span></strong><span>Prepare a reproducible result and explain what it supports.</span></summary><div class=\"ds-research-content\"><dl class=\"ds-research-facts\"><div><dt>Next stretch</dt><dd>Present the work to an independent audience.</dd></div><div><dt>Test the fit first</dt><dd>Reproduce one result and ask a reader to check your reasoning.</dd></div><div><dt>Evidence to keep</dt><dd>Record your contribution and what you produced.</dd></div></dl></div></details></section></div></details>",
+      "css": ".ds-research-block{border-block:1px solid var(--line,#2d2b34);scroll-margin-top:24px;color:var(--ink,#ece9e1);font:16px/1.6 var(--font-body,Georgia,serif)}:is(.ds-research-block,.ds-research-target)>summary{position:relative;list-style:none;padding:22px 38px 22px 0;cursor:pointer;font:21px/1.3 var(--font-display,Neoris,Arial,sans-serif);letter-spacing:-.02em}:is(.ds-research-block,.ds-research-target)>summary::-webkit-details-marker{display:none}:is(.ds-research-block,.ds-research-target)>summary::before,:is(.ds-research-block,.ds-research-target)>summary::after{content:'';position:absolute;right:8px;top:32px;width:12px;height:1px;background:var(--ink,#ece9e1)}:is(.ds-research-block,.ds-research-target)>summary::after{transform:rotate(90deg)}:is(.ds-research-block,.ds-research-target)[open]>summary{border-bottom:1px solid var(--line,#2d2b34)}:is(.ds-research-block,.ds-research-target)[open]>summary::after{transform:rotate(0)}:is(.ds-research-block,.ds-research-target)>summary:hover{color:var(--accent,#e8743b)}:is(.ds-research-block,.ds-research-target)>summary:focus-visible{outline:2px solid var(--accent,#e8743b);outline-offset:4px}.ds-research-content{padding:24px 0 32px}.ds-research-item+.ds-research-item{margin-top:32px;padding-top:28px;border-top:1px solid var(--line,#2d2b34)}.ds-research-item h6{font:23px/1.3 var(--font-display,Neoris,Arial,sans-serif);letter-spacing:-.02em;max-width:52ch;margin:0 0 20px}.ds-research-facts{display:grid;grid-template-columns:1fr 1fr;gap:24px 48px;margin:0}.ds-research-facts dt{font:11px/1.6 var(--font-mono,ui-monospace,monospace);color:var(--muted,#a8a398);margin-bottom:6px}.ds-research-facts dd{margin:0;line-height:1.55}@media(max-width:600px){.ds-research-facts{grid-template-columns:minmax(0,1fr);gap:24px}}.ds-research-target{border-block:1px solid var(--line,#2d2b34)}.ds-research-target>summary{display:grid;grid-template-columns:1fr 2fr;gap:24px;font:inherit;letter-spacing:normal}.ds-research-target>summary strong{font:21px/1.3 var(--font-display,Neoris,Arial,sans-serif);letter-spacing:-.02em}.ds-research-target>summary>span,.ds-research-kind{color:var(--muted,#a8a398)}.ds-research-kind{display:block;margin-top:10px;font:11px/1.6 var(--font-mono,ui-monospace,monospace)}@media(max-width:600px){.ds-research-target>summary{grid-template-columns:minmax(0,1fr);gap:16px}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "A map of possibilities",
+    "overview": "Choices pairs a branching decision map with a long-form guide. The map shows how possible paths connect. The guide gives readers a place to compare school plans, inspect proposed courses and interest plans, compare transfer paths, and check the eligibility and commitment of opportunities.\n\nThe incumbent portfolio supplies the night palette, Neoris headings, book-serif prose, monospace labels, and shared ASCII shark background. The precise user request and the implemented page are the visual references.",
+    "keyCharacteristics": [
+      "Shared night palette and shark background with an animation control in the map toolbar.",
+      "A recursive tree with fine connectors and an equivalent mobile outline.",
+      "A section index and ruled guide with native disclosures."
+    ],
+    "rules": [],
+    "dos": [
+      "Do keep course, focus-plan, and transfer summaries visible by default so readers can compare workloads and directions before opening details.",
+      "Do preserve the single nested tree, visible focus, native disclosures, and full content access without JavaScript.",
+      "Do keep this unlisted surface absent from site navigation and the sitemap, with noindex and no-referrer metadata. Anyone with the URL can read it."
+    ],
+    "donts": []
+  }
+}
