@@ -33,6 +33,16 @@ function localReference(ref, from) {
     if (!html.includes(`id="${id}"`) && !html.includes(`id='${id}'`)) errors.push(`Missing anchor ${ref} in ${from}`);
   }
 }
+
+// Choices is intentionally unlisted: its URL must not be advertised by other pages.
+function choicesLink(ref, from) {
+  if (from === 'choices/index.html') return false;
+  try {
+    const url = new URL(ref.replaceAll('&amp;', '&'), `https://zelinzhu-richard.github.io/${from}`);
+    return url.origin === 'https://zelinzhu-richard.github.io'
+      && /^\/choices(?:\/|\/index\.html)?$/.test(decodeURIComponent(url.pathname));
+  } catch { return false; }
+}
 // Owner-approved exemption (2026-10-24): the vendored supabase-js bundle carries auth-js's default URL
 // http://localhost:9999. Only that literal, only in that file, and only while the file's sha256 matches the
 // pinned daily/vendor/manifest.json entry; any other edit to the bundle fails the build.
@@ -59,11 +69,16 @@ for (const [file, text] of documents) {
   if (/noomoagency\.com|hello@noomo|Noomo Agency Logo|\/cases\/|videos\/cases/.test(text)) errors.push(`Obsolete agency content in ${file}`);
   if (file.endsWith('.html')) {
     if (!text.includes('id="ascii-sharks-background"') || !text.includes('href="/ascii-sharks/background.css"') || !text.includes('src="/ascii-sharks/background.js"')) errors.push(`Shared shark background missing: ${file}`);
-    if (file === 'hq/index.html') { if (!/<meta name="robots" content="noindex, nofollow">/.test(text)) errors.push(`Private page must be noindex: ${file}`); }
+    // The owner requested Choices remain unlisted, alongside the existing private HQ shell.
+    if (file === 'hq/index.html' || file === 'choices/index.html') { if (!/<meta name="robots" content="noindex, nofollow">/.test(text)) errors.push(`Unlisted page must be noindex: ${file}`); }
     else if (/noindex/.test(text)) errors.push(`Incorrect production metadata or analytics: ${file}`);
+    if (file === 'choices/index.html' && !/<meta name="referrer" content="no-referrer">/.test(text)) errors.push('Unlisted Choices page must omit referrers');
     if (/gtag:\{enabled:true/.test(text)) errors.push(`Incorrect production metadata or analytics: ${file}`);
     if (!text.includes('https://zelinzhu-richard.github.io')) errors.push(`Production metadata missing: ${file}`);
-    for (const m of text.matchAll(/(?:src|href)=["']([^"']+)["']/g)) localReference(m[1], file);
+    for (const m of text.matchAll(/(?:src|href)=["']([^"']+)["']/g)) {
+      localReference(m[1], file);
+      if (choicesLink(m[1], file)) errors.push(`Unlisted Choices page linked from ${file}`);
+    }
   }
   if (file.endsWith('.css')) for (const m of text.matchAll(/url\(["']?([^"')\s]+)["']?\)/g)) localReference(m[1], file);
   if (file.endsWith('.js')) {
@@ -79,7 +94,9 @@ if (!(await readFile(`${root}/Zelin_Zhu_CV.pdf`)).subarray(0, 5).equals(Buffer.f
 for (const file of ['art/index.html', 'fun/index.html', 'blog/index.html', 'blog/style.css', 'tag-bubbles/bubbles.js', 'tag-bubbles/physics.js', 'tag-bubbles/bubbles.css', 'daily/index.html', 'daily/eggs/index.html', 'daily/vendor/supabase.js', 'daily/vendor/SUPABASE-LICENSE.txt', 'daily/vendor/manifest.json', 'daily/app/cloud.js', 'daily/app/cloud-config.js', 'hq/index.html']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 // Now and Experiments were retired when the menu became About, Projects, Research, Art, Fun, Blog, Daily.
 for (const dir of ['now/', 'experiments/']) if ([...names].some(n => n.startsWith(dir))) errors.push(`Retired page still built: /${dir}`);
+for (const file of ['choices/index.html', 'choices/style.css', 'choices/tree.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 if (documents.get('sitemap.xml')?.includes('/hq/') || documents.get('robots.txt')?.includes('/hq/')) errors.push('Private page listed in sitemap or robots.txt: /hq/');
+if (/\/choices(?:[\/<\s]|$)/.test(`${documents.get('sitemap.xml') || ''}\n${documents.get('robots.txt') || ''}`)) errors.push('Unlisted page listed in sitemap or robots.txt: /choices/');
 for (const file of ['repolarisdm/index.html', 'repolarisdm/placement/index.html', 'repolarisdm/cards/index.html', 'repolarisdm/agent-patch-audit/index.html', 'repolarisdm/grader-validity/index.html', 'repolarisdm/defend-it/index.html', 'repolarisdm/capstone/index.html', 'repolarisdm/tracker/index.html', 'repolarisdm/assets/style.css', 'repolarisdm/assets/app.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 for (const file of ['github/stars/index.html', 'github/stars/stars.css', 'github/stars/stars.js', 'github/stars/model.js', 'github/stars/render.mjs', 'github/stars/stars.json']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 for (const file of ['github/stars/research/index.html', 'github/stars/research/general/index.html', 'github/stars/research/ai-ml/index.html', 'github/stars/research/finance/index.html', 'github/stars/research/ai-ml/computer-vision/index.html', 'github/stars/research/finance/econometrics/index.html', 'github/stars/research.css', 'github/stars/research.js', 'github/stars/research-model.js', 'github/stars/research-render.mjs', 'github/stars/research.json']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);

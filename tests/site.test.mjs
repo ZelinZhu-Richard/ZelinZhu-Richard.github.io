@@ -15,9 +15,11 @@ test('personal pages expose the supplied project, research, CV, and social desti
     assert.ok(work.includes(`href="${project.repo}"`));
   }
   assert.ok(output.get('research/index.html').includes('UNC PRIMES'));
-  for (const html of output.values()) {
+  for (const [file, html] of output) {
     for (const href of [LINKS.github, LINKS.linkedin, LINKS.x, LINKS.resume]) assert.ok(html.includes(`href="${href}"`));
-    assert.ok(!/noomoagency|localhost|noindex/.test(html));
+    assert.ok(!/noomoagency|localhost/.test(html));
+    if (file === 'choices/index.html') assert.match(html, /<meta name="robots" content="noindex, nofollow">/);
+    else assert.doesNotMatch(html, /noindex/);
   }
 });
 

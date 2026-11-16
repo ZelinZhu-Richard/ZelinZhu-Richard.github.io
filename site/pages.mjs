@@ -3,19 +3,20 @@ import { skillsPage } from '../workspace/skills/page.mjs';
 import { videoPage } from '../workspace/video/page.mjs';
 import { blogIndex, blogPost, checkPosts, postPath } from '../workspace/blog/page.mjs';
 import { POSTS } from '../workspace/blog/posts.mjs';
+import { choicesPage } from '../workspace/choices/page.mjs';
 import { stoneNav } from '../workspace/stones/parts.mjs';
 const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link = (href, label) => `<a href="${escape(href)}"${href.startsWith('https:') ? ' target="_blank" rel="noopener noreferrer"' : ''}>${escape(label)} <span aria-hidden="true">↗</span>
 </a>`;
 // The site menu is the seven stones (workspace/stones/parts.mjs); CV, Contact, Stars and Skills live at the bottom of About.
-const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet, script, bodyClass } = {}) => `<!doctype html>
+const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet, script, bodyClass, robots, referrer } = {}) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escape(title)} — Richard Zhu</title>
 <meta name="description" content="${escape(description)}">
-<link rel="canonical" href="https://zelinzhu-richard.github.io${path}">
+${robots ? `<meta name="robots" content="${escape(robots)}">\n` : ''}${referrer ? `<meta name="referrer" content="${escape(referrer)}">\n` : ''}<link rel="canonical" href="https://zelinzhu-richard.github.io${path}">
 <meta property="og:title" content="${escape(title)} — Richard Zhu">
 <meta property="og:description" content="${escape(description)}">
 <meta property="og:image" content="https://zelinzhu-richard.github.io${escape(image)}">
@@ -220,6 +221,7 @@ ${item(PROJECTS.find(p => p.id === 'neon-rain'), 1)}
     ['art/index.html',frame('/art/','Art','Art by Richard Zhu: Neon Rain, a ten-second AI-made noir film, and a living portrait of him drawn in code.',art,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: ['/work/style.css', '/portrait/portrait.css'], script: '/portrait/about.js' })],
     ['blog/index.html',frame('/blog/','Blog','Richard Zhu’s blog: notes on what he is building and learning.',blogIndex(posts),{ stylesheet: '/blog/style.css' })],
     ...posts.map(p => [`${postPath(p).slice(1)}index.html`, frame(postPath(p), p.title, p.summary, blogPost(p), { stylesheet: '/blog/style.css' })]),
+    ['choices/index.html',frame('/choices/','Choices','A personal map of possible next steps.',choicesPage,{ stylesheet: '/choices/style.css', script: '/choices/tree.js', bodyClass: 'choices-page', robots: 'noindex, nofollow', referrer: 'no-referrer' })],
     ['work/index.html',frame('/work/','Work','Eight projects by Richard Zhu: a quant research system, an accent-bias benchmark for speech recognition, a stock analysis app, and five browser experiments.',work,{ stylesheet: '/work/style.css' })],
     ['projects/index.html',frame('/projects/','Projects','Projects by Richard Zhu: Nexus Tensor Alpha, a quant research system; EqualVoice, an accent-bias benchmark for speech recognition; and Apex Analysis, an open-source stock analysis app.',projects,{ stylesheet: '/work/style.css' })],
     ['fun/index.html',frame('/fun/','Fun','Browser toys by Richard Zhu: Paper Piano, Gym and Domain Expansion. Webcam hand and pose tracking that runs locally.',fun,{ stylesheet: '/work/style.css' })],
