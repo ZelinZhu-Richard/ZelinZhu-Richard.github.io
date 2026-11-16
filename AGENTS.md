@@ -44,6 +44,7 @@ Rules for AI agents (Codex, Claude Code) working in this repository. CLAUDE.md i
 3. Blog. The section exists at `/blog/` (scaffold in `workspace/blog/`, no posts yet); write and publish the first posts.
 4. Other pages: learning progress, Daily.
 5. Choices: unlisted planning page.
+6. Duke stories: unlisted selector and two illustrated stories under `/duke/`.
 
 ## Never
 - Commit secrets: .env files, API keys, tokens, Supabase service_role or sb_secret keys. A confirmed Supabase anon/publishable key is allowed.
