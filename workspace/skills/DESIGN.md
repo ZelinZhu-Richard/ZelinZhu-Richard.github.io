@@ -19,17 +19,17 @@ The introduction links to `#skills-i-use` and `#skills-i-create`. Each section h
 
 ## Visual continuity
 
-The page inherits the fixed purple photographic background, Neoris regular text, Seasons italic emphasis, pale ink, muted supporting text, and purple accent. Section headings use italic emphasis on “use” and “create.” Thin rules and open rows continue the portfolio's existing composition.
+The page uses the site's paper-and-ink design (`site/DESIGN.md`): paper ground, ink text, Neoris headings with no italic accent word, serif descriptions, and mono for authors and section labels. Each section opens on a 1px ink rule; entries are separated by 1px `--line` rules. The accent appears only through the shared focus ring, the header's current item and link hover.
 
-Above 700px, sections use a `1fr 1.5fr` two-column grid with an 8% gap: heading on the left, entries or empty state on the right. Sections have 56px top and 64px bottom padding. Skill headings wrap their name and author as needed; names permit long-word wrapping. Descriptions are limited to 65 characters of typographic width. Additional entries receive a thin separator and 36px spacing.
+Above 700px, sections use a `1fr 1.5fr` two-column grid with an 8% gap: heading on the left, entries or empty state on the right. Sections have 48px top and 80px bottom padding. Skill headings wrap their name and author as needed; names permit long-word wrapping. Descriptions are limited to 65 characters of typographic width. Additional entries receive a thin separator and 32px spacing.
 
 ## Responsive and interaction behavior
 
-- **700px and below:** sections stack in one column with a 32px gap and 38px/46px vertical padding; introduction bottom padding becomes 48px. The shared frame uses 88% width and its existing mobile menu.
-- **701–1399px:** sections retain two columns; the shared menu button reveals an absolutely positioned navigation panel.
-- **1400px and above:** the shared navigation displays inline. The main frame remains capped at 1320px and 92% width.
-- Section and entry anchors have a 32px scroll margin; the shared document supplies 120px scroll padding and smooth scrolling. Reduced-motion preferences switch scrolling to `auto`.
-- Links and buttons inherit a visible 2px accent focus outline with a 6px offset. The existing skip link becomes visible on focus. In-page and repository navigation use native links; this page introduces no custom focus handling.
+- **700px and below:** sections stack in one column with a 24px gap and 36px/48px vertical padding; introduction bottom padding becomes 48px. The shared frame uses 16px side gutters and its existing mobile menu.
+- **701–1199px:** sections retain two columns; the shared menu button reveals an absolutely positioned navigation panel.
+- **1200px and above:** the shared navigation displays inline. The main frame is capped at 1240px and 92% width.
+- Section and entry anchors have a 32px scroll margin; the shared document supplies 40px scroll padding and smooth scrolling. Reduced-motion preferences switch scrolling to `auto`.
+- Links and buttons inherit a visible 2px accent focus outline with a 4px offset. The existing skip link becomes visible on focus. In-page and repository navigation use native links; this page introduces no custom focus handling.
 
 ## Verification and disposition
 

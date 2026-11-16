@@ -1,0 +1,353 @@
+:root {
+  --page: #060709;
+  --fg: #ecebe8;
+  --fg-soft: rgba(236, 235, 232, 0.72);
+  --fg-mute: rgba(236, 235, 232, 0.42);
+  --track: rgba(236, 235, 232, 0.16);
+  --hover: rgba(236, 235, 232, 0.07);
+  --ring: rgba(236, 235, 232, 0.5);
+  --chrome: 148px;
+  --w: min(calc((100svh - var(--chrome)) * 9 / 16), calc(100vw - 32px), 640px);
+  --radius: clamp(18px, calc(var(--w) * 0.06), 36px);
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--page);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  padding: 16px max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background:
+    radial-gradient(120% 70% at 50% 40%, rgba(40, 46, 70, 0.22), transparent 70%),
+    var(--page);
+}
+
+.column {
+  width: var(--w);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* film picker */
+
+.top {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+}
+
+.picker select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 30px 8px 10px;
+  margin-left: -10px;
+  cursor: pointer;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+
+.picker select:hover {
+  background: var(--hover);
+}
+
+.picker select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.picker option {
+  background: #14161b;
+  color: var(--fg);
+}
+
+.chev {
+  position: absolute;
+  right: 9px;
+  width: 14px;
+  height: 14px;
+  color: var(--fg-mute);
+  pointer-events: none;
+}
+
+/* the 9:16 frame */
+
+.phone {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 30px 80px -30px rgba(0, 0, 0, 0.9),
+    0 10px 30px -10px rgba(0, 0, 0, 0.6);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  isolation: isolate;
+}
+
+.phone.can-look {
+  cursor: grab;
+  touch-action: none;
+}
+
+.phone.looking {
+  cursor: grabbing;
+}
+
+.phone canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
+  text-align: center;
+  background: radial-gradient(80% 50% at 50% 50%, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.1));
+  pointer-events: none;
+}
+
+.veil[hidden] {
+  display: none;
+}
+
+.veil p {
+  margin: 0;
+}
+
+.veil-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.veil-note {
+  font-size: 14px;
+  color: var(--fg-soft);
+}
+
+.progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+  pointer-events: none;
+}
+
+.progress.on {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  width: calc(var(--p, 0) * 100%);
+  background: rgba(236, 235, 232, 0.55);
+  transition: width 0.2s linear;
+}
+
+/* transport */
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+}
+
+.icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.icon:hover {
+  background: var(--hover);
+}
+
+.icon:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.icon svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+#play .i-play {
+  display: none;
+}
+
+#play.paused .i-play {
+  display: block;
+}
+
+#play.paused .i-pause {
+  display: none;
+}
+
+.controls.off {
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+#look[aria-pressed="false"] {
+  color: var(--fg-mute);
+}
+
+#scrub {
+  --p: 0;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  margin: 0 6px;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+#scrub:focus-visible {
+  outline: none;
+}
+
+#scrub::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--fg-soft) calc(var(--p) * 100%), var(--track) calc(var(--p) * 100%));
+}
+
+#scrub::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: var(--fg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+#scrub:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgba(236, 235, 232, 0.3);
+}
+
+#scrub::-moz-range-track {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--track);
+}
+
+#scrub::-moz-range-progress {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--fg-soft);
+}
+
+#scrub::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--fg);
+}
+
+/* ?bare=1: the picture alone, filling the window */
+
+.bare body {
+  padding: 0;
+  background: #000;
+}
+
+.bare .column {
+  width: min(100vw, calc(100vh * 9 / 16));
+  gap: 0;
+}
+
+.bare .top,
+.bare .controls {
+  display: none;
+}
+
+.bare .phone {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --chrome: 132px;
+  }
+
+  body {
+    padding-top: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress,
+  .progress span,
+  .icon {
+    transition: none;
+  }
+}

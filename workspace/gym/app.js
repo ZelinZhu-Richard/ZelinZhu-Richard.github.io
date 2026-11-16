@@ -13,8 +13,8 @@ function notice(text,error=false){$('notice').textContent=text;$('notice').hidde
 function cameraStatus(text,live=false){$('camera-status').textContent=text;$('camera-status').classList.toggle('live',live);}
 function historyUI(){
   const s=summary(history.data);$('today').textContent=s.today;$('streak').textContent=s.current;$('best-streak').textContent=s.best;
-  $('saved-label').textContent=history.available?'Saved on this device':'Saving unavailable · this session only';
-  $('streak-copy').textContent=s.today?'Today counts. Come back tomorrow to keep it going.':s.current?'Your streak is waiting. Complete one push-up today to continue.':'One complete push-up starts your streak.';
+  $('saved-label').textContent=history.available?'Stored only in this browser':'Saving unavailable · this session only';
+  $('streak-copy').textContent=s.today?'Today is counted. One push-up tomorrow keeps the streak going.':s.current?'No push-ups counted today yet. One keeps the streak going.':'One counted push-up starts a streak day.';
   $('week').replaceChildren();for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const n=history.data.days[dayKey(d)]||0,li=document.createElement('li');li.className=`${n?'complete ':''}${i===0?'today':''}`;li.setAttribute('aria-label',`${d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}: ${n} reps`);const label=document.createElement('span'),total=document.createElement('strong');label.textContent=i===0?'Today':d.toLocaleDateString(undefined,{weekday:'short'});total.textContent=n||'—';li.append(label,total);$('week').append(li);}
   $('best-score').textContent=`${state.demo?'Demo best':'Best flight'}: ${history.data[state.demo?'bestDemo':'bestBird']}`;
 }
@@ -29,15 +29,15 @@ function setupUI(){
 }
 function gameUI(){
   $('game-cover').hidden=game.status==='playing'||Boolean(state.countdown);$('score').textContent=game.score;
-  $('game-title').textContent=game.status==='over'?'A good place to begin again.':game.status==='paused'?'Take a breath.':'A different kind of flight.';
-  $('game-copy').textContent=game.status==='over'?`${game.score} obstacles passed. Rest, then try another flight.`:game.status==='paused'?'Flight is paused. Resume when you’re ready.':state.demo?'Demo: move the slider or hold the arrow keys. No workout reps are saved.':'Push up to rise. Lower yourself to descend. Find your way through the gaps.';
+  $('game-title').textContent=game.status==='over'?'Flight over':game.status==='paused'?'Flight paused':'Flying Bird';
+  $('game-copy').textContent=game.status==='over'?`${game.score} gaps passed. Choose Fly again to restart.`:game.status==='paused'?`${game.score} gaps passed so far. Choose Resume flight to continue.`:state.demo?'Demo: move the slider or hold the arrow keys. No workout reps are saved.':'Raise your body and the bird climbs. Lower it and the bird drops. Fly through the gaps.';
   $('demo').hidden=state.demo||game.status!=='ready';$('game-start').textContent=game.status==='over'?'Fly again':game.status==='playing'?'Restart flight':'Start flight';
   $('demo-controls').hidden=!state.demo;$('best-score').hidden=state.mode!=='bird';setupUI();historyUI();
 }
 function resetCalibration(){state.profile=null;state.top=null;state.capture=null;state.countdown=null;state.measurement=null;state.moved=0;counter.reset();$('capture-overlay').hidden=true;$('height-meter').value=0;$('height-label').textContent='Waiting';setupUI();}
 function stopCamera(text=''){
   state.generation++;state.running=false;state.starting=false;state.pose=null;state.paused=false;clearTimeout(trackTimer);clearInterval(watchdog);camera.stop();vision.stop();game.pause();resetCalibration();
-  $('stage').classList.remove('running');$('camera-placeholder').hidden=false;$('start').hidden=false;$('start').disabled=false;$('start').textContent='Start camera';$('stop').hidden=true;$('fps').textContent='';cameraStatus(state.demo?'Demo · no camera':'Camera off');$('tracking').textContent='Camera access starts only when you choose.';$('rep-phase').textContent='Return to your raised pose after setup.';
+  $('stage').classList.remove('running');$('camera-placeholder').hidden=false;$('start').hidden=false;$('start').disabled=false;$('start').textContent='Start camera';$('stop').hidden=true;$('fps').textContent='';cameraStatus(state.demo?'Demo · no camera':'Camera off');$('tracking').textContent='The camera stays off until you press Start camera.';$('rep-phase').textContent='Return to your raised pose after setup.';
   drawPose($('pose-canvas'),$('camera'),null,false,false);gameUI();if(text)notice(text);
 }
 async function startCamera(){
@@ -117,7 +117,7 @@ function paint(time){
 $('start').addEventListener('click',startCamera);$('stop').addEventListener('click',()=>stopCamera(history.available?'Camera stopped. Your completed reps are saved on this device.':'Camera stopped. Saving is unavailable; your completed reps remain in this session.'));
 $('capture').addEventListener('click',beginCapture);$('recalibrate').addEventListener('click',()=>{pauseFlight();resetCalibration();notice('Capture both positions again.');});
 $('pause').addEventListener('click',()=>{state.paused=!state.paused;counter.reset();setupUI();});$('new-set').addEventListener('click',()=>{state.session=0;$('reps').textContent='0';counter.reset();notice('New set. Today’s completed reps and streak are kept.');});
-$('game-start').addEventListener('click',()=>startFlight());$('game-pause').addEventListener('click',()=>{if(game.status==='paused')startFlight(true);else pauseFlight('Flight paused. Take your time.');});$('demo').addEventListener('click',demo);
+$('game-start').addEventListener('click',()=>startFlight());$('game-pause').addEventListener('click',()=>{if(game.status==='paused')startFlight(true);else pauseFlight('Flight paused.');});$('demo').addEventListener('click',demo);
 $('demo-height').addEventListener('input',()=>{state.height=Number($('demo-height').value)/100;});$('exit-demo').addEventListener('click',()=>{state.demo=false;state.keys.clear();game.reset();stopCamera('Start the camera and calibrate your positions to fly with your body.');});
 $('pace').addEventListener('change',()=>{pauseFlight();game.reset($('pace').value);gameUI();});
 for(const b of document.querySelectorAll('[data-mode]')){b.addEventListener('click',()=>setMode(b.dataset.mode));b.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const m=e.key==='Home'?'counter':e.key==='End'?'bird':state.mode==='counter'?'bird':'counter';setMode(m);$(m==='bird'?'bird-tab':'counter-tab').focus();}});}

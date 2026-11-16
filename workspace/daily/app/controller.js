@@ -11,7 +11,7 @@ import { normalizeEvents, normalizeViews } from './normalize.js';
 
 const VISITOR_FLAG = 'daily:asVisitor';
 
-export function createController({ sections, actions = {}, forms = {}, onEvents = () => {}, onLoad = () => {} }) {
+export function createController({ sections, actions = {}, forms = {}, onEvents = () => {}, onLoad = () => {}, afterRender = () => {} }) {
   const c = {
     backend: null, vm: null, art: placeholderArt, ui: {}, defaults: DEFAULT_TASKS, last: new Map(), busy: false,
     get owner() { return this.backend?.mode === 'owner' && !this.asVisitor; },
@@ -80,6 +80,7 @@ export function createController({ sections, actions = {}, forms = {}, onEvents 
     if (sel && (document.activeElement === document.body || !document.activeElement)) {
       try { document.querySelector(sel)?.focus({ preventScroll: true }); } catch { /* selector from attribute values */ }
     }
+    try { afterRender(c); } catch { /* a scene that can't draw never blocks the page */ }
   };
 
   // Off-screen pets and eggs pause their idle animation (pets.css: pet--paused / egg--paused).

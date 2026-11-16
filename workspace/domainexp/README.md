@@ -32,6 +32,6 @@ The approximate gap tolerance is 42% of visible palm width, scaled with the came
 - `app.js`: accessible controls, loading/error states, page lifecycle, and rendering/inference scheduling.
 - `build.mjs`: standalone route output and verified dependency copying. The build reads the existing Paper Piano asset manifest, copies only its pinned MediaPipe 0.10.14 runtime, WASM files, version-1 float16 hand model, and Apache 2.0 license. It never downloads assets or changes Paper Piano.
 
-The page inherits the portfolio fonts, navigation, and purple palette. Animation is procedural; no external images, sound, or animation libraries are loaded. See `VALIDATION.md` for the checks actually performed and physical-camera limits.
+The page inherits the portfolio fonts, navigation, and paper-and-ink palette; the camera sits on a dark ink stage. Animation is procedural; no external images, sound, or animation libraries are loaded. See `VALIDATION.md` for the checks actually performed and physical-camera limits.
 
 Hand recognition uses the same 21-point MediaPipe model as Paper Piano, with detection, presence, and tracking thresholds of 0.4. Left/right classification confidence does not suppress visible hands. Missing or collapsed frames clear the domain as soon as the result arrives; detections older than 1.5 seconds are rejected. Valid slow detections are timed from completion so they can activate instead of being discarded.

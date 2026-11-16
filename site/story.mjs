@@ -1,16 +1,10 @@
+import { PARTS, stoneHash } from '../workspace/stones/parts.mjs';
 // The phoenix choreography reads these scenes in order. Keep text concise so it
 // fits the original desktop and mobile camera composition.
 const p = (body, classes = 'lg:text-sans-50 xs:text-sans-30 text-center') => `<p class="${classes}">${body}</p>`;
 const italic = text => `<i class="lg:text-serif-50 xs:text-serif-30">${text}</i>`;
-const cards = [
-  ['Nexus Tensor Alpha', 'AI-native quantitative research', '/work/#nexus-tensor-alpha'],
-  ['EqualVoice', 'Speech-to-text fairness', '/work/#equalvoice'],
-  ['Apex Analysis', 'Open-source financial tooling', '/work/#apex-analysis'],
-  ['Machine learning', 'UNC PRIMES research', '/research/'],
-  ['Behind the work', 'A little about me', '/about/'],
-  ['My trajectory', 'Research, startups, community', '/about/#experience'],
-  ['Curriculum vitae', 'View my CV', '/Zelin_Zhu_CV.pdf'],
-];
+// Seven stones, one for each part of the site (workspace/stones/parts.mjs).
+const cards = PARTS.map(part => [part.title, part.subtitle, stoneHash(part)]);
 export const story = {
   cards: cards.map(([title, subtitle, href], index) => ({
     href,
@@ -18,7 +12,7 @@ export const story = {
   })),
   scenes: [
     p(`A student of<br>${italic('what comes next.')}`),
-    p(`Computer science.<br>Economics.<br>${italic('Curiosity.')}<br>UNC Chapel Hill.`),
+    p(`High school senior.<br>Computer science.<br>Economics.<br>${italic('Curiosity.')}`),
     p(`Good questions<br>become ${italic('experiments.')}`),
     p('building.', 'xs:text-serif-80 lg:text-serif-200 text-center gradient-text'),
     p('Learn', 'xs:text-serif-100 lg:text-serif-200 text-center gradient-text'),

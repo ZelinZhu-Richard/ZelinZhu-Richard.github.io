@@ -1,0 +1,21 @@
+{
+  "view": "neutral",
+  "exposure": -0.15,
+  "saturation": 1.0,
+  "grade": { "split_tint": [0.84, 0.9, 1.25], "split_from": 0.015, "split_to": 0.55 },
+  "bloom": { "strength": 0.42, "radius": 0.05, "threshold": 1.0, "knee": 2.0, "saturation": 1.15 },
+  "world_light": { "gain": 0.04, "tint": [0.7, 0.82, 1.0], "ambient": [0.03, 0.055, 0.24] },
+  "env_intensity": 1.0,
+  "fog_color": [0.012, 0.018, 0.05],
+  "post": { "vignette": 0.26, "vignette_radius": 0.62, "grain": 0.012, "dispersion": 0.0 },
+  "lights": {
+    "point": 24,
+    "spot": 20,
+    "priority": { "^GateBeyond|^GateUp|^InnUp|^InnFrontUp|^InnSpill|^InnGateSpill|^DomeWash": 20 },
+    "specular": {
+      "_L(\\.\\d+)?$|Glow\\d*(\\.\\d+)?$|^StallLight|^FestLanternLight|^InnLanternLight|^GateLanternLight|^Campfire|^LTLight": 0.3,
+      "^InnSpill|^InnGateSpill|^GateBeyond": 0.25
+    }
+  },
+  "mirror": { "strength": 0.4, "streak": 1.0 }
+}

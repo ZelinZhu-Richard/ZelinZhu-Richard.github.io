@@ -1,46 +1,40 @@
-/* /now/ — learning in public. Tokens come from /portfolio.css (:root). */
-/* This stylesheet loads only on /now/, so main carries the page tokens. */
-main{
-  --now-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --now-amber:#ffc98f;
-  --now-ground:#0d0c1c;
-  --now-chip-ink:#15122a
-}
+/* /now/ — learning in public. Paper-and-ink tokens come from /portfolio.css (site/DESIGN.md). */
+/* Accent is spent on one thing: the "next" milestone (plus the caret on the currently line). */
 .now-eyebrow{
-  font-family:var(--now-mono);
-  font-size:13px;
-  letter-spacing:.12em;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.06em;
   text-transform:uppercase;
   color:var(--muted);
   margin:0
 }
-/* Hero eyebrow: the site .eyebrow (size and its 700px step) in the mono stack */
+/* Hero eyebrow: the site .eyebrow in the mono stack */
 .now-mono{
-  font-family:var(--now-mono)
+  font-family:var(--font-mono)
 }
 .now-intro{
-  padding:90px 0 110px
+  padding:80px 0 96px
 }
 .now-lede{
-  margin-bottom:40px
+  margin-bottom:36px
 }
 .now-currently{
   display:inline-flex;
   flex-wrap:wrap;
-  align-items:center;
+  align-items:baseline;
   gap:6px 14px;
+  max-width:100%;
   margin:0;
-  padding:12px 18px;
-  border:1px solid var(--line);
-  border-radius:999px;
-  background:#0d0c1cb3;
-  font-family:var(--now-mono);
+  padding:10px 14px;
+  border:1px solid var(--ink);
+  background:var(--card);
+  font-family:var(--font-mono);
   font-size:14px;
   line-height:1.5;
   color:var(--muted)
 }
-.now-currently-label,.now-caret{
-  color:var(--accent)
+.now-currently-label{
+  color:var(--muted)
 }
 .now-currently-items{
   color:var(--ink)
@@ -51,6 +45,7 @@ main{
 .now-caret{
   display:inline-block;
   margin-left:2px;
+  color:var(--accent);
   animation:now-blink 1.1s steps(1) infinite
 }
 @keyframes now-blink{
@@ -60,16 +55,16 @@ main{
 
 /* Section frame shared by both lists */
 .now-section{
-  padding:70px 0 40px;
-  border-top:1px solid var(--line)
+  padding:72px 0 40px;
+  border-top:1px solid var(--ink)
 }
 .now-section-head{
   display:flex;
   flex-wrap:wrap;
   align-items:baseline;
   justify-content:space-between;
-  gap:10px 40px;
-  margin-bottom:30px
+  gap:8px 40px;
+  margin-bottom:28px
 }
 .now-section-head h2{
   margin:0
@@ -77,7 +72,7 @@ main{
 
 /* 01 — courses, on the site's .experience rows */
 .experience.now-courses{
-  padding:70px 0 40px
+  padding:72px 0 40px
 }
 .now-courses ol{
   margin:0
@@ -86,46 +81,48 @@ main{
   display:flex;
   flex-direction:column;
   align-items:flex-start;
-  gap:10px
+  gap:8px
 }
+/* Small square status chips: filled ink for the one enrolled course, outlines for the rest. */
 .now-chip{
-  font-family:var(--now-mono);
+  font-family:var(--font-mono);
   font-size:12px;
-  line-height:1.6;
-  letter-spacing:.1em;
+  line-height:1.5;
+  letter-spacing:.06em;
   text-transform:uppercase;
-  padding:4px 10px;
-  border-radius:999px
+  padding:2px 8px;
+  border:1px solid var(--ink);
+  color:var(--ink);
+  background:var(--card)
 }
 .now-chip--enrolled{
-  background:var(--accent);
-  color:var(--now-chip-ink)
+  background:var(--ink);
+  color:var(--paper)
 }
 .now-chip--sitting-in,.now-chip--auditing{
-  padding:3px 10px;
-  border:1px solid #ffffff59;
-  color:var(--ink)
+  background:transparent
 }
 .now-chip--self-study{
-  background:var(--now-amber);
-  color:var(--now-chip-ink)
+  background:var(--paper-2)
 }
 .now-where{
-  font-size:15px;
+  font-family:var(--font-mono);
+  font-size:13px;
   color:var(--muted)
 }
 .now-course h3{
   margin:0 0 6px
 }
 .experience .now-course .now-note{
-  margin:0 0 18px
+  margin:0 0 16px;
+  color:var(--muted)
 }
 .experience .now-course .now-lines{
   display:flex;
   flex-wrap:wrap;
-  gap:8px 32px;
+  gap:6px 32px;
   margin:0;
-  font-family:var(--now-mono);
+  font-family:var(--font-mono);
   font-size:14px;
   color:var(--ink)
 }
@@ -135,10 +132,10 @@ main{
 
 /* 02 — milestones timeline */
 .now-milestones{
-  padding-bottom:60px
+  padding-bottom:56px
 }
 .now-milestones .now-section-head{
-  margin-bottom:50px
+  margin-bottom:44px
 }
 .now-timeline{
   list-style:none;
@@ -151,14 +148,14 @@ main{
   column-gap:20px
 }
 .now-when{
-  font-family:var(--now-mono);
-  font-size:14px;
+  font-family:var(--font-mono);
+  font-size:13px;
   text-transform:uppercase;
   color:var(--muted);
-  padding-top:4px
+  padding-top:5px
 }
 .now-milestone--next .now-when{
-  color:var(--now-amber)
+  color:var(--accent)
 }
 .now-rail{
   position:relative;
@@ -171,46 +168,40 @@ main{
   top:0;
   bottom:0;
   width:1px;
-  background:var(--line)
+  background:var(--ink)
 }
 .now-milestone:last-child .now-rail::before{
   bottom:auto;
   height:18px
 }
+/* Square markers: done filled ink, upcoming outlined, under review dashed, next filled accent. */
 .now-dot{
   position:relative;
-  margin-top:9px;
-  width:14px;
-  height:14px;
-  border-radius:999px;
-  border:1px solid #ffffff73;
-  background:var(--now-ground)
+  margin-top:10px;
+  width:12px;
+  height:12px;
+  border:1px solid var(--ink);
+  background:var(--paper)
 }
 .now-milestone--done .now-dot{
+  background:var(--ink)
+}
+.now-milestone--review .now-dot{
+  border-style:dashed;
+  background:var(--paper-2)
+}
+.now-milestone--next .now-dot{
   border-color:var(--accent);
   background:var(--accent)
 }
-.now-milestone--review .now-dot{
-  border-color:var(--accent)
-}
-.now-milestone--next .now-dot{
-  border-color:var(--now-amber);
-  background:var(--now-amber)
-}
+/* A static accent frame around the next marker. No pulse, no glow. */
 .now-pulse{
   position:absolute;
-  inset:-6px;
-  border-radius:999px;
-  border:1px solid var(--now-amber);
-  opacity:.55;
-  animation:now-pulse 2.4s ease-out infinite
-}
-@keyframes now-pulse{
-  0%{transform:scale(.8);opacity:.8}
-  100%{transform:scale(1.9);opacity:0}
+  inset:-5px;
+  border:1px solid var(--accent)
 }
 .now-milestone-body{
-  padding-bottom:44px
+  padding-bottom:40px
 }
 .now-milestone:last-child .now-milestone-body{
   padding-bottom:10px
@@ -228,7 +219,7 @@ main{
   display:none
 }
 .now-month{
-  padding:50px 0 40px
+  padding:56px 0 40px
 }
 .now-month-title{
   font-size:clamp(28px,3vw,40px)
@@ -236,38 +227,47 @@ main{
 .now-stats{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:24px 30px;
-  margin:0 0 20px
+  gap:0;
+  margin:0 0 24px;
+  border-top:1px solid var(--ink);
+  border-left:1px solid var(--line)
+}
+.now-stats>div{
+  padding:14px 16px 16px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line)
 }
 .now-stats dt{
-  font-family:var(--now-mono);
+  font-family:var(--font-mono);
   font-size:12px;
-  letter-spacing:.1em;
+  letter-spacing:.06em;
   text-transform:uppercase;
   color:var(--muted)
 }
 .now-stats dd{
   margin:4px 0 0;
-  font-family:var(--now-mono);
+  font-family:var(--font-mono);
   font-size:32px;
   line-height:1.2;
   font-variant-numeric:tabular-nums
 }
 .now-month-link{
   display:inline-block;
-  padding:10px 0;
-  border-bottom:1px solid var(--line)
+  padding:4px 0;
+  font-family:var(--font-mono);
+  font-size:14px;
+  border-bottom:1px solid var(--ink)
 }
 .now-month-link span{
-  margin-left:10px
+  margin-left:8px
 }
 
 /* Closing line: small, the footer carries the display statement */
 .now-closing{
   margin:0;
-  padding:30px 0 0;
+  padding:28px 0 0;
   border-top:1px solid var(--line);
-  font-family:var(--now-mono);
+  font-family:var(--font-mono);
   font-size:13px;
   color:var(--muted)
 }
@@ -287,18 +287,19 @@ main{
   border:0
 }
 
+@media(hover:hover) and (pointer:fine){
+  .now-month-link:hover{color:var(--accent);border-color:var(--accent)}
+}
+
 @media(max-width:700px){
   .now-intro{
-    padding:60px 0 70px
-  }
-  .now-currently{
-    border-radius:22px
+    padding:48px 0 60px
   }
   .now-section,.experience.now-courses{
-    padding:45px 0 30px
+    padding:44px 0 30px
   }
   .now-milestones .now-section-head{
-    margin-bottom:34px
+    margin-bottom:32px
   }
   .now-course h3,.now-milestone-body h3{
     font-size:22px
@@ -319,7 +320,7 @@ main{
   .now-milestone-body{
     grid-column:2;
     grid-row:2;
-    padding-bottom:34px
+    padding-bottom:32px
   }
   .now-dot{
     margin-top:5px
@@ -336,10 +337,8 @@ main{
 }
 
 @media(prefers-reduced-motion:reduce){
-  .now-caret,.now-pulse{
-    animation:none
-  }
   .now-caret{
+    animation:none;
     opacity:1
   }
 }

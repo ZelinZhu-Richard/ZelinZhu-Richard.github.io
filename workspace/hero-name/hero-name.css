@@ -1,0 +1,46 @@
+/* Hero name on the phoenix homepage: Ibarra Real Nova Italic instead of The Seasons. */
+@font-face {
+  font-family: "Ibarra Real Nova";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/hero-name/ibarra-real-nova-italic.woff2") format("woff2");
+}
+
+/* "Richard Zhu" and the whole "Build. Learn. and repeat." line above it. The `body` and `div` raise
+   specificity above the captured runtime's own !important rules for these elements. */
+body .home-hero h1,
+body .home-hero h1 div.char,
+body .home-hero h2,
+body .home-hero h2 span,
+body .home-hero h2 div {
+  font-family: "Ibarra Real Nova", TheSeasons, serif !important;
+  font-style: italic;
+  font-weight: 400 !important;
+}
+body .home-hero h1 { letter-spacing: -.02em !important; }
+
+/* The hero line agency.js turns "Build. Learn. and repeat." into: a large "Agency," over "with the right vibe.". */
+body .home-hero h2 .hero-agency-lead {
+  display: inline-block;
+  font-size: 1.6em;
+  line-height: .95;
+  letter-spacing: -.02em;
+}
+body .home-hero h2 .hero-agency-rest {
+  display: inline-block;
+  margin-left: 1.1em;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  body .home-hero h2 .hero-agency-rest { margin-left: .35em; }
+}
+
+/* Each letter paints its gradient with background-clip:text, so anything outside the letter's box is
+   invisible. Italic ascenders, overhangs and i-dots reach past a tight box. Give the box room and cancel
+   the room with negative margins, so the letters keep the spacing public/local.css gives them
+   (padding .12em .015em .18em, margin 0). */
+body .home-hero h1 div.char {
+  padding: .4em .45em !important;
+  margin: -.28em -.435em -.22em !important;
+}

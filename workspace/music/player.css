@@ -1,0 +1,87 @@
+/* Music player in the runtime's sound-button slot, in the glass style of its "Reimagine Phoenix" pill. */
+html.has-vibe-player .sound-button { display: none !important; }
+
+.vibe-player {
+  --vibe-ink: #29345a;
+  --vibe-glass: #ffffff40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--vibe-ink);
+  font: 16px/20px TTNeoris, Neoris, Arial, sans-serif;
+}
+html.phoenix-dark .vibe-player { --vibe-ink: #fff; --vibe-glass: #ffffff1a; }
+
+.vibe-player button,
+.vibe-now {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  border-radius: 100px;
+  background: var(--vibe-glass);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: inherit;
+}
+/* The pill's 1px gradient ring. */
+.vibe-player button::before,
+.vibe-now::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #fff 0, transparent 35%, #fff 65%, transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  transition: transform .4s ease-in-out;
+}
+.vibe-player button:hover::before { transform: scaleX(-1); }
+.vibe-player button { display: grid; place-items: center; padding: 0; cursor: pointer; touch-action: manipulation; }
+.vibe-player button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+.vibe-player button:active { transform: scale(.96); }
+
+.vibe-toggle { width: 48px; height: 48px; }
+.vibe-note { width: 18px; height: 18px; fill: currentColor; }
+.vibe-bars { display: none; gap: 3px; align-items: flex-end; height: 16px; }
+.vibe-bars i { width: 3px; height: 100%; border-radius: 2px; background: currentColor; transform-origin: bottom; animation: vibe-bar 1s ease-in-out infinite; }
+.vibe-bars i:nth-child(2) { animation-delay: -.25s; }
+.vibe-bars i:nth-child(3) { animation-delay: -.5s; }
+.vibe-bars i:nth-child(4) { animation-delay: -.75s; }
+.vibe-player.playing .vibe-note { display: none; }
+.vibe-player.playing .vibe-bars { display: flex; }
+@keyframes vibe-bar { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+
+/* Song title beside the button while music plays; hidden on narrow screens, where the slot sits
+   between the "Reimagine Phoenix" pill and the screen edge. */
+.vibe-now {
+  height: 36px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity .3s ease, transform .3s ease;
+  pointer-events: none;
+}
+.vibe-player.playing .vibe-now { opacity: 1; transform: none; }
+.vibe-last, .vibe-next { width: 36px; height: 36px; }
+.vibe-last svg, .vibe-next svg { width: 11px; height: 11px; fill: currentColor; }
+.vibe-last { margin-left: 2px; }
+.vibe-next { margin-left: -4px; }
+
+/* Phones: the slot is at the right edge, so last / next sit to the left of play/pause, and the title
+   is left out to keep clear of the "Reimagine Phoenix" pill. */
+@media (max-width: 1023px) {
+  .vibe-player { gap: 6px; }
+  .vibe-toggle { order: 3; }
+  .vibe-last, .vibe-next { width: 32px; height: 32px; margin: 0; }
+  .vibe-now { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vibe-bars i { animation: none; transform: scaleY(.7); }
+}

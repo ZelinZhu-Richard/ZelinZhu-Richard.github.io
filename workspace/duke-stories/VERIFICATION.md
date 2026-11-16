@@ -2,6 +2,14 @@
 
 Review branch: `codex/duke-stories`, based on GitHub main `7adc30210b8d665dc9e0dfa59c833f455d34e5ce`.
 
+## PR preparation — 2026-11-16
+
+Richard authorized committing, pushing this branch and opening a PR, and requested unlisted routes under `/duke/`. GitHub main `38aede6c1a389fc05c707910349db9806a0d95c2` was integrated without rewriting history. The three Duke routes are absent from portfolio navigation and the sitemap and carry build-generated `noindex, follow` metadata. The production verifier requires this exact exception while preserving HQ's existing rule and normal indexing elsewhere. The full-build regression test checks that only HQ and these three Duke routes are noindex.
+
+Current checks: `npm test` — 678 passed, 0 failed/skipped; `npm run build` — passed; `npm run verify` — 417 production files passed; `git diff --check` — passed. The locked script and art/runtime tests also pass after integration. No changes to the homepage, public assets or Wings are included relative to current main.
+
+The browser evidence below is from the original local implementation review; the navigation/metadata changes were verified through the current full build and tests. No new browser matrix was run for PR preparation. Merging and live deployment remain unauthorized.
+
 ## Automated coverage
 
 The feature tests cover normalized progress at both endpoints and overshoot, reverse scrolling, resize mid-scene, all five transformation states, prototype assembly, spark collection, and rescue hold/catch boundaries. Build tests verify both locked script hashes and all 45 rendered narrative beats, routes, canonical metadata, asset references and dimensions, cross-story links, the existing EqualVoice anchor, raster provenance, and shark opt-out/startup/restoration behavior.

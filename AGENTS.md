@@ -41,7 +41,7 @@ Rules for AI agents (Codex, Claude Code) working in this repository. CLAUDE.md i
 ## Order of work (November 2026)
 1. Sync local work with GitHub main.
 2. Launch 逍遥游 (built on the game/xiaoyaoyou branch) on the site.
-3. Blog.
+3. Blog. The section exists at `/blog/` (scaffold in `workspace/blog/`, no posts yet); write and publish the first posts.
 4. Other pages: learning progress, Daily.
 
 ## Never

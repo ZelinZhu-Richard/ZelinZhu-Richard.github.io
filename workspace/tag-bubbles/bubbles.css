@@ -1,0 +1,43 @@
+/* Experience tags as soap bubbles rising up the column under each date. Rules: site/DESIGN.md
+   The plain tag list (.bubble-source) stays readable to screen readers; the field is decoration. */
+.experience ol>li.has-bubbles{grid-template-rows:auto 1fr}
+.experience ol>li.has-bubbles>span{grid-column:1;grid-row:1}
+.experience ol>li.has-bubbles>div:not(.bubble-field){grid-column:2;grid-row:1/3}
+.bubble-field{grid-column:1;grid-row:2;position:relative;min-height:170px;overflow:hidden;touch-action:pan-y;
+  -webkit-mask-image:linear-gradient(transparent,#000 22%,#000 82%,transparent);mask-image:linear-gradient(transparent,#000 22%,#000 82%,transparent)}
+.bubble-source{position:absolute!important;width:1px;height:1px;margin:0!important;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.bubble{position:absolute;left:0;top:0;display:grid;place-items:center;border-radius:50%;cursor:pointer;user-select:none;will-change:transform;
+  font:11px/1.2 var(--font-mono);color:var(--ink);text-align:center;
+  background:
+    radial-gradient(circle at 32% 26%,rgba(255,255,255,.55) 0 3%,rgba(255,255,255,.12) 7%,transparent 14%),
+    radial-gradient(circle at 50% 50%,transparent 55%,rgba(120,150,255,.10) 72%,rgba(255,110,200,.16) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),inset -8px -10px 20px rgba(90,140,255,.14),inset 8px 10px 16px rgba(255,90,190,.10);
+  transition:opacity .14s ease-out,scale .14s ease-out}
+/* The rainbow rim turns slowly; a ring mask keeps it to the edge. */
+.bubble::before{content:"";position:absolute;inset:0;border-radius:50%;padding:1.5px;opacity:.55;
+  background:conic-gradient(from var(--spin,0deg),#7aa2ff,#b98cff,#ff7ac8,#ffd27a,#7affd6,#7aa2ff);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  animation:bubble-spin 9s linear infinite}
+@property --spin{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes bubble-spin{to{--spin:360deg}}
+.bubble:hover::before{opacity:.95}
+.bubble>span{position:relative;padding:0 6px}
+.bubble.is-popped{opacity:0;scale:1.25;pointer-events:none}
+.bubble-drop{position:absolute;width:4px;height:4px;border-radius:50%;pointer-events:none;background:var(--c);animation:bubble-drop .5s ease-out forwards}
+@keyframes bubble-drop{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+.bubble-word{position:absolute;pointer-events:none;font:11px var(--font-mono);font-style:normal;color:var(--muted);animation:bubble-word .9s ease-out forwards}
+@keyframes bubble-word{from{opacity:1;transform:translate(-50%,-50%)}to{opacity:0;transform:translate(-50%,-170%)}}
+.bubble-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.bubble-heading h2{margin-bottom:0}
+.bubble-sound{padding:0;border:0;background:none;color:var(--muted);font:12px var(--font-mono);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.bubble-sound:hover,.bubble-sound[aria-pressed="true"]{color:var(--ink)}
+.bubble-sound:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:900px){
+  /* Rows stack: the bubbles get a short strip under the entry instead of the margin. */
+  .experience ol>li.has-bubbles{grid-template-rows:none}
+  .experience ol>li.has-bubbles>span,.experience ol>li.has-bubbles>div:not(.bubble-field),.bubble-field{grid-column:1;grid-row:auto}
+  .bubble-field{min-height:120px}
+}
+@media(prefers-reduced-motion:reduce){
+  .bubble::before{animation:none}
+}

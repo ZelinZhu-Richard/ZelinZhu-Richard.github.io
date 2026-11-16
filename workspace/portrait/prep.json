@@ -1,0 +1,23 @@
+{
+  "comment": "Input for tools/portrait-prep.py. Eye positions are pupil centres in the original photo's pixels. The script rotates and scales each photo so the eyes land on the same spot, which is what makes the transitions morph cleanly between poses.",
+  "size": [240, 300],
+  "eyes": { "y": 0.37, "left": 0.4, "right": 0.6 },
+  "photos": {
+    "a": { "file": "photos/a.webp", "leftEye": [450, 432], "rightEye": [630, 428] },
+    "b": { "file": "photos/b.webp", "leftEye": [445, 432], "rightEye": [620, 425] }
+  },
+  "retouch": {
+    "comment": "Gentle retouch before drawing (retouch() in the script). Each value is a strength; 0 turns that step off. keep: points, in eye-distance units from between the eyes, that blemish removal must leave alone (the chin mole).",
+    "hairOutline": 9,
+    "hairSmooth": 0.45,
+    "blemish": true,
+    "skinSmooth": 0.6,
+    "shine": 0.6,
+    "underEye": 0.4,
+    "eyeEnlarge": 0.075,
+    "eyeDefine": 0.5,
+    "brows": 0.22,
+    "lips": 0.18,
+    "keep": { "a": [[0.24, 1.57]], "b": [[0.33, 1.49]] }
+  }
+}

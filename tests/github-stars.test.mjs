@@ -101,8 +101,9 @@ test('static route includes every repo without JavaScript and excludes authoring
   assert.match(html,/href="\/github\/stars\/research\/"/);
 });
 
-test('star library is discoverable from detail pages and both captured homepage menus', async () => {
-  for (const html of pages().values()) assert.match(html, /href="\/github\/stars\/">Stars<\/a>/);
+test('star library is linked from About and both captured homepage menus', async () => {
+  // The site menu is the seven stones; Stars sits at the bottom of About.
+  assert.match(pages().get('about/index.html'), /<section class="about-more"[\s\S]*href="\/github\/stars\/"/);
   assert.match(await read('public/index.html'), /href="\/github\/stars\/"/);
   const runtime = await read('public/_nuxt/CbdjwYMp.js');
   assert.match(runtime, /to:"\/github\/stars\/"/);

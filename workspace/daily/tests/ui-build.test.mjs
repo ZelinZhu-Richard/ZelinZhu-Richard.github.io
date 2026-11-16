@@ -47,7 +47,7 @@ for (const [file, path] of [['index.html', '/daily/'], ['eggs/index.html', '/dai
     const header = html.match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0];
     assert.ok(header, 'site header injected');
     assert.match(header, /class="wordmark"/);
-    assert.match(header, /href="\/daily\/" aria-current="page">Daily</);
+    assert.match(header, /href="\/daily\/" aria-current="page"><span>\d\d<\/span>Daily</);
     assert.equal((header.match(/aria-current="page"/g) || []).length, 1, 'only Daily is current in the site nav');
     assert.match(html, /<footer class="site-footer">/);
     assert.ok(html.includes(`<link rel="canonical" href="https://zelinzhu-richard.github.io${path}">`));

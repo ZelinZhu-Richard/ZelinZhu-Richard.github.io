@@ -2,15 +2,17 @@
 // these are labels and colours only (PLAN.md Ground rules: rarity and difficulty colours).
 export const TIERS = ['Ordinary', 'Rare', 'Super Rare', 'Epic', 'Mythic', 'Legendary', 'Ultra'];
 export const TIER_SHORT = ['OR', 'RA', 'SR', 'EP', 'MY', 'LG', 'UL'];
-export const TIER_COLORS = ['#c2bad0', '#9fd4ff', '#7ee0c3', '#c9a2ff', '#ff9ecf', '#ffc98f', '#fff3b0'];
+// UI rarity/difficulty inks for the paper page: each is >= 4.9:1 on --paper as text and under paper text as a fill.
+// The pet sprites keep their own palette (pets/palette.js).
+export const TIER_COLORS = ['#b5afa3', '#7fb2e5', '#74c4a0', '#b3a1e6', '#e58fbf', '#e0ad5c', '#cfc46b'];
 export const LEVELS = ['chill', 'easy', 'medium', 'hard', 'goddamn'];
 export const DAY_LEVELS = ['chill', 'easy', 'medium', 'hard'];
 export const LEVEL_LABELS = { chill: 'Chill', easy: 'Easy', medium: 'Medium', hard: 'Hard', goddamn: 'Goddamn' };
-export const LEVEL_COLORS = { chill: '#c2bad0', easy: '#9fd4ff', medium: '#7ee0c3', hard: '#ffc98f', goddamn: '#ff9fb2' };
+export const LEVEL_COLORS = { chill: '#b5afa3', easy: '#7fb2e5', medium: '#74c4a0', hard: '#e0ad5c', goddamn: '#ef7b6f' };
 export const ORBS_BY_LEVEL = { chill: 3, easy: 4, medium: 6, hard: 9, goddamn: 14 };
 export const SPECIES_NAMES = { dragon: 'Drakelet', fox: 'Kitsu', slime: 'Gumdrop', owl: 'Hootling', turtle: 'Pebbleback', axolotl: 'Ripplegill', hedgehog: 'Bramblekin' };
 export const SPECIES_PATRON = { dragon: 'physical', fox: 'outdoors', slime: 'food', owl: 'study', turtle: 'sleep', axolotl: 'lastMissed', hedgehog: 'frog' };
-export const AMBER = '#ffc98f';
+export const AMBER = '#e0ad5c';
 export const DEEP_WORK_TAGS = ['ILO', 'Coursework', 'ML research', 'College applications', 'Other']; // CONTENT.md §I.8 (private ledger)
 
 export const tierIndex = t => {
@@ -21,7 +23,7 @@ export const tierIndex = t => {
 export const tierName = t => TIERS[tierIndex(t)];
 export const tierColor = t => TIER_COLORS[tierIndex(t)];
 export const levelLabel = l => LEVEL_LABELS[l] || String(l ?? '');
-export const levelColor = l => LEVEL_COLORS[l] || '#c2bad0';
+export const levelColor = l => LEVEL_COLORS[l] || '#b5afa3';
 export const levelIndex = l => LEVELS.indexOf(l);
 
 export const num = n => (Number.isFinite(Number(n)) ? Math.round(Number(n)).toLocaleString('en-US') : '0');

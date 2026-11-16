@@ -54,7 +54,7 @@ export function revealOrder(items) {
 
 export function renderItemChip(item, extra = '') {
   const tier = item.kind === 'petEgg' ? (item.petEgg?.tier ?? item.tier) : item.kind === 'trinket' ? (item.trinket?.tier ?? item.tier) : item.tier;
-  const c = tier !== undefined && tier !== null ? tierColor(tier) : item.kind === 'diamonds' ? '#9fd4ff' : '#ffffff40';
+  const c = tier !== undefined && tier !== null ? tierColor(tier) : item.kind === 'diamonds' ? '#7fb2e5' : '#7a766d';
   const solid = item.kind === 'petEgg';
   return html`<li class="item-chip${solid ? ' item-chip--pet' : ''}${extra}" style="--chip:${c}">${itemText(item)}</li>`;
 }
@@ -205,7 +205,7 @@ export function renderShop(shop, ctx) {
   const isLife = id => /^real-?life$/.test(id);
   const tabs = (shop.tabs || []).some(t => isLife(t.id)) ? shop.tabs : [...(shop.tabs || []), { id: 'real-life', label: 'Real life' }];
   const active = tabs.find(t => t.id === ui(ctx).shopTab) || tabs[0];
-  return html`<div class="shop-head"><div class="picker-row" role="group" aria-label="Shop sections">${tabs.map(t => html`<button type="button" class="chip-button" data-action="shop-tab" data-tab="${t.id}" aria-pressed="${t.id === active.id}" style="--chip:var(--accent)">${t.label}</button>`)}</div></div>
+  return html`<div class="shop-head"><div class="picker-row" role="group" aria-label="Shop sections">${tabs.map(t => html`<button type="button" class="chip-button" data-action="shop-tab" data-tab="${t.id}" aria-pressed="${t.id === active.id}" style="--chip:var(--ink)">${t.label}</button>`)}</div></div>
 ${shop.flashSale ? html`<p class="flash-sale">Ultra flash sale: ${num(shop.flashSale.price)} diamonds until ${stampLabel(shop.flashSale.until)}.</p>` : ''}
 ${isLife(active.id) ? renderRealLife(shop, ctx) : html`<ul class="shop-grid">${(active.items || []).map(it => {
     const color = it.tier !== undefined ? tierColor(it.tier) : 'var(--ink)';

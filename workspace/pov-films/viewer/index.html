@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#060709">
+  <title>POV Films</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='9' height='16' x='3.5' rx='2' fill='%23ecebe8'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <main class="column">
+    <div class="top">
+      <div class="picker">
+        <select id="film" aria-label="Film"></select>
+        <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="phone can-look" id="phone">
+      <canvas id="view" aria-label="Film playing in real time"></canvas>
+      <div class="veil" id="veil" hidden>
+        <p class="veil-title" id="veil-title"></p>
+        <p class="veil-note" id="veil-note"></p>
+      </div>
+      <div class="progress" id="progress"><span></span></div>
+    </div>
+
+    <div class="controls">
+      <button class="icon" id="play" type="button" aria-label="Pause">
+        <svg class="i-pause" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="4" width="3.2" height="12" rx="1"/><rect x="11.8" y="4" width="3.2" height="12" rx="1"/></svg>
+        <svg class="i-play" viewBox="0 0 20 20" aria-hidden="true"><path d="M6.5 4.3v11.4c0 .6.7 1 1.2.7l8.6-5.7c.5-.3.5-1 0-1.4L7.7 3.6c-.5-.3-1.2.1-1.2.7z"/></svg>
+      </button>
+      <input id="scrub" type="range" min="0" max="13.9583" step="0.0416667" value="0" aria-label="Position in the film">
+      <button class="icon" id="look" type="button" aria-pressed="true" aria-label="Free look" title="Drag the picture to look around">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4.5c-4.2 0-7.2 3.7-8 5.1a.8.8 0 0 0 0 .8c.8 1.4 3.8 5.1 8 5.1s7.2-3.7 8-5.1a.8.8 0 0 0 0-.8c-.8-1.4-3.8-5.1-8-5.1z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.6"/></svg>
+      </button>
+    </div>
+  </main>
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>

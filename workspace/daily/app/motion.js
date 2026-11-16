@@ -31,7 +31,7 @@ function layer() {
 }
 
 // Food orbs fly in an arc from one element to another (CONTENT.md §I.2, 650 ms).
-export function flyOrbs(from, to, count, color = '#dfccff', ms = 650) {
+export function flyOrbs(from, to, count, color = '#ece9e1', ms = 650) {
   if (!from || !to || reduced() || typeof Element.prototype.animate !== 'function') return Promise.resolve();
   const a = from.getBoundingClientRect(), b = to.getBoundingClientRect();
   const sx = a.left + a.width / 2, sy = a.top + a.height / 2;

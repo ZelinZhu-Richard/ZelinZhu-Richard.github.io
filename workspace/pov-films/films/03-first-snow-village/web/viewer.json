@@ -1,0 +1,11 @@
+{
+  "view": "neutral",
+  "exposure": -1.15,
+  "saturation": 1.28,
+  "grade": { "black": 0.0018 },
+  "bloom": { "strength": 0.22, "radius": 0.2, "threshold": 1.1, "knee": 2.0, "saturation": 1.15 },
+  "world_light": { "gain": 0.2, "tint": [0.62, 0.78, 0.95], "ambient": [0.01, 0.019, 0.045] },
+  "post": { "vignette": 0.3, "vignette_radius": 0.62, "grain": 0.02, "dispersion": 0.0015 },
+  "lights": { "spot": 12, "priority": { "^BigTreeGlow": 6 } },
+  "mirror": { "streak": 1.6, "strength": 1.0 }
+}

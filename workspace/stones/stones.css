@@ -1,0 +1,185 @@
+/* Seven stones: the hand-off from the phoenix homepage and the strip that links the parts. */
+
+/* Homepage veil: the scene fades to the same night colour the destination page starts on. */
+.stone-veil{
+  position:fixed;
+  inset:0;
+  z-index:2147483000;
+  display:flex;
+  align-items:flex-end;
+  padding:0 5vw 9vh;
+  background:#100f15;
+  color:#ece9e1;
+  opacity:0;
+  transition:opacity .55s ease;
+  pointer-events:none
+}
+.stone-veil.is-on{opacity:1}
+.stone-veil p{margin:0;font:400 clamp(44px,7vw,104px)/1 TTNeoris,Neoris,"Helvetica Neue",Arial,sans-serif;letter-spacing:-.045em}
+.stone-veil span{display:block;margin-bottom:14px;font:12px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.06em;color:#a8a398}
+
+/* Destination: content rises out of the night. */
+html.stone-arrive main{animation:stone-arrive .7s ease both}
+html.stone-arrive main{animation-delay:.15s}
+@keyframes stone-arrive{from{opacity:0;transform:translateY(14px)}}
+
+/* The end of each part: the next stone. */
+.stone-next{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:16px;
+  align-items:end;
+  margin:72px 0 0;
+  padding:28px 0 0;
+  border-top:1px solid var(--ink)
+}
+.stone-next a{display:block}
+.stone-next .next small,.stone-next .prev{font-family:var(--font-mono);font-size:12px;letter-spacing:.04em;color:var(--muted)}
+.stone-next .next strong{display:block;margin-top:6px;font:400 clamp(34px,4.6vw,64px)/1 var(--font-display);letter-spacing:-.04em}
+.stone-next .next em{display:block;margin-top:8px;font-style:normal;color:var(--muted)}
+.stone-next .prev{justify-self:start;border-bottom:1px solid var(--line);padding-bottom:2px}
+
+@media(hover:hover) and (pointer:fine){
+  .stone-next .prev:hover{color:var(--ink)}
+  .stone-next .next:hover strong{color:var(--accent)}
+}
+@media(max-width:700px){
+  .stone-next{grid-template-columns:1fr;margin-top:48px}
+}
+@media(prefers-reduced-motion:reduce){
+  .stone-veil{transition:none}
+  html.stone-arrive main{animation:none}
+}
+
+/* ---------- Homepage: hold ring (1.5 s on a stone opens its page) ---------- */
+.stone-ring{
+  position:fixed;
+  left:0;
+  top:0;
+  z-index:2147482990;
+  width:0;
+  height:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .15s ease
+}
+.stone-ring.is-on{opacity:1}
+.stone-ring i{position:absolute;left:-46px;top:-46px;width:92px;height:92px;border-radius:50%}
+/* Dark backing so the ring reads on the pale lavender part of the scene as well as the night. */
+.stone-ring .track{border:7px solid #100f15a6}
+/* The arc: the stone's colour family around the circle, revealed up to --p, cut to a 4px band. */
+.stone-ring .arc{
+  background:var(--ring);
+  -webkit-mask:conic-gradient(#000 calc(var(--p,0) * 1turn),transparent 0),radial-gradient(farthest-side,transparent calc(100% - 5.5px),#000 calc(100% - 5px),#000 calc(100% - 1.5px),transparent calc(100% - 1px));
+  -webkit-mask-composite:source-in;
+  mask:conic-gradient(#000 calc(var(--p,0) * 1turn),transparent 0),radial-gradient(farthest-side,transparent calc(100% - 5.5px),#000 calc(100% - 5px),#000 calc(100% - 1.5px),transparent calc(100% - 1px));
+  mask-composite:intersect
+}
+.stone-ring span{position:absolute;left:52px;top:-9px;padding:3px 7px;background:#100f15;border:1px solid var(--ring-mid,#ece9e140);color:#ece9e1;font:11px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.04em;white-space:nowrap}
+
+/* ---------- Homepage: small popup (click on a stone) ---------- */
+.stone-pop{
+  --ink:#ece9e1;--muted:#a8a398;--line:#2d2b34;--accent:#e8743b;--card:#16151c;
+  position:fixed;
+  right:32px;
+  top:50%;
+  z-index:2147483000;
+  width:min(440px,calc(100vw - 32px));
+  max-height:min(640px,82vh);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  background:#100f15;
+  color:var(--ink);
+  border:1px solid var(--ink);
+  box-shadow:6px 6px 0 var(--accent);
+  font:16px/1.55 "Iowan Old Style",Charter,"Sitka Text",Cambria,Georgia,serif;
+  -webkit-font-smoothing:antialiased;
+  cursor:auto;
+  opacity:0;
+  transform:translateY(-50%) translateX(16px);
+  transition:opacity .2s ease,transform .25s cubic-bezier(.2,.7,.2,1)
+}
+.stone-pop.is-open{opacity:1;transform:translateY(-50%)}
+.stone-pop[hidden]{display:none}
+.stone-pop:focus{outline:none}
+.stone-pop *{box-sizing:border-box;cursor:inherit}
+.stone-pop a,.stone-pop button{cursor:pointer;color:var(--ink)}
+.stone-pop a:focus-visible,.stone-pop button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.stone-pop .sp-top{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:#100f15;border-bottom:1px solid var(--line);font:11px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.05em;color:var(--muted)}
+.stone-pop .sp-close{border:1px solid var(--line);background:none;padding:3px 8px;font:13px/1 ui-monospace,monospace}
+.stone-pop .sp-close:hover{border-color:var(--ink)}
+.stone-pop .sp-body{padding:18px 18px 4px}
+.stone-pop h2{margin:0 0 6px;font:400 40px/1 TTNeoris,Neoris,"Helvetica Neue",Arial,sans-serif;letter-spacing:-.04em}
+.stone-pop .sp-lede{margin:0 0 14px;color:var(--muted)}
+.stone-pop p{margin:0 0 8px}
+.stone-pop h3{margin:0 0 2px;font:400 19px/1.2 TTNeoris,Neoris,"Helvetica Neue",Arial,sans-serif;letter-spacing:-.015em}
+.stone-pop ul{list-style:none;margin:0;padding:0}
+.stone-pop .sp-row,.stone-pop .sp-shot,.stone-pop .sp-plain li{padding:10px 0;border-top:1px solid var(--line)}
+.stone-pop .sp-row-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.stone-pop .sp-row-head span,.stone-pop .sp-meta,.stone-pop .sp-plain span{font:11px/1.5 ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--muted)}
+.stone-pop .sp-meta{display:none}
+.stone-pop .sp-row p,.stone-pop .sp-shot p{font-size:15px}
+.stone-pop .sp-links{display:flex;flex-wrap:wrap;gap:4px 14px;margin:6px 0 0;font:12px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.stone-pop .sp-links a{text-decoration:none;border-bottom:1px solid var(--line)}
+.stone-pop .sp-links a:hover{border-color:var(--accent);color:var(--accent)}
+.stone-pop .sp-shot{display:grid;grid-template-columns:112px 1fr;gap:12px;align-items:start}
+.stone-pop .sp-shot img,.stone-pop .sp-poster img,.stone-pop .sp-about img{display:block;width:100%;height:auto;border:1px solid var(--line)}
+.stone-pop .sp-shot img{aspect-ratio:16/10;object-fit:cover;object-position:top left}
+.stone-pop .sp-poster{margin:0 0 10px}
+.stone-pop .sp-tags{display:flex;flex-wrap:wrap;gap:4px;font:11px ui-monospace,monospace;color:var(--muted)}
+.stone-pop .sp-tags li{border:1px solid var(--line);padding:1px 6px}
+.stone-pop .sp-sub{margin:16px 0 4px;font:11px/1.4 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stone-pop .sp-plain li{display:grid;gap:1px;padding:7px 0}
+.stone-pop .sp-plain b{font:400 16px/1.3 TTNeoris,Neoris,"Helvetica Neue",Arial,sans-serif}
+.stone-pop .sp-plain em{font-size:14px;color:var(--muted)}
+.stone-pop .sp-currently{display:inline-flex;flex-wrap:wrap;gap:2px 10px;padding:5px 9px;border:1px solid var(--line);font:12px/1.5 ui-monospace,monospace}
+.stone-pop .sp-currently span{color:var(--accent)}
+.stone-pop .sp-facts{display:none}
+.stone-pop .sp-about{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:start}
+.stone-pop .sp-about img{aspect-ratio:4/5;object-fit:cover}
+.stone-pop .sp-about p{font-size:14px}
+.stone-pop .sp-foot{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin:8px 18px 0;padding:14px 0 6px;border-top:1px solid var(--ink)}
+.stone-pop .sp-full{padding:8px 12px;background:var(--ink);color:#100f15!important;text-decoration:none;font:13px/1.3 ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+.stone-pop .sp-full:hover{box-shadow:3px 3px 0 var(--accent)}
+.stone-pop .sp-next{text-decoration:none;font:12px ui-monospace,monospace;color:var(--muted)!important;border-bottom:1px solid var(--line)}
+.stone-pop .sp-tip{margin:0;padding:6px 18px 14px;font:11px/1.5 ui-monospace,monospace;color:var(--muted)}
+@media(max-width:640px){
+  .stone-pop{right:16px;left:16px;width:auto;top:auto;bottom:16px;max-height:72vh;transform:translateY(16px)}
+  .stone-pop.is-open{transform:none}
+  .stone-pop .sp-tip{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .stone-pop,.stone-ring{transition:none}
+}
+
+/* ---------- Homepage: the seven-stone menu replaces the captured page list ---------- */
+.portfolio-desktop-links,.mobile-menu-button{display:none!important}
+.home-stones{
+  position:fixed;
+  top:38px;
+  right:54px;
+  z-index:2147482900;
+  display:flex;
+  gap:4px 22px;
+  color:#29345a;              /* the scene's own ink on its light sections */
+  font:18px/1.2 TTNeoris,Neoris,"Helvetica Neue",Arial,sans-serif;
+  cursor:auto;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .5s ease,visibility 0s .5s,color .4s ease
+}
+.home-stones.is-ready{opacity:1;visibility:visible;transition:opacity .6s ease,visibility 0s,color .4s ease}
+.home-stones.is-dark{color:#fff}  /* the scene's dark sections, like the original header links */
+.home-stones a{display:inline-flex;align-items:baseline;gap:5px;color:inherit;text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;cursor:pointer;transition:border-color .2s ease}
+.home-stones a span{font:11px/1 ui-monospace,"SF Mono",Menlo,Consolas,monospace;opacity:.55}
+.home-stones a:hover{border-bottom-color:currentColor}
+.home-stones a:focus-visible,.home-stones button:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.home-stones button{display:none;border:1px solid currentColor;border-radius:999px;background:none;color:inherit;font:inherit;font-size:16px;padding:6px 16px;cursor:pointer}
+@media(max-width:1000px){
+  .home-stones{top:20px;right:20px;flex-direction:column;align-items:flex-end;gap:10px}
+  .home-stones button{display:block}
+  .home-stones a{display:none}
+  .home-stones.is-open a{display:inline-flex}
+}
+@media(prefers-reduced-motion:reduce){.home-stones,.home-stones.is-ready{transition:none}}
+
