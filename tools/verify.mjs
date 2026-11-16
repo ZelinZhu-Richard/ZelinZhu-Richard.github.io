@@ -9,6 +9,8 @@ const names = new Set(files.map(x => x.file));
 const errors = [];
 const seen = new Map();
 const documents = new Map();
+// Richard requested these direct-link story pages remain unlisted (2026-11-16).
+const unlistedDukePages = new Set(['duke/index.html', 'duke/becoming-blue/index.html', 'duke/the-night-duke-lost-its-blue/index.html']);
 for (const { file } of files) {
   const folded = file.toLowerCase();
   if (seen.has(folded)) errors.push(`Case-sensitive filename collision: ${file}`);
@@ -71,6 +73,7 @@ for (const [file, text] of documents) {
     if (!text.includes('id="ascii-sharks-background"') || !text.includes('href="/ascii-sharks/background.css"') || !text.includes('src="/ascii-sharks/background.js"')) errors.push(`Shared shark background missing: ${file}`);
     // The owner requested Choices remain unlisted, alongside the existing private HQ shell.
     if (file === 'hq/index.html' || file === 'choices/index.html') { if (!/<meta name="robots" content="noindex, nofollow">/.test(text)) errors.push(`Unlisted page must be noindex: ${file}`); }
+    else if (unlistedDukePages.has(file)) { if (!/<meta name="robots" content="noindex, follow">/.test(text)) errors.push(`Unlisted Duke page must be noindex: ${file}`); }
     else if (/noindex/.test(text)) errors.push(`Incorrect production metadata or analytics: ${file}`);
     if (file === 'choices/index.html' && !/<meta name="referrer" content="no-referrer">/.test(text)) errors.push('Unlisted Choices page must omit referrers');
     if (/gtag:\{enabled:true/.test(text)) errors.push(`Incorrect production metadata or analytics: ${file}`);
@@ -96,6 +99,11 @@ for (const file of ['art/index.html', 'fun/index.html', 'blog/index.html', 'blog
 for (const dir of ['now/', 'experiments/']) if ([...names].some(n => n.startsWith(dir))) errors.push(`Retired page still built: /${dir}`);
 for (const file of ['choices/index.html', 'choices/style.css', 'choices/tree.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 if (documents.get('sitemap.xml')?.includes('/hq/') || documents.get('robots.txt')?.includes('/hq/')) errors.push('Private page listed in sitemap or robots.txt: /hq/');
+for (const file of unlistedDukePages) if (!names.has(file)) errors.push(`Unlisted Duke page missing: ${file}`);
+if (documents.get('sitemap.xml')?.includes('/duke/')) errors.push('Unlisted Duke story listed in sitemap');
+for (const [file, text] of documents) {
+  if (file.endsWith('.html') && !file.startsWith('duke/') && /href=["'](?:https:\/\/zelinzhu-richard\.github\.io)?\/duke(?:[\/"'#?])/.test(text)) errors.push(`Public page links to unlisted Duke stories: ${file}`);
+}
 if (/\/choices(?:[\/<\s]|$)/.test(`${documents.get('sitemap.xml') || ''}\n${documents.get('robots.txt') || ''}`)) errors.push('Unlisted page listed in sitemap or robots.txt: /choices/');
 for (const file of ['repolarisdm/index.html', 'repolarisdm/placement/index.html', 'repolarisdm/cards/index.html', 'repolarisdm/agent-patch-audit/index.html', 'repolarisdm/grader-validity/index.html', 'repolarisdm/defend-it/index.html', 'repolarisdm/capstone/index.html', 'repolarisdm/tracker/index.html', 'repolarisdm/assets/style.css', 'repolarisdm/assets/app.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 for (const file of ['github/stars/index.html', 'github/stars/stars.css', 'github/stars/stars.js', 'github/stars/model.js', 'github/stars/render.mjs', 'github/stars/stars.json']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);

@@ -1,0 +1,51 @@
+{
+  "approval": "approved",
+  "generator": "built-in image_gen",
+  "images": [
+    {
+      "id": "01-shared-character-sheet",
+      "original": "gate-v1/01-shared-character-sheet.png",
+      "preview": "gate-v1/01-shared-character-sheet.webp",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "80a4ae29454bdcebc147a2b23c445788832bccc8d13f3476d0fa657c4e6b861a",
+      "prompt": "prompts/01-shared-character-sheet.txt",
+      "originalBytes": 1729748,
+      "previewBytes": 99002
+    },
+    {
+      "id": "02-richard-transformation",
+      "original": "gate-v1/02-richard-transformation.png",
+      "preview": "gate-v1/02-richard-transformation.webp",
+      "width": 2172,
+      "height": 724,
+      "sha256": "60f155b8939d89f46777459ea41fceea6b0389ba3cf94631f0244626207eb8a6",
+      "prompt": "prompts/02-richard-transformation.txt",
+      "originalBytes": 1672094,
+      "previewBytes": 123564
+    },
+    {
+      "id": "03-lantern-rescue",
+      "original": "gate-v1/03-lantern-rescue.png",
+      "preview": "gate-v1/03-lantern-rescue.webp",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "594e842cebc42c21c92113a2230ba012ba1df47bba2874530a9768b7c0a7fb50",
+      "prompt": "prompts/03-lantern-rescue.txt",
+      "originalBytes": 1951360,
+      "previewBytes": 143180
+    },
+    {
+      "id": "04-blue-welcome",
+      "original": "gate-v1/04-blue-welcome.png",
+      "preview": "gate-v1/04-blue-welcome.webp",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "63e0400ffa7969d8553b070e82a8954618df920700cb7c6efe328f54ffa4f809",
+      "prompt": "prompts/04-blue-welcome.txt",
+      "originalBytes": 2140427,
+      "previewBytes": 231068
+    }
+  ],
+  "approvalEvidence": "Richard: Yes Approve"
+}

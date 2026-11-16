@@ -44,6 +44,7 @@ Rules for AI agents (Codex, Claude Code) working in this repository. CLAUDE.md i
 3. Blog. The section exists at `/blog/` (scaffold in `workspace/blog/`, no posts yet); write and publish the first posts.
 4. Other pages: learning progress, Daily.
 5. Choices: unlisted planning page.
+6. Duke stories: unlisted selector and two illustrated stories under `/duke/`.
 
 ## Never
 - Commit secrets: .env files, API keys, tokens, Supabase service_role or sb_secret keys. A confirmed Supabase anon/publishable key is allowed.
@@ -52,5 +53,5 @@ Rules for AI agents (Codex, Claude Code) working in this repository. CLAUDE.md i
 - Push game/* branches. A pre-push hook blocks them; they are build branches and reach the site only through a feature/review branch.
 - Force-push, rewrite published history, run git reset --hard, or delete branches, worktrees or existing files without Richard's OK. Rebuilding generated output in a new review checkout is allowed.
 - Run gc, prune, repack or reflog expire during the sync or cleanup. Resolve the nested skills-site alternates dependency under a separately approved plan before any parent object cleanup.
-- Hand-write the shark background or production metadata. The build injects them, and tools/verify.mjs checks production URLs, no noindex (except the existing private HQ shell and the owner-requested unlisted Choices page) and no dev paths. Keep /choices/ absent from other pages, navigation, sitemap.xml, and robots.txt; preserve its noindex, nofollow and no-referrer metadata.
+- Hand-write the shark background or production metadata. The build injects them, and tools/verify.mjs checks production URLs, no noindex (except the existing private HQ shell and the owner-requested unlisted Choices page and three /duke/ routes) and no dev paths. Keep /choices/ absent from other pages, navigation, sitemap.xml, and robots.txt; preserve its noindex, nofollow and no-referrer metadata.
 - Bypass a feature's explicit release gate. Hair Cut remains deferred until its required real-camera and physical-device evidence passes.
