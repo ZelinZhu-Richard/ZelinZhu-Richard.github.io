@@ -112,7 +112,9 @@ function start() {
     if (dialog.open) return;
     root.style.overflow = overflow;
     // Safari does not focus a link when it is clicked, so the dialog cannot hand focus back by itself.
-    if (opener?.isConnected) opener.focus({ preventScroll: true });
+    // What had focus may be gone by now (a menu link, once the menu has closed): then Search takes it.
+    const back = opener && opener.isConnected && opener.getClientRects?.().length !== 0 ? opener : opener && document.querySelector('[data-palette-open]');
+    if (back) back.focus({ preventScroll: true });
     opener = null;
   };
   const close = () => {
@@ -168,6 +170,8 @@ function start() {
       if (to !== null) { event.preventDefault(); select(to); return; }
       if (event.key !== 'Enter') return;
       event.preventDefault();
+      // A held key repeats: the Enter that opened the palette must not also open its first result.
+      if (event.repeat) return;
       const node = options[selected];
       if (!node) return;
       if ((event.metaKey || event.ctrlKey) && /^https?:$/.test(node.protocol || '')) window.open(node.href, '_blank', 'noopener,noreferrer');
@@ -200,7 +204,8 @@ function start() {
     // Outside means the press started on the backdrop too: dragging a text selection out of the
     // input ends there, and that must not close the dialog.
     dialog.addEventListener('pointerdown', event => { pressedOutside = event.target === dialog; });
-    dialog.addEventListener('click', event => { if (pressedOutside && event.target === dialog) close(); });
+    // detail > 1 is the tail of a double-click on Search: its second click lands on the backdrop.
+    dialog.addEventListener('click', event => { if (pressedOutside && event.target === dialog && !(event.detail > 1)) close(); });
     dialog.addEventListener('close', settle);
     window.visualViewport?.addEventListener('resize', fit);
   };
@@ -220,8 +225,10 @@ function start() {
     if (dialog.open) return;
     // Put back if a page script has removed it: showModal throws on a dialog that is not in the page.
     if (!dialog.isConnected) document.body.append(dialog);
+    // Read before showModal moves focus into the dialog.
+    const focused = document.activeElement;
     dialog.showModal();
-    opener = from || null;
+    opener = from || (focused && focused !== document.body ? focused : null);
     input.value = '';
     overflow = root.style.overflow;
     root.style.overflow = 'hidden';
@@ -235,6 +242,7 @@ function start() {
     if (!index) {
       empty.textContent = 'The list of pages did not load. Close this and try again.';
       empty.hidden = false;
+      count.textContent = 'The list of pages did not load.';
       return;
     }
     // Read the sharks button on every open: its label flips, and it hides while a camera runs.
@@ -251,7 +259,7 @@ function start() {
     trigger.addEventListener('keydown', event => {
       if (event.key !== ' ' && event.key !== 'Enter') return;
       event.preventDefault();
-      open(trigger);
+      if (!event.repeat) open(trigger);
     });
     // Fetch the list as soon as the visitor reaches for the button, so it is there by the click.
     trigger.addEventListener('pointerenter', load, { once: true });

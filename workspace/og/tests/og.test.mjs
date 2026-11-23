@@ -125,8 +125,10 @@ test('a card says what its page says', async () => {
 
 test('a page gets the card for its own path, then its folder, then its section, then the site card', () => {
   assert.deepEqual(cardFor('/about/'), { name: 'about', src: '/og/about.png', alt: 'Richard Zhu: High school senior. I work on computer science and economics, and do machine learning research at UNC PRIMES.' });
-  assert.equal(cardFor('/github/stars/research/ai-ml/').name, 'stars');
+  assert.equal(cardFor('/github/stars/research/ai-ml/').name, 'research-stack', 'the longer folder wins over /github/stars/');
+  assert.equal(cardFor('/github/stars/research/').name, 'research-stack');
   assert.equal(cardFor('/github/stars/').name, 'stars');
+  assert.equal(cardFor('/flash/').name, 'flash', 'Flash needs no camera, so it does not take the Fun card');
   assert.equal(cardFor('/ppiano/').name, 'fun', 'Paper Piano belongs to the Fun section');
   assert.equal(cardFor('/domainexp/').name, 'fun');
   assert.equal(cardFor('/blog/some-post/').name, 'blog');
@@ -236,7 +238,7 @@ test('buildOg copies the cards, rewrites the public pages and leaves the unliste
   assert.deepEqual((await readdir(join(output, 'og'))).sort(), cards().map(c => `${c.name}.png`).sort());
   for (const { name } of cards()) assert.deepEqual(await readFile(join(output, 'og', `${name}.png`)), await readFile(join(images, `${name}.png`)), `${name}.png copied`);
   const read = file => readFile(join(output, file), 'utf8');
-  for (const [file, name] of [['index.html', 'site'], ['404.html', 'site'], ['about/index.html', 'about'], ['github/stars/research/ai-ml/index.html', 'stars'], ['gym/index.html', 'fun']]) {
+  for (const [file, name] of [['index.html', 'site'], ['404.html', 'site'], ['about/index.html', 'about'], ['github/stars/research/ai-ml/index.html', 'research-stack'], ['gym/index.html', 'fun']]) {
     const html = await read(file);
     assert.ok(html.includes(`content="${SITE}/og/${name}.png"`) && !html.includes(PORTRAIT), `${file} shows the ${name} card`);
     assert.ok(html.includes('<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:image:type" content="image/png">\n<meta property="og:image:alt" content="'));

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { siteIndex, indexGroup, indexItem } from '../index.mjs';
+import { UNLISTED_FOLDERS, isUnlisted, siteIndex, indexGroup, indexItem } from '../index.mjs';
 import { PARTS } from '../../stones/parts.mjs';
 import { PROJECTS, PUBLICATIONS } from '../../../site/content.mjs';
 
@@ -18,9 +18,14 @@ test('every item has a title, a hint and a destination, and no destination appea
   }
 });
 
-test('unlisted and private pages never appear in the index', () => {
-  const text = JSON.stringify(siteIndex());
-  for (const hidden of ['/choices', '/duke', '/hq', '/repolarisdm', '_private', 'holdout']) assert.ok(!text.includes(hidden), `${hidden} must stay out of the index`);
+test('unlisted pages never appear in the index', () => {
+  for (const item of items()) assert.ok(!isUnlisted(item.href), `${item.href} must stay out of the index`);
+  assert.deepEqual(UNLISTED_FOLDERS, ['choices', 'duke', 'hq', 'repolarisdm']);
+});
+
+test('the unlisted check reads destinations, not words: a post about Duke is not an unlisted page', () => {
+  for (const href of ['/duke/', '/duke', '/hq/', '/choices/#tree', '/repolarisdm/cards/', '/duke/becoming-blue/?x=1']) assert.ok(isUnlisted(href), href);
+  for (const href of ['/blog/duke-scai-hackathon/', '/blog/choices-i-made/', '/hqx/', '/about/', 'https://example.com/duke/', '/projects/#hq']) assert.ok(!isUnlisted(href), href);
 });
 
 test('the index covers the seven sections, every project and every publication', () => {

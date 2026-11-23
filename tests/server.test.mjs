@@ -53,6 +53,12 @@ test('answers a missing path with the site 404 page when there is one, as GitHub
     const plain = await fetch(origin + '/unknown-page');
     assert.equal(plain.status, 404);
     assert.equal(await plain.text(), 'Not found');
+    // A 404.html that points outside the served folder is never read.
+    await rm(join(site, '404.html'));
+    await symlink(join(folder, 'outside.txt'), join(site, '404.html'));
+    const escaped = await fetch(base + '/nothing-here/');
+    assert.equal(escaped.status, 404);
+    assert.equal(await escaped.text(), 'Not found');
   } finally {
     local.closeAllConnections();
     await new Promise(resolve => local.close(resolve));

@@ -40,6 +40,14 @@
     "photo": false
   },
   {
+    "name": "flash",
+    "match": { "paths": ["/flash/"] },
+    "label": "05 / Fun",
+    "title": "Flash",
+    "text": "Design a holographic foil card with live textures, colors, and reflections, then download an interactive card.",
+    "photo": false
+  },
+  {
     "name": "blog",
     "match": { "paths": ["/blog/"], "prefix": "/blog/" },
     "label": "06 / Blog",
@@ -77,6 +85,14 @@
     "label": "GitHub stars",
     "title": "GitHub stars, sorted",
     "text": "Repositories I have starred, sorted by what they are, then by what they do.",
+    "photo": false
+  },
+  {
+    "name": "research-stack",
+    "match": { "prefix": "/github/stars/research/" },
+    "label": "GitHub stars / Research Stack",
+    "title": "Research Stack",
+    "text": "A curated research toolkit, organized by workflow and discipline.",
     "photo": false
   },
   {

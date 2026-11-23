@@ -44,7 +44,8 @@ export async function createStaticServer(directory) {
     // GitHub Pages answers a missing path with the site's 404.html; do the same so the page can be seen locally.
     const notFound = async () => {
       try {
-        const page = resolve(root, '404.html');
+        const page = await realpath(resolve(root, '404.html'));
+        if (!page.startsWith(root + sep)) return fail(404, 'Not found');
         const info = await stat(page);
         if (!info.isFile()) return fail(404, 'Not found');
         res.writeHead(404, { 'Content-Type': mimeTypes['.html'], 'Content-Length': info.size, 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });

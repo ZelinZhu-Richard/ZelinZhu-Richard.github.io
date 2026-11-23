@@ -105,9 +105,10 @@ for (const file of ['art/index.html', 'fun/index.html', 'blog/index.html', 'blog
 for (const dir of ['now/', 'experiments/']) if ([...names].some(n => n.startsWith(dir))) errors.push(`Retired page still built: /${dir}`);
 for (const file of ['choices/index.html', 'choices/style.css', 'choices/tree.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 // The palette, the colophon it falls back to, the share cards and the feed.
-for (const file of ['palette/palette.js', 'palette/search.js', 'palette/notfound.js', 'palette/palette.css', 'palette/index.js', 'colophon/index.html', 'colophon/style.css', 'og/site.png', 'og/about.png', 'og/projects.png', 'og/research.png', 'og/fun.png', 'og/blog.png', 'og/daily.png', 'og/work.png', 'og/skills.png', 'og/stars.png', 'og/colophon.png', 'blog/feed.xml']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
-// The index the palette ships must never name an unlisted page (it is JavaScript, so the HTML link checks do not see it).
-if (/\/(?:choices|duke|hq|repolarisdm)\b/.test(documents.get('palette/index.js') || '')) errors.push('Unlisted page named in palette/index.js');
+for (const file of ['palette/palette.js', 'palette/search.js', 'palette/notfound.js', 'palette/palette.css', 'palette/index.js', 'colophon/index.html', 'colophon/style.css', 'og/site.png', 'og/about.png', 'og/projects.png', 'og/research.png', 'og/fun.png', 'og/flash.png', 'og/blog.png', 'og/daily.png', 'og/work.png', 'og/skills.png', 'og/stars.png', 'og/research-stack.png', 'og/colophon.png', 'blog/feed.xml']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+// The index the palette ships must never point at an unlisted page (it is JavaScript, so the HTML link checks do not
+// see it). Destinations only: a blog post may have "duke" in its title or slug.
+if (/"href":\s*"\/(?:choices|duke|hq|repolarisdm)(?:[\/?#"])/.test(documents.get('palette/index.js') || '')) errors.push('Unlisted page listed in palette/index.js');
 if (/data-stat="[^"]*">[^<0-9]/.test(documents.get('colophon/index.html') || '')) errors.push('Colophon numbers were not filled in');
 if (documents.get('sitemap.xml')?.includes('/hq/') || documents.get('robots.txt')?.includes('/hq/')) errors.push('Private page listed in sitemap or robots.txt: /hq/');
 for (const file of unlistedDukePages) if (!names.has(file)) errors.push(`Unlisted Duke page missing: ${file}`);

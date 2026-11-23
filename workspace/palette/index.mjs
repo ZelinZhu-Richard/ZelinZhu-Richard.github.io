@@ -9,8 +9,19 @@ import { checkPosts, formatDate, postPath } from '../blog/page.mjs';
 
 const num = i => String(i + 1).padStart(2, '0');
 
+/** Top-level folders that are built but never listed, linked or counted. */
+export const UNLISTED_FOLDERS = ['choices', 'duke', 'hq', 'repolarisdm'];
+/** True for an address inside one of them. It looks at the destination only: a post titled "Duke" is fine. */
+export const isUnlisted = href => new RegExp(`^/(?:${UNLISTED_FOLDERS.join('|')})(?:[/?#]|$)`).test(href);
+
 /** Groups in display order. Each item: { title, hint, href, label?, keywords?, external? }. */
 export function siteIndex() {
+  const groups = publicIndex();
+  for (const { items } of groups) for (const item of items) if (isUnlisted(item.href)) throw new Error(`Site index must not list the unlisted page ${item.href}`);
+  return groups;
+}
+
+function publicIndex() {
   const research = PROJECTS.filter(p => p.group === 'research');
   // Daily is a section already; the other on-site experiments open their own page.
   const experiments = PROJECTS.filter(p => p.group === 'site' && p.id !== 'daily');

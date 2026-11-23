@@ -34,7 +34,7 @@ const PAGE = `<!doctype html>
 </html>`;
 
 // The same strings tools/verify.mjs refuses in built files, plus the pages that must stay unlisted.
-const FORBIDDEN = [/\/Users\//, /https?:\/\/(?:localhost|127\.0\.0\.1):\d+/, /\/src\/main\.jsx/, /noomoagency\.com|hello@noomo|Noomo Agency Logo|\/cases\/|videos\/cases/, /noindex/, /\/choices|\/duke|\/hq|\/repolarisdm/];
+const FORBIDDEN = [/\/Users\//, /https?:\/\/(?:localhost|127\.0\.0\.1):\d+/, /\/src\/main\.jsx/, /noomoagency\.com|hello@noomo|Noomo Agency Logo|\/cases\/|videos\/cases/, /noindex/, /(?:href=|"href":\s*)"\/(?:choices|duke|hq|repolarisdm)(?:[\/?#"])/];
 
 const ITEMS = [
   { group: 'Sections', title: 'About', hint: 'Who I am, CV, contact, stars', href: '/about/', label: '01' },
@@ -631,6 +631,13 @@ test('every way out closes the dialog and puts the page back as it was', async t
   ui.input.dispatch('pointerdown');
   ui.dialog.click();
   assert.ok(ui.dialog.open, 'a text selection dragged out onto the backdrop');
+  // The second click of a double-click on Search lands on the backdrop; it must not shut what the first opened.
+  ui.dialog.dispatch('pointerdown');
+  ui.dialog.dispatch('click', { detail: 2 });
+  assert.ok(ui.dialog.open, 'the tail of a double-click');
+  // A held Enter repeats into the field; it must not open the first result.
+  press(ui.input, 'Enter', { repeat: true });
+  assert.ok(ui.dialog.open, 'a held Enter');
   ui.dialog.dispatch('pointerdown');
   ui.dialog.click();
   assert.deepEqual(closed(), [false, 'clip']);

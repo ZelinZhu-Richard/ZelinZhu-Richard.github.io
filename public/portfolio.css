@@ -81,8 +81,9 @@ h1 em,h2 em,h3 em{font-family:inherit;font-style:normal;color:inherit;letter-spa
 em{font-style:italic}
 h1,h2,h3{text-wrap:balance}
 p,li,dd,figcaption{text-wrap:pretty}
-/* A link inside running text is underlined, so it can be told apart from the text around it. */
-:where(main) :where(p,figcaption,dd)>a:where(:not([class])),:where(.blog-body) li>a:where(:not([class])){border-bottom:1px solid var(--faint)}
+/* A link inside running text is underlined, so it can be told apart from the text around it.
+   It is a text-decoration, not a border: a page that already underlines its links then keeps one line. */
+:where(main) :where(p,figcaption,dd)>a:where(:not([class])),:where(.blog-body) li>a:where(:not([class])){text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.22em;text-decoration-color:var(--faint)}
 /* Text for screen readers only (for example "opens in a new tab"). */
 .visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 
@@ -249,7 +250,7 @@ figcaption{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin
   .site-header nav a:hover,.footer-bottom a:hover,.related a:hover{color:var(--accent);border-color:var(--accent)}
   .footer-index a:hover{color:var(--ink);border-color:var(--ink)}
   .copy-button:hover{color:var(--ink);border-color:var(--ink)}
-  :where(main) :where(p,figcaption,dd)>a:where(:not([class])):hover{color:var(--accent);border-color:var(--accent)}
+  :where(main) :where(p,figcaption,dd)>a:where(:not([class])):hover,:where(.blog-body) li>a:where(:not([class])):hover{color:var(--accent);text-decoration-color:var(--accent)}
   .cite summary:hover{color:var(--ink);border-color:var(--ink)}
   .actions a:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow)}
   .actions a:first-child:hover{box-shadow:4px 4px 0 var(--accent)}
@@ -279,10 +280,10 @@ figcaption{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin
   .copy-button{padding:5px 10px;font-size:12px}
   .lost{font-size:13px}
 }
-/* Page to page: a short cross-fade with the header held still. Only when motion is welcome. */
+/* Page to page: a short cross-fade. Only when motion is welcome. The header is not given its own
+   transition name: that would make it a stacking context and put the tablet menu under page content. */
 @media(prefers-reduced-motion:no-preference){
   @view-transition{navigation:auto}
-  .site-header{view-transition-name:site-header}
   ::view-transition-old(root){animation:page-out .12s ease both}
   ::view-transition-new(root){animation:page-in .2s ease both}
 }
@@ -349,7 +350,9 @@ html[data-theme="paper"]{
 
 /* Printing: ink on white, without the menu or the controls. */
 @media print{
-  :root{color-scheme:light;--paper:#fff;--paper-2:#f2f1ec;--card:#fff;--ink:#161514;--muted:#57544e;--faint:#696660;--line:#d6d3ca;--accent:#b93c0b;--stage:#161514;--on-stage:#f4f3ee;--shadow:none}
+  :root{color-scheme:light;--paper:#fff;--paper-2:#f2f1ec;--card:#fff;--ink:#161514;--muted:#57544e;--faint:#696660;--line:#d6d3ca;--accent:#b93c0b;--stage:#fff;--on-stage:#161514;--shadow:none}
+  .actions a:first-child{background:none;color:var(--ink)}
+  .work-code figcaption{color:var(--muted);border-bottom-color:var(--line)}
   body{font-size:11pt}
   .skip-link,.menu-button,.site-header nav,.palette-button,.stone-next,.footer-index,.copy-button,.related,.bubble-sound{display:none!important}
   main,.site-header,.site-footer{width:100%}

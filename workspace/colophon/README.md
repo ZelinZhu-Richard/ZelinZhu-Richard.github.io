@@ -39,6 +39,6 @@ These are not tested. Check them by hand when the site changes:
 - "The site sets no cookies." No shipped file used the cookie API on 2026-11-23.
 - The Borrowed section follows `THIRD_PARTY.md` and `workspace/ascii-sharks/NOTICE.txt`. Update both together.
 
-The page never names an unlisted page. The figures count every built file, but only as totals.
+The page never names an unlisted page, and the figures leave the unlisted folders out: they count what a visitor can open.
 
 Run the tests with `node --test workspace/colophon/tests/colophon.test.mjs`.

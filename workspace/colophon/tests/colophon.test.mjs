@@ -72,7 +72,8 @@ test('Everything here lists every item of the site index once, with its destinat
   }
   assert.equal(count(everything, /aria-current="page"/g), 1, 'the page marks its own row');
   assert.match(everything, /<a href="\/colophon\/" aria-current="page">/);
-  assert.doesNotMatch(page, /undefined|\bnull\b|NaN|\[object /, 'no value was left unset');
+  // Checked on the page's own copy: an item's title or hint may well contain the word "null".
+  assert.doesNotMatch(colophonPage({ index: [] }), /undefined|\bnull\b|NaN|\[object /, 'no value was left unset');
 });
 
 test('the list is generated: a new index item becomes a row, escaped', () => {
@@ -113,7 +114,10 @@ test('the figures are the four placeholders, one each', () => {
 
 test('nothing the build forbids, and no unlisted page, is on the page or in its stylesheet', async () => {
   const css = await read('workspace/colophon/style.css');
-  const forbidden = ['/Users/', '/src/main.jsx', 'noomoagency.com', 'hello@noomo', 'Noomo Agency Logo', '/cases/', 'videos/cases', 'noindex', '/choices', '/duke', '/hq', 'repolarisdm', '_private', 'holdout'];
+  const forbidden = ['/Users/', '/src/main.jsx', 'noomoagency.com', 'hello@noomo', 'Noomo Agency Logo', '/cases/', 'videos/cases', 'noindex'];
+  // Unlisted pages are judged by destination, so a post called "Duke" does not fail this.
+  assert.doesNotMatch(page, /href="\/(?:choices|duke|hq|repolarisdm)(?:[\/?#"])/, 'no link to an unlisted page');
+  for (const word of ['/choices', '/duke', '/hq', 'repolarisdm']) assert.ok(!colophonPage({ index: [] }).includes(word) && !css.includes(word), `"${word}" must not appear in the page's own copy`);
   for (const text of [page, css, COLOPHON_DESCRIPTION]) {
     for (const word of forbidden) assert.ok(!text.includes(word), `"${word}" must not appear`);
     assert.doesNotMatch(text, /https?:\/\/(?:localhost|127\.0\.0\.1)/);
@@ -149,8 +153,13 @@ test('siteStats counts pages, files, size and dependencies of a built tree', asy
   await writeFile(join(site, 'about', 'style.css'), 'a{}');
   await writeFile(join(site, '.nojekyll'), '');
   await writeFile(join(site, 'models', 'scene.bin'), Buffer.alloc(1.5 * 1024 * 1024));
+  // The figures are what a visitor can open: an unlisted folder at the top level is left out, a folder of the same name deeper down is not.
+  await mkdir(join(site, 'hq'), { recursive: true });
+  await writeFile(join(site, 'hq', 'index.html'), 'x'.repeat(4 * 1024 * 1024));
+  await mkdir(join(site, 'about', 'duke'), { recursive: true });
+  await writeFile(join(site, 'about', 'duke', 'note.txt'), 'kept');
   await writeFile(join(dir, 'package.json'), JSON.stringify({ dependencies: { a: '1', b: '1' }, devDependencies: { c: '1' } }));
-  assert.deepEqual(await siteStats(site, { packageFile: join(dir, 'package.json') }), { pages: 2, files: 5, size: '1.5', deps: 3 });
+  assert.deepEqual(await siteStats(site, { packageFile: join(dir, 'package.json') }), { pages: 2, files: 6, size: '1.5', deps: 3 });
   assert.equal(countDependencies({}), 0);
   assert.equal(countDependencies({ dependencies: { a: '1' } }), 1);
 });
