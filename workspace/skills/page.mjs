@@ -4,6 +4,7 @@ const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', 
 
 export const skillsPage = `<div class="skills-page">
 <header class="page-intro skills-intro">
+<p class="eyebrow"><a href="/about/">About</a> · Skills</p>
 <h1>Agent skills</h1>
 <p class="lede">The AI agent skills I use, and the ones I create.</p>
 <nav class="actions" aria-label="On this page"><a href="#skills-i-use">Skills I use</a><a href="#skills-i-create">Skills I create</a></nav>
@@ -20,4 +21,5 @@ export const skillsPage = `<div class="skills-page">
 <h2 id="created-heading">Skills I create</h2>
 <p class="skill-empty">My own skills will appear here, with individual pages about how I design and test them.</p>
 </section>
+<aside class="related"><p>More</p><a href="/about/">About me</a><a href="/github/stars/">GitHub stars</a><a href="/github/stars/research/">Research Stack</a></aside>
 </div>`;

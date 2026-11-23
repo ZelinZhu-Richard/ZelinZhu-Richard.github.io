@@ -19,7 +19,7 @@ const PAGES = [
 export function next(index) {
   const n = PARTS[(index + 1) % PARTS.length];
   const p = PARTS[(index + PARTS.length - 1) % PARTS.length];
-  return `<nav class="stone-next" aria-label="Next part"><a class="next" href="${n.href}"><small>Next stone · ${num(PARTS.indexOf(n))} / 07</small><strong>${escape(n.title)} →</strong><em>${escape(n.subtitle)}</em></a><a class="prev" href="${p.href}">← ${escape(p.title)}</a></nav>`;
+  return `<nav class="stone-next" aria-label="Next part"><a class="next" href="${n.href}"><small>Next stone · ${num(PARTS.indexOf(n))} / ${num(PARTS.length - 1)}</small> <strong>${escape(n.title)} →</strong> <em>${escape(n.subtitle)}</em></a><a class="prev" href="${p.href}">← ${escape(p.title)}</a></nav>`;
 }
 
 let version = '';

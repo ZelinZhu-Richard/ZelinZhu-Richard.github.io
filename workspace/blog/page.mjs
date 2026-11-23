@@ -1,6 +1,10 @@
 // /blog/ index and /blog/<slug>/ post bodies. site/pages.mjs wraps them in the site frame.
+import { PARTS } from '../stones/parts.mjs';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// The index's eyebrow is the blog's place among the seven sections, as the menu numbers them ("06 / 07").
+const two = n => String(n).padStart(2, '0');
+const PLACE = `${two(PARTS.findIndex(p => p.id === 'blog') + 1)} / ${two(PARTS.length)}`;
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -34,9 +38,10 @@ export function blogIndex(posts) {
 </li>`).join('')}</ol>`
     : '<p class="blog-empty">No posts yet. The first ones are on the way.</p>';
   return `<section class="page-intro">
-<p class="eyebrow">Blog</p>
+<p class="eyebrow">${PLACE}</p>
 <h1>Blog</h1>
 <p class="lede">Notes on what I’m building and learning, written as I go.</p>
+<p class="blog-feed"><a href="/blog/feed.xml">RSS feed</a></p>
 </section>
 <section class="blog" aria-label="Posts">${rows}</section>`;
 }
@@ -49,6 +54,6 @@ export function blogPost(post) {
 <p class="lede">${escape(post.summary)}</p>
 </header>
 <div class="blog-body">${post.body}</div>
-<p class="blog-back"><a href="/blog/">← All posts</a></p>
+<p class="blog-back"><a href="/blog/">← All posts</a> <span class="blog-feed"><a href="/blog/feed.xml">RSS feed</a></span></p>
 </article>`;
 }

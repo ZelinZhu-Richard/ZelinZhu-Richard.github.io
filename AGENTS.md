@@ -31,6 +31,8 @@ Rules for AI agents (Codex, Claude Code) working in this repository. CLAUDE.md i
 - public/index.html (the captured, minified phoenix homepage) causes most conflicts. Only one branch may change it at a time. Before editing it, ask Richard whether another open branch touches it. Never hand-merge its minified lines.
 - After intentional changes to public/, run npm run manifest. Regenerate generated output instead of merging it.
 - New pages live in workspace/<name>/ with a build.mjs wired into tools/build.mjs (see workspace/video). Don't add new features under public/.
+- workspace/palette/index.mjs is the one list of public destinations: the command palette, the footer index and the Colophon all read it. Add a new public page there. Unlisted pages (/choices/, /duke/, /hq/) never go in it; its test and tools/verify.mjs check.
+- Share cards are committed PNGs in workspace/og/cards/, drawn by `npm run og` (local Python, Pillow, macOS fonts). CI only copies them. After adding a section page, add its card to workspace/og/cards.json and run the script.
 
 ## Web previews and testing
 - Use Codex's built-in browser (`iab` / `@Browser`) explicitly and show previews beside the chat. Use `open_in_codex` for preview URLs and artifacts when available.

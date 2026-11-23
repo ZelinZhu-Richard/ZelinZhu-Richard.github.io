@@ -82,6 +82,12 @@ for (const [file, text] of documents) {
       localReference(m[1], file);
       if (choicesLink(m[1], file)) errors.push(`Unlisted Choices page linked from ${file}`);
     }
+    // A share image on this site must be a file the build produced: a missing one shows as a blank link preview.
+    for (const [tag] of text.matchAll(/<meta\b[^>]*>/g)) {
+      if (!/["'](?:og:image|twitter:image)["']/.test(tag)) continue;
+      const image = /content=["']https:\/\/zelinzhu-richard\.github\.io\/([^"']+)["']/.exec(tag)?.[1];
+      if (image && !names.has(decodeURIComponent(image))) errors.push(`Missing share image /${image} in ${file}`);
+    }
   }
   if (file.endsWith('.css')) for (const m of text.matchAll(/url\(["']?([^"')\s]+)["']?\)/g)) localReference(m[1], file);
   if (file.endsWith('.js')) {
@@ -98,6 +104,11 @@ for (const file of ['art/index.html', 'fun/index.html', 'blog/index.html', 'blog
 // Now and Experiments were retired when the menu became About, Projects, Research, Art, Fun, Blog, Daily.
 for (const dir of ['now/', 'experiments/']) if ([...names].some(n => n.startsWith(dir))) errors.push(`Retired page still built: /${dir}`);
 for (const file of ['choices/index.html', 'choices/style.css', 'choices/tree.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+// The palette, the colophon it falls back to, the share cards and the feed.
+for (const file of ['palette/palette.js', 'palette/search.js', 'palette/notfound.js', 'palette/palette.css', 'palette/index.js', 'colophon/index.html', 'colophon/style.css', 'og/site.png', 'og/about.png', 'og/projects.png', 'og/research.png', 'og/fun.png', 'og/blog.png', 'og/daily.png', 'og/work.png', 'og/skills.png', 'og/stars.png', 'og/colophon.png', 'blog/feed.xml']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+// The index the palette ships must never name an unlisted page (it is JavaScript, so the HTML link checks do not see it).
+if (/\/(?:choices|duke|hq|repolarisdm)\b/.test(documents.get('palette/index.js') || '')) errors.push('Unlisted page named in palette/index.js');
+if (/data-stat="[^"]*">[^<0-9]/.test(documents.get('colophon/index.html') || '')) errors.push('Colophon numbers were not filled in');
 if (documents.get('sitemap.xml')?.includes('/hq/') || documents.get('robots.txt')?.includes('/hq/')) errors.push('Private page listed in sitemap or robots.txt: /hq/');
 for (const file of unlistedDukePages) if (!names.has(file)) errors.push(`Unlisted Duke page missing: ${file}`);
 if (documents.get('sitemap.xml')?.includes('/duke/')) errors.push('Unlisted Duke story listed in sitemap');

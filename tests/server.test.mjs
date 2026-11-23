@@ -35,6 +35,30 @@ test('serves real HTML routes and returns 404 for unknown routes', async () => {
   assert.equal(redirect.headers.get('location'), '/contacts/?from=menu');
   assert.equal((await fetch(origin + '/missing.js')).status, 404);
 });
+test('answers a missing path with the site 404 page when there is one, as GitHub Pages does', async () => {
+  const site = await mkdtemp(join(tmpdir(), 'site-404-'));
+  await writeFile(join(site, '404.html'), '<h1>Page not found</h1>');
+  const local = await createStaticServer(site);
+  await new Promise(resolve => local.listen(0, '127.0.0.1', resolve));
+  const base = `http://127.0.0.1:${local.address().port}`;
+  try {
+    const missing = await fetch(base + '/nothing-here/');
+    assert.equal(missing.status, 404);
+    assert.match(missing.headers.get('content-type'), /^text\/html/);
+    assert.match(await missing.text(), /Page not found/);
+    const head = await fetch(base + '/nothing.js', { method: 'HEAD' });
+    assert.equal(head.status, 404);
+    assert.equal(await head.text(), '');
+    // Without a 404.html the answer stays plain text.
+    const plain = await fetch(origin + '/unknown-page');
+    assert.equal(plain.status, 404);
+    assert.equal(await plain.text(), 'Not found');
+  } finally {
+    local.closeAllConnections();
+    await new Promise(resolve => local.close(resolve));
+    await rm(site, { recursive: true });
+  }
+});
 test('uses WebAssembly MIME type and supports media byte ranges', async () => {
   const result = await fetch(origin + '/scene.wasm', { headers: { Range: 'bytes=2-5' } });
   assert.equal(result.status, 206);

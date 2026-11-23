@@ -34,7 +34,7 @@
 .bubble-sound:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:900px){
   /* Rows stack: the bubbles get a short strip under the entry instead of the margin. */
-  .experience ol>li.has-bubbles{grid-template-rows:none}
+  .experience ol>li.has-bubbles{grid-template-columns:1fr;grid-template-rows:none;gap:6px}
   .experience ol>li.has-bubbles>span,.experience ol>li.has-bubbles>div:not(.bubble-field),.bubble-field{grid-column:1;grid-row:auto}
   .bubble-field{min-height:120px}
 }

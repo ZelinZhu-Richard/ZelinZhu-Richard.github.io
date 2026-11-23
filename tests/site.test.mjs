@@ -41,7 +41,10 @@ test('the menu is the seven sections, and Now and Experiments are gone', async (
   assert.deepEqual(PARTS.map(p => p.title), ['About', 'Projects', 'Research', 'Art', 'Fun', 'Blog', 'Daily']);
   assert.deepEqual(panels().map(p => p.id), PARTS.map(p => p.id));
   for (const [path, owner] of [['/video/', 'art'], ['/gym/', 'fun'], ['/flash/', 'fun'], ['/skills/', 'about'], ['/blog/first/', 'blog']]) assert.equal(ownerOf(path), owner, path);
-  assert.match(stoneNav('/video/'), /<a href="\/art\/" aria-current="page">/);
+  // The section's own page is the current page; a page inside the section marks it as the current section.
+  assert.match(stoneNav('/art/'), /<a href="\/art\/" aria-current="page">/);
+  assert.match(stoneNav('/video/'), /<a href="\/art\/" aria-current="true">/);
+  assert.equal(stoneNav('/video/').match(/aria-current/g).length, 1);
   const output = pages();
   for (const file of ['art/index.html', 'fun/index.html', 'blog/index.html']) assert.ok(output.get(file), `Missing ${file}`);
   for (const file of ['now/index.html', 'experiments/index.html']) assert.ok(!output.has(file), `${file} should not be built`);

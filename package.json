@@ -11,10 +11,11 @@
     "dev": "npm run build && node tools/serve.mjs dist",
     "build": "node tools/build.mjs",
     "preview": "node tools/serve.mjs dist --port 4173",
-    "test": "node --test tests/*.test.mjs workspace/flash/tests/*.test.mjs workspace/ppiano/tests/*.test.mjs workspace/gym/tests/*.test.mjs workspace/domainexp/tests/*.test.mjs workspace/repolarisdm/tests/*.test.mjs workspace/blog/tests/*.test.mjs workspace/tag-bubbles/tests/*.test.mjs workspace/daily/tests/*.test.mjs workspace/hq/tests/*.test.mjs workspace/ascii-sharks/tests/*.test.mjs workspace/github-stars/tests/*.test.mjs workspace/duke-stories/tests/*.test.mjs",
+    "test": "node --test tests/*.test.mjs workspace/flash/tests/*.test.mjs workspace/ppiano/tests/*.test.mjs workspace/gym/tests/*.test.mjs workspace/domainexp/tests/*.test.mjs workspace/repolarisdm/tests/*.test.mjs workspace/blog/tests/*.test.mjs workspace/tag-bubbles/tests/*.test.mjs workspace/daily/tests/*.test.mjs workspace/hq/tests/*.test.mjs workspace/ascii-sharks/tests/*.test.mjs workspace/github-stars/tests/*.test.mjs workspace/duke-stories/tests/*.test.mjs workspace/palette/tests/*.test.mjs workspace/og/tests/*.test.mjs workspace/colophon/tests/*.test.mjs workspace/cite/tests/*.test.mjs",
     "test:db": "node --test workspace/daily/supabase/tests/*.test.mjs",
     "verify": "node tools/verify.mjs dist",
     "manifest": "node tools/manifest.mjs",
+    "og": "python3 workspace/og/make_cards.py",
     "stars:sync": "node workspace/github-stars/scripts/sync-stars.mjs",
     "research:sync": "node workspace/github-stars/scripts/sync-research.mjs"
   }
