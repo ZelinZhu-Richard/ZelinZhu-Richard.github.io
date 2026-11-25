@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engine harness</title>
+<link rel="icon" href="data:,">
+<!--
+  The real engine (engine/index.js) without Nuxt. Served from workspace/home:
+    npm run sketches   ->   http://127.0.0.1:8210/sketches/engine/
+  URL:
+    ?u=<0..20>          jump to story time u (the page scrolls there)
+    ?still=1&u=<u>      deterministic still: fixed time, no spring; sets window.__SKETCH_READY__
+                        and <html data-u> once every act in the frame is loaded and drawn
+    ?tier=<0..3>        fix the quality tier (else auto: detect + governor)
+    ?quality=<q>        auto | high | medium | low (the app's words)
+    ?act=<id>           draw one act alone at every u: plate | gears | room | space
+    ?mode=contact       contact mode (the /contacts/ page)
+    ?nomotion=1         reduced motion
+    ?notext=1 or ?panel=0   no readout
+    ?labels=1           debug overlay: the seven stone labels from 'stones:screen', placed by
+                        app/utils/stones.js as the page would (sphere, pick circle, leader);
+                        &labeltop=<px> keeps a header band clear, like the page's masthead
+  Keys: [ and ] step a section, space toggles the readout, l toggles the labels overlay.
+-->
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+<style>
+  :root { --night: #100f15; --ink: #ece9e1; --muted: #a8a398; --faint: #7a766d; --mono: ui-monospace, "SF Mono", Menlo, monospace; }
+  html { background: var(--night); color: var(--ink); }
+  body { margin: 0; font-family: var(--mono); }
+  #scene { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: pan-y; }
+  #track { position: relative; width: 1px; pointer-events: none; }
+  html.still, html.still body { overflow: hidden; }
+  html.still #track { display: none; }
+  #status { position: fixed; left: 16px; top: 14px; z-index: 40; margin: 0; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); pointer-events: none; }
+  #sound { position: fixed; left: 16px; bottom: 14px; z-index: 40; font: 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); background: rgba(236, 233, 225, 0.06); border: 1px solid rgba(236, 233, 225, 0.18); border-radius: 4px; padding: 4px 9px; cursor: pointer; }
+  #sound[aria-pressed="true"] { color: #39f0a6; border-color: rgba(57, 240, 166, 0.5); }
+  html.notext #status, html.notext #sound { display: none; }
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div id="track"></div>
+<p id="status">loading</p>
+<button id="sound" type="button" aria-pressed="false">sound</button>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+{
+  "sourceHash": "e9b9a2f72880b4fa689bc2080829d608877e4139a7a306845a8283ae3e186088",
+  "files": [
+    {
+      "file": "_home/2lhIWNuU.js",
+      "bytes": 345231,
+      "sha256": "dab91069cbc7d4c8063e96b7ea4ce390964923257377639e99b6bec79c5f2347"
+    },
+    {
+      "file": "_home/8KqU6koG.js",
+      "bytes": 18251,
+      "sha256": "1e46b4bd41dcc791de29e50759c5a0e236d4803287d6952bc1f6d56307c82f2e"
+    },
+    {
+      "file": "_home/BN1BVf6l.js",
+      "bytes": 1190,
+      "sha256": "7059c5d38e9d467af915fc57f9251b6ef2f9c99c0e76bd66407476d463ac1cb2"
+    },
+    {
+      "file": "_home/BXVCrNr1.js",
+      "bytes": 31648,
+      "sha256": "780cf8eae4b2f4a695b2043b9f87dced14121de78f35d87bf773fd7f51b95e2a"
+    },
+    {
+      "file": "_home/BvHoeUnW.js",
+      "bytes": 187,
+      "sha256": "af1bec62f62b12241a94990712cb8e178fc507482a9ac762d210ec7a2a3ada23"
+    },
+    {
+      "file": "_home/C2W12wA9.js",
+      "bytes": 70358,
+      "sha256": "2e1be7736880b4822ce3906839858ee256a2f2c8d09bbd3f0a1ccc3ea1696a4d"
+    },
+    {
+      "file": "_home/C6h_i1sO.js",
+      "bytes": 14738,
+      "sha256": "78b359abe4171cd62a90b635a66045c42d123d5f5476bb38767574aea11ed83d"
+    },
+    {
+      "file": "_home/Cj1qdSbn.js",
+      "bytes": 84487,
+      "sha256": "85928dfef224020f9fd8c91d87937111a5cebe0c389f51dcbd0cb80e831a65a4"
+    },
+    {
+      "file": "_home/Cn2D76XX.js",
+      "bytes": 1435,
+      "sha256": "0c3d6de3818c431fd3bf2f001eb65aaf086f83a5c90618c24f0ed14658770883"
+    },
+    {
+      "file": "_home/DS5lkNyj.js",
+      "bytes": 7348,
+      "sha256": "0b6c74855a6fd793274a7a2153e7c2869ba0e0f4ed090820b54070ffe31190a5"
+    },
+    {
+      "file": "_home/Dg2oAicK.js",
+      "bytes": 42839,
+      "sha256": "984c097f0eefe9308bd44b861f8a1abc33da1ee06a97ef944a9421be7bd41c18"
+    },
+    {
+      "file": "_home/DikQJ68l.js",
+      "bytes": 1963,
+      "sha256": "dfe0b2eb0a1a2c2fed3fb4e08b45cb3753bef8ae4b02f14ca4c135e4d8be3790"
+    },
+    {
+      "file": "_home/Mg8hIpkM.js",
+      "bytes": 90163,
+      "sha256": "1397574b51f56fe9ee0bda488c50e4514e5f09dcd0a9cb0579bd05981466cfd6"
+    },
+    {
+      "file": "_home/entry.BnhMcOyD.css",
+      "bytes": 18009,
+      "sha256": "046be9db126cf245969a3dc5f5d526eba39fccf903d5415cd73658da204e5a05"
+    },
+    {
+      "file": "_home/three.CPnJMia8.js",
+      "bytes": 815581,
+      "sha256": "8d08ce66123a8ce5b2e92c7b371071c828a81d542fb6803e68c6b405a33f7055"
+    },
+    {
+      "file": "contacts/index.html",
+      "bytes": 6155,
+      "sha256": "987f99fc17c96e9818023f41f938355d152f2124da5cff7d0157aed21968cc40"
+    },
+    {
+      "file": "home-assets/room/manifest.json",
+      "bytes": 21074,
+      "sha256": "2c4c9e21db3075a946692c58291079c4cc75ba5d883534817f0147601466ab16"
+    },
+    {
+      "file": "home-assets/room/room-desktop.glb",
+      "bytes": 2328848,
+      "sha256": "4d1e8fd561a54d7f238cec05bc4937dfbb80bf896455d172d9d6bede7f1f6eea"
+    },
+    {
+      "file": "home-assets/room/room-phone.glb",
+      "bytes": 1727024,
+      "sha256": "d70e49083743069c9b2653f5160ed3747ae30387798be1b231e1c212601f1efa"
+    },
+    {
+      "file": "index.html",
+      "bytes": 16380,
+      "sha256": "4f6e12030c581d6a9e15559b3fd965da8e37bb47087c7d385460c1a03c247b2c"
+    }
+  ]
+}

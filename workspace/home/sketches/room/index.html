@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The room: live look test</title>
+<link rel="icon" href="data:,">
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+<style>
+  :root {
+    --night: #0b0a14;
+    --ink: #ece9e1;
+    --muted: #a8a398;
+    --faint: #7a766d;
+    --serif: "Iowan Old Style", Charter, Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --gx: 7.4vw;
+  }
+  html, body { margin: 0; height: 100%; background: var(--night); overflow: hidden; }
+  body { color: var(--ink); font-family: var(--serif); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  #scene { position: fixed; left: 0; top: 0; display: block; touch-action: none; }
+  #copy { position: fixed; inset: 0; pointer-events: none; transition: opacity 0.5s ease; }
+  #copy.fade { opacity: 0; }
+  /* hidden, not removed, so the scrim under the type stays where it was */
+  html.notext #copy { visibility: hidden; }
+  #status { position: fixed; left: var(--gx); bottom: 6vh; margin: 0; font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--faint); }
+
+  .block { position: absolute; text-shadow: 0 1px 22px rgba(8, 7, 14, 0.55); }
+  .kicker { margin: 0 0 16px; font-family: var(--mono); font-size: 11px; line-height: 1.4; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+  .display, .head { margin: 0; font-family: var(--serif); font-weight: 400; font-style: normal; letter-spacing: -0.012em; color: var(--ink); }
+  .display { font-size: clamp(32px, 3.4vw, 52px); line-height: 1.04; }
+  .head { font-size: clamp(30px, 3.0vw, 46px); line-height: 1.05; }
+  .display em, .head em { font-style: italic; }
+  .body { margin: 14px 0 0; font-family: var(--serif); font-size: 19px; line-height: 1.5; color: var(--muted); }
+
+  /* ------------------------------------------- wide windows: quiet areas of each Blender framing */
+  html[data-layout="land"] .block[data-place="wide"] { left: var(--gx); top: 13vh; }
+  html[data-layout="land"] .block[data-place="desk"] { left: 65vw; bottom: 7vh; }
+  html[data-layout="land"] .block[data-place="instrument"] { left: 66vw; bottom: 10vh; }
+  html[data-layout="land"] .block[data-place="bed"] { left: 4.5vw; top: 5vh; }
+  html[data-layout="land"] .block[data-place="wall"] { left: 3.4vw; bottom: 5vh; }
+  html[data-layout="land"] .block[data-place="screens"] { left: var(--gx); top: 9vh; }
+
+  /* ------------------------------------------------ narrow windows: a band above or below the subject */
+  html[data-layout="port"] { --gx: 7vw; }
+  html[data-layout="port"] .block { left: var(--gx); right: var(--gx); }
+  html[data-layout="port"] .block[data-place="top"] { top: 6vh; }
+  html[data-layout="port"] .block[data-place="bottom"] { bottom: 6vh; }
+  html[data-layout="port"] .kicker { margin-bottom: 12px; font-size: 10px; letter-spacing: 0.18em; }
+  html[data-layout="port"] .display { font-size: 8.6vw; line-height: 1.06; }
+  html[data-layout="port"] .head { font-size: 7.6vw; line-height: 1.06; }
+  html[data-layout="port"] .body { margin-top: 10px; font-size: 15.5px; line-height: 1.46; }
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div id="copy"></div>
+<p id="status">Loading the room</p>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

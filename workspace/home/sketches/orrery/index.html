@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Instrument</title>
+<link rel="icon" href="data:,">
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+<style>
+  :root {
+    --night: #100f15;
+    --stage: #08070b;
+    --ink: #ece9e1;
+    --muted: #a8a398;
+    --faint: #7a766d;
+    --line: #2d2b34;
+    --accent: #e8743b;
+    --serif: "Iowan Old Style", Charter, Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --gx: 7.4vw;
+  }
+  html, body { margin: 0; height: 100%; background: var(--night); overflow: hidden; }
+  body { color: var(--ink); font-family: var(--serif); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  #c { position: fixed; left: 0; top: 0; display: block; }
+  #overlay { position: fixed; inset: 0; pointer-events: none; }
+  html.notext #overlay { display: none; }
+
+  .block { position: absolute; }
+  .display { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 400; line-height: 0.98; letter-spacing: -0.012em; color: var(--ink); }
+  .display.roman { font-style: normal; }
+  .display em { font-style: italic; }
+  .mono { font-family: var(--mono); font-size: 11px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.22em; color: var(--muted); margin: 0; }
+  .body { margin: 0; font-family: var(--serif); font-size: 19px; line-height: 1.52; color: var(--muted); max-width: 23em; }
+  .rule { display: inline-block; width: 34px; height: 1px; background: var(--faint); vertical-align: middle; }
+
+  /* hero */
+  .name { font-size: clamp(60px, 8.4vw, 132px); letter-spacing: -0.018em; line-height: 0.92; }
+  .line { margin-top: 1.9em; }
+  .scroll { position: absolute; display: flex; align-items: center; gap: 14px; }
+
+  /* repeat */
+  .bigword { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-52%); text-align: center; font-size: 24vw; line-height: 0.8; letter-spacing: -0.035em; }
+
+  /* stone */
+  .xl { font-size: clamp(76px, 10vw, 150px); letter-spacing: -0.02em; }
+  .cue { display: flex; align-items: center; gap: 14px; color: var(--ink); }
+  .cue .rule { width: 46px; background: var(--ink); opacity: 0.7; }
+
+  /* contact */
+  .links { display: flex; flex-wrap: wrap; gap: 12px 34px; color: var(--ink); }
+  .links a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+
+  /* stone labels */
+  .label { position: absolute; white-space: nowrap; color: var(--ink); font-size: 11px; letter-spacing: 0.2em; }
+  .label .n { color: var(--faint); margin-right: 0.9em; }
+  .leaders { position: absolute; left: 0; top: 0; overflow: visible; }
+  .leaders line { stroke: var(--faint); stroke-width: 1; shape-rendering: geometricPrecision; }
+
+  /* wide windows */
+  html[data-layout="land"][data-frame="hero"] .block { left: var(--gx); top: 43vh; }
+  html[data-layout="land"][data-frame="hero"] .scroll { left: var(--gx); top: 74vh; }
+  html[data-layout="land"][data-frame="experiments"] .block { left: var(--gx); top: 37vh; }
+  html[data-layout="land"][data-frame="experiments"] .display { font-size: clamp(38px, 4.6vw, 70px); line-height: 1.04; }
+  html[data-layout="land"][data-frame="research"] .block { left: var(--gx); top: 35vh; width: 36vw; }
+  html[data-layout="land"][data-frame="research"] .display { font-size: clamp(38px, 4.3vw, 64px); line-height: 1.02; }
+  html[data-layout="land"][data-frame="research"] .body { margin-top: 26px; }
+  html[data-layout="land"][data-frame="stone"] .block { left: var(--gx); top: 32vh; }
+  html[data-layout="land"][data-frame="stone"] .body { margin-top: 18px; font-size: 21px; }
+  html[data-layout="land"][data-frame="stone"] .cue { margin-top: 40px; }
+  html[data-layout="land"][data-frame="contact"] .block { left: var(--gx); top: 35vh; }
+  html[data-layout="land"][data-frame="contact"] .display { font-size: clamp(36px, 4.3vw, 64px); line-height: 1.06; }
+  html[data-layout="land"][data-frame="contact"] .links { margin-top: 44px; }
+
+  /* narrow windows */
+  html[data-layout="port"] { --gx: 7vw; }
+  html[data-layout="port"] .label { font-size: 10px; letter-spacing: 0.16em; }
+  html[data-layout="port"][data-frame="hero"] .block { left: var(--gx); right: var(--gx); top: 9.5vh; }
+  html[data-layout="port"][data-frame="hero"] .name { font-size: 15.4vw; }
+  html[data-layout="port"][data-frame="hero"] .line { margin-top: 1.5em; font-size: 10px; letter-spacing: 0.18em; }
+  html[data-layout="port"][data-frame="hero"] .scroll { left: var(--gx); bottom: 5vh; }
+  html[data-layout="port"][data-frame="experiments"] .block { left: var(--gx); right: var(--gx); top: 9vh; }
+  html[data-layout="port"][data-frame="experiments"] .display { font-size: 10.6vw; line-height: 1.06; }
+  html[data-layout="port"][data-frame="research"] .block { left: var(--gx); right: var(--gx); top: 8vh; }
+  html[data-layout="port"][data-frame="research"] .display { font-size: 9.6vw; line-height: 1.02; }
+  html[data-layout="port"][data-frame="research"] .body { margin-top: 18px; font-size: 17px; }
+  html[data-layout="port"][data-frame="stone"] .block { left: var(--gx); right: var(--gx); top: 8vh; }
+  html[data-layout="port"][data-frame="stone"] .xl { font-size: 19vw; }
+  html[data-layout="port"][data-frame="stone"] .body { margin-top: 12px; font-size: 17px; }
+  html[data-layout="port"][data-frame="stone"] .cue { margin-top: 26px; }
+  html[data-layout="port"][data-frame="contact"] .block { left: var(--gx); right: var(--gx); top: 8vh; }
+  html[data-layout="port"][data-frame="contact"] .display { font-size: 8.4vw; line-height: 1.08; }
+  html[data-layout="port"][data-frame="contact"] .links { margin-top: 28px; gap: 12px 26px; }
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<div id="overlay"></div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Instrument: storyboard</title>
+<link rel="icon" href="data:,">
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+<style>
+  :root {
+    --night: #100f15;
+    --stage: #08070b;
+    --ink: #ece9e1;
+    --muted: #a8a398;
+    --faint: #7a766d;
+    --line: #2d2b34;
+    --accent: #e8743b;
+    --serif: "Iowan Old Style", Charter, Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+    --gx: 7.4vw;
+  }
+  html, body { margin: 0; height: 100%; background: var(--night); overflow: hidden; }
+  body { color: var(--ink); font-family: var(--serif); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  #c { position: fixed; left: 0; top: 0; display: block; }
+  #overlay { position: fixed; inset: 0; pointer-events: none; }
+  /* hidden, not removed, so the stars keep the same quiet zones */
+  html.notext #overlay { visibility: hidden; }
+
+  .block { position: absolute; }
+  .display { margin: 0; font-family: var(--serif); font-style: italic; font-weight: 400; line-height: 0.98; letter-spacing: -0.012em; color: var(--ink); }
+  .display.roman { font-style: normal; }
+  .display em { font-style: italic; }
+  .mono { font-family: var(--mono); font-size: 11px; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.22em; color: var(--muted); margin: 0; }
+  .body { margin: 0; font-family: var(--serif); font-size: 19px; line-height: 1.52; color: var(--muted); max-width: 23em; }
+  .rule { display: inline-block; width: 34px; height: 1px; background: var(--faint); vertical-align: middle; }
+
+  .name { font-size: clamp(60px, 8.4vw, 132px); letter-spacing: -0.018em; line-height: 0.92; }
+  .line { margin-top: 1.9em; }
+  .scroll { position: absolute; display: flex; align-items: center; gap: 14px; }
+  .bigword { line-height: 0.8; letter-spacing: -0.03em; }
+  .xl { font-size: clamp(76px, 10vw, 150px); letter-spacing: -0.02em; }
+  .cue { display: flex; align-items: center; gap: 14px; color: var(--ink); }
+  .cue .rule { width: 46px; background: var(--ink); opacity: 0.7; }
+  .links { display: flex; flex-wrap: wrap; gap: 12px 34px; color: var(--ink); }
+  .links a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+
+  /* the plate's drafting notes and the stones' labels */
+  .callout { position: absolute; white-space: nowrap; font-size: 10px; letter-spacing: 0.16em; color: var(--muted); line-height: 1.2; }
+  /* notes in the notebook: lower-case mono italic, set a touch off-level */
+  .callout.hand { font-family: var(--mono); font-size: 13px; font-style: italic; letter-spacing: 0.02em; line-height: 1.35; text-transform: none; color: #d8d4ca; transform: rotate(-2.5deg); transform-origin: left bottom; }
+  /* the stones' labels: full ink over the sky, a soft dark halo under the
+     letters (the sky is also quieted under each label, see finish.js) */
+  .label { position: absolute; white-space: nowrap; color: var(--ink); font-size: 12.5px; line-height: 1.4; letter-spacing: 0.18em; text-shadow: 0 0 2px rgba(9, 8, 16, 0.9), 0 0 7px rgba(9, 8, 16, 0.75); }
+  .label .n { color: var(--ink); margin-right: 0.9em; }
+  .leaders { position: absolute; left: 0; top: 0; overflow: visible; }
+  .leaders line { stroke: var(--ink); stroke-opacity: 0.78; stroke-width: 1; shape-rendering: geometricPrecision; }
+  .leaders circle { fill: var(--ink); }
+
+  /* ---------------------------------------------------- wide windows --- */
+  html[data-layout="land"][data-frame="point"] .block { left: var(--gx); top: 41vh; }
+  html[data-layout="land"][data-frame="point"] .scroll { left: var(--gx); top: 74vh; }
+  html[data-layout="land"][data-frame="plate"] .block { left: var(--gx); top: 36vh; width: 27vw; }
+  html[data-layout="land"][data-frame="plate"] .display { font-size: clamp(30px, 3vw, 46px); line-height: 1.08; }
+  html[data-layout="land"][data-frame="lift"] .block { left: var(--gx); top: 34vh; }
+  html[data-layout="land"][data-frame="lift"] .display { font-size: clamp(32px, 3.4vw, 52px); line-height: 1.05; }
+  html[data-layout="land"][data-frame="inside"] .bigword { left: var(--gx); bottom: 9vh; font-size: clamp(110px, 12.5vw, 196px); }
+  html[data-layout="land"][data-frame="falsespace"] .block { left: var(--gx); top: 34vh; }
+  html[data-layout="land"][data-frame="falsespace"] .display { font-size: clamp(30px, 3.2vw, 48px); line-height: 1.08; }
+  html[data-layout="land"][data-frame="desk"] .block { left: var(--gx); bottom: 4.5vh; }
+  html[data-layout="land"][data-frame="desk"] .display { font-size: clamp(30px, 3.2vw, 46px); line-height: 1.04; }
+  html[data-layout="land"][data-frame="object-scale"] .block { left: 61vw; top: 10vh; }
+  html[data-layout="land"][data-frame="object-scale"] .display { font-size: clamp(40px, 4.6vw, 68px); line-height: 1.0; }
+  html[data-layout="land"][data-frame="dissolve"] .block { left: var(--gx); bottom: 4.5vh; }
+  html[data-layout="land"][data-frame="dissolve"] .display { font-size: clamp(30px, 3.2vw, 46px); line-height: 1.04; }
+  html[data-layout="land"][data-frame="final-hover"] .block { left: var(--gx); bottom: 8vh; }
+  html[data-layout="land"][data-frame="final-hover"] .body { margin-top: 14px; font-size: 21px; }
+  html[data-layout="land"][data-frame="final-hover"] .cue { margin-top: 30px; }
+  html[data-layout="land"][data-frame="contact"] .block { left: var(--gx); top: 35vh; }
+  html[data-layout="land"][data-frame="contact"] .display { font-size: clamp(34px, 3.9vw, 58px); line-height: 1.06; }
+  html[data-layout="land"][data-frame="contact"] .links { margin-top: 44px; }
+
+  /* -------------------------------------------------- narrow windows --- */
+  html[data-layout="port"] { --gx: 7vw; }
+  html[data-layout="port"] .label { font-size: 12px; letter-spacing: 0.14em; }
+  html[data-layout="port"] .callout { font-size: 9px; letter-spacing: 0.14em; }
+  html[data-layout="port"] .callout.hand { font-size: 12px; letter-spacing: 0.01em; }
+  html[data-layout="port"][data-frame="point"] .block { left: var(--gx); right: var(--gx); top: 9.5vh; }
+  html[data-layout="port"][data-frame="point"] .name { font-size: 15.4vw; }
+  html[data-layout="port"][data-frame="point"] .line { margin-top: 1.5em; font-size: 10px; letter-spacing: 0.18em; }
+  html[data-layout="port"][data-frame="point"] .scroll { left: var(--gx); bottom: 5vh; }
+  html[data-layout="port"][data-frame="plate"] .block { left: var(--gx); right: var(--gx); top: 7vh; }
+  html[data-layout="port"][data-frame="plate"] .display { font-size: 8vw; line-height: 1.08; }
+  html[data-layout="port"][data-frame="lift"] .block { left: var(--gx); right: var(--gx); top: 7vh; }
+  html[data-layout="port"][data-frame="lift"] .display { font-size: 8.6vw; line-height: 1.06; }
+  html[data-layout="port"][data-frame="inside"] .bigword { left: var(--gx); top: 6vh; font-size: 24vw; }
+  html[data-layout="port"][data-frame="falsespace"] .block { left: var(--gx); right: var(--gx); top: 8vh; }
+  html[data-layout="port"][data-frame="falsespace"] .display { font-size: 7.6vw; line-height: 1.08; }
+  html[data-layout="port"][data-frame="desk"] .block { left: var(--gx); right: var(--gx); top: 7vh; }
+  html[data-layout="port"][data-frame="desk"] .display { font-size: 8.4vw; line-height: 1.06; }
+  html[data-layout="port"][data-frame="object-scale"] .block { left: var(--gx); right: var(--gx); top: 7vh; }
+  html[data-layout="port"][data-frame="object-scale"] .display { font-size: 9.6vw; line-height: 1.02; }
+  html[data-layout="port"][data-frame="dissolve"] .block { left: var(--gx); right: var(--gx); top: 7vh; }
+  html[data-layout="port"][data-frame="dissolve"] .display { font-size: 8vw; line-height: 1.06; }
+  html[data-layout="port"][data-frame="final-hover"] .block { left: var(--gx); right: var(--gx); top: 6vh; }
+  html[data-layout="port"][data-frame="final-hover"] .xl { font-size: 19vw; }
+  html[data-layout="port"][data-frame="final-hover"] .body { margin-top: 10px; font-size: 17px; }
+  html[data-layout="port"][data-frame="final-hover"] .cue { margin-top: 22px; }
+  html[data-layout="port"][data-frame="contact"] .block { left: var(--gx); right: var(--gx); top: 8vh; }
+  html[data-layout="port"][data-frame="contact"] .display { font-size: 7.6vw; line-height: 1.08; }
+  html[data-layout="port"][data-frame="contact"] .links { margin-top: 26px; gap: 12px 26px; }
+</style>
+</head>
+<body>
+<canvas id="c" aria-hidden="true"></canvas>
+<div id="overlay"></div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>
