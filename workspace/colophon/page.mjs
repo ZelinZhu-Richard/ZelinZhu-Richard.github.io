@@ -43,7 +43,7 @@ const CREDITS = [
   },
   {
     name: 'The sharks',
-    text: 'The ASCII sharks behind every page are stackedlol/ascii-sharks, vendored and adapted: a pause button, a lower rendering cost and no grid lines.',
+    text: 'The ASCII sharks behind most pages are stackedlol/ascii-sharks, vendored and adapted: a pause button, a lower rendering cost and no grid lines.',
     links: [['https://github.com/stackedlol/ascii-sharks', 'ascii-sharks']],
   },
   {

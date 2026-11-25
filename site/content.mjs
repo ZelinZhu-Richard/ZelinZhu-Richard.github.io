@@ -17,6 +17,11 @@ export const ABOUT = {
   ],
 };
 
+// What Richard researches, in his words (shown at the top of Research).
+export const RESEARCH = {
+  interests: ['Machine learning', 'Statistics', 'AI evaluation'],
+};
+
 // Papers and posters, newest first. Shown under Research.
 export const PUBLICATIONS = [
   {
@@ -35,7 +40,8 @@ export const EXPERIENCE = [
     title: 'Machine Learning Research',
     org: 'UNC PRIMES',
     desc: 'Selected for UNC PRIMES (Program for Research in Image Processing and Machine learning for Emerging Scholars). I build and train deep learning models on brain imaging data.',
-    tags: ['Deep Learning', 'Computer Vision', 'Neuroscience'],
+    // Machine learning on images: the field is ML, the data is brain images (not neuroscience as a field).
+    tags: ['Deep Learning', 'Computer Vision', 'Brain Images'],
   },
   // ZeroMind has no public link yet. Experience rows carry no links, and it is not in PROJECTS (which needs one).
   {

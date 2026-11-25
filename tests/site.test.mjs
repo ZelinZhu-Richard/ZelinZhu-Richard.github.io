@@ -146,10 +146,38 @@ test('Research has an Experience section with only research roles, and a Publica
   assert.ok(experience.includes('UNC PRIMES'));
   for (const x of EXPERIENCE.filter(x => x.org !== 'UNC PRIMES')) assert.ok(!experience.includes(x.title), `${x.title} is not a research role`);
   assert.ok(PUBLICATIONS.length >= 1);
-  for (const p of PUBLICATIONS) {
-    assert.ok(html.includes(p.title.replace(/&/g, '&amp;')));
-    assert.ok(html.includes(`href="${p.href}"`));
-  }
+  const text = fragment => fragment.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+  const plates = html.split('<li class="plate">').slice(1).map(rest => rest.slice(0, rest.indexOf('\n</li>')));
+  assert.equal(plates.length, PUBLICATIONS.length, 'one plate per publication');
+  PUBLICATIONS.forEach((p, i) => {
+    const plate = plates[i];
+    // The title is on the page as a heading (split at its colon only by markup), with its venue, authors, link and BibTeX.
+    assert.equal(text(plate.match(/<h3 class="plate-title">([\s\S]*?)<\/h3>/)[1]), p.title);
+    for (const fact of [p.kind, p.venue, p.authors, p.when]) assert.ok(text(plate).includes(fact), `${p.title}: ${fact}`);
+    assert.ok(plate.includes(`href="${p.href}" target="_blank" rel="noopener noreferrer"`));
+    assert.match(plate, /<details class="cite"><summary>Cite<\/summary>/);
+  });
+});
+
+test('Research wears the instrument look: four numbered chapters under a readout that links each one', async () => {
+  const { RESEARCH } = await import('../site/content.mjs');
+  const html = pages().get('research/index.html');
+  assert.match(html, /^<!doctype html>\n<html lang="en" data-look="instrument">/);
+  // No sharks: the shark runtime's own opt-out. The canvas itself is still added by the build (tools/verify.mjs).
+  assert.match(html, /<body data-ambient-background="off">/);
+  assert.doesNotMatch(html, /tag-bubbles/, 'the soap bubbles stay on About');
+  const chapters = [...html.matchAll(/<section id="([\w-]+)" class="chapter" aria-labelledby="\1-title">\n<header class="chapter-rail"><h2 id="\1-title"><span class="dial">(03\.\d)<\/span> ([^<]+)<\/h2>/g)].map(m => [m[1], m[2], m[3]]);
+  assert.deepEqual(chapters, [['experience', '03.1', 'Experience'], ['publications', '03.2', 'Publication'], ['methods', '03.3', 'Where the methods show up'], ['tools', '03.4', 'Tools']]);
+  const readout = html.slice(html.indexOf('<nav class="readout" aria-label="On this page">'), html.indexOf('</nav>', html.indexOf('class="readout"')));
+  assert.deepEqual([...readout.matchAll(/<a href="#([\w-]+)"><span class="dial">(03\.\d) · /g)].map(m => [m[1], m[2]]), chapters.map(([id, n]) => [id, n]));
+  assert.ok(html.includes(`<p class="interests"><span>Interests</span> ${RESEARCH.interests.join(' · ')}</p>`));
+  assert.match(html, /<svg class="orrery"[^>]*aria-hidden="true"/);
+  for (const id of ['nexus-tensor-alpha', 'equalvoice', 'apex-analysis']) assert.ok(html.includes(`<a href="/projects/#${id}">`), id);
+  assert.ok(html.includes('href="/github/stars/research/"'), 'the Research Stack');
+  // Research is machine learning on images; the page does not call it neuroscience.
+  assert.doesNotMatch(html, /neuroscience/i);
+  // The other pages keep the old look until they move over.
+  for (const [file, page] of pages()) if (file !== 'research/index.html') assert.match(page, /^<!doctype html>\n<html lang="en">\n/, file);
 });
 
 test('experience row layout stays on the rows, never on the tags inside them', async () => {

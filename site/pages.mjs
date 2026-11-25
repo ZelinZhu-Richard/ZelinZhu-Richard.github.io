@@ -1,4 +1,5 @@
-import { LINKS, ABOUT, EXPERIENCE, PROJECTS, PUBLICATIONS, SKILLS } from './content.mjs';
+import { LINKS, ABOUT, EXPERIENCE, PROJECTS, PUBLICATIONS, RESEARCH, SKILLS } from './content.mjs';
+import { orrery } from './ornament.mjs';
 import { skillsPage } from '../workspace/skills/page.mjs';
 import { videoPage } from '../workspace/video/page.mjs';
 import { blogIndex, blogPost, checkPosts, postPath } from '../workspace/blog/page.mjs';
@@ -31,10 +32,21 @@ ${footColumn('foot-sections', 'Sections', indexGroup('Sections').map(footRow).jo
 ${footColumn('foot-more', 'More', FOOT_MORE.map(href => footRow(indexItem(href))).join(''))}
 ${footColumn('foot-elsewhere', 'Elsewhere', indexGroup('Elsewhere').filter(item => item.external).map(footRow).join('') + `<li><a href="${escape(LINKS.resume)}">CV (PDF)</a></li><li class="footer-email"><a href="mailto:${escape(LINKS.email)}">Email</a><button type="button" class="copy-button" data-copy="${escape(LINKS.email)}" hidden>Copy address</button></li>`)}
 </nav>`;
+// The page looks (site/DESIGN.md). A page without one wears the older night-and-ink rules and TT Neoris.
+// "instrument" is the new system: html[data-look], its own night colour, the OFL display face instead of
+// the trial font, and no ASCII sharks (data-ambient-background="off" is the shark runtime's own opt-out;
+// the build still adds the canvas, which tools/verify.mjs requires on every page).
+export const LOOKS = {
+  instrument: { theme: '#0e0d1f', font: '/hero-name/ibarra-real-nova-italic.woff2', fontType: 'font/woff2', ambient: 'off' },
+};
+const LEGACY_LOOK = { theme: '#100f15', font: '/_nuxt/TTNeorisTrialRegular.CykOY4gR.ttf', fontType: 'font/ttf' };
 // head: extra tags for one page (structured data). type: the Open Graph type ("article" for a blog post).
 // The 404 page is served at whatever address was missing, so it names no canonical address of its own.
-const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet, script, bodyClass, robots, referrer, head = '', type = 'website' } = {}) => `<!doctype html>
-<html lang="en">
+const frame = (path, title, description, body, { image = '/richard.jpg', stylesheet, script, bodyClass, robots, referrer, head = '', type = 'website', look } = {}) => {
+  if (look && !LOOKS[look]) throw new Error(`Unknown page look: ${look}`);
+  const style = LOOKS[look] || LEGACY_LOOK;
+  return `<!doctype html>
+<html lang="en"${look ? ` data-look="${escape(look)}"` : ''}>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,16 +59,16 @@ ${robots ? `<meta name="robots" content="${escape(robots)}">\n` : ''}${referrer 
 ${path === '/404.html' ? '' : `<meta property="og:url" content="https://zelinzhu-richard.github.io${path}">\n`}<meta property="og:type" content="${escape(type)}">
 <meta property="og:site_name" content="Richard Zhu">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#100f15">
+<meta name="theme-color" content="${style.theme}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="alternate" type="application/rss+xml" title="${escape(FEED_TITLE)}" href="${FEED_PATH}">
-<link rel="preload" href="/_nuxt/TTNeorisTrialRegular.CykOY4gR.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="${style.font}" as="font" type="${style.fontType}" crossorigin>
 <link rel="stylesheet" href="/portfolio.css">
 ${[].concat(stylesheet || []).map(href => `<link rel="stylesheet" href="${escape(href)}">`).join('\n')}
 <script src="/portfolio.js" defer></script>
 <noscript><style>@media(max-width:899px){.site-header{flex-wrap:wrap}.site-header nav{display:flex!important;position:static!important;flex-direction:row!important;flex-wrap:wrap;width:100%!important;padding:12px 0 0!important;border:0!important;background:none!important;box-shadow:none!important}.menu-button{display:none!important}}</style></noscript>
 ${[].concat(script || []).map(src => `<script type="module" src="${escape(src)}"></script>\n`).join('')}${head}</head>
-<body${bodyClass ? ` class="${escape(bodyClass)}"` : ''}>
+<body${bodyClass ? ` class="${escape(bodyClass)}"` : ''}${style.ambient ? ` data-ambient-background="${style.ambient}"` : ''}>
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
 <a class="wordmark" href="/" aria-label="Richard Zhu — Home">Richard Zhu</a>
@@ -74,6 +86,7 @@ ${footIndex()}
 </footer>
 </body>
 </html>`;
+};
 const tags = values => `<ul class="tags">${values.map(v=>`<li>${escape(v)}</li>`).join('')}</ul>`;
 // Experience tags float as poppable bubbles on About and Research (workspace/tag-bubbles).
 const BUBBLES = { stylesheet: '/tag-bubbles/bubbles.css', script: '/tag-bubbles/bubbles.js' };
@@ -84,15 +97,6 @@ const experienceRow = x => `<li>
 <h3>${escape(x.title)}</h3>
 <p class="org">${escape(x.org)}</p>
 <p>${escape(x.desc)}</p>${tags(x.tags)}</div>
-</li>`;
-const publicationRow = p => `<li>
-<span>${escape(p.when)}</span>
-<div>
-<h3><a href="${escape(p.href)}" target="_blank" rel="noopener noreferrer">${escape(p.title)} <span aria-hidden="true">↗</span></a></h3>
-<p class="org">${escape(p.venue)} · ${escape(p.kind)}</p>
-<p>${escape(p.authors)}</p>
-${citeBlock(p)}
-</div>
 </li>`;
 // A section page's eyebrow: its place among the seven, as the menu numbers them ("02 / 07").
 const two = n => String(n).padStart(2, '0');
@@ -108,11 +112,97 @@ const word = n => WORDS[n] || String(n);
 const WORK_COUNTS = { total: word(PROJECTS.length), research: word(PROJECTS.filter(p => p.group === 'research').length), site: word(PROJECTS.filter(p => p.group === 'site').length) };
 // Research: which project each method shows up in. The names come from PROJECTS and link to their rows.
 const METHODS = [['nexus-tensor-alpha', 'Forecasting models'], ['equalvoice', 'Measuring speech-recognition bias'], ['apex-analysis', 'Open stock-analysis tools']];
-const projectLink = id => {
+const projectById = id => {
   const p = PROJECTS.find(x => x.id === id);
   if (!p) throw new Error(`Research page names a project that does not exist: ${id}`);
-  return `<a href="/projects/#${escape(p.id)}">${escape(p.name)}</a>`;
+  return p;
 };
+// Research's tools: these buckets of SKILLS, in this order.
+const RESEARCH_TOOLS = ['AI & ML', 'Languages', 'Tooling'];
+
+// ---- Research, on the instrument look (site/DESIGN.md) ----
+// An opening with the orrery, a readout of the four chapters, then 03.1 Experience, 03.2 Publication,
+// 03.3 Where the methods show up and 03.4 Tools. Every fact comes from site/content.mjs.
+const RESEARCH_PART = PARTS.findIndex(p => p.id === 'research');
+// "03.2": the site section's number, then the chapter's, like a paper's numbering.
+const chapterNo = n => `${two(RESEARCH_PART + 1)}.${n}`;
+const chapter = (n, id, title, body) => `<section id="${id}" class="chapter" aria-labelledby="${id}-title">
+<header class="chapter-rail"><h2 id="${id}-title"><span class="dial">${chapterNo(n)}</span> ${title}</h2></header>
+<div class="chapter-body">
+${body}
+</div>
+</section>`;
+// A long paper title splits at its first colon into a title and a subtitle (the heading still reads as one).
+const titleParts = title => {
+  const at = title.indexOf(': ');
+  return at < 0 ? [title, ''] : [title.slice(0, at + 1), title.slice(at + 2)];
+};
+const roleEntry = x => `<li class="role">
+<p class="role-when">${escape(x.when)}</p>
+<h3>${escape(x.org)}</h3>
+<p class="role-title">${escape(x.title)}</p>
+<p class="role-desc">${escape(x.desc)}</p>
+<ul class="keywords" aria-label="Keywords">${x.tags.map(t => `<li>${escape(t)}</li>`).join('')}</ul>
+</li>`;
+const plate = p => {
+  const [main, sub] = titleParts(p.title);
+  const host = new URL(p.href).hostname.replace(/^www\./, '');
+  return `<li class="plate">
+<p class="plate-kind">${escape(p.kind)}</p>
+<h3 class="plate-title">${escape(main)}${sub ? ` <span class="plate-subtitle">${escape(sub)}</span>` : ''}</h3>
+<dl class="spec">
+<div><dt>Authors</dt><dd>${escape(p.authors)}</dd></div>
+<div><dt>Venue</dt><dd>${escape(p.venue)}</dd></div>
+<div><dt>Date</dt><dd>${escape(p.when)}</dd></div>
+</dl>
+<div class="plate-links">${link(p.href, `View on ${host}`)}${citeBlock(p)}</div>
+</li>`;
+};
+const ledgerRow = ([id, what]) => {
+  const p = projectById(id);
+  return `<li>
+<p class="ledger-method">${escape(what)}</p>
+<h3 class="ledger-name"><a href="/projects/#${escape(p.id)}">${escape(p.name)} <span aria-hidden="true">→</span></a></h3>
+<p class="ledger-year">${escape(p.year)}</p>
+<p class="ledger-note">${escape(p.oneLiner)}</p>
+</li>`;
+};
+function researchPage() {
+  // Only research roles (UNC PRIMES for now) go under Experience; papers and posters under Publication.
+  const roles = EXPERIENCE.filter(x => x.org === 'UNC PRIMES');
+  const tools = RESEARCH_TOOLS.map(label => {
+    const bucket = SKILLS.buckets.find(b => b.label === label);
+    if (!bucket) throw new Error(`Research lists a skills bucket that does not exist: ${label}`);
+    return bucket;
+  });
+  const paperTitle = PUBLICATIONS.length === 1 ? 'Publication' : 'Publications';
+  const first = PUBLICATIONS[0];
+  // The readout: each chapter's number, name and the one fact to see at a glance.
+  const readout = [
+    ['experience', 'Experience', roles.map(x => x.org).join(', '), roles.map(x => `${x.title} · ${x.when}`).join('; ')],
+    ['publications', paperTitle, first ? first.venue : 'None yet', first ? `${first.kind} · ${first.when}` : ''],
+    ['methods', 'In projects', METHODS.map(([id]) => projectById(id).name).join(', '), 'Quant and AI evaluation'],
+    ['tools', 'Tools', tools[0].items.slice(0, 3).join(', '), 'and the Research Stack'],
+  ];
+  return `<section class="opening" aria-labelledby="research-title">
+<div class="opening-text">
+<p class="eyebrow">${place('research', 'Machine learning')}</p>
+<h1 id="research-title">Research</h1>
+<p class="lede">Deep learning on brain imaging data at UNC PRIMES, a workshop poster on agents for quantitative research, and the projects where I test the ideas.</p>
+<p class="interests"><span>Interests</span> ${RESEARCH.interests.map(escape).join(' · ')}</p>
+</div>
+${orrery(RESEARCH_PART)}
+</section>
+<nav class="readout" aria-label="On this page">
+<ol>${readout.map(([id, name, value, note], i) => `<li><a href="#${id}"><span class="dial">${chapterNo(i + 1)} · ${escape(name)}</span><span class="readout-value">${escape(value)}</span>${note ? `<span class="readout-note">${escape(note)}</span>` : ''}</a></li>`).join('')}</ol>
+</nav>
+${chapter(1, 'experience', 'Experience', `<ol class="roles">${roles.map(roleEntry).join('')}</ol>`)}
+${chapter(2, 'publications', paperTitle, `<ol class="plates">${PUBLICATIONS.map(plate).join('')}</ol>`)}
+${chapter(3, 'methods', 'Where the methods show up', `<ul class="ledger">${METHODS.map(ledgerRow).join('')}</ul>
+<p class="chapter-more">${link('/projects/', 'All projects')}${link('/work/', 'All work')}</p>`)}
+${chapter(4, 'tools', 'Tools', `<dl class="spec spec--tools">${tools.map(b => `<div><dt>${escape(b.label)}</dt><dd>${b.items.map(escape).join(', ')}</dd></div>`).join('')}</dl>
+<p class="stack-link"><a href="/github/stars/research/">Research Stack <span aria-hidden="true">→</span></a> The research tools I keep, in folders by workflow and field.</p>`)}`;
+}
 // Structured data for search engines. "<" is escaped so the JSON can never close its own script tag.
 const jsonLd = data => `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>\n`;
 const PERSON = {
@@ -269,22 +359,7 @@ ${item(PROJECTS.find(p => p.id === 'neon-rain'), 1)}
 <li><a href="/skills/"><span>Skills</span> <em>Agent skills I use and the ones I write.</em></a></li>
 </ul>
 </section>`;
-  // Research: only research roles go under Experience (UNC PRIMES for now); papers and posters under Publications.
-  const researchRoles = EXPERIENCE.filter(x => x.org === 'UNC PRIMES');
-  const research = intro(place('research', 'Machine learning'),'Research','Deep learning on brain imaging data at UNC PRIMES, a workshop poster on agents for quantitative research, and the projects where I test the ideas.') + `<section id="experience" class="experience" aria-labelledby="research-experience">
-<h2 id="research-experience">Experience</h2>
-<ol>${researchRoles.map(experienceRow).join('')}</ol>
-</section>
-<section id="publications" class="experience publications" aria-labelledby="research-publications">
-<h2 id="research-publications">Publications</h2>
-<ol>${PUBLICATIONS.map(publicationRow).join('')}</ol>
-</section>
-<section class="research">
-<p class="eyebrow">Related projects</p>
-<h2>Where the methods show up</h2>
-<p>${METHODS.map(([id, what]) => `${what} in ${projectLink(id)}.`).join(' ')}</p>
-<div class="actions">${link('/projects/','See the projects')}${link('/github/stars/research/','Research Stack')}${link(LINKS.resume,'CV (PDF)')}${link('mailto:'+LINKS.email,'Email me about research')}</div>
-</section>`;
+  const research = researchPage();
   return new Map([
     ['skills/index.html',frame('/skills/','Skills','AI agent skills Richard Zhu uses, with links to their source. His own skills will be added here.',skillsPage,{ stylesheet: '/skills/style.css' })],
     ['video/index.html',frame('/video/','Neon Rain — Video','Neon Rain: a ten-second noir clip by Richard Zhu, made from GPT Image stills and 3D-guided motion instead of a text-to-video model.',videoPage,{ image: '/video/assets/neon-rain-poster.jpg', stylesheet: '/video/style.css' })],
@@ -297,7 +372,7 @@ ${item(PROJECTS.find(p => p.id === 'neon-rain'), 1)}
     ['projects/index.html',frame('/projects/','Projects','Projects by Richard Zhu: Nexus Tensor Alpha, a quant research system; EqualVoice, an accent-bias benchmark for speech recognition; and Apex Analysis, an open-source stock analysis app.',projects,{ stylesheet: '/work/style.css' })],
     ['fun/index.html',frame('/fun/','Fun','Browser toys by Richard Zhu: Paper Piano, Gym and Domain Expansion. Webcam hand and pose tracking that runs locally.',fun,{ stylesheet: '/work/style.css' })],
     ['about/index.html',frame('/about/','About','About Richard Zhu, a high school senior working on computer science, economics and machine learning research.',about,{ stylesheet: ['/portrait/portrait.css', BUBBLES.stylesheet], script: ['/portrait/about.js', BUBBLES.script], head: jsonLd(PERSON) })],
-    ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES, his NeurIPS 2026 Agenthon workshop poster, and related projects.',research,{ stylesheet: BUBBLES.stylesheet, script: BUBBLES.script })],
+    ['research/index.html',frame('/research/','Research','Richard Zhu’s machine learning research at UNC PRIMES, his NeurIPS 2026 Agenthon workshop poster, and related projects.',research,{ look: 'instrument' })],
     ['404.html',frame('/404.html','Page not found','This page could not be found.',lost,{ script: '/palette/notfound.js' })],
   ]);
 }

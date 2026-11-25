@@ -1,26 +1,76 @@
-# Site design: night and ink
+# Site design: night instrument
 
-The pages outside the homepage share one look. `public/portfolio.css` defines it. Page and app stylesheets build on its tokens and do not invent new palettes. The homepage and Contact page have their own stylesheet, `workspace/home/app/assets/css/home.css`, which uses the same night, ink, muted, line and accent colours.
+The inner pages are the same world as the homepage: the engraved brass instrument in a room at night, then out among the stars. They read like a well-set paper trail on a night sky, not like a dashboard. `public/portfolio.css` defines the system; `site/ornament.mjs` draws its one ornament.
 
-Night is the default, so the pages read as a continuation of the homepage. A page can opt back into paper with `data-theme="paper"` on `<html>` (Domain Expansion does, because its camera stage is light). Every rule below is written against the tokens, so it holds in both themes.
+## Status: one page first
 
-## Rules
+The system is opt-in while it is judged. A page wears it with `<html data-look="instrument">`, which `frame()` in `site/pages.mjs` writes when it is given `look: 'instrument'`. Today that is `/research/` only. Every other page still wears the older "night and ink" look (the `:root` tokens and unscoped rules in `portfolio.css`, burnt-orange accent, TT Neoris headings) until it is moved over. When every page is moved, the `instrument` tokens become `:root`, the Colophon swatches and the share cards (`npm run og`) are redrawn, and the legacy rules go.
 
-- The page is `--paper`. Flat blocks use `--paper-2`. Raised surfaces (cards, panels) use `--card` with a 1px border. Never pure #000 or #fff for large areas.
-- Text is `--ink`. Secondary text is `--muted`. `--faint` is for small labels and numerals only; it still meets 4.5:1 on `--paper`, `--card` and `--paper-2`.
-- One accent: burnt orange `--accent`. Use it for one thing per screen: a key number, a focus ring, a live state, the shadow of the one panel that is open. Never for gradients or large fills.
-- Hard edges: 1px solid borders (`--line` for dividers, `--ink` for emphasis). Where something must lift, use the hard shadow `--shadow`. No blurred shadows, no glow, no `backdrop-filter`, no gradients on surfaces.
-- Dividers are `--line`. A link underline is never `--line` (it is 1.4:1 on night): use `--faint` or stronger.
-- Corners are square or 2px. No pill buttons, except tiny status chips.
-- Type: headings in `--font-display` (Neoris grotesk, tight tracking). Reading text in `--font-body` (a book serif). Labels, metadata, numbers, dates, buttons in `--font-mono`. No serif-italic accent word inside a heading.
-- Links: a link inside running text is underlined. `↗` marks a link that leaves the site and opens a new tab; `→` marks one that stays.
-- Left-aligned. Centre only one short line when it is the whole point of a screen.
-- Asymmetric splits (roughly 5/7 or 4/8 columns) instead of equal three-card grids.
-- Vary the rhythm: tight spacing inside a group (title + tags), 80px+ between major blocks on desktop.
-- Real media: screenshots, the actual film, the camera feed. No abstract blobs, sparkles, or decorative icons.
-- Motion is short (about 120–200ms) and stops under `prefers-reduced-motion: reduce`.
+## Tokens (`html[data-look="instrument"]`)
 
-Known exception: the tag bubbles on About and Research (`workspace/tag-bubbles/`) use gradients and round shapes on purpose. They are a toy, not a surface.
+```
+                 night (default)   chart paper (+ data-theme="paper")
+--sky-top        #0c0b19           -
+--sky-bottom     #18153f           -
+--paper          #0e0d1f           #f3f1e9     page base
+--card           #14132c           #fbfaf6     the publication plate, the menu panel
+--inset          #09081a           #eae7dc     code and BibTeX
+--ink            #ece9e1           #16142a     text
+--muted          #b6b2c8           #48455d     secondary text, ledes
+--faint          #938fad           #5d5a72     labels and numerals only
+--line           #29264a           #d6d1c2     hairlines, minor ticks
+--line-strong    #46426e           #b3ad9c     major ticks, the orrery rings
+--accent         #39f0a6           #086b4c     aurora: links, focus, the current section
+--violet         #7a4dff           #5a3fd0     quiet secondary: tilted rings, text selection
+--amber          #ffb469           #9a5208     the orrery's sun; nothing else
+```
+
+Contrast is checked by `tests/look.test.mjs` against every background the text can sit on, including the aurora haze: `--ink` and `--muted` at least 7:1, `--faint` and `--accent` at least 4.5:1.
+
+## Colour
+
+- The page is a night sky, not black and not grey: a fixed indigo gradient (`--sky-top` to `--sky-bottom`), a faint aurora haze in the top right, and a sparse static star field. It is one CSS layer (`body::before`), painted once; no images and no script.
+- One accent, aurora green. It marks what can be acted on or where you are: link underlines, the focus ring, the current section in the menu, arrows. It is never a fill, a glow or a gradient on text.
+- Violet only for drawn lines (the tilted rings) and the text selection. Amber at most once per screen: the sun at the centre of the orrery.
+- Surfaces are solid. No glassmorphism, no `backdrop-filter`, no neon glow boxes, no gradient text, no blurred shadows.
+
+## Type
+
+- Display: Ibarra Real Nova Italic (SIL OFL, self-hosted at `/hero-name/`, 15 KB, Latin-1), then the homepage's serif stack in italic. Headings, the wordmark, project and paper titles. Weight 400 only; size and italic carry the hierarchy.
+- Reading text: the system book serif (`"Iowan Old Style", Charter, "Sitka Text", Cambria, Georgia`). Nothing downloaded.
+- Interface: the system sans (`-apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial`) for the menu, buttons and the footer index.
+- Labels and data: the system mono, uppercase and tracked for labels; normal case for dates, BibTeX and numbers.
+- The instrument pages do not load TT Neoris (a trial build that must be replaced). Pages still on the old look keep it until they move.
+
+## Ornament: an engraved instrument
+
+- **The graduated scale.** Dividers are hairlines with tick marks: minor ticks every 8px, major every 80px, drawn with CSS gradients (`.tickrule`, and the top of every `.chapter`, the header and the footer). Never a plain heavy border.
+- **Dial markings.** Section numerals are small mono readings: the site's seven sections are `01` to `07`, and the sections inside page `03` are `03.1`, `03.2`, and so on, like a paper.
+- **The orrery.** One quiet SVG at the top of a page: a graduated ring, an equator, two rings tilted by 23.4° and an amber sun (`orrery()` in `site/ornament.mjs`). Each section gets its own variant. Hidden from assistive technology. Lines are 1px at any size.
+- **Plates.** A thing that deserves to be looked at closely (a publication) sits on a plate: a solid card with a fine dot grid, like the notebook on the desk, and registration marks at its corners instead of a box.
+- Nothing else is decorative: no icons, no icon fonts, no images that are not the work itself.
+
+## Layout
+
+- Left-aligned on a 12-column feel: a 4-column label rail (numeral, section label, heading) and an 8-column body. Under 900px the rail sits above the body.
+- Reading measure at most 68 characters. Body text 19px (17px on phones), line height 1.6.
+- Generous between chapters (96px on desktop, 56px on phones), tight inside a group.
+- Works from 360px to 1600px wide with no horizontal scroll; long titles and BibTeX wrap.
+
+## Do
+
+- Say what the thing is, plainly. Name the stack.
+- Put the hierarchy on the page: a short readout of the sections at the top, each linking down.
+- Give every external link `↗` and "(opens in a new tab)"; internal links `→`.
+- Keep focus visible (2px aurora ring, 3px offset) and motion short; nothing moves under `prefers-reduced-motion: reduce`.
+- Make it read without JavaScript and in print (ink on white, external addresses printed after their links).
+
+## Do not
+
+- No sci-fi dashboard: no panels of fake readings, no glowing borders, no scanlines.
+- No emoji, no gradient text, no pill buttons, no centred paragraphs.
+- No invented facts: numbers, dates, co-authors and venues come from `site/content.mjs` only.
+- No ASCII sharks on an instrument page: `frame()` sets `data-ambient-background="off"`, the shark runtime's own opt-out, so the canvas the build adds (and `tools/verify.mjs` requires) stays empty and hidden.
 
 ## Copy
 
@@ -28,34 +78,19 @@ Known exception: the tag bubbles on About and Research (`workspace/tag-bubbles/`
 - No marketing lines ("crafting experiences", "reality becomes pixels", "made real", "unlock").
 - Short sentences. First person where it is Richard talking.
 - Be honest about limits ("tracking is experimental", "not measured on real devices").
-
-## Tokens (from portfolio.css)
-
-```
-                night (default)   paper (data-theme="paper")
---paper         #100f15           #f4f3ee
---paper-2       #1a1920           #e9e7e0
---card          #16151c           #fbfbf9
---ink           #ece9e1           #161514
---muted         #a8a398           #57544e
---faint         #8a867e           #696660
---line          #2d2b34           #d6d3ca
---accent        #e8743b           #b93c0b
---accent-soft   #3a2418           #f3ddd2
---ok            #7fc48c           #2f6b3a
---warn          #e0ad5c           #8a5a00
---danger        #ef7b6f           #a4231b
---stage         #08070b           #161514
---on-stage      #ece9e1           #f4f3ee
---shadow        4px 4px 0 #3a3843 4px 4px 0 var(--ink)
-
---font-display  Neoris, "Helvetica Neue", Arial, sans-serif
---font-body     "Iowan Old Style", Charter, "Sitka Text", Cambria, Georgia, serif
---font-mono     ui-monospace, "SF Mono", Menlo, Consolas, monospace
-```
-
-Older names still resolve: `--page` = paper, `--ink`, `--muted`, `--line`, `--accent`.
+- Research is machine learning, statistics and AI evaluation. The UNC PRIMES work is deep learning on brain imaging data: machine learning on images, not neuroscience.
 
 ## Camera and game stages
 
-A camera feed or game canvas may sit on a dark stage (`--stage`) because video reads better there. Everything around it (controls, panels, copy) stays on the page colour. Overlays on the stage use ink or paper fills with a 1px border, not translucent blur.
+A camera feed or game canvas may sit on a dark stage (`--stage`) because video reads better there. Everything around it stays on the page colour. Overlays on the stage use solid fills with a 1px border, not translucent blur.
+
+## Legacy: night and ink (pages not yet moved)
+
+The `:root` tokens below still drive every page without `data-look`. The Colophon swatches and the share cards are drawn from them, and their tests compare the values, so change them only as part of the rollout.
+
+```
+--paper #100f15  --paper-2 #1a1920  --card #16151c  --ink #ece9e1  --muted #a8a398  --faint #8a867e
+--line #2d2b34   --accent #e8743b   --stage #08070b  --font-display Neoris (TT Neoris trial)
+```
+
+Known exception on the old look: the tag bubbles on About (`workspace/tag-bubbles/`) use gradients and round shapes on purpose. They are a toy, not a surface. Research no longer shows them.
