@@ -1,5 +1,5 @@
 {
-  "source": "Adapted from the local noomo-storytelling project; see THIRD_PARTY.md",
+  "source": "Every file in public/, including the retired captured homepage that tools/build.mjs no longer ships; see THIRD_PARTY.md",
   "files": [
     {
       "file": "Zelin_Zhu_CV.pdf",
@@ -98,8 +98,8 @@
     },
     {
       "file": "favicon.svg",
-      "bytes": 266,
-      "sha256": "1ca458cf386cf5a5d4af31daec8d8699005a2ff1ec1084af8e03668ab1b1987d"
+      "bytes": 263,
+      "sha256": "3dc14d01273cfe8e49bdaf80d7929c732500fb22beae455c535fa5e6dccfac57"
     },
     {
       "file": "images/loader.gif",
@@ -268,13 +268,13 @@
     },
     {
       "file": "portfolio.css",
-      "bytes": 12296,
-      "sha256": "778664e0de4cc705d33fea47faae9203c1000a10b831ab22f67b217f6852f72f"
+      "bytes": 51804,
+      "sha256": "fb5ce1847a72b291fff5b3d6759a184e7b07da3cbee40366d248fa2f3d1f25a2"
     },
     {
       "file": "portfolio.js",
-      "bytes": 663,
-      "sha256": "8420d98e697c3a0e5500936222f049782bb023a15c9c50353c12852b53bd1cbb"
+      "bytes": 4464,
+      "sha256": "6cdd838b0fa4c958fae3d0fcb7a22361fac096c537dc4e81997796497a093a52"
     },
     {
       "file": "richard.jpg",

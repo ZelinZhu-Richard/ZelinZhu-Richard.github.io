@@ -1,0 +1,1216 @@
+{
+ "format": "home room manifest v1: sets.<desktop|phone> name one self-contained GLB each (same nodes, materials and texture names; only texture sizes differ); anchors are glTF nodes named Anchor_*, positions and every vector in extras in three.js world metres (Y up; Blender (x, y, z) -> (x, z, -y)); bytes and sha256 are of the files as written; gpuBytes = w * h * 4 * 4/3 (RGBA8 with mipmaps, as three uploads WebP)",
+ "version": 1,
+ "generator": "workspace/home/assets-src/room/pack_room.py",
+ "source": {
+  "raw": "_dev/room/ship/room_raw.glb",
+  "rawSha256": "98968147c29b123035a064ddf38af97b6e92d035510ad54eb05b1f23c7af6f28"
+ },
+ "requires": {
+  "extensions": [
+   "EXT_meshopt_compression",
+   "KHR_mesh_quantization",
+   "EXT_texture_webp"
+  ],
+  "three": "loader.setMeshoptDecoder(MeshoptDecoder) from 'three/addons/libs/meshopt_decoder.module.js'",
+  "meshTransforms": "quantized meshes are positioned by their node (translation + uniform scale); use world matrices, not raw attribute values"
+ },
+ "files": [
+  {
+   "file": "room-desktop.glb",
+   "set": "desktop",
+   "bytes": 2328848,
+   "sha256": "4d1e8fd561a54d7f238cec05bc4937dfbb80bf896455d172d9d6bede7f1f6eea"
+  },
+  {
+   "file": "room-phone.glb",
+   "set": "phone",
+   "bytes": 1727024,
+   "sha256": "d70e49083743069c9b2653f5160ed3747ae30387798be1b231e1c212601f1efa"
+  }
+ ],
+ "sets": {
+  "desktop": {
+   "file": "room-desktop.glb",
+   "bytes": 2328848,
+   "sha256": "4d1e8fd561a54d7f238cec05bc4937dfbb80bf896455d172d9d6bede7f1f6eea",
+   "textureBytes": 986158,
+   "geometryBytes": 1234442,
+   "gpuTextureBytes": 69140476,
+   "textures": [
+    {
+     "image": "LM_Room",
+     "materials": [
+      "LM_Room"
+     ],
+     "width": 1536,
+     "height": 1536,
+     "bytes": 56080,
+     "gpuBytes": 12582912,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "LM_Soft",
+     "materials": [
+      "LM_Soft"
+     ],
+     "width": 1280,
+     "height": 1280,
+     "bytes": 140644,
+     "gpuBytes": 8738133,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Board_tex",
+     "materials": [
+      "Board_Unlit"
+     ],
+     "width": 1536,
+     "height": 960,
+     "bytes": 91044,
+     "gpuBytes": 7864320,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "LM_Detail",
+     "materials": [
+      "LM_Detail"
+     ],
+     "width": 1024,
+     "height": 1016,
+     "bytes": 65390,
+     "gpuBytes": 5548714,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "LM_Books",
+     "materials": [
+      "LM_Books"
+     ],
+     "width": 768,
+     "height": 760,
+     "bytes": 85104,
+     "gpuBytes": 3112960,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "LM_Props",
+     "materials": [
+      "LM_Props"
+     ],
+     "width": 1280,
+     "height": 1280,
+     "bytes": 111892,
+     "gpuBytes": 8738133,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Desk_Mat_tex",
+     "materials": [
+      "Desk_Mat_Unlit"
+     ],
+     "width": 1024,
+     "height": 512,
+     "bytes": 31982,
+     "gpuBytes": 2796202,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "LM_Floor",
+     "materials": [
+      "LM_Floor"
+     ],
+     "width": 960,
+     "height": 1280,
+     "bytes": 27244,
+     "gpuBytes": 6553600,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Contact_Shadow",
+     "materials": [
+      "Contact_Shadow"
+     ],
+     "width": 256,
+     "height": 248,
+     "bytes": 5606,
+     "gpuBytes": 338602,
+     "encoding": "webp-lossless"
+    },
+    {
+     "image": "Monitor_Center_Screen_tex",
+     "materials": [
+      "Monitor_Center_Screen_Unlit"
+     ],
+     "width": 1024,
+     "height": 428,
+     "bytes": 33088,
+     "gpuBytes": 2337450,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "Monitor_Left_Screen_tex",
+     "materials": [
+      "Monitor_Left_Screen_Unlit"
+     ],
+     "width": 1024,
+     "height": 576,
+     "bytes": 56786,
+     "gpuBytes": 3145728,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "Monitor_Right_Screen_tex",
+     "materials": [
+      "Monitor_Right_Screen_Unlit"
+     ],
+     "width": 1024,
+     "height": 576,
+     "bytes": 52582,
+     "gpuBytes": 3145728,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "LM_Outside",
+     "materials": [
+      "LM_Outside"
+     ],
+     "width": 768,
+     "height": 768,
+     "bytes": 210804,
+     "gpuBytes": 3145728,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Shelf_Frame_Photo_Image_tex",
+     "materials": [
+      "Shelf_Frame_Photo_Image_Unlit"
+     ],
+     "width": 256,
+     "height": 160,
+     "bytes": 4658,
+     "gpuBytes": 218453,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "Wall_Picture_tex",
+     "materials": [
+      "Wall_Picture_Unlit"
+     ],
+     "width": 512,
+     "height": 320,
+     "bytes": 13254,
+     "gpuBytes": 873813,
+     "encoding": "webp-q94"
+    }
+   ]
+  },
+  "phone": {
+   "file": "room-phone.glb",
+   "bytes": 1727024,
+   "sha256": "d70e49083743069c9b2653f5160ed3747ae30387798be1b231e1c212601f1efa",
+   "textureBytes": 384336,
+   "geometryBytes": 1234442,
+   "gpuTextureBytes": 17285116,
+   "textures": [
+    {
+     "image": "LM_Room",
+     "materials": [
+      "LM_Room"
+     ],
+     "width": 768,
+     "height": 768,
+     "bytes": 25602,
+     "gpuBytes": 3145728,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "LM_Soft",
+     "materials": [
+      "LM_Soft"
+     ],
+     "width": 640,
+     "height": 640,
+     "bytes": 63416,
+     "gpuBytes": 2184533,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Board_tex",
+     "materials": [
+      "Board_Unlit"
+     ],
+     "width": 768,
+     "height": 480,
+     "bytes": 34528,
+     "gpuBytes": 1966080,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "LM_Detail",
+     "materials": [
+      "LM_Detail"
+     ],
+     "width": 512,
+     "height": 508,
+     "bytes": 24836,
+     "gpuBytes": 1387178,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "LM_Books",
+     "materials": [
+      "LM_Books"
+     ],
+     "width": 384,
+     "height": 380,
+     "bytes": 36814,
+     "gpuBytes": 778240,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "LM_Props",
+     "materials": [
+      "LM_Props"
+     ],
+     "width": 640,
+     "height": 640,
+     "bytes": 47706,
+     "gpuBytes": 2184533,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Desk_Mat_tex",
+     "materials": [
+      "Desk_Mat_Unlit"
+     ],
+     "width": 512,
+     "height": 256,
+     "bytes": 13060,
+     "gpuBytes": 699050,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "LM_Floor",
+     "materials": [
+      "LM_Floor"
+     ],
+     "width": 480,
+     "height": 640,
+     "bytes": 9334,
+     "gpuBytes": 1638400,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Contact_Shadow",
+     "materials": [
+      "Contact_Shadow"
+     ],
+     "width": 128,
+     "height": 124,
+     "bytes": 2162,
+     "gpuBytes": 84650,
+     "encoding": "webp-lossless"
+    },
+    {
+     "image": "Monitor_Center_Screen_tex",
+     "materials": [
+      "Monitor_Center_Screen_Unlit"
+     ],
+     "width": 512,
+     "height": 214,
+     "bytes": 13452,
+     "gpuBytes": 584362,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "Monitor_Left_Screen_tex",
+     "materials": [
+      "Monitor_Left_Screen_Unlit"
+     ],
+     "width": 512,
+     "height": 288,
+     "bytes": 22308,
+     "gpuBytes": 786432,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "Monitor_Right_Screen_tex",
+     "materials": [
+      "Monitor_Right_Screen_Unlit"
+     ],
+     "width": 512,
+     "height": 288,
+     "bytes": 21180,
+     "gpuBytes": 786432,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "LM_Outside",
+     "materials": [
+      "LM_Outside"
+     ],
+     "width": 384,
+     "height": 384,
+     "bytes": 63048,
+     "gpuBytes": 786432,
+     "encoding": "webp-q90"
+    },
+    {
+     "image": "Shelf_Frame_Photo_Image_tex",
+     "materials": [
+      "Shelf_Frame_Photo_Image_Unlit"
+     ],
+     "width": 128,
+     "height": 80,
+     "bytes": 1822,
+     "gpuBytes": 54613,
+     "encoding": "webp-q94"
+    },
+    {
+     "image": "Wall_Picture_tex",
+     "materials": [
+      "Wall_Picture_Unlit"
+     ],
+     "width": 256,
+     "height": 160,
+     "bytes": 5068,
+     "gpuBytes": 218453,
+     "encoding": "webp-q94"
+    }
+   ]
+  }
+ },
+ "geometry": {
+  "triangles": 120410,
+  "vertices": 139548,
+  "meshes": 68,
+  "primitives": 90,
+  "positionMaxErrorMm": 0.079,
+  "bytes": 1234442,
+  "compression": "EXT_meshopt_compression + KHR_mesh_quantization",
+  "floatPositions": [
+   "Outside_Land",
+   "Sea",
+   "Skyline"
+  ]
+ },
+ "anchors": {
+  "Anchor_Bed": {
+   "position": [
+    3.85,
+    0.58,
+    -5.635
+   ],
+   "size": [
+    2.1618,
+    1.4068,
+    1.9802
+   ],
+   "bounds_min": [
+    2.7382,
+    0.0,
+    -6.59
+   ],
+   "bounds_max": [
+    4.9,
+    1.4068,
+    -4.6098
+   ],
+   "beat": 16,
+   "facing": [
+    -0.8745,
+    -0.0,
+    0.485
+   ]
+  },
+  "Anchor_Board": {
+   "position": [
+    1.15,
+    1.95,
+    -6.955
+   ],
+   "size": [
+    2.5,
+    1.5625,
+    0.0
+   ],
+   "bounds_min": [
+    -0.1,
+    1.1688,
+    -6.955
+   ],
+   "bounds_max": [
+    2.4,
+    2.7313,
+    -6.955
+   ],
+   "beat": 15,
+   "facing": [
+    0.0,
+    -0.0,
+    1.0
+   ]
+  },
+  "Anchor_Books": {
+   "position": [
+    2.02,
+    0.593,
+    -2.6195
+   ],
+   "size": [
+    0.3222,
+    0.3,
+    0.3139
+   ],
+   "bounds_min": [
+    1.8589,
+    0.443,
+    -2.7764
+   ],
+   "bounds_max": [
+    2.1811,
+    0.743,
+    -2.4625
+   ],
+   "facing": [
+    -0.7268,
+    0.0,
+    0.6869
+   ],
+   "beat": null
+  },
+  "Anchor_Instrument": {
+   "position": [
+    -1.3,
+    0.77,
+    -6.22
+   ],
+   "size": [
+    0.2932,
+    0.414,
+    0.2932
+   ],
+   "bounds_min": [
+    -1.4466,
+    0.77,
+    -6.3666
+   ],
+   "bounds_max": [
+    -1.1534,
+    1.184,
+    -6.0734
+   ],
+   "height": 0.414,
+   "radius": 0.1466,
+   "yaw": 0.4887,
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "beat": null
+  },
+  "Anchor_Monitor_Center": {
+   "position": [
+    -3.05,
+    1.15,
+    -6.6195
+   ],
+   "size": [
+    1.2,
+    0.5,
+    0.0
+   ],
+   "bounds_min": [
+    -3.65,
+    0.9,
+    -6.6195
+   ],
+   "bounds_max": [
+    -2.45,
+    1.4,
+    -6.6195
+   ],
+   "beat": 14,
+   "facing": [
+    0.0,
+    -0.0,
+    1.0
+   ]
+  },
+  "Anchor_Monitor_Left": {
+   "position": [
+    -4.0341,
+    1.12,
+    -6.4365
+   ],
+   "size": [
+    0.6887,
+    0.44,
+    0.3662
+   ],
+   "bounds_min": [
+    -4.3785,
+    0.9,
+    -6.6196
+   ],
+   "bounds_max": [
+    -3.6898,
+    1.34,
+    -6.2534
+   ],
+   "beat": 13,
+   "facing": [
+    0.4695,
+    -0.0,
+    0.8829
+   ]
+  },
+  "Anchor_Notebook": {
+   "position": [
+    -3.9,
+    0.7896,
+    -6.1
+   ],
+   "size": [
+    0.3192,
+    0.0161,
+    0.2302
+   ],
+   "bounds_min": [
+    -4.0596,
+    0.7735,
+    -6.2151
+   ],
+   "bounds_max": [
+    -3.7404,
+    0.7896,
+    -5.9849
+   ],
+   "facing": [
+    0.0,
+    1.0,
+    -0.0
+   ],
+   "beat": null
+  },
+  "Anchor_Window": {
+   "position": [
+    -3.01,
+    2.5,
+    -7.01
+   ],
+   "size": [
+    4.02,
+    5.0,
+    0.02
+   ],
+   "bounds_min": [
+    -5.02,
+    0.0,
+    -7.02
+   ],
+   "bounds_max": [
+    -1.0,
+    5.0,
+    -7.0
+   ],
+   "beat": 17,
+   "facing": [
+    0.0,
+    0.0,
+    1.0
+   ]
+  }
+ },
+ "contactShadow": {
+  "node": "Instrument_Contact_Shadow",
+  "material": "Contact_Shadow",
+  "bounds": {
+   "min": [
+    -1.56,
+    0.7715,
+    -6.48
+   ],
+   "max": [
+    -1.054,
+    0.7715,
+    -5.984
+   ]
+  },
+  "use": "unlit black, alpha from the texture (alphaMode BLEND); fade with material opacity"
+ },
+ "nodes": [
+  {
+   "name": "Architecture",
+   "triangles": 1030,
+   "materials": [
+    "LM_Room"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Bed",
+   "triangles": 13610,
+   "materials": [
+    "LM_Soft"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Board",
+   "triangles": 2,
+   "materials": [
+    "Board_Unlit"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Board_Wall",
+   "triangles": 1326,
+   "materials": [
+    "LM_Room"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Book_Stack",
+   "triangles": 150,
+   "materials": [
+    "LM_Detail"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Books",
+   "triangles": 7262,
+   "materials": [
+    "LM_Books"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Chair",
+   "triangles": 3545,
+   "materials": [
+    "LM_Props"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Compute_Rack",
+   "triangles": 2752,
+   "materials": [
+    "LM_Props",
+    "Unlit_06ffd9_e18.75",
+    "Unlit_19ff59_e25",
+    "Unlit_4c1eff_e2.5",
+    "Unlit_ff7523_e25",
+    "Unlit_ffffff_e18"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Desk",
+   "triangles": 1036,
+   "materials": [
+    "LM_Room"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Desk_Lamp",
+   "triangles": 1030,
+   "materials": [
+    "Glass_Export",
+    "LM_Props",
+    "Unlit_ff6b19_e22"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Desk_Mat",
+   "triangles": 2,
+   "materials": [
+    "Desk_Mat_Unlit"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Desk_Objects",
+   "triangles": 12604,
+   "materials": [
+    "LM_Props",
+    "Unlit_06ffd9_e10.5",
+    "Unlit_512dff_e0.45",
+    "Unlit_723fff_e12",
+    "Unlit_ff7523_e25"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Desk_Objects_Glass",
+   "triangles": 188,
+   "materials": [
+    "Glass_Export"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Floor",
+   "triangles": 4,
+   "materials": [
+    "LM_Floor"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Globe_Lamp_Foot",
+   "triangles": 702,
+   "materials": [
+    "LM_Props",
+    "Unlit_ff8e42_e3.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Globe_Lamp_Head",
+   "triangles": 702,
+   "materials": [
+    "LM_Props",
+    "Unlit_ff8e42_e3.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Globe_Lamp_Mezz",
+   "triangles": 702,
+   "materials": [
+    "LM_Props",
+    "Unlit_ff8e42_e3.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Instrument_Contact_Shadow",
+   "triangles": 2,
+   "materials": [
+    "Contact_Shadow"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Lounge",
+   "triangles": 7377,
+   "materials": [
+    "LM_Soft",
+    "Unlit_ff721e_e60"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Lounge_Glass",
+   "triangles": 150,
+   "materials": [
+    "Glass_Export"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Mezzanine",
+   "triangles": 9320,
+   "materials": [
+    "LM_Room"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Mezzanine_Glass",
+   "triangles": 150,
+   "materials": [
+    "Glass_Export"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Monitor_Center",
+   "triangles": 364,
+   "materials": [
+    "LM_Props"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Monitor_Center_Screen",
+   "triangles": 2,
+   "materials": [
+    "Monitor_Center_Screen_Unlit"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Monitor_Left",
+   "triangles": 364,
+   "materials": [
+    "LM_Props"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Monitor_Left_Screen",
+   "triangles": 2,
+   "materials": [
+    "Monitor_Left_Screen_Unlit"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Monitor_Right",
+   "triangles": 364,
+   "materials": [
+    "LM_Props"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Monitor_Right_Screen",
+   "triangles": 2,
+   "materials": [
+    "Monitor_Right_Screen_Unlit"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Notebook_Pages",
+   "triangles": 150,
+   "materials": [
+    "LM_Detail"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Ornaments",
+   "triangles": 8582,
+   "materials": [
+    "LM_Props",
+    "Unlit_ff721e_e60"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Ornaments_Glass",
+   "triangles": 450,
+   "materials": [
+    "Glass_Export"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Outside_Land",
+   "triangles": 9777,
+   "materials": [
+    "LM_Outside",
+    "Unlit_8cb7ff_e12",
+    "Unlit_ff9342_e16"
+   ],
+   "quantized": false
+  },
+  {
+   "name": "Plants",
+   "triangles": 13171,
+   "materials": [
+    "LM_Soft"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Ring_Light",
+   "triangles": 1492,
+   "materials": [
+    "LM_Props"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Sea",
+   "triangles": 2,
+   "materials": [
+    "Unlit_010305_e0"
+   ],
+   "quantized": false
+  },
+  {
+   "name": "Shelf_Frame_Photo_Image",
+   "triangles": 2,
+   "materials": [
+    "Shelf_Frame_Photo_Image_Unlit"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Shelves",
+   "triangles": 258,
+   "materials": [
+    "LM_Room"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Skyline",
+   "triangles": 726,
+   "materials": [
+    "LM_Outside",
+    "Unlit_06ffdf_e4.8",
+    "Unlit_4c1eff_e7",
+    "Unlit_ff0c05_e30"
+   ],
+   "quantized": false
+  },
+  {
+   "name": "Soft_Toys",
+   "triangles": 17394,
+   "materials": [
+    "LM_Soft",
+    "Unlit_ffffff_e1.2"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Bed_Under_Amber",
+   "triangles": 24,
+   "materials": [
+    "Unlit_ff7523_e16"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Bed_Wall_Washer",
+   "triangles": 12,
+   "materials": [
+    "Unlit_ff9e56_e10"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Cabinet_Floor_Cyan",
+   "triangles": 12,
+   "materials": [
+    "Unlit_06ffd9_e10.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Cabinet_Top_Warm",
+   "triangles": 12,
+   "materials": [
+    "Unlit_ff8c3d_e9"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Cabinet_Violet_A",
+   "triangles": 12,
+   "materials": [
+    "Unlit_3313ff_e11"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Cabinet_Violet_B",
+   "triangles": 12,
+   "materials": [
+    "Unlit_3313ff_e11"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ceiling_1",
+   "triangles": 12,
+   "materials": [
+    "Unlit_4c23ff_e3.2"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ceiling_2",
+   "triangles": 12,
+   "materials": [
+    "Unlit_0aedff_e1.95"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ceiling_3",
+   "triangles": 12,
+   "materials": [
+    "Unlit_4c23ff_e3.2"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ceiling_4",
+   "triangles": 12,
+   "materials": [
+    "Unlit_0aedff_e1.95"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ceiling_5",
+   "triangles": 12,
+   "materials": [
+    "Unlit_4c23ff_e3.2"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ceiling_6",
+   "triangles": 12,
+   "materials": [
+    "Unlit_0aedff_e1.95"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ceiling_Downlights",
+   "triangles": 368,
+   "materials": [
+    "Unlit_ffb26b_e16"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Cove_Violet",
+   "triangles": 12,
+   "materials": [
+    "Unlit_4c1eff_e5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Desk_Edge_Violet",
+   "triangles": 12,
+   "materials": [
+    "Unlit_3313ff_e3.2"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Desk_End_Cyan",
+   "triangles": 12,
+   "materials": [
+    "Unlit_06ffd9_e10.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Desk_Return_Cyan",
+   "triangles": 12,
+   "materials": [
+    "Unlit_06ffd9_e10.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Desk_Under_Violet",
+   "triangles": 12,
+   "materials": [
+    "Unlit_3313ff_e11"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Mezzanine_Back_Warm",
+   "triangles": 12,
+   "materials": [
+    "Unlit_ff8c3d_e9"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Mezzanine_Downlights",
+   "triangles": 228,
+   "materials": [
+    "Unlit_ffb26b_e16"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Mezzanine_Edge_Cyan",
+   "triangles": 12,
+   "materials": [
+    "Unlit_06ffd9_e10.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Mezzanine_Under_Warm",
+   "triangles": 12,
+   "materials": [
+    "Unlit_ff9e56_e10"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Pedestal_Cyan",
+   "triangles": 12,
+   "materials": [
+    "Unlit_06ffd9_e10.5"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Picture_Light",
+   "triangles": 12,
+   "materials": [
+    "Unlit_ff9e56_e10"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Ring_Light",
+   "triangles": 1792,
+   "materials": [
+    "Unlit_ffbc7f_e1.1"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Strip_Shelf_Warm",
+   "triangles": 276,
+   "materials": [
+    "Unlit_ff8c3d_e9"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Wall_Picture",
+   "triangles": 2,
+   "materials": [
+    "Wall_Picture_Unlit"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Window",
+   "triangles": 716,
+   "materials": [
+    "LM_Room"
+   ],
+   "quantized": true
+  },
+  {
+   "name": "Window_Glass",
+   "triangles": 4,
+   "materials": [
+    "Glass_Export"
+   ],
+   "quantized": true
+  }
+ ],
+ "notes": {
+  "ktx2": "Not done. KTX2 (KHR_texture_basisu, ETC1S or UASTC, transcoded in the browser by three's KTX2Loader + basis_transcoder.wasm) would keep textures compressed on the GPU: about 4-8x less GPU memory than RGBA8 WebP (ETC1S ~0.5-1 byte/texel), so the 2048 atlases could come back within budget and phones would drop to ~5 MB. Costs: the transcoder (~0.5 MB wasm) and its setup, slower first upload, ETC1S blockiness in the dark gradients (UASTC avoids it at ~2x the download). /opt/homebrew/bin/basisu exists on this machine, so it needs no install.",
+  "viewer": "_dev/room/room.glb (with the baked armillary) is unchanged for sketches/room/."
+ }
+}

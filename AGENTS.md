@@ -28,9 +28,12 @@ Rules for AI agents (Codex, Claude Code) working in this repository. CLAUDE.md i
 5. Keep branches short-lived. If origin/main moves, update the review branch before the PR without rewriting published history.
 
 ## Shared hot spots
-- public/index.html (the captured, minified phoenix homepage) causes most conflicts. Only one branch may change it at a time. Before editing it, ask Richard whether another open branch touches it. Never hand-merge its minified lines.
+- workspace/home/release/ is generated output: the built homepage and Contact page from the Nuxt app in workspace/home/. Never hand-edit or hand-merge it. Rebuild it with `npm run home` in workspace/home/ and commit it together with the source change; on a conflict, merge the sources and rebuild. Only one branch may change workspace/home/ at a time: before editing it, ask Richard whether another open branch touches it.
+- public/index.html and the rest of the old captured homepage (public/contacts/, public/start.js, public/local.css, the runtime files in public/_nuxt/ and its asset folders) are retired. They stay on disk and are not built; do not edit or delete them without Richard's OK. The two font files in public/_nuxt/ still ship, because the other pages load them.
 - After intentional changes to public/, run npm run manifest. Regenerate generated output instead of merging it.
 - New pages live in workspace/<name>/ with a build.mjs wired into tools/build.mjs (see workspace/video). Don't add new features under public/.
+- workspace/palette/index.mjs is the one list of public destinations: the command palette, the footer index and the Colophon all read it. Add a new public page there. Unlisted pages (/choices/, /duke/, /hq/) never go in it; its test and tools/verify.mjs check.
+- Share cards are committed PNGs in workspace/og/cards/, drawn by `npm run og` (local Python, Pillow, macOS fonts). CI only copies them. After adding a section page, add its card to workspace/og/cards.json and run the script.
 
 ## Web previews and testing
 - Use Codex's built-in browser (`iab` / `@Browser`) explicitly and show previews beside the chat. Use `open_in_codex` for preview URLs and artifacts when available.

@@ -19,7 +19,7 @@
   --card:#16151c;
   --ink:#ece9e1;
   --muted:#a8a398;
-  --faint:#7a766d;
+  --faint:#8a867e;
   --line:#2d2b34;
   --accent:#e8743b;
   --accent-soft:#3a2418;
@@ -41,7 +41,7 @@ html[data-theme="paper"]{
   --card:#fbfbf9;
   --ink:#161514;
   --muted:#57544e;
-  --faint:#8a867e;
+  --faint:#696660;
   --line:#d6d3ca;
   --accent:#b93c0b;
   --accent-soft:#f3ddd2;
@@ -57,7 +57,7 @@ html[data-theme="paper"]{
   --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:40px}
+html{scroll-behavior:smooth;scroll-padding-top:40px;scrollbar-gutter:stable}
 body{
   margin:0;
   color:var(--ink);
@@ -73,12 +73,19 @@ button{font:inherit;color:inherit;cursor:pointer}
 ::selection{background:var(--ink);color:var(--paper)}
 h1,h2,h3,p,figure{margin-top:0}
 h1,h2,h3{font-family:var(--font-display);font-weight:400;color:var(--ink)}
-h1{font-size:clamp(52px,7vw,104px);line-height:.98;letter-spacing:-.045em;margin-bottom:28px}
+h1{font-size:clamp(46px,30px + 4.6vw,104px);line-height:.98;letter-spacing:-.045em;margin-bottom:28px}
 h2{font-size:clamp(30px,3.4vw,46px);line-height:1.05;letter-spacing:-.035em;margin-bottom:16px}
 h3{font-size:24px;line-height:1.2;letter-spacing:-.02em;margin-bottom:6px}
 /* Older pages put a word in <em> for a serif accent. Now it reads as part of the heading. */
 h1 em,h2 em,h3 em{font-family:inherit;font-style:normal;color:inherit;letter-spacing:inherit}
 em{font-style:italic}
+h1,h2,h3{text-wrap:balance}
+p,li,dd,figcaption{text-wrap:pretty}
+/* A link inside running text is underlined, so it can be told apart from the text around it.
+   It is a text-decoration, not a border: a page that already underlines its links then keeps one line. */
+:where(main) :where(p,figcaption,dd)>a:where(:not([class])),:where(.blog-body) li>a:where(:not([class])){text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.22em;text-decoration-color:var(--faint)}
+/* Text for screen readers only (for example "opens in a new tab"). */
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 
 /* Header */
 .site-header{
@@ -180,11 +187,12 @@ figcaption{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin
 .experience ol{padding:0;list-style:none;margin:36px 0 0}
 .experience ol>li{display:grid;grid-template-columns:3fr 9fr;gap:24px;padding:28px 0;border-top:1px solid var(--line)}
 .experience ol>li>span{font-family:var(--font-mono);font-size:13px;color:var(--muted);padding-top:6px}
+.experience ol>li>div{min-width:0}
 .org{font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-bottom:12px}
 .experience li p{max-width:680px}
 .experience .tags{margin-bottom:0}
 .publications h3{max-width:760px;text-wrap:pretty}
-.publications h3 a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
+.publications h3 a{color:inherit;text-decoration:none;border-bottom:1px solid var(--faint)}
 .publications h3 a:hover{color:var(--accent);border-color:var(--accent)}
 .publications h3 a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .skills{padding:56px 0 72px;border-top:1px solid var(--ink)}
@@ -193,26 +201,57 @@ figcaption{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin
 .skills p{margin:0}
 
 /* Research */
-.research{padding:56px 0;max-width:900px;border-top:1px solid var(--ink)}
+.research{padding:56px 0;border-top:1px solid var(--ink)}
+.research>*{max-width:900px}
+
+/* A publication's BibTeX entry, folded away until asked for (workspace/cite). */
+.cite{margin-top:14px;max-width:760px}
+.cite summary{display:inline-block;list-style:none;cursor:pointer;font-family:var(--font-mono);font-size:13px;color:var(--muted);border-bottom:1px solid var(--faint)}
+.cite summary::-webkit-details-marker{display:none}
+.cite summary::before{content:"+ "}
+.cite[open] summary::before{content:"\2212  "}
+.cite-body{position:relative;margin-top:12px;border:1px solid var(--line);background:var(--stage);color:var(--on-stage)}
+.cite pre{margin:0;padding:18px 16px;white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--font-mono);font-size:13px;line-height:1.65;tab-size:2}
+.cite .copy-button{position:absolute;top:8px;right:8px;background:var(--card)}
+
+/* 404: the address that was asked for, and the nearest real page (workspace/palette/notfound.js). */
+.lost{margin:28px 0 0;font-family:var(--font-mono);font-size:14px;line-height:1.7;color:var(--muted)}
+.lost code{padding:1px 6px;border:1px solid var(--line);background:var(--card);font:inherit;color:var(--ink);overflow-wrap:anywhere}
+.lost a{color:var(--ink);border-bottom:1px solid var(--accent)}
 
 /* Footer */
 .site-footer{
   width:min(1240px,92%);
   margin:96px auto 0;
-  padding:36px 0 32px;
+  padding:40px 0 28px;
   border-top:1px solid var(--ink);
   display:grid;
-  grid-template-columns:7fr 5fr;
-  gap:24px 8%
+  grid-template-columns:5fr 7fr;
+  gap:44px 8%
 }
-.site-footer>p{font-family:var(--font-display);font-size:clamp(26px,3vw,38px);line-height:1.1;letter-spacing:-.03em;margin:0}
+.site-footer>p{font-family:var(--font-display);font-size:clamp(26px,3vw,38px);line-height:1.1;letter-spacing:-.03em;margin:0;max-width:16ch;text-wrap:balance}
 .site-footer>p a{border-bottom:2px solid var(--accent)}
-.footer-bottom{display:flex;flex-direction:column;gap:14px;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
-.footer-bottom>div{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--ink)}
-.footer-bottom a{border-bottom:1px solid var(--line)}
+/* The index: the seven sections, the pages the menu does not show, and other places to find me. */
+.footer-index{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 24px;font-family:var(--font-mono);font-size:13px;line-height:1.5}
+.footer-index p{margin:0 0 12px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.footer-index ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.footer-index a{border-bottom:1px solid transparent}
+.footer-index .foot-n{margin-right:2px;color:var(--faint)}
+.footer-email{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+/* Left-aligned: the bottom-right corner belongs to the fixed "Pause sharks" button. */
+.footer-bottom{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 32px;padding:20px 190px 0 0;border-top:1px solid var(--line);font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.footer-bottom a{color:var(--ink);border-bottom:1px solid var(--faint)}
+
+/* Copy buttons (portfolio.js): hidden in the markup, shown where the clipboard works. */
+.copy-button{padding:1px 7px;border:1px solid var(--faint);border-radius:0;background:none;font-family:var(--font-mono);font-size:11px;line-height:1.6;color:var(--muted)}
+.copy-button[hidden]{display:none}
 
 @media(hover:hover) and (pointer:fine){
   .site-header nav a:hover,.footer-bottom a:hover,.related a:hover{color:var(--accent);border-color:var(--accent)}
+  .footer-index a:hover{color:var(--ink);border-color:var(--ink)}
+  .copy-button:hover{color:var(--ink);border-color:var(--ink)}
+  :where(main) :where(p,figcaption,dd)>a:where(:not([class])):hover,:where(.blog-body) li>a:where(:not([class])):hover{color:var(--accent);text-decoration-color:var(--accent)}
+  .cite summary:hover{color:var(--ink);border-color:var(--ink)}
   .actions a:hover{transform:translate(-2px,-2px);box-shadow:var(--shadow)}
   .actions a:first-child:hover{box-shadow:4px 4px 0 var(--accent)}
 }
@@ -234,9 +273,22 @@ figcaption{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin
   .about-quotes{grid-template-columns:1fr;gap:44px;padding:44px 0 56px}
   .experience ol>li,.skills>div{grid-template-columns:1fr;gap:6px}
   .research{padding:40px 0}
-  .site-footer{grid-template-columns:1fr;margin-top:64px}
-  h1{font-size:clamp(46px,13vw,72px)}
+  .site-footer{grid-template-columns:1fr;gap:36px;margin-top:64px;padding-bottom:76px}
+  .footer-bottom{padding-right:0}
+  .footer-index{grid-template-columns:repeat(2,minmax(0,1fr));font-size:14px}
+  .footer-index ul{gap:10px}
+  .copy-button{padding:5px 10px;font-size:12px}
+  .lost{font-size:13px}
 }
+/* Page to page: a short cross-fade. Only when motion is welcome. The header is not given its own
+   transition name: that would make it a stacking context and put the tablet menu under page content. */
+@media(prefers-reduced-motion:no-preference){
+  @view-transition{navigation:auto}
+  ::view-transition-old(root){animation:page-out .12s ease both}
+  ::view-transition-new(root){animation:page-in .2s ease both}
+}
+@keyframes page-out{to{opacity:0}}
+@keyframes page-in{from{opacity:0}}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important}
@@ -277,13 +329,13 @@ html[data-theme="paper"]{
 }
 
 /* Site menu: the seven stones, numbered (workspace/stones/parts.mjs). */
-.site-header nav.stone-nav{gap:4px 6px}
-.stone-nav a{display:inline-flex;gap:6px;padding:4px 9px;border:1px solid transparent}
+.site-header nav.stone-nav{gap:4px 2px}
+.site-header nav.stone-nav a{display:inline-flex;gap:6px;padding:4px 8px;border:1px solid transparent}
 .stone-nav a span{color:var(--faint)}
 .site-header nav.stone-nav [aria-current]{color:var(--ink);border-color:var(--ink)}
 .stone-nav [aria-current] span{color:var(--accent)}
 @media(hover:hover) and (pointer:fine){.site-header nav.stone-nav a:hover{color:var(--ink);border-color:var(--line)}}
-@media(max-width:899px){.stone-nav a{padding:4px 0}.site-header nav.stone-nav [aria-current]{border-color:transparent}}
+@media(max-width:899px){.site-header nav.stone-nav{gap:12px}.site-header nav.stone-nav a{padding:4px 0}.site-header nav.stone-nav [aria-current]{border-color:transparent;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}}
 
 /* About: CV, contact, stars and skills, at the end of the page. */
 .about-more{padding:56px 0 24px;border-top:1px solid var(--ink)}
@@ -295,3 +347,511 @@ html[data-theme="paper"]{
 .about-more em{font-style:normal;color:var(--muted)}
 @media(hover:hover) and (pointer:fine){.about-more a:hover span{color:var(--accent)}}
 @media(max-width:700px){.about-more a{grid-template-columns:1fr;gap:2px}}
+
+/* Printing: ink on white, without the menu or the controls. */
+@media print{
+  :root{color-scheme:light;--paper:#fff;--paper-2:#f2f1ec;--card:#fff;--ink:#161514;--muted:#57544e;--faint:#696660;--line:#d6d3ca;--accent:#b93c0b;--stage:#fff;--on-stage:#161514;--shadow:none}
+  .actions a:first-child{background:none;color:var(--ink)}
+  .work-code figcaption{color:var(--muted);border-bottom-color:var(--line)}
+  body{font-size:11pt}
+  .skip-link,.menu-button,.site-header nav,.palette-button,.stone-next,.footer-index,.copy-button,.related,.bubble-sound{display:none!important}
+  main,.site-header,.site-footer{width:100%}
+  .site-footer{margin-top:32px}
+  .experience ol>li,.work-item,.about-quote,figure{break-inside:avoid}
+  .work-item--research .work-head{position:static}
+  main :is(p,h3)>a[href^="https:"]::after{content:" (" attr(href) ")";font-family:var(--font-mono);font-size:8pt;letter-spacing:0;color:var(--muted);overflow-wrap:anywhere}
+}
+/* Windows high contrast: the current section keeps its box. */
+@media(forced-colors:active){
+  .site-header nav.stone-nav [aria-current]{border-color:CanvasText}
+}
+
+/* =====================================================================================================
+   Instrument look (site/DESIGN.md): the inner pages as the homepage's world, an engraved instrument
+   under a night sky. Opt-in with html[data-look="instrument"] (site/pages.mjs writes it); /research/
+   wears it first. Every rule here is scoped or uses classes only instrument pages have, so the pages
+   still on night and ink above are untouched. tests/look.test.mjs checks the contrast of these tokens.
+   ===================================================================================================== */
+html[data-look="instrument"]{
+  color-scheme:dark;
+  --sky-top:#0c0b19;
+  --sky-mid:#110f27;
+  --sky-bottom:#18153f;
+  --paper:#0e0d1f;
+  --paper-2:#14132c;
+  --card:#14132c;
+  --inset:#09081a;
+  --stage:#09081a;
+  --on-stage:#ece9e1;
+  --ink:#ece9e1;
+  --muted:#b6b2c8;
+  --faint:#938fad;
+  --line:#29264a;
+  --line-strong:#46426e;
+  --accent:#39f0a6;
+  --violet:#7a4dff;
+  --amber:#ffb469;
+  --select:#4b30b8;
+  --dot:rgb(236 233 225 / .08);
+  --haze-green:rgb(57 240 166 / .06);
+  --haze-violet:rgb(122 77 255 / .07);
+  /* The margins' sky (skySides() in site/ornament.mjs): the Milky Way band on the left, the aurora curtain
+     on the right. Gradient hazes like the two above, never over the text column; the look test still checks
+     every text token over their strongest point. */
+  --milkyway:rgb(122 77 255 / .07);
+  --milkyway-edge:rgb(58 48 168 / .045);
+  --milkyway-core:rgb(196 176 255 / .035);
+  --aurora:rgb(64 240 186 / .055);
+  --aurora-high:rgb(122 77 255 / .03);
+  --aurora-glow:rgb(57 220 200 / .02);
+  --star:236 233 225;
+  --shadow:none;
+  --page:var(--paper);
+  /* One plain voice: the system grotesque for headings, reading text and controls; mono for labels and data.
+     Nothing is downloaded. BlinkMacSystemFont is Chrome's name for the Mac system face. */
+  --font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-ui:var(--font-body);
+  --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  /* The graduated scale: a hairline with ticks every 8px, longer every 40px, longest every 80px.
+     rule-up stands on its baseline (the header's bottom edge); rule-down hangs from it (a chapter's top). */
+  --rule-up:
+    linear-gradient(var(--line-strong),var(--line-strong)) left bottom/100% 1px no-repeat,
+    repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 80px) left bottom/100% 11px no-repeat,
+    repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 40px) left bottom/100% 7px no-repeat,
+    repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left bottom/100% 4px no-repeat;
+  --rule-down:
+    linear-gradient(var(--line-strong),var(--line-strong)) left top/100% 1px no-repeat,
+    repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 80px) left top/100% 11px no-repeat,
+    repeating-linear-gradient(90deg,var(--line-strong) 0 1px,transparent 1px 40px) left top/100% 7px no-repeat,
+    repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left top/100% 4px no-repeat;
+  background:var(--paper)
+}
+/* Chart paper: the light variant, for a page that sets data-theme="paper" as well. */
+html[data-look="instrument"][data-theme="paper"]{
+  color-scheme:light;
+  --sky-top:#f3f1e9;
+  --sky-mid:#f3f1e9;
+  --sky-bottom:#f3f1e9;
+  --paper:#f3f1e9;
+  --paper-2:#eae7dc;
+  --card:#fbfaf6;
+  --inset:#eae7dc;
+  --stage:#16142a;
+  --on-stage:#f3f1e9;
+  --ink:#16142a;
+  --muted:#48455d;
+  --faint:#5d5a72;
+  --line:#d6d1c2;
+  --line-strong:#b3ad9c;
+  --accent:#086b4c;
+  --violet:#5a3fd0;
+  --amber:#9a5208;
+  --select:#cfc4ff;
+  --dot:rgb(22 20 42 / .1);
+  --grid:rgb(8 107 76 / .07);
+  --grid-fine:rgb(8 107 76 / .035)
+}
+
+/* The sky: night to indigo, a faint aurora in the top right, a few static stars. One fixed layer, no images.
+   The brighter stars sit in the side gutters; the ones over the text column are too faint to read as a full stop. */
+html[data-look="instrument"] body{background:transparent;font-size:18px;line-height:1.6;isolation:isolate}
+html[data-look="instrument"] body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 2% 18%,rgb(var(--star) / .5) 0 .9px,transparent 1.5px),
+    radial-gradient(circle at 4% 62%,rgb(var(--star) / .4) 0 .8px,transparent 1.4px),
+    radial-gradient(circle at 3% 88%,rgb(var(--star) / .35) 0 .7px,transparent 1.2px),
+    radial-gradient(circle at 96% 8%,rgb(var(--star) / .55) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 98% 34%,rgb(208 232 255 / .45) 0 .9px,transparent 1.5px),
+    radial-gradient(circle at 95% 57%,rgb(255 222 232 / .4) 0 .9px,transparent 1.5px),
+    radial-gradient(circle at 97% 79%,rgb(var(--star) / .4) 0 .8px,transparent 1.4px),
+    radial-gradient(circle at 93% 94%,rgb(var(--star) / .35) 0 .7px,transparent 1.2px),
+    radial-gradient(circle at 18% 7%,rgb(var(--star) / .25) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 31% 41%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 44% 3%,rgb(var(--star) / .3) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 57% 27%,rgb(var(--star) / .22) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 69% 12%,rgb(var(--star) / .28) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 84% 24%,rgb(var(--star) / .3) 0 .7px,transparent 1.2px),
+    radial-gradient(circle at 79% 47%,rgb(var(--star) / .22) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 62% 66%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 38% 78%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 72% 86%,rgb(var(--star) / .25) 0 .6px,transparent 1.1px),
+    radial-gradient(70% 42% at 96% -6%,var(--haze-green),transparent 72%),
+    radial-gradient(52% 36% at 70% -4%,var(--haze-violet),transparent 74%),
+    linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 48%,var(--sky-bottom) 100%)
+}
+html[data-look="instrument"][data-theme="paper"] body::before{
+  background:
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/40px 40px,
+    linear-gradient(var(--grid) 1px,transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg,var(--grid-fine) 1px,transparent 1px) 0 0/8px 8px,
+    linear-gradient(var(--grid-fine) 1px,transparent 1px) 0 0/8px 8px,
+    var(--paper)
+}
+/* No ASCII sharks here: data-ambient-background="off" keeps the engine off; the empty canvas goes too. */
+html[data-look="instrument"] #ascii-sharks-background{display:none}
+html[data-look="instrument"] ::selection{background:var(--select);color:#fff}
+html[data-look="instrument"][data-theme="paper"] ::selection{color:var(--ink)}
+
+/* Type: one upright grotesque, set plainly. Headings are semibold and tracked a little tighter as they grow;
+   size and weight carry the hierarchy (title, section, entry, body), mono uppercase marks labels. Italic is
+   left to <em> and genuine emphasis, never decoration. */
+html[data-look="instrument"] :is(h1,h2,h3){font-family:var(--font-display);font-style:normal;font-weight:600;color:var(--ink)}
+html[data-look="instrument"] h1{font-size:clamp(56px,34px + 3.8vw,104px);line-height:.98;letter-spacing:-.042em;margin-bottom:24px}
+html[data-look="instrument"] h2{font-size:clamp(28px,20px + 1.05vw,40px);line-height:1.12;letter-spacing:-.024em;margin-bottom:0}
+html[data-look="instrument"] h3{font-size:clamp(21px,17px + .45vw,24px);line-height:1.25;letter-spacing:-.014em;margin-bottom:6px}
+html[data-look="instrument"] .eyebrow{font-size:12px;letter-spacing:.14em;color:var(--muted)}
+html[data-look="instrument"] :where(main) :where(p,figcaption,dd)>a:where(:not([class])){text-decoration-color:var(--accent);text-underline-offset:.24em;transition:color .15s ease}
+html[data-look="instrument"] :is(a,button,summary):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* Header: the wordmark, the seven sections, Search; a graduated scale underneath.
+   The current section is marked like a reading on the scale: an aurora rule with a tick at its start. */
+html[data-look="instrument"] .site-header{padding:18px 0 24px;border-bottom:0;background:var(--rule-up)}
+html[data-look="instrument"] .wordmark{font-family:var(--font-display);font-size:19px;font-weight:600;line-height:1;letter-spacing:-.015em}
+html[data-look="instrument"] .site-header nav.stone-nav{font-family:var(--font-ui);font-size:15px;gap:4px}
+html[data-look="instrument"] .site-header nav.stone-nav a{align-items:baseline;gap:7px;padding:4px 8px 8px;border:0;color:var(--muted);transition:color .15s ease}
+html[data-look="instrument"] .stone-nav a span{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--faint)}
+html[data-look="instrument"] .site-header nav.stone-nav [aria-current]{
+  color:var(--ink);
+  text-decoration:none;
+  background:
+    linear-gradient(var(--accent),var(--accent)) 8px 100%/calc(100% - 16px) 1px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) 8px 100%/1px 6px no-repeat
+}
+html[data-look="instrument"] .stone-nav [aria-current] span{color:var(--accent)}
+html[data-look="instrument"] .menu-button{border:1px solid var(--line-strong);background:transparent;color:var(--ink);font-family:var(--font-ui);font-size:14px;padding:7px 14px}
+html[data-look="instrument"] .menu-button[aria-expanded="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+html[data-look="instrument"] .site-header .palette-button{border-color:var(--line-strong);color:var(--muted);font-family:var(--font-ui);font-size:14px}
+html[data-look="instrument"] .site-header .palette-button:focus-visible{color:var(--ink);border-color:var(--ink)}
+html[data-look="instrument"] .palette{border-color:var(--line-strong);box-shadow:none}
+@media(hover:hover) and (pointer:fine){
+  html[data-look="instrument"] .site-header nav.stone-nav a:hover{color:var(--ink)}
+  html[data-look="instrument"] .stone-nav a:hover span{color:var(--accent)}
+  html[data-look="instrument"] .site-header .palette-button:hover{color:var(--ink);border-color:var(--ink)}
+}
+/* 900 to 1099px: the seven links, the wordmark and Search share one line, so everything sits closer. */
+@media(min-width:900px) and (max-width:1099px){
+  html[data-look="instrument"] .wordmark{font-size:18px}
+  html[data-look="instrument"] .site-header nav.stone-nav{font-size:14px;gap:2px}
+  html[data-look="instrument"] .site-header nav.stone-nav a{gap:5px;padding-inline:6px}
+  html[data-look="instrument"] .site-header nav.stone-nav [aria-current]{background-position:6px 100%,6px 100%;background-size:calc(100% - 12px) 1px,1px 6px}
+}
+@media(max-width:899px){
+  html[data-look="instrument"] .site-header nav.stone-nav a{padding:6px 0 9px}
+  html[data-look="instrument"] .site-header nav.stone-nav [aria-current]{background-position:0 100%,0 100%;background-size:100% 1px,1px 6px}
+}
+@media(min-width:701px) and (max-width:899px){
+  html[data-look="instrument"] .site-header nav{background:var(--card);border-color:var(--line-strong);box-shadow:none}
+}
+
+/* Footer: the scale on top, the invitation as a semibold line, the index in the sans. */
+html[data-look="instrument"] .site-footer{margin-top:120px;padding-top:44px;border-top:0;background:var(--rule-down)}
+html[data-look="instrument"] .site-footer>p{font-family:var(--font-display);font-size:clamp(24px,14px + 1.3vw,34px);font-weight:600;line-height:1.18;letter-spacing:-.022em;max-width:17ch}
+html[data-look="instrument"] .site-footer>p a{border-bottom:1px solid var(--accent)}
+html[data-look="instrument"] .footer-index{font-family:var(--font-ui);font-size:14.5px}
+html[data-look="instrument"] .footer-index p{font-family:var(--font-mono);letter-spacing:.14em}
+html[data-look="instrument"] .footer-index a{color:var(--muted)}
+html[data-look="instrument"] .footer-index .foot-n{margin-right:6px;font-family:var(--font-mono);font-size:11px}
+html[data-look="instrument"] .footer-bottom{padding-right:0;border-top-color:var(--line);font-size:12px}
+html[data-look="instrument"] .footer-bottom a{border-bottom-color:var(--accent)}
+@media(hover:hover) and (pointer:fine){html[data-look="instrument"] .footer-index a:hover{color:var(--ink);border-color:var(--accent)}}
+
+/* The next stone at the end of a section (workspace/stones), in the same language. */
+html[data-look="instrument"] .stone-next{margin-top:120px;padding-top:30px;border-top:0;background:var(--rule-down)}
+html[data-look="instrument"] .stone-next .next small,html[data-look="instrument"] .stone-next .prev{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+html[data-look="instrument"] .stone-next .next strong{font-family:var(--font-display);font-size:clamp(36px,16px + 2.6vw,58px);font-weight:600;line-height:1.02;letter-spacing:-.034em}
+html[data-look="instrument"] .stone-next .next em{font-family:var(--font-ui);font-size:15px}
+html[data-look="instrument"] .stone-next .prev{border-bottom-color:var(--line-strong)}
+
+/* A link list in a sentence's place ("All projects →  All work →"). */
+html[data-look="instrument"] .chapter-more{display:flex;flex-wrap:wrap;gap:8px 28px;margin:28px 0 0;font-family:var(--font-ui);font-size:15px}
+
+/* ---- Components (only instrument pages have these classes) ---- */
+
+/* Opening: dial marking, title, lede, interests; the orrery to the right. */
+.opening{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:32px 6%;align-items:center;padding:64px 0 72px}
+.opening-text{min-width:0}
+.opening .eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.opening .eyebrow::before{content:"";flex:none;width:28px;height:1px;background:var(--accent)}
+.opening .lede{max-width:32em;margin-bottom:0;font-size:clamp(19px,16px + .38vw,22px);line-height:1.5;color:var(--muted)}
+.interests{margin:28px 0 0;font-family:var(--font-mono);font-size:12px;line-height:1.7;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+.interests span{margin-right:12px;color:var(--faint)}
+
+/* The orrery (site/ornament.mjs): engraved lines, 1px at any size; violet tilted rings; the amber sun. */
+.orrery{display:block;width:100%;max-width:360px;height:auto;justify-self:end;overflow:visible}
+.orrery :is(circle,path){fill:none;stroke:var(--line-strong);stroke-width:1;vector-effect:non-scaling-stroke}
+.orrery .o-tick{stroke:var(--faint);opacity:.7}
+.orrery .o-back{stroke-dasharray:2 5}
+.orrery .o-tilt{stroke:var(--violet)}
+.orrery .o-axis{stroke-dasharray:1 5}
+.orrery .o-planet{fill:var(--ink);stroke:none}
+.orrery .o-halo{stroke:var(--amber);opacity:.5}
+.orrery .o-sun{fill:var(--amber);stroke:none}
+
+/* Readout: the page's chapters with one fact each, linked; the first screen shows the whole page. */
+.readout{padding-top:24px;background:var(--rule-down)}
+.readout ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0;padding:0;list-style:none}
+.readout li{min-width:0;border-left:1px solid var(--line)}
+.readout li:first-child{border-left:0}
+.readout a{display:flex;flex-direction:column;gap:6px;height:100%;padding:4px 22px 6px}
+.readout li:first-child a{padding-left:0}
+.dial{font-family:var(--font-mono);font-size:11.5px;font-style:normal;line-height:1.4;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.readout-value{font-family:var(--font-display);font-size:clamp(18px,15px + .35vw,21px);font-weight:500;line-height:1.25;letter-spacing:-.012em;color:var(--ink);transition:color .15s ease}
+.readout-note{font-family:var(--font-ui);font-size:14px;line-height:1.4;color:var(--muted)}
+@media(hover:hover) and (pointer:fine){.readout a:hover .readout-value{color:var(--accent)}}
+
+/* Chapter: the scale on top, a 4-column rail (numeral and heading) and an 8-column body. */
+.chapter{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:28px 6%;margin-top:104px;padding-top:30px;background:var(--rule-down)}
+.chapter-rail,.chapter-body{min-width:0}
+.chapter-rail h2{text-wrap:balance}
+.chapter-rail .dial{display:block;margin-bottom:16px;font-size:12px;letter-spacing:.14em}
+.chapter-body{max-width:780px}
+
+/* Experience: one entry per research role. */
+.roles,.plates{margin:0;padding:0;list-style:none}
+.role+.role,.plate+.plate{margin-top:56px}
+.role-when{margin:0 0 10px;font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.role-title{margin:0 0 18px;font-family:var(--font-ui);font-size:15.5px;color:var(--muted)}
+/* Reading measure: about 65 characters of the system sans. */
+.role-desc{max-width:34em;margin:0}
+/* Keywords, set like the labels on a dial: each stands on its own tick, so a wrapped line starts cleanly. */
+.keywords{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;margin:24px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:11.5px;line-height:1.4;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.keywords li::before{content:"";display:inline-block;width:1px;height:10px;margin-right:9px;background:var(--line-strong);vertical-align:-1px}
+
+/* Publication: a plate. A solid card with the notebook's dot grid, registration marks at its corners. */
+.plate{position:relative;padding:clamp(22px,3.4vw,44px);background-color:var(--card);background-image:radial-gradient(circle,var(--dot) 0 1px,transparent 1.4px);background-size:16px 16px;background-position:8px 8px}
+.plate::after{
+  content:"";
+  position:absolute;
+  inset:-6px;
+  pointer-events:none;
+  background:
+    linear-gradient(var(--faint),var(--faint)) left top/18px 1px no-repeat,
+    linear-gradient(var(--faint),var(--faint)) left top/1px 18px no-repeat,
+    linear-gradient(var(--faint),var(--faint)) right top/18px 1px no-repeat,
+    linear-gradient(var(--faint),var(--faint)) right top/1px 18px no-repeat,
+    linear-gradient(var(--faint),var(--faint)) left bottom/18px 1px no-repeat,
+    linear-gradient(var(--faint),var(--faint)) left bottom/1px 18px no-repeat,
+    linear-gradient(var(--faint),var(--faint)) right bottom/18px 1px no-repeat,
+    linear-gradient(var(--faint),var(--faint)) right bottom/1px 18px no-repeat
+}
+.plate-kind{margin:0 0 18px;font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.plate .plate-title{max-width:24em;margin:0;font-size:clamp(23px,16px + .85vw,29px);line-height:1.2;letter-spacing:-.018em;text-wrap:balance}
+.plate-subtitle{display:block;margin-top:10px;font-family:var(--font-body);font-size:clamp(17px,15px + .3vw,20px);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--muted);text-wrap:pretty}
+.plate .spec{margin-top:28px}
+.plate-links{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px 28px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--font-ui);font-size:15px}
+.plate-links>a{text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--accent);text-underline-offset:.24em}
+html[data-look="instrument"] .plate-links .cite{margin:0;max-width:none}
+html[data-look="instrument"] .plate-links .cite[open]{flex:1 0 100%}
+html[data-look="instrument"] .cite summary{font-family:var(--font-ui);font-size:15px;color:var(--ink);border-bottom-color:var(--accent)}
+html[data-look="instrument"] .cite-body{background:var(--inset);border-color:var(--line-strong);color:var(--ink)}
+html[data-look="instrument"] .cite pre{padding:20px 18px;font-size:13px}
+html[data-look="instrument"] .cite .copy-button{background:var(--card)}
+
+/* Facts as label and value, like the plate on an instrument's base. */
+.spec{display:grid;gap:10px;margin:0}
+.spec>div{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:2px 20px;align-items:baseline}
+.spec dt{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.spec dd{min-width:0;margin:0;font-family:var(--font-ui);font-size:15.5px;line-height:1.5;color:var(--ink)}
+.spec--tools{gap:0;border-bottom:1px solid var(--line)}
+.spec--tools>div{padding:16px 0;border-top:1px solid var(--line)}
+.spec--tools dd{font-family:var(--font-body);font-size:17px}
+
+/* Where the methods show up: a ledger of projects. The whole row opens the project. */
+.ledger{margin:0;padding:0;list-style:none;border-bottom:1px solid var(--line)}
+.ledger li{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:6px 24px;padding:22px 0 24px;border-top:1px solid var(--line)}
+.ledger-method{grid-column:1/-1;margin:0;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.ledger .ledger-name{margin:0}
+.ledger-name a::after{content:"";position:absolute;inset:0}
+.ledger-name a span{color:var(--accent)}
+.ledger-year{grid-column:2;grid-row:2;margin:0;font-family:var(--font-mono);font-size:12.5px;color:var(--faint)}
+.ledger-note{grid-column:1/-1;margin:0;max-width:36em;font-size:16.5px;line-height:1.55;color:var(--muted)}
+@media(hover:hover) and (pointer:fine){.ledger li:hover .ledger-name a{color:var(--accent)}}
+
+/* The Research Stack, after the tools. */
+.stack-link{max-width:34em;margin:36px 0 0;color:var(--muted)}
+html[data-look="instrument"] .stack-link a{margin-right:10px;font-family:var(--font-display);font-size:clamp(21px,17px + .45vw,24px);font-weight:600;line-height:1.25;letter-spacing:-.014em;color:var(--ink)}
+
+@media(min-width:701px) and (max-width:899px){
+  .opening{grid-template-columns:minmax(0,1fr) 200px}
+}
+@media(max-width:1099px){
+  .readout ol{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:22px}
+  .readout li:nth-child(odd){border-left:0}
+  .readout li:nth-child(odd) a{padding-left:0}
+}
+@media(max-width:899px){
+  .chapter{grid-template-columns:minmax(0,1fr);gap:22px;margin-top:80px;padding-top:26px}
+}
+@media(max-width:700px){
+  html[data-look="instrument"] body{font-size:17px}
+  html[data-look="instrument"] .wordmark{font-size:22px}
+  html[data-look="instrument"] .site-header{padding:14px 0 20px}
+  html[data-look="instrument"] .site-footer{margin-top:88px;padding-bottom:32px}
+  html[data-look="instrument"] .stone-next{margin-top:88px}
+  .opening{grid-template-columns:minmax(0,1fr);gap:0;padding:36px 0 48px}
+  .opening .orrery{order:-1;justify-self:start;width:96px;margin:0 0 24px -4px}
+  .chapter{margin-top:64px}
+}
+/* Phones: the side gutters are 16px, so even gutter stars touch the text. Four faint ones on the right edge. */
+@media(max-width:700px){
+  html[data-look="instrument"]:not([data-theme="paper"]) body::before{background:
+    radial-gradient(circle at 97% 6%,rgb(var(--star) / .4) 0 .8px,transparent 1.4px),
+    radial-gradient(circle at 98% 31%,rgb(var(--star) / .3) 0 .7px,transparent 1.2px),
+    radial-gradient(circle at 97% 58%,rgb(var(--star) / .3) 0 .7px,transparent 1.2px),
+    radial-gradient(circle at 98% 83%,rgb(var(--star) / .25) 0 .6px,transparent 1.1px),
+    radial-gradient(90% 40% at 100% -6%,var(--haze-green),transparent 72%),
+    radial-gradient(70% 34% at 70% -4%,var(--haze-violet),transparent 74%),
+    linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 48%,var(--sky-bottom) 100%)}
+}
+@media(max-width:560px){
+  .plate{padding:22px 20px 24px}
+  .plate .plate-title{font-size:22px;text-wrap:pretty}
+  .readout ol{grid-template-columns:minmax(0,1fr);row-gap:0}
+  .readout li{border-left:0;border-top:1px solid var(--line)}
+  .readout li:first-child{border-top:0}
+  .readout li a,.readout li:nth-child(odd) a{padding:12px 0}
+  .spec>div{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ---- Margins: wide screens only (1100px and up) ----
+   The page sits in a frame: a centred text column, and a margin on each side of it. The left margin holds
+   the page scale, the right one drawn notes, and behind both the sky has its own detail. Under 1100px all
+   of it is display:none and the page is the single column above.
+     --g       the frame's edge to the window's edge
+     --m       one margin's width: 88px at 1100, 150 at 1280, 170 at 1440, 225 at 1920, at most 320
+     --G       a margin's inner edge to the text column
+     --column  the text column, at most 1240px; past that the margins and the sky take the extra width */
+.sky-sides,.page-scale,.margin-note{display:none}
+@media(min-width:1100px){
+  html[data-look="instrument"]{
+    --g:clamp(24px,2.5vw,56px);
+    --G:clamp(28px,3vw,64px);
+    --m:calc(88px + (100vw - 1100px) * .35);
+    --column:min(1240px,100% - 2 * (var(--g) + var(--m) + var(--G)))
+  }
+  html[data-look="instrument"] main{position:relative;width:var(--column)}
+  html[data-look="instrument"] :is(.site-header,.site-footer){width:min(1240px + 2 * (var(--m) + var(--G)),100% - 2 * var(--g))}
+  /* The window-wide sky keeps its gradient, hazes and faint field stars; the margins draw their own edges. */
+  html[data-look="instrument"]:not([data-theme="paper"]) body::before{background:
+    radial-gradient(circle at 18% 7%,rgb(var(--star) / .25) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 31% 41%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 44% 3%,rgb(var(--star) / .3) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 57% 27%,rgb(var(--star) / .22) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 69% 12%,rgb(var(--star) / .28) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 62% 66%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 38% 78%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 72% 86%,rgb(var(--star) / .25) 0 .6px,transparent 1.1px),
+    radial-gradient(70% 42% at 96% -6%,var(--haze-green),transparent 72%),
+    radial-gradient(52% 36% at 70% -4%,var(--haze-violet),transparent 74%),
+    linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 48%,var(--sky-bottom) 100%)}
+
+  /* The sky in the margins (skySides() in site/ornament.mjs): one fixed panel per side, as wide as the space
+     beside the text column. Stars crowd the window's edge; the Milky Way crosses the left, the aurora rises
+     on the right. The mask fades each panel out over its inner half, so nothing reaches the text. */
+  html[data-look="instrument"]:not([data-theme="paper"]) .sky-sides{display:block}
+  .sky-side{position:fixed;top:0;z-index:-1;width:max((100% - 1240px) / 2,var(--g) + var(--m) + var(--G));height:100%;pointer-events:none}
+  .sky-side--left{left:0;-webkit-mask-image:linear-gradient(90deg,#000 46%,transparent 94%);mask-image:linear-gradient(90deg,#000 46%,transparent 94%)}
+  .sky-side--right{right:0;-webkit-mask-image:linear-gradient(270deg,#000 46%,transparent 94%);mask-image:linear-gradient(270deg,#000 46%,transparent 94%)}
+  .sky-side .mw-a{stop-color:var(--milkyway)}
+  .sky-side .mw-b{stop-color:var(--milkyway-edge)}
+  .sky-side .mw-core{stop-color:var(--milkyway-core)}
+  .sky-side .mw-fade{stop-color:rgb(58 48 168 / 0)}
+  .sky-side .au-a{stop-color:var(--aurora)}
+  .sky-side .au-b{stop-color:var(--aurora-high)}
+  .sky-side .au-glow{stop-color:var(--aurora-glow)}
+  .sky-side .au-fade{stop-color:rgb(57 220 200 / 0)}
+
+  /* The page scale (pageScale() in site/ornament.mjs): a graduated scale for the whole page, held in view.
+     Numerals 0 to 100 on the left, ticks every 8px (longer every 40 and 80), and each section's mark, a link,
+     where its section starts. public/portfolio.js places the marks, marks the current one and adds
+     .is-live, which shows the aurora cursor: it reads the scroll, on a CSS scroll timeline where there is one. */
+  html[data-look="instrument"] .page-scale{display:block;position:absolute;top:0;bottom:0;right:calc(100% + var(--G));width:var(--m)}
+  .scale-track{position:sticky;top:32px;height:calc(100vh - 128px);container-type:size}
+  .scale-track::before{content:"";position:absolute;top:0;bottom:0;left:35px;width:1px;background:var(--line-strong)}
+  .scale-track::after{content:"";position:absolute;top:0;bottom:0;left:24px;width:11px;background:
+    repeating-linear-gradient(180deg,var(--line-strong) 0 1px,transparent 1px 80px) right top/11px 100% no-repeat,
+    repeating-linear-gradient(180deg,var(--line-strong) 0 1px,transparent 1px 40px) right top/7px 100% no-repeat,
+    repeating-linear-gradient(180deg,var(--line) 0 1px,transparent 1px 8px) right top/4px 100% no-repeat}
+  .scale-numerals{margin:0}
+  .scale-numerals span{position:absolute;left:0;top:calc(var(--at) * 100%);width:20px;transform:translateY(-50%);font-family:var(--font-mono);font-size:10px;line-height:1;text-align:right;color:var(--faint)}
+  .page-scale ol{margin:0;padding:0;list-style:none}
+  .page-scale li{position:absolute;z-index:1;left:28px;right:0;top:calc(var(--at) * 100%);transform:translateY(-50%)}
+  .page-scale a{display:inline-flex;align-items:center;gap:8px;min-height:24px;padding-right:6px;color:var(--muted)}
+  .page-scale a::before{content:"";flex:none;width:15px;height:1px;background:var(--line-strong)}
+  .scale-n{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--faint)}
+  .scale-name{font-family:var(--font-ui);font-size:13px;font-weight:500;white-space:nowrap}
+  .page-scale [aria-current]{color:var(--ink)}
+  .page-scale [aria-current]::before{background:var(--accent)}
+  .page-scale [aria-current] .scale-n{color:var(--accent)}
+  .scale-cursor{display:none;position:absolute;z-index:2;top:0;left:27px;width:0;height:0;margin-top:-4px;border-left:7px solid var(--accent);border-block:4px solid transparent;pointer-events:none}
+  .page-scale.is-live .scale-cursor{display:block;transform:translateY(calc(var(--p,0) * 100cqh))}
+}
+@media(min-width:1100px) and (hover:hover) and (pointer:fine){
+  .page-scale a:hover,.page-scale a:hover .scale-n{color:var(--ink)}
+}
+/* Under 1440px a margin is too narrow for the names: the marks show their numbers, and the names stay as
+   each link's accessible text. */
+@media(min-width:1100px) and (max-width:1439px){
+  .scale-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+@supports(animation-timeline:scroll()){
+  @media(min-width:1100px){
+    .page-scale.is-live .scale-cursor{animation-name:scale-read;animation-duration:auto;animation-timing-function:linear;animation-fill-mode:both;animation-timeline:scroll(root block)}
+  }
+}
+@keyframes scale-read{from{transform:translateY(0)}to{transform:translateY(100cqh)}}
+@media(min-width:1280px){
+  html[data-look="instrument"]{--m:clamp(150px,4px + 11.5vw,320px)}
+  /* Notes in the right margin (marginNote() in site/ornament.mjs), level with their chapter's number. */
+  html[data-look="instrument"] .chapter{position:relative}
+  html[data-look="instrument"] .margin-note{display:block;position:absolute;top:30px;left:calc(100% + var(--G));width:min(var(--m),220px);pointer-events:none}
+}
+.note-fig{display:block;width:100%;height:auto;overflow:visible}
+.note-fig :is(path,rect,circle,ellipse){fill:none;stroke:var(--line-strong);stroke-width:1;vector-effect:non-scaling-stroke}
+.note-fig .n-dim{stroke:var(--line)}
+.note-fig .n-mid{stroke:var(--faint);opacity:.7}
+.note-fig .n-dash{stroke-dasharray:2 4}
+.note-fig .n-violet{stroke:var(--violet)}
+.note-fig .n-fill{fill:var(--line);stroke:none}
+.note-fig .n-ink{fill:var(--ink);stroke:none}
+.note-fig .n-ink-dim{fill:var(--faint);stroke:none}
+.note-axis{display:grid;grid-template-columns:repeat(var(--years),minmax(0,1fr));margin:6px 0 0;padding:0 2%;font-family:var(--font-mono);font-size:10px;line-height:1;text-align:center;color:var(--faint)}
+.note-cap{margin:14px 0 0;font-family:var(--font-mono);font-size:11px;line-height:1.55;color:var(--faint);text-wrap:pretty}
+.note-cap span{display:block;margin-bottom:3px;letter-spacing:.14em;text-transform:uppercase}
+
+/* Print: ink on white, no sky, the ornament small; external addresses follow their links. */
+@media print{
+  html[data-look="instrument"]{--paper:#fff;--card:#fff;--inset:#f4f4f4;--ink:#111;--muted:#444;--faint:#555;--line:#ccc;--line-strong:#999;--accent:#111;--violet:#666;--amber:#666;--dot:transparent;background:#fff}
+  html[data-look="instrument"] body::before{display:none}
+  html[data-look="instrument"] :is(.sky-sides,.page-scale,.margin-note){display:none}
+  html[data-look="instrument"] :is(main,.site-header,.site-footer){width:100%}
+  html[data-look="instrument"] .site-header,html[data-look="instrument"] .chapter,html[data-look="instrument"] .site-footer{background:none;border-top:1px solid #999}
+  html[data-look="instrument"] .site-header{border-top:0;border-bottom:1px solid #999}
+  .opening{padding:16px 0 24px}
+  .opening .orrery{max-width:140px}
+  html[data-look="instrument"] :is(.readout,.chapter-more,.plate-links .cite){display:none}
+  .chapter{margin-top:28px;padding-top:16px}
+  .chapter-rail,.plate,.ledger li,.spec>div{break-inside:avoid}
+  .chapter-rail{break-after:avoid}
+  .plate-links>a[href^="https:"]::after{content:" (" attr(href) ")";font-family:var(--font-mono);font-size:8pt;color:var(--muted);overflow-wrap:anywhere}
+}
+/* Forced colours drop the drawn scales and the sky: the structure keeps real borders. The page scale keeps
+   its links, on a real border; its cursor and the drawn notes go. */
+@media(forced-colors:active){
+  html[data-look="instrument"] body::before{display:none}
+  html[data-look="instrument"] :is(.sky-sides,.margin-note,.scale-cursor){display:none}
+  html[data-look="instrument"] .scale-track::after{display:none}
+  html[data-look="instrument"] .scale-track::before{background:none;border-left:1px solid CanvasText}
+  html[data-look="instrument"] .page-scale [aria-current]{text-decoration:underline}
+  html[data-look="instrument"] .site-header{border-bottom:1px solid CanvasText}
+  :is(.chapter,.readout,.stone-next,.site-footer):where(html[data-look="instrument"] *){border-top:1px solid CanvasText}
+  .orrery :is(circle,path){stroke:CanvasText}
+  .orrery :is(.o-sun,.o-planet){fill:CanvasText}
+  html[data-look="instrument"] .site-header nav.stone-nav [aria-current]{border-bottom:1px solid CanvasText}
+}

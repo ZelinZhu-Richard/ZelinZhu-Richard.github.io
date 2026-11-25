@@ -1,7 +1,9 @@
 """Idempotent, narrow portfolio integration; also prepares an isolated release."""
 from pathlib import Path
 import json
-FILES=['package.json','site/content.mjs','site/pages.mjs','tools/build.mjs','tools/verify.mjs','public/_nuxt/CbdjwYMp.js','public/index.html','public/contacts/index.html']
+# The homepage and Contact page (workspace/home) list every page from workspace/palette/index.mjs, which reads
+# PROJECTS in site/content.mjs, so the retired captured homepage in public/ is no longer patched.
+FILES=['package.json','site/content.mjs','site/pages.mjs','tools/build.mjs','tools/verify.mjs']
 def transform(file,s):
  if '/gym/' in s or 'buildGym' in s or (file=='package.json' and 'gym/tests' in s):return s
  if file=='package.json':
@@ -29,13 +31,6 @@ def transform(file,s):
   s=s.replace("await buildPaperPiano('dist');","await buildPaperPiano('dist');\nawait buildGym('dist');")
   return s.replace("'/ppiano/'];","'/ppiano/', '/gym/'];")
  if file=='tools/verify.mjs':return s.replace("'ppiano/index.html',", "'gym/index.html', 'gym/app.js', 'gym/camera.js', 'gym/vision-worker.js', 'gym/vendor/pose_landmarker_lite.task', 'gym/vendor/mediapipe/vision_bundle.mjs', 'gym/vendor/mediapipe/wasm/vision_wasm_internal.wasm', 'ppiano/index.html',")
- if file=='public/_nuxt/CbdjwYMp.js':
-  for anchor,prefix,ending in [('to:"/ppiano/"','Tt(s,','_:1},8,["class"])'),('link:"/ppiano/",text:"Paper Piano"','Tt(h_,','null,8,["class"])')]:
-   idx=s.index(anchor);start=s.rfind(prefix,0,idx);end=s.index(ending,idx)+len(ending);chunk=s[start:end]
-   assert start>=0 and len(chunk)<500
-   s=s[:end]+','+chunk.replace('/ppiano/','/gym/').replace('"Paper Piano"','"Gym"')+s[end:]
-  return s
- if file.endswith('index.html'):return s.replace('<a href="/ppiano/">Paper Piano</a>','<a href="/ppiano/">Paper Piano</a>, or <a href="/gym/">Gym</a>')
  raise ValueError(file)
 if __name__=='__main__':
  backup=Path('workspace/gym/.qa/before');backup.mkdir(parents=True,exist_ok=True)

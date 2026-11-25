@@ -76,10 +76,16 @@ test('static build includes the full standalone page and excludes authoring and 
 
 test('all website navigation surfaces and deployment checks include Flash', async () => {
   const root = new URL('../../../', import.meta.url);
-  const [pages, runtime, build, verify] = await Promise.all(['site/pages.mjs','public/_nuxt/CbdjwYMp.js','tools/build.mjs','tools/verify.mjs'].map(file => readFile(new URL(file, root), 'utf8')));
+  const [pages, build, verify] = await Promise.all(['site/pages.mjs','tools/build.mjs','tools/verify.mjs'].map(file => readFile(new URL(file, root), 'utf8')));
   assert.ok(pages.includes("link('/flash/','Flash')"), 'Flash is linked from the Experiments page');
-  assert.ok(runtime.includes('to:"/flash/"'));
-  assert.ok(runtime.includes('link:"/flash/",text:"Flash"'));
+  // The homepage and Contact page list every page of workspace/palette/index.mjs at their foot.
+  const { indexItem, siteIndex } = await import('../../palette/index.mjs');
+  const { withHomeIndex } = await import('../../home/build.mjs');
+  assert.equal(indexItem('/flash/').title, 'Flash');
+  for (const [file, path] of [['index.html', '/'], ['contacts/index.html', '/contacts/']]) {
+    const built = withHomeIndex(await readFile(new URL(`workspace/home/release/${file}`, root), 'utf8'), siteIndex(), path);
+    assert.match(built.slice(built.indexOf('<nav id="home-index"')), /<a href="\/flash\/">Flash<\/a>/, file);
+  }
   assert.ok(build.includes("await buildFlash('dist')"));
   assert.ok(build.includes("'/flash/'"));
   assert.ok(verify.includes("'flash/index.html'"));

@@ -27,8 +27,6 @@ function localReference(ref, from) {
   try { path = decodeURIComponent(url.pathname).slice(1); } catch { errors.push(`Invalid URL encoding in ${from}`); return; }
   const target = names.has(path) ? path : `${path.replace(/\/$/, '')}${path ? '/' : ''}index.html`;
   if (!names.has(target)) { errors.push(`Missing local target: ${ref} in ${from}`); return; }
-  // Phoenix stones link to #to-<part> on the homepage; workspace/stones/home.js resolves them to real pages.
-  if (url.hash.startsWith('#to-') && target === 'index.html') return;
   if (url.hash && target.endsWith('.html')) {
     const html = documents.get(target) || '';
     const id = decodeURIComponent(url.hash.slice(1));
@@ -68,7 +66,8 @@ for (const [file, text] of documents) {
   if (/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----|\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})|\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/.test(text)) errors.push(`Possible secret material in ${file}`);
   if (/\bsb_secret_[A-Za-z0-9_-]{10,}|\bsk-ant-[A-Za-z0-9_-]{10,}/.test(text) || serviceRoleJwt(text)) errors.push(`Possible secret material in ${file}`);
   if (/https?:\/\/(?:localhost|127\.0\.0\.1):\d+|\/Users\/|\/src\/main\.jsx/.test(await devPathText(file, text))) errors.push(`Development path in ${file}`);
-  if (/noomoagency\.com|hello@noomo|Noomo Agency Logo|\/cases\/|videos\/cases/.test(text)) errors.push(`Obsolete agency content in ${file}`);
+  // The captured agency homepage is retired: nothing built may name it (THIRD_PARTY.md and asset-manifest.json do not ship).
+  if (/noomo/i.test(text) || /\/cases\/|videos\/cases/.test(text)) errors.push(`Obsolete agency content in ${file}`);
   if (file.endsWith('.html')) {
     if (!text.includes('id="ascii-sharks-background"') || !text.includes('href="/ascii-sharks/background.css"') || !text.includes('src="/ascii-sharks/background.js"')) errors.push(`Shared shark background missing: ${file}`);
     // The owner requested Choices remain unlisted, alongside the existing private HQ shell.
@@ -82,22 +81,44 @@ for (const [file, text] of documents) {
       localReference(m[1], file);
       if (choicesLink(m[1], file)) errors.push(`Unlisted Choices page linked from ${file}`);
     }
+    // A share image on this site must be a file the build produced: a missing one shows as a blank link preview.
+    for (const [tag] of text.matchAll(/<meta\b[^>]*>/g)) {
+      if (!/["'](?:og:image|twitter:image)["']/.test(tag)) continue;
+      const image = /content=["']https:\/\/zelinzhu-richard\.github\.io\/([^"']+)["']/.exec(tag)?.[1];
+      if (image && !names.has(decodeURIComponent(image))) errors.push(`Missing share image /${image} in ${file}`);
+    }
   }
   if (file.endsWith('.css')) for (const m of text.matchAll(/url\(["']?([^"')\s]+)["']?\)/g)) localReference(m[1], file);
   if (file.endsWith('.js')) {
     const check = spawnSync(process.execPath, ['--check', `${root}/${file}`], { encoding: 'utf8' });
     if (check.status !== 0) errors.push(`JavaScript syntax error: ${file}\n${check.stderr}`);
     for (const m of text.matchAll(/(?:from\s*|import\s*\(?)["'](\.[^"']+)["']/g)) localReference(m[1], file);
-    for (const m of text.matchAll(/["'`]((?:\/(?:_nuxt|audio|images|models|textures|timelines|libs)\/)[^"'`\s]+\.[a-zA-Z0-9]+)["'`]/g)) localReference(m[1], file);
-    if (file === 'story.js') for (const m of text.matchAll(/"href":\s*"([^"]+)"/g)) localReference(m[1], 'index.html');
+    for (const m of text.matchAll(/["'`]((?:\/(?:_home|home-assets|_nuxt|audio|images|models|textures|timelines|libs)\/)[^"'`\s]+\.[a-zA-Z0-9]+)["'`]/g)) localReference(m[1], file);
   }
 }
-for (const file of ['skills/index.html', 'skills/style.css', 'video/index.html', 'video/style.css', 'video/assets/neon-rain.mp4', 'video/assets/neon-rain-poster.jpg', 'index.html', 'hero-name/hero-name.css', 'hero-name/agency.js', 'music/player.js', 'music/playlist.js', 'music/player.css', 'music/dock.js', 'hero-name/ibarra-real-nova-italic.woff2', 'hero-name/OFL.txt', 'work/index.html', 'about/index.html', 'research/index.html', 'contacts/index.html', 'domainexp/index.html', 'domainexp/style.css', 'domainexp/app.js', 'domainexp/camera.js', 'domainexp/geometry.js', 'domainexp/render.js', 'domainexp/dust.js', 'domainexp/fireball.js', 'domainexp/vision.js', 'domainexp/vision-worker.js', 'domainexp/vendor/hand_landmarker.task', 'domainexp/vendor/mediapipe/vision_bundle.mjs', 'domainexp/vendor/mediapipe/wasm/vision_wasm_internal.js', 'domainexp/vendor/mediapipe/wasm/vision_wasm_internal.wasm', 'domainexp/vendor/mediapipe/wasm/vision_wasm_nosimd_internal.js', 'domainexp/vendor/mediapipe/wasm/vision_wasm_nosimd_internal.wasm', 'domainexp/vendor/MEDIAPIPE-LICENSE.txt', 'gym/index.html', 'gym/app.js', 'gym/camera.js', 'gym/vision-worker.js', 'gym/vendor/pose_landmarker_lite.task', 'gym/vendor/mediapipe/vision_bundle.mjs', 'gym/vendor/mediapipe/wasm/vision_wasm_internal.wasm', 'ppiano/index.html', 'ppiano/app.js', 'ppiano/camera.js', 'ppiano/vision-worker.js', 'ppiano/vendor/hand_landmarker.task', 'ppiano/vendor/opencv.js', 'ppiano/assets/samples.json', 'flash/index.html', 'flash/editor.js', 'flash/renderer.js', 'flash/card.css', 'flash/export-assets.js', '404.html', 'Zelin_Zhu_CV.pdf', '.nojekyll', 'robots.txt', 'sitemap.xml', 'models/v20.glb']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+for (const file of ['skills/index.html', 'skills/style.css', 'video/index.html', 'video/style.css', 'video/assets/neon-rain.mp4', 'video/assets/neon-rain-poster.jpg', 'index.html', 'hero-name/ibarra-real-nova-italic.woff2', 'hero-name/OFL.txt', 'work/index.html', 'about/index.html', 'research/index.html', 'contacts/index.html', 'domainexp/index.html', 'domainexp/style.css', 'domainexp/app.js', 'domainexp/camera.js', 'domainexp/geometry.js', 'domainexp/render.js', 'domainexp/dust.js', 'domainexp/fireball.js', 'domainexp/vision.js', 'domainexp/vision-worker.js', 'domainexp/vendor/hand_landmarker.task', 'domainexp/vendor/mediapipe/vision_bundle.mjs', 'domainexp/vendor/mediapipe/wasm/vision_wasm_internal.js', 'domainexp/vendor/mediapipe/wasm/vision_wasm_internal.wasm', 'domainexp/vendor/mediapipe/wasm/vision_wasm_nosimd_internal.js', 'domainexp/vendor/mediapipe/wasm/vision_wasm_nosimd_internal.wasm', 'domainexp/vendor/MEDIAPIPE-LICENSE.txt', 'gym/index.html', 'gym/app.js', 'gym/camera.js', 'gym/vision-worker.js', 'gym/vendor/pose_landmarker_lite.task', 'gym/vendor/mediapipe/vision_bundle.mjs', 'gym/vendor/mediapipe/wasm/vision_wasm_internal.wasm', 'ppiano/index.html', 'ppiano/app.js', 'ppiano/camera.js', 'ppiano/vision-worker.js', 'ppiano/vendor/hand_landmarker.task', 'ppiano/vendor/opencv.js', 'ppiano/assets/samples.json', 'flash/index.html', 'flash/editor.js', 'flash/renderer.js', 'flash/card.css', 'flash/export-assets.js', '404.html', 'Zelin_Zhu_CV.pdf', '.nojekyll', 'robots.txt', 'sitemap.xml']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 if (!(await readFile(`${root}/Zelin_Zhu_CV.pdf`)).subarray(0, 5).equals(Buffer.from('%PDF-'))) errors.push('CV is not a valid PDF file');
+// The homepage and Contact page are workspace/home's Nuxt release (html[data-home]) with the site index the build adds.
+for (const file of ['index.html', 'contacts/index.html']) {
+  const text = documents.get(file) || '';
+  if (!/<html\b[^>]*\sdata-home="(?:story|contact)"/.test(text)) errors.push(`Homepage shell missing (no html[data-home]): ${file}`);
+  if (!text.includes('<nav id="home-index" aria-label="Site index">')) errors.push(`Site index missing: ${file}`);
+  if (/href=["'](?:https:\/\/zelinzhu-richard\.github\.io)?\/(?:choices|duke|hq|repolarisdm)(?:[\/"'#?])/.test(text)) errors.push(`Unlisted page linked from ${file}`);
+}
+if (![...names].some(name => name.startsWith('_home/'))) errors.push('Homepage build assets missing: _home/');
+// The captured phoenix runtime stays in public/ but never ships; its two fonts keep their URLs for every other page.
+for (const file of ['_nuxt/TTNeorisTrialRegular.CykOY4gR.ttf', '_nuxt/fonnts.com-theseasons-it.CUCq9ttA.otf']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+for (const file of names) if (/^_nuxt\/[^/]+\.(?:js|css)$|^_nuxt\/builds\/|^(?:start\.js|local\.css|story\.js)$/.test(file)) errors.push(`Retired phoenix runtime file in output: ${file}`);
 for (const file of ['art/index.html', 'fun/index.html', 'blog/index.html', 'blog/style.css', 'tag-bubbles/bubbles.js', 'tag-bubbles/physics.js', 'tag-bubbles/bubbles.css', 'daily/index.html', 'daily/eggs/index.html', 'daily/vendor/supabase.js', 'daily/vendor/SUPABASE-LICENSE.txt', 'daily/vendor/manifest.json', 'daily/app/cloud.js', 'daily/app/cloud-config.js', 'hq/index.html']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
 // Now and Experiments were retired when the menu became About, Projects, Research, Art, Fun, Blog, Daily.
 for (const dir of ['now/', 'experiments/']) if ([...names].some(n => n.startsWith(dir))) errors.push(`Retired page still built: /${dir}`);
 for (const file of ['choices/index.html', 'choices/style.css', 'choices/tree.js']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+// The palette, the colophon it falls back to, the share cards and the feed.
+for (const file of ['palette/palette.js', 'palette/search.js', 'palette/notfound.js', 'palette/palette.css', 'palette/index.js', 'colophon/index.html', 'colophon/style.css', 'og/site.png', 'og/about.png', 'og/projects.png', 'og/research.png', 'og/fun.png', 'og/flash.png', 'og/blog.png', 'og/daily.png', 'og/work.png', 'og/skills.png', 'og/stars.png', 'og/research-stack.png', 'og/colophon.png', 'blog/feed.xml']) if (!names.has(file)) errors.push(`Required output missing: ${file}`);
+// The index the palette ships must never point at an unlisted page (it is JavaScript, so the HTML link checks do not
+// see it). Destinations only: a blog post may have "duke" in its title or slug.
+if (/"href":\s*"\/(?:choices|duke|hq|repolarisdm)(?:[\/?#"])/.test(documents.get('palette/index.js') || '')) errors.push('Unlisted page listed in palette/index.js');
+if (/data-stat="[^"]*">[^<0-9]/.test(documents.get('colophon/index.html') || '')) errors.push('Colophon numbers were not filled in');
 if (documents.get('sitemap.xml')?.includes('/hq/') || documents.get('robots.txt')?.includes('/hq/')) errors.push('Private page listed in sitemap or robots.txt: /hq/');
 for (const file of unlistedDukePages) if (!names.has(file)) errors.push(`Unlisted Duke page missing: ${file}`);
 if (documents.get('sitemap.xml')?.includes('/duke/')) errors.push('Unlisted Duke story listed in sitemap');

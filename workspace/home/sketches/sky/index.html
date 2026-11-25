@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sky test</title>
+<link rel="icon" href="data:,">
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+<style>
+  :root {
+    --night: #100f15;
+    --ink: #ece9e1;
+    --muted: #a8a398;
+    --faint: #7a766d;
+    --serif: "Iowan Old Style", Charter, Georgia, serif;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--night);
+    overflow: hidden;
+  }
+  #scene {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  #copy {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  #copy.hidden { visibility: hidden; }
+  .blk { position: absolute; margin: 0; }
+
+  .t-label {
+    margin: 0 0 22px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .t-heading, .t-italic {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 64px;
+    line-height: 1.06;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .t-italic { font-style: italic; }
+
+  #copy[data-layout="portrait"] .t-label { font-size: 11px; letter-spacing: 0.18em; margin-bottom: 16px; }
+  #copy[data-layout="portrait"] .t-heading,
+  #copy[data-layout="portrait"] .t-italic { font-size: 38px; }
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div id="copy"></div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

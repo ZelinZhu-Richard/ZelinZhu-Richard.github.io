@@ -1,7 +1,7 @@
 export const videoPage = `<article class="film-page">
 <header class="film-intro">
 <div>
-<p class="eyebrow">Film experiment · 2026</p>
+<p class="eyebrow"><a href="/art/">Art</a> · Film experiment · 2026</p>
 <h1>Neon Rain</h1>
 </div>
 <p class="film-deck">A ten-second noir clip. I made it from generated stills and 3D motion instead of a text-to-video model.</p>
@@ -52,5 +52,5 @@ Your browser does not support embedded video. <a href="/video/assets/neon-rain.m
 <div><dt>What I did</dt><dd>Concept, art direction, the character and set specs, the agent workflow, reviewing each pass, and running production.</dd></div>
 <div><dt>Tools</dt><dd>GPT Image, GPT-6 Astra Pro, Codex, Python, ModernGL, FFmpeg, procedural animation, depth-aware compositing, automated checks.</dd></div>
 </dl>
-<aside class="related"><p>More projects</p><a href="/work/">Work</a><a href="/contacts/">Contact</a></aside>
+<aside class="related"><p>More</p><a href="/art/">Art</a><a href="/art/#portrait">Living portrait</a><a href="/work/">All work</a></aside>
 </article>`;

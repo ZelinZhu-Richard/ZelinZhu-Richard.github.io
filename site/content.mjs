@@ -10,11 +10,16 @@ export const LINKS = {
 
 export const ABOUT = {
   paragraphs: [
-    "Most of my time goes into AI: machine learning research, a quant research system I'm building alone, and small experiments that end up on this site.",
+    "Most of my time goes into AI: machine learning research, my startup ZeroMind, and small experiments that end up on this site.",
     "I care about my family, my community and the wider world, roughly in that order and all at once. Right now that means research, trading experiments, and running events that bring people into the room.",
     "Where I want to end up: building trading algorithms, then running a fund.",
     "Away from the keyboard I ski, and I will stand in the snow at 3am to see the northern lights.",
   ],
+};
+
+// What Richard researches, in his words (shown at the top of Research).
+export const RESEARCH = {
+  interests: ['Machine learning', 'Statistics', 'AI evaluation'],
 };
 
 // Papers and posters, newest first. Shown under Research.
@@ -35,24 +40,33 @@ export const EXPERIENCE = [
     title: 'Machine Learning Research',
     org: 'UNC PRIMES',
     desc: 'Selected for UNC PRIMES (Program for Research in Image Processing and Machine learning for Emerging Scholars). I build and train deep learning models on brain imaging data.',
-    tags: ['Deep Learning', 'Computer Vision', 'Neuroscience'],
+    // Machine learning on images: the field is ML, the data is brain images (not neuroscience as a field).
+    tags: ['Deep Learning', 'Computer Vision', 'Brain Images'],
+  },
+  // ZeroMind has no public link yet. Experience rows carry no links, and it is not in PROJECTS (which needs one).
+  {
+    when: 'Nov 2026–now',
+    title: 'Founder',
+    org: 'ZeroMind',
+    desc: 'ZeroMind is one agent that runs on every frontier model, keeps a single memory of your whole life, and gets better at it every week.',
+    tags: ['AI Agents', 'Frontier Models', 'Memory'],
   },
   {
-    when: 'Nov 2025 — Present',
+    when: 'Nov 2025–Jun 2026',
     title: 'Founder',
     org: 'Al9ha (Nexus Tensor Alpha)',
-    desc: 'A quant research system: a mixture of forecasting models (TFT, MAML, N-BEATS) picked by market regime, plus LLM agents that read filings and news. Paper trading only so far.',
+    desc: 'Built a quant research system: a mixture of forecasting models (TFT, MAML, N-BEATS) picked by market regime, plus LLM agents that read filings and news. It only ever paper traded. I stopped building it in June 2026.',
     tags: ['Quant', 'AI Agents', 'Forecasting'],
   },
   {
-    when: 'Sep 2025 — Present',
+    when: 'Sep 2025–now',
     title: 'Quant Developer',
     org: 'MeridianAlgo',
     desc: 'Lead developer of Apex Analysis, an open-source stock analysis app, on a 5-person team. I work on the model training pipelines for price prediction and signal generation.',
     tags: ['Python', 'scikit-learn', 'Open Source'],
   },
   {
-    when: '2025 — 2026',
+    when: '2025–2026',
     title: 'Team Captain',
     org: 'Duke SCAI Hackathon · Wharton HSDSC',
     desc: 'Captained the only all-high-school team in the Duke SCAI final; the other finalists included grad students and professors. Modeling lead for the Wharton data science competition, using a Pythagorean expectation and Bradley-Terry ensemble.',
@@ -68,12 +82,12 @@ export const PROJECTS = [
     group: 'research',
     name: 'Nexus Tensor Alpha',
     context: 'Personal, open source',
-    year: '2025–now',
+    year: '2025–2026',
     role: 'Solo: design and code',
     stack: 'Python',
-    status: 'v0.1, paper trading only',
-    oneLiner: 'A research system for stock ideas that keeps a record of where every input came from.',
-    desc: 'LLM agents turn filings, earnings calls and news into typed evidence. Ideas then pass a critique step, signal arbitration, a portfolio proposal and a risk review before they become paper trades. Forecasts come from a mixture of experts (TFT, N-BEATS, MAML) with a router that picks a model by market regime. Every step is written to an append-only audit log. Data is still fixture-backed; live feeds are next. The public site calls it Al9ha.',
+    status: 'Stopped in June 2026 at v0.1, paper trading only',
+    oneLiner: 'A research system for stock ideas that kept a record of where every input came from.',
+    desc: 'LLM agents turned filings, earnings calls and news into typed evidence. Ideas then passed a critique step, signal arbitration, a portfolio proposal and a risk review before they became paper trades. Forecasts came from a mixture of experts (TFT, N-BEATS, MAML) with a router that picked a model by market regime. Every step was written to an append-only audit log. The data was still fixture-backed when I stopped building it in June 2026. The public site calls it Al9ha.',
     artifact: { label: 'Pipeline, 11 stages', code: 'ingest → normalize → extract evidence\n→ hypothesis + critique → signals\n→ arbitration → portfolio proposal\n→ risk review → paper-trade candidate\n→ monitoring → audit trail' },
     tags: ['AI agents', 'Forecasting', 'Backtesting'],
     live: 'https://al9ha.vercel.app/',
@@ -125,7 +139,7 @@ export const PROJECTS = [
     status: 'Gestures work; paper taps are experimental',
     oneLiner: 'Play chords by holding up fingers to your webcam, or tap a keyboard you drew on paper.',
     desc: 'One to five raised fingers pick a chord; a capo setting changes the key. Paper mode finds a hand-drawn keyboard in the camera image and guesses taps after a short per-finger calibration. Everything runs in the browser. No video leaves your machine.',
-    image: { src: '/work/shots/ppiano.jpg', alt: 'Paper Piano start screen with camera controls and the hand guide' },
+    image: { src: '/work/shots/ppiano.jpg', width: 800, height: 500, alt: 'Paper Piano start screen with camera controls and the hand guide' },
     tags: ['Computer vision', 'Web Audio'],
     live: '/ppiano/',
     liveLabel: 'Open Paper Piano',
@@ -142,7 +156,7 @@ export const PROJECTS = [
     status: 'Experimental; accuracy not measured',
     oneLiner: 'A webcam push-up counter with a daily streak, plus a game you steer by moving up and down.',
     desc: 'Set the camera to your side and calibrate a raised and a lowered pose. Up, down, up counts as one rep. In Flying Bird, your body height moves the bird through gaps. Progress is saved in your browser only.',
-    image: { src: '/work/shots/gym.jpg', alt: 'Gym start screen with the push-up counter and streak' },
+    image: { src: '/work/shots/gym.jpg', width: 800, height: 500, alt: 'Gym start screen with the push-up counter and streak' },
     tags: ['Pose tracking', 'Browser game'],
     live: '/gym/',
     liveLabel: 'Open Gym',
@@ -159,7 +173,7 @@ export const PROJECTS = [
     status: 'Works best in bright light',
     oneLiner: 'Make a frame with your thumbs and index fingers, and everything inside it turns to pixels.',
     desc: 'Pixel size goes from 6 to 40. Two more modes: an open palm throws a fireball, and a two-hand seal releases a cube that breaks into particles. The camera stays in the browser. It is a visual effect, not a privacy filter.',
-    image: { src: '/work/shots/domainexp.jpg', alt: 'Domain Expansion start screen with the mode picker' },
+    image: { src: '/work/shots/domainexp.jpg', width: 800, height: 500, alt: 'Domain Expansion start screen with the mode picker' },
     tags: ['Hand tracking', 'Canvas'],
     live: '/domainexp/',
     liveLabel: 'Open Domain Expansion',
@@ -176,7 +190,7 @@ export const PROJECTS = [
     status: '10 s, 1920 × 1080, 24 fps',
     oneLiner: 'A ten-second noir clip made from generated stills and 3D motion, not a text-to-video model.',
     desc: 'GPT Image drew the character and the city. The motion comes from 3D guides, layered rendering and depth-aware compositing, with rain and neon reflections added procedurally. An automated check compared frames for continuity. Faces and natural motion are still the weak spots.',
-    image: { src: '/video/assets/neon-rain-poster.jpg', alt: 'Frame from Neon Rain: a figure with an umbrella on a wet street lit by neon signs' },
+    image: { src: '/work/shots/neon-rain.jpg', width: 800, height: 500, alt: 'Frame from Neon Rain: a figure with an umbrella on a wet street lit by neon signs' },
     tags: ['Generative images', 'Compositing'],
     live: '/video/',
     liveLabel: 'Watch Neon Rain',
@@ -193,7 +207,7 @@ export const PROJECTS = [
     status: 'In use every day',
     oneLiner: 'My to-do list, run as a pet game. Finish a task and the pets eat. Skip days and they starve.',
     desc: 'Pets level up and lay eggs that hatch rarer pets. The drop rates are published on the page, and a log shows what I actually did each day.',
-    image: { src: '/work/shots/daily.jpg', alt: 'Daily page showing the pets and today\u2019s task list' },
+    image: { src: '/work/shots/daily.jpg', width: 800, height: 500, alt: 'Daily page showing the pets and today\u2019s task list' },
     tags: ['Game design', 'Habits'],
     live: '/daily/',
     liveLabel: 'Open Daily',

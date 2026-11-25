@@ -60,15 +60,17 @@ test('overlapping bubbles push apart', () => {
   assert.ok(bubbles[0].vx < bubbles[1].vx);
 });
 
-test('About and Research load the bubbles and keep the plain tag list for screen readers', () => {
+test('About loads the bubbles and keeps the plain tag list for screen readers', () => {
   const output = pages();
-  for (const file of ['about/index.html', 'research/index.html']) {
-    const html = output.get(file);
-    assert.match(html, /<link rel="stylesheet" href="\/tag-bubbles\/bubbles\.css">/, file);
-    assert.match(html, /<script type="module" src="\/tag-bubbles\/bubbles\.js"><\/script>/, file);
-    assert.match(html, /<ul class="tags">/, file);
-  }
-  assert.match(output.get('about/index.html'), /<script type="module" src="\/portrait\/about\.js"><\/script>/);
+  const html = output.get('about/index.html');
+  assert.match(html, /<link rel="stylesheet" href="\/tag-bubbles\/bubbles\.css">/);
+  assert.match(html, /<script type="module" src="\/tag-bubbles\/bubbles\.js"><\/script>/);
+  assert.match(html, /<ul class="tags">/);
+  assert.match(html, /<script type="module" src="\/portrait\/about\.js"><\/script>/);
+  // Research moved to the instrument look (site/DESIGN.md), which has no gradient toys: its keywords are a plain list.
+  const research = output.get('research/index.html');
+  assert.doesNotMatch(research, /\/tag-bubbles\//);
+  assert.match(research, /<ul class="keywords" aria-label="Keywords">/);
 });
 
 test('the page script is decoration only, and sound is off until the visitor turns it on', async () => {

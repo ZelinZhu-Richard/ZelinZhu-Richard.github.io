@@ -1,7 +1,8 @@
 # Tag bubbles
 
-On `/about/` and `/research/`, each Experience entry's tags float as soap bubbles that rise up the
-empty column under the date. Click or tap one to pop it; it floats back up from the bottom 3.5 s later.
+On `/about/`, each Experience entry's tags float as soap bubbles that rise up the
+empty column under the date. (`/research/` had them too until it moved to the instrument look in
+`site/DESIGN.md`, which keeps its keywords as a plain list.) Click or tap one to pop it; it floats back up from the bottom 3.5 s later.
 A "Pop sound" switch next to the Experience heading turns on a soft synthesized pop. It starts off, and the choice is remembered in that browser.
 
 | File | What it is |

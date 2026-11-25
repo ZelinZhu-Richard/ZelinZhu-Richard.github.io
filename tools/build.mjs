@@ -1,7 +1,7 @@
 import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
+import { relative, sep } from 'node:path';
 import { pages } from '../site/pages.mjs';
-import { story } from '../site/story.mjs';
 import { verifyManifest } from './manifest.mjs';
 import { buildFlash } from '../workspace/flash/build.mjs';
 import { buildPaperPiano } from '../workspace/ppiano/build.mjs';
@@ -25,10 +25,19 @@ import { buildPortrait } from '../workspace/portrait/build.mjs';
 import { buildTagBubbles } from '../workspace/tag-bubbles/build.mjs';
 import { buildHeroName } from '../workspace/hero-name/build.mjs';
 import { buildMusic } from '../workspace/music/build.mjs';
+import { buildColophon, finishColophon } from '../workspace/colophon/build.mjs';
+import { buildPalette } from '../workspace/palette/build.mjs';
+import { buildOg } from '../workspace/og/build.mjs';
+import { buildHome, shipsFromPublic } from '../workspace/home/build.mjs';
+import { siteIndex } from '../workspace/palette/index.mjs';
 await verifyManifest();
 await rm('dist', { recursive: true, force: true });
-await cp('public', 'dist', { recursive: true });
-await writeFile('dist/story.js', `export const story = ${JSON.stringify(story, null, 2)};\n`);
+// public/ still holds the captured phoenix homepage (asset-manifest.json covers it), but / and /contacts/ are
+// workspace/home's Nuxt release now: the old runtime stays out of dist/, and its two fonts, which every other
+// page uses, keep shipping at their URLs.
+await cp('public', 'dist', { recursive: true, filter: source => shipsFromPublic(relative('public', source).split(sep).join('/')) });
+// The homepage and Contact page, with the site index (workspace/palette/index.mjs) at the end of both.
+await buildHome('dist', { index: siteIndex() });
 for (const [file, html] of pages()) {
   await mkdir(`dist/${file.substring(0, file.lastIndexOf('/') + 1)}`, { recursive: true });
   await writeFile(`dist/${file}`, html);
@@ -44,6 +53,7 @@ await buildTagBubbles('dist');
 await buildSkills('dist');
 await buildRepolarisdm('dist');
 await buildBlog('dist');
+await buildColophon('dist');
 await buildChoices('dist');
 await buildDaily('dist');
 await buildHq('dist');
@@ -52,11 +62,16 @@ await buildDukeStories('dist');
 await buildStones('dist');
 await buildHeroName('dist');
 await buildMusic('dist');
+// These two edit pages other steps wrote, so they come after every step that writes HTML.
+await buildPalette('dist');
 await buildSharkBackground('dist');
+await buildOg('dist');
 await writeFile('dist/.nojekyll', '');
-const urls = ['/', '/work/', '/projects/', '/about/', '/research/', '/art/', '/fun/', '/blog/', ...checkPosts(POSTS).map(postPath), '/skills/', '/daily/', '/video/', '/contacts/', '/flash/', '/ppiano/', '/gym/', '/domainexp/', '/github/stars/', ...researchUrls];
+const urls = ['/', '/work/', '/projects/', '/about/', '/research/', '/art/', '/fun/', '/blog/', ...checkPosts(POSTS).map(postPath), '/skills/', '/colophon/', '/daily/', '/video/', '/contacts/', '/flash/', '/ppiano/', '/gym/', '/domainexp/', '/github/stars/', ...researchUrls];
 await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(url => `<url><loc>https://zelinzhu-richard.github.io${url}</loc></url>`).join('')}</urlset>\n`);
 await writeFile('dist/robots.txt', 'User-agent: *\nAllow: /\nSitemap: https://zelinzhu-richard.github.io/sitemap.xml\n');
+// Last write: the Colophon's page, file and size counts are only right once everything else is in place.
+await finishColophon('dist');
 const check = spawnSync(process.execPath, ['tools/verify.mjs', 'dist'], { stdio: 'inherit' });
 if (check.status !== 0) process.exit(check.status || 1);
 console.log('Built dist/ for https://zelinzhu-richard.github.io/');

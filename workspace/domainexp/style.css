@@ -56,6 +56,8 @@
 
 /* Buttons */
 .domain-page button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:11px 18px;border:1px solid var(--ink);border-radius:0;background:var(--card);color:var(--ink);font-family:var(--font-mono);font-size:14px;line-height:1.3;transition:transform .12s ease,box-shadow .12s ease}
+/* The header's Menu button is not one of this page's controls: when the menu is laid out in the header it stays hidden, as on every other page. */
+@media(min-width:900px){.domain-page .menu-button{display:none}}
 .domain-page button.primary{background:var(--ink);color:var(--paper)}
 .domain-page button:disabled{background:var(--paper-2);border-color:var(--line);color:var(--muted);cursor:default}
 .domain-page .intro button.primary{gap:20px;padding:12px 20px;background:var(--paper);border-color:var(--paper);color:var(--ink)}

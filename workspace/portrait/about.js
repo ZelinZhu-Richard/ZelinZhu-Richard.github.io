@@ -26,7 +26,8 @@ async function open() {
   label.setAttribute('aria-describedby', 'portrait-help');
   stage.append(canvas, label);
   trigger.replaceWith(stage); // same box size as the photo, so nothing on the page moves
-  caption.innerHTML = '<span id="portrait-help">Drawn in code from two selfies. Click it, or the label, for the next style.</span> <button type="button" class="portrait-back">Show the photo</button>';
+  label.focus({ preventScroll: true }); // the photo button just left the page; keep focus where it was
+  caption.innerHTML = '<span id="portrait-help" role="status">Drawn in code from two selfies. Click it, or the label, for the next style.</span> <button type="button" class="portrait-back">Show the photo</button>';
   const back = caption.querySelector('.portrait-back');
   let portrait, closed = false;
   back.addEventListener('click', () => {
@@ -50,6 +51,8 @@ async function open() {
   } catch (error) {
     if (closed) return;
     label.textContent = 'Could not draw the portrait';
+    const help = caption.querySelector('#portrait-help');
+    if (help) help.textContent = 'Could not draw the portrait. The photo is still here: use “Show the photo”.';
     console.error(error);
   }
 }
