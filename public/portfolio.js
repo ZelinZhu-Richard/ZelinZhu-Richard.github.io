@@ -34,3 +34,48 @@ if (navigator.clipboard) for (const copy of document.querySelectorAll('[data-cop
     timer = setTimeout(() => { copy.textContent = label; }, 1600);
   });
 }
+
+// The page scale on instrument pages (pageScale() in site/ornament.mjs; wide screens only). Each section's
+// mark moves to the point of the scroll where that section reaches the reading line, 30% down the window;
+// the last mark passed is the current section (aria-current="location"); --p is how far down the page the
+// reader is, for the cursor where the browser has no CSS scroll timeline. Without this script the marks
+// stay evenly spread and there is no cursor.
+{
+  const scale = document.querySelector('.page-scale');
+  const track = scale?.querySelector('.scale-track');
+  const marks = track ? [...scale.querySelectorAll('li')].map(item => {
+    const link = item.querySelector('a[href^="#"]');
+    return { item, link, target: link && document.getElementById(decodeURIComponent(link.hash.slice(1))), at: parseFloat(item.style.getPropertyValue('--at')) || 0 };
+  }).filter(mark => mark.target) : [];
+  if (marks.length) {
+    const room = () => Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    const update = () => {
+      const progress = Math.min(1, Math.max(0, scrollY / room()));
+      scale.style.setProperty('--p', progress.toFixed(4));
+      const current = marks.findLastIndex(mark => progress >= mark.at);
+      marks.forEach((mark, i) => i === current ? mark.link.setAttribute('aria-current', 'location') : mark.link.removeAttribute('aria-current'));
+    };
+    const measure = () => {
+      const height = track.clientHeight;
+      if (!height) return; // display:none on narrow screens
+      const gap = 28 / height; // marks stay 28px apart, so their labels never touch
+      let last = -Infinity;
+      for (const mark of marks) {
+        const start = (mark.target.getBoundingClientRect().top + scrollY - innerHeight * 0.3) / room();
+        mark.at = Math.max(Math.min(1, Math.max(0, start)), last + gap);
+        last = mark.at;
+      }
+      let next = 1 + gap;
+      for (const mark of [...marks].reverse()) next = mark.at = Math.min(mark.at, next - gap);
+      for (const mark of marks) mark.item.style.setProperty('--at', mark.at.toFixed(4));
+      update();
+    };
+    let queued = 0;
+    addEventListener('scroll', () => { queued ||= requestAnimationFrame(() => { queued = 0; update(); }); }, { passive: true });
+    addEventListener('resize', measure);
+    // The page's height changes after load too (fonts, the BibTeX drawer): measure again when it does.
+    if ('ResizeObserver' in window) new ResizeObserver(measure).observe(document.body);
+    measure();
+    scale.classList.add('is-live');
+  }
+}

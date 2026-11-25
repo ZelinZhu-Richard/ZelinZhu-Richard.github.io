@@ -1,5 +1,5 @@
 import { LINKS, ABOUT, EXPERIENCE, PROJECTS, PUBLICATIONS, RESEARCH, SKILLS } from './content.mjs';
-import { orrery } from './ornament.mjs';
+import { orrery, skySides, pageScale, marginNote, noteFilter, notePlot, noteYears, noteOrbits } from './ornament.mjs';
 import { skillsPage } from '../workspace/skills/page.mjs';
 import { videoPage } from '../workspace/video/page.mjs';
 import { blogIndex, blogPost, checkPosts, postPath } from '../workspace/blog/page.mjs';
@@ -33,11 +33,12 @@ ${footColumn('foot-more', 'More', FOOT_MORE.map(href => footRow(indexItem(href))
 ${footColumn('foot-elsewhere', 'Elsewhere', indexGroup('Elsewhere').filter(item => item.external).map(footRow).join('') + `<li><a href="${escape(LINKS.resume)}">CV (PDF)</a></li><li class="footer-email"><a href="mailto:${escape(LINKS.email)}">Email</a><button type="button" class="copy-button" data-copy="${escape(LINKS.email)}" hidden>Copy address</button></li>`)}
 </nav>`;
 // The page looks (site/DESIGN.md). A page without one wears the older night-and-ink rules and TT Neoris.
-// "instrument" is the new system: html[data-look], its own night colour, the OFL display face instead of
-// the trial font, and no ASCII sharks (data-ambient-background="off" is the shark runtime's own opt-out;
+// "instrument" is the new system: html[data-look], its own night colour, the system sans instead of the
+// trial font (so there is no font to preload), the sky panels for its wide margins (skySides(), hidden by
+// CSS below 1100px), and no ASCII sharks (data-ambient-background="off" is the shark runtime's own opt-out;
 // the build still adds the canvas, which tools/verify.mjs requires on every page).
 export const LOOKS = {
-  instrument: { theme: '#0e0d1f', font: '/hero-name/ibarra-real-nova-italic.woff2', fontType: 'font/woff2', ambient: 'off' },
+  instrument: { theme: '#0e0d1f', ambient: 'off', sky: true },
 };
 const LEGACY_LOOK = { theme: '#100f15', font: '/_nuxt/TTNeorisTrialRegular.CykOY4gR.ttf', fontType: 'font/ttf' };
 // head: extra tags for one page (structured data). type: the Open Graph type ("article" for a blog post).
@@ -62,14 +63,13 @@ ${path === '/404.html' ? '' : `<meta property="og:url" content="https://zelinzhu
 <meta name="theme-color" content="${style.theme}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="alternate" type="application/rss+xml" title="${escape(FEED_TITLE)}" href="${FEED_PATH}">
-<link rel="preload" href="${style.font}" as="font" type="${style.fontType}" crossorigin>
-<link rel="stylesheet" href="/portfolio.css">
+${style.font ? `<link rel="preload" href="${style.font}" as="font" type="${style.fontType}" crossorigin>\n` : ''}<link rel="stylesheet" href="/portfolio.css">
 ${[].concat(stylesheet || []).map(href => `<link rel="stylesheet" href="${escape(href)}">`).join('\n')}
 <script src="/portfolio.js" defer></script>
 <noscript><style>@media(max-width:899px){.site-header{flex-wrap:wrap}.site-header nav{display:flex!important;position:static!important;flex-direction:row!important;flex-wrap:wrap;width:100%!important;padding:12px 0 0!important;border:0!important;background:none!important;box-shadow:none!important}.menu-button{display:none!important}}</style></noscript>
 ${[].concat(script || []).map(src => `<script type="module" src="${escape(src)}"></script>\n`).join('')}${head}</head>
 <body${bodyClass ? ` class="${escape(bodyClass)}"` : ''}${style.ambient ? ` data-ambient-background="${style.ambient}"` : ''}>
-<a class="skip-link" href="#main">Skip to content</a>
+${style.sky ? `${skySides()}\n` : ''}<a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
 <a class="wordmark" href="/" aria-label="Richard Zhu — Home">Richard Zhu</a>
 <button class="menu-button" type="button" aria-expanded="false" aria-controls="navigation">Menu</button>
@@ -126,12 +126,19 @@ const RESEARCH_TOOLS = ['AI & ML', 'Languages', 'Tooling'];
 const RESEARCH_PART = PARTS.findIndex(p => p.id === 'research');
 // "03.2": the site section's number, then the chapter's, like a paper's numbering.
 const chapterNo = n => `${two(RESEARCH_PART + 1)}.${n}`;
-const chapter = (n, id, title, body) => `<section id="${id}" class="chapter" aria-labelledby="${id}-title">
+// note: a drawn margin note (site/ornament.mjs marginNote()), shown beside the chapter on wide screens.
+const chapter = (n, id, title, body, note = '') => `<section id="${id}" class="chapter" aria-labelledby="${id}-title">
 <header class="chapter-rail"><h2 id="${id}-title"><span class="dial">${chapterNo(n)}</span> ${title}</h2></header>
 <div class="chapter-body">
 ${body}
-</div>
+</div>${note ? `\n${note}` : ''}
 </section>`;
+// "2025–2026" or "2026" as [first, last], for the year figure.
+const yearSpan = year => {
+  const [first, last = first] = String(year).split(/[–-]/).map(Number);
+  if (!Number.isInteger(first) || !Number.isInteger(last)) throw new Error(`Not a year or a span of years: ${year}`);
+  return [first, last];
+};
 // A long paper title splits at its first colon into a title and a subtitle (the heading still reads as one).
 const titleParts = title => {
   const at = title.indexOf(': ');
@@ -184,7 +191,17 @@ function researchPage() {
     ['methods', 'In projects', METHODS.map(([id]) => projectById(id).name).join(', '), 'Quant and AI evaluation'],
     ['tools', 'Tools', tools[0].items.slice(0, 3).join(', '), 'and the Research Stack'],
   ];
-  return `<section class="opening" aria-labelledby="research-title">
+  // The margins on wide screens: the page scale on the left (the readout's sections, as links), and one
+  // drawn note per chapter on the right. Every number in a caption comes from the data above.
+  const methods = METHODS.map(([id]) => projectById(id));
+  const notes = {
+    experience: marginNote('Fig. 1', 'A 3×3 filter reads a patch of an image and writes one value.', noteFilter()),
+    publications: marginNote('Fig. 2', 'A hidden ground truth (dashed) and estimates scored against it.', notePlot()),
+    methods: marginNote('Fig. 3', `The same ${word(methods.length).toLowerCase()} projects, top to bottom, by year.`, noteYears(methods.map(p => yearSpan(p.year)))),
+    tools: marginNote('Fig. 4', `Tools as orbits, outer to inner: ${tools.map(b => `${b.label} (${b.items.length})`).join(', ')}.`, noteOrbits(tools.map(b => b.items.length))),
+  };
+  return `${pageScale(readout.map(([id, name], i) => ({ id, n: chapterNo(i + 1), name })))}
+<section class="opening" aria-labelledby="research-title">
 <div class="opening-text">
 <p class="eyebrow">${place('research', 'Machine learning')}</p>
 <h1 id="research-title">Research</h1>
@@ -196,12 +213,12 @@ ${orrery(RESEARCH_PART)}
 <nav class="readout" aria-label="On this page">
 <ol>${readout.map(([id, name, value, note], i) => `<li><a href="#${id}"><span class="dial">${chapterNo(i + 1)} · ${escape(name)}</span><span class="readout-value">${escape(value)}</span>${note ? `<span class="readout-note">${escape(note)}</span>` : ''}</a></li>`).join('')}</ol>
 </nav>
-${chapter(1, 'experience', 'Experience', `<ol class="roles">${roles.map(roleEntry).join('')}</ol>`)}
-${chapter(2, 'publications', paperTitle, `<ol class="plates">${PUBLICATIONS.map(plate).join('')}</ol>`)}
+${chapter(1, 'experience', 'Experience', `<ol class="roles">${roles.map(roleEntry).join('')}</ol>`, notes.experience)}
+${chapter(2, 'publications', paperTitle, `<ol class="plates">${PUBLICATIONS.map(plate).join('')}</ol>`, notes.publications)}
 ${chapter(3, 'methods', 'Where the methods show up', `<ul class="ledger">${METHODS.map(ledgerRow).join('')}</ul>
-<p class="chapter-more">${link('/projects/', 'All projects')}${link('/work/', 'All work')}</p>`)}
+<p class="chapter-more">${link('/projects/', 'All projects')}${link('/work/', 'All work')}</p>`, notes.methods)}
 ${chapter(4, 'tools', 'Tools', `<dl class="spec spec--tools">${tools.map(b => `<div><dt>${escape(b.label)}</dt><dd>${b.items.map(escape).join(', ')}</dd></div>`).join('')}</dl>
-<p class="stack-link"><a href="/github/stars/research/">Research Stack <span aria-hidden="true">→</span></a> The research tools I keep, in folders by workflow and field.</p>`)}`;
+<p class="stack-link"><a href="/github/stars/research/">Research Stack <span aria-hidden="true">→</span></a> The research tools I keep, in folders by workflow and field.</p>`, notes.tools)}`;
 }
 // Structured data for search engines. "<" is escaped so the JSON can never close its own script tag.
 const jsonLd = data => `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>\n`;

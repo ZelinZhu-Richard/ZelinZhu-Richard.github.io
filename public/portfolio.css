@@ -372,14 +372,6 @@ html[data-theme="paper"]{
    wears it first. Every rule here is scoped or uses classes only instrument pages have, so the pages
    still on night and ink above are untouched. tests/look.test.mjs checks the contrast of these tokens.
    ===================================================================================================== */
-/* Ibarra Real Nova Italic, SIL OFL 1.1 (workspace/hero-name/OFL.txt): the display face, replacing TT Neoris. */
-@font-face{
-  font-family:"Ibarra Real Nova";
-  font-style:italic;
-  font-weight:400;
-  font-display:swap;
-  src:url('/hero-name/ibarra-real-nova-italic.woff2') format('woff2')
-}
 html[data-look="instrument"]{
   color-scheme:dark;
   --sky-top:#0c0b19;
@@ -403,12 +395,23 @@ html[data-look="instrument"]{
   --dot:rgb(236 233 225 / .08);
   --haze-green:rgb(57 240 166 / .06);
   --haze-violet:rgb(122 77 255 / .07);
+  /* The margins' sky (skySides() in site/ornament.mjs): the Milky Way band on the left, the aurora curtain
+     on the right. Gradient hazes like the two above, never over the text column; the look test still checks
+     every text token over their strongest point. */
+  --milkyway:rgb(122 77 255 / .07);
+  --milkyway-edge:rgb(58 48 168 / .045);
+  --milkyway-core:rgb(196 176 255 / .035);
+  --aurora:rgb(64 240 186 / .055);
+  --aurora-high:rgb(122 77 255 / .03);
+  --aurora-glow:rgb(57 220 200 / .02);
   --star:236 233 225;
   --shadow:none;
   --page:var(--paper);
-  --font-display:"Ibarra Real Nova","Iowan Old Style",Charter,"Bitstream Charter",Georgia,serif;
-  --font-body:"Iowan Old Style",Charter,"Sitka Text",Cambria,Georgia,serif;
-  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  /* One plain voice: the system grotesque for headings, reading text and controls; mono for labels and data.
+     Nothing is downloaded. BlinkMacSystemFont is Chrome's name for the Mac system face. */
+  --font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-ui:var(--font-body);
   --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
   /* The graduated scale: a hairline with ticks every 8px, longer every 40px, longest every 80px.
      rule-up stands on its baseline (the header's bottom edge); rule-down hangs from it (a chapter's top). */
@@ -452,7 +455,7 @@ html[data-look="instrument"][data-theme="paper"]{
 
 /* The sky: night to indigo, a faint aurora in the top right, a few static stars. One fixed layer, no images.
    The brighter stars sit in the side gutters; the ones over the text column are too faint to read as a full stop. */
-html[data-look="instrument"] body{background:transparent;font-size:19px;line-height:1.6;isolation:isolate}
+html[data-look="instrument"] body{background:transparent;font-size:18px;line-height:1.6;isolation:isolate}
 html[data-look="instrument"] body::before{
   content:"";
   position:fixed;
@@ -495,19 +498,21 @@ html[data-look="instrument"] #ascii-sharks-background{display:none}
 html[data-look="instrument"] ::selection{background:var(--select);color:#fff}
 html[data-look="instrument"][data-theme="paper"] ::selection{color:var(--ink)}
 
-/* Type: an italic serif display voice, a book serif to read, the system sans for controls, mono for labels. */
-html[data-look="instrument"] :is(h1,h2,h3){font-family:var(--font-display);font-style:italic;font-weight:400;letter-spacing:0;color:var(--ink)}
-html[data-look="instrument"] h1{font-size:clamp(60px,40px + 4.4vw,128px);line-height:.92;letter-spacing:-.012em;margin-bottom:26px}
-html[data-look="instrument"] h2{font-size:clamp(30px,22px + 1.5vw,46px);line-height:1.06;margin-bottom:0}
-html[data-look="instrument"] h3{font-size:clamp(25px,20px + .9vw,34px);line-height:1.12;margin-bottom:6px}
+/* Type: one upright grotesque, set plainly. Headings are semibold and tracked a little tighter as they grow;
+   size and weight carry the hierarchy (title, section, entry, body), mono uppercase marks labels. Italic is
+   left to <em> and genuine emphasis, never decoration. */
+html[data-look="instrument"] :is(h1,h2,h3){font-family:var(--font-display);font-style:normal;font-weight:600;color:var(--ink)}
+html[data-look="instrument"] h1{font-size:clamp(56px,34px + 3.8vw,104px);line-height:.98;letter-spacing:-.042em;margin-bottom:24px}
+html[data-look="instrument"] h2{font-size:clamp(28px,20px + 1.05vw,40px);line-height:1.12;letter-spacing:-.024em;margin-bottom:0}
+html[data-look="instrument"] h3{font-size:clamp(21px,17px + .45vw,24px);line-height:1.25;letter-spacing:-.014em;margin-bottom:6px}
 html[data-look="instrument"] .eyebrow{font-size:12px;letter-spacing:.14em;color:var(--muted)}
 html[data-look="instrument"] :where(main) :where(p,figcaption,dd)>a:where(:not([class])){text-decoration-color:var(--accent);text-underline-offset:.24em;transition:color .15s ease}
 html[data-look="instrument"] :is(a,button,summary):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
-/* Header: the wordmark in the display italic, the seven sections, Search; a graduated scale underneath.
+/* Header: the wordmark, the seven sections, Search; a graduated scale underneath.
    The current section is marked like a reading on the scale: an aurora rule with a tick at its start. */
 html[data-look="instrument"] .site-header{padding:18px 0 24px;border-bottom:0;background:var(--rule-up)}
-html[data-look="instrument"] .wordmark{font-family:var(--font-display);font-style:italic;font-size:25px;line-height:1;letter-spacing:0}
+html[data-look="instrument"] .wordmark{font-family:var(--font-display);font-size:19px;font-weight:600;line-height:1;letter-spacing:-.015em}
 html[data-look="instrument"] .site-header nav.stone-nav{font-family:var(--font-ui);font-size:15px;gap:4px}
 html[data-look="instrument"] .site-header nav.stone-nav a{align-items:baseline;gap:7px;padding:4px 8px 8px;border:0;color:var(--muted);transition:color .15s ease}
 html[data-look="instrument"] .stone-nav a span{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;color:var(--faint)}
@@ -531,7 +536,7 @@ html[data-look="instrument"] .palette{border-color:var(--line-strong);box-shadow
 }
 /* 900 to 1099px: the seven links, the wordmark and Search share one line, so everything sits closer. */
 @media(min-width:900px) and (max-width:1099px){
-  html[data-look="instrument"] .wordmark{font-size:22px}
+  html[data-look="instrument"] .wordmark{font-size:18px}
   html[data-look="instrument"] .site-header nav.stone-nav{font-size:14px;gap:2px}
   html[data-look="instrument"] .site-header nav.stone-nav a{gap:5px;padding-inline:6px}
   html[data-look="instrument"] .site-header nav.stone-nav [aria-current]{background-position:6px 100%,6px 100%;background-size:calc(100% - 12px) 1px,1px 6px}
@@ -544,9 +549,9 @@ html[data-look="instrument"] .palette{border-color:var(--line-strong);box-shadow
   html[data-look="instrument"] .site-header nav{background:var(--card);border-color:var(--line-strong);box-shadow:none}
 }
 
-/* Footer: the scale on top, the invitation in the display italic, the index in the sans. */
+/* Footer: the scale on top, the invitation as a semibold line, the index in the sans. */
 html[data-look="instrument"] .site-footer{margin-top:120px;padding-top:44px;border-top:0;background:var(--rule-down)}
-html[data-look="instrument"] .site-footer>p{font-family:var(--font-display);font-style:italic;font-size:clamp(28px,2.6vw,40px);line-height:1.12;letter-spacing:0;max-width:15ch}
+html[data-look="instrument"] .site-footer>p{font-family:var(--font-display);font-size:clamp(24px,14px + 1.3vw,34px);font-weight:600;line-height:1.18;letter-spacing:-.022em;max-width:17ch}
 html[data-look="instrument"] .site-footer>p a{border-bottom:1px solid var(--accent)}
 html[data-look="instrument"] .footer-index{font-family:var(--font-ui);font-size:14.5px}
 html[data-look="instrument"] .footer-index p{font-family:var(--font-mono);letter-spacing:.14em}
@@ -559,7 +564,7 @@ html[data-look="instrument"] .footer-bottom a{border-bottom-color:var(--accent)}
 /* The next stone at the end of a section (workspace/stones), in the same language. */
 html[data-look="instrument"] .stone-next{margin-top:120px;padding-top:30px;border-top:0;background:var(--rule-down)}
 html[data-look="instrument"] .stone-next .next small,html[data-look="instrument"] .stone-next .prev{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
-html[data-look="instrument"] .stone-next .next strong{font-family:var(--font-display);font-style:italic;font-size:clamp(40px,4.4vw,72px);line-height:1;letter-spacing:-.01em}
+html[data-look="instrument"] .stone-next .next strong{font-family:var(--font-display);font-size:clamp(36px,16px + 2.6vw,58px);font-weight:600;line-height:1.02;letter-spacing:-.034em}
 html[data-look="instrument"] .stone-next .next em{font-family:var(--font-ui);font-size:15px}
 html[data-look="instrument"] .stone-next .prev{border-bottom-color:var(--line-strong)}
 
@@ -573,7 +578,7 @@ html[data-look="instrument"] .chapter-more{display:flex;flex-wrap:wrap;gap:8px 2
 .opening-text{min-width:0}
 .opening .eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:28px}
 .opening .eyebrow::before{content:"";flex:none;width:28px;height:1px;background:var(--accent)}
-.opening .lede{max-width:33em;margin-bottom:0;font-size:clamp(19px,16px + .45vw,23px);line-height:1.5;color:var(--muted)}
+.opening .lede{max-width:32em;margin-bottom:0;font-size:clamp(19px,16px + .38vw,22px);line-height:1.5;color:var(--muted)}
 .interests{margin:28px 0 0;font-family:var(--font-mono);font-size:12px;line-height:1.7;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
 .interests span{margin-right:12px;color:var(--faint)}
 
@@ -596,7 +601,7 @@ html[data-look="instrument"] .chapter-more{display:flex;flex-wrap:wrap;gap:8px 2
 .readout a{display:flex;flex-direction:column;gap:6px;height:100%;padding:4px 22px 6px}
 .readout li:first-child a{padding-left:0}
 .dial{font-family:var(--font-mono);font-size:11.5px;font-style:normal;line-height:1.4;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
-.readout-value{font-family:var(--font-display);font-size:clamp(21px,17px + .5vw,25px);font-style:italic;line-height:1.15;color:var(--ink);transition:color .15s ease}
+.readout-value{font-family:var(--font-display);font-size:clamp(18px,15px + .35vw,21px);font-weight:500;line-height:1.25;letter-spacing:-.012em;color:var(--ink);transition:color .15s ease}
 .readout-note{font-family:var(--font-ui);font-size:14px;line-height:1.4;color:var(--muted)}
 @media(hover:hover) and (pointer:fine){.readout a:hover .readout-value{color:var(--accent)}}
 
@@ -612,7 +617,8 @@ html[data-look="instrument"] .chapter-more{display:flex;flex-wrap:wrap;gap:8px 2
 .role+.role,.plate+.plate{margin-top:56px}
 .role-when{margin:0 0 10px;font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .role-title{margin:0 0 18px;font-family:var(--font-ui);font-size:15.5px;color:var(--muted)}
-.role-desc{max-width:36em;margin:0}
+/* Reading measure: about 65 characters of the system sans. */
+.role-desc{max-width:34em;margin:0}
 /* Keywords, set like the labels on a dial: each stands on its own tick, so a wrapped line starts cleanly. */
 .keywords{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;margin:24px 0 0;padding:0;list-style:none;font-family:var(--font-mono);font-size:11.5px;line-height:1.4;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .keywords li::before{content:"";display:inline-block;width:1px;height:10px;margin-right:9px;background:var(--line-strong);vertical-align:-1px}
@@ -635,8 +641,8 @@ html[data-look="instrument"] .chapter-more{display:flex;flex-wrap:wrap;gap:8px 2
     linear-gradient(var(--faint),var(--faint)) right bottom/1px 18px no-repeat
 }
 .plate-kind{margin:0 0 18px;font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.plate .plate-title{max-width:22em;margin:0;font-size:clamp(28px,20px + 1.6vw,42px);line-height:1.08;text-wrap:balance}
-.plate-subtitle{display:block;margin-top:12px;font-family:var(--font-body);font-size:clamp(18px,16px + .4vw,22px);font-style:normal;line-height:1.4;color:var(--muted);text-wrap:pretty}
+.plate .plate-title{max-width:24em;margin:0;font-size:clamp(23px,16px + .85vw,29px);line-height:1.2;letter-spacing:-.018em;text-wrap:balance}
+.plate-subtitle{display:block;margin-top:10px;font-family:var(--font-body);font-size:clamp(17px,15px + .3vw,20px);font-weight:400;line-height:1.45;letter-spacing:0;color:var(--muted);text-wrap:pretty}
 .plate .spec{margin-top:28px}
 .plate-links{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px 28px;margin-top:28px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--font-ui);font-size:15px}
 .plate-links>a{text-decoration:underline;text-decoration-thickness:1px;text-decoration-color:var(--accent);text-underline-offset:.24em}
@@ -654,22 +660,22 @@ html[data-look="instrument"] .cite .copy-button{background:var(--card)}
 .spec dd{min-width:0;margin:0;font-family:var(--font-ui);font-size:15.5px;line-height:1.5;color:var(--ink)}
 .spec--tools{gap:0;border-bottom:1px solid var(--line)}
 .spec--tools>div{padding:16px 0;border-top:1px solid var(--line)}
-.spec--tools dd{font-family:var(--font-body);font-size:18px}
+.spec--tools dd{font-family:var(--font-body);font-size:17px}
 
 /* Where the methods show up: a ledger of projects. The whole row opens the project. */
 .ledger{margin:0;padding:0;list-style:none;border-bottom:1px solid var(--line)}
 .ledger li{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:6px 24px;padding:22px 0 24px;border-top:1px solid var(--line)}
 .ledger-method{grid-column:1/-1;margin:0;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.ledger .ledger-name{margin:0;font-size:clamp(24px,20px + .6vw,30px)}
+.ledger .ledger-name{margin:0}
 .ledger-name a::after{content:"";position:absolute;inset:0}
 .ledger-name a span{color:var(--accent)}
 .ledger-year{grid-column:2;grid-row:2;margin:0;font-family:var(--font-mono);font-size:12.5px;color:var(--faint)}
-.ledger-note{grid-column:1/-1;margin:0;max-width:36em;font-size:17px;line-height:1.5;color:var(--muted)}
+.ledger-note{grid-column:1/-1;margin:0;max-width:36em;font-size:16.5px;line-height:1.55;color:var(--muted)}
 @media(hover:hover) and (pointer:fine){.ledger li:hover .ledger-name a{color:var(--accent)}}
 
 /* The Research Stack, after the tools. */
-.stack-link{max-width:36em;margin:36px 0 0;color:var(--muted)}
-html[data-look="instrument"] .stack-link a{margin-right:10px;font-family:var(--font-display);font-size:clamp(24px,20px + .6vw,30px);font-style:italic;line-height:1.2;color:var(--ink)}
+.stack-link{max-width:34em;margin:36px 0 0;color:var(--muted)}
+html[data-look="instrument"] .stack-link a{margin-right:10px;font-family:var(--font-display);font-size:clamp(21px,17px + .45vw,24px);font-weight:600;line-height:1.25;letter-spacing:-.014em;color:var(--ink)}
 
 @media(min-width:701px) and (max-width:899px){
   .opening{grid-template-columns:minmax(0,1fr) 200px}
@@ -705,7 +711,7 @@ html[data-look="instrument"] .stack-link a{margin-right:10px;font-family:var(--f
 }
 @media(max-width:560px){
   .plate{padding:22px 20px 24px}
-  .plate .plate-title{font-size:26px;text-wrap:pretty}
+  .plate .plate-title{font-size:22px;text-wrap:pretty}
   .readout ol{grid-template-columns:minmax(0,1fr);row-gap:0}
   .readout li{border-left:0;border-top:1px solid var(--line)}
   .readout li:first-child{border-top:0}
@@ -713,10 +719,118 @@ html[data-look="instrument"] .stack-link a{margin-right:10px;font-family:var(--f
   .spec>div{grid-template-columns:minmax(0,1fr)}
 }
 
+/* ---- Margins: wide screens only (1100px and up) ----
+   The page sits in a frame: a centred text column, and a margin on each side of it. The left margin holds
+   the page scale, the right one drawn notes, and behind both the sky has its own detail. Under 1100px all
+   of it is display:none and the page is the single column above.
+     --g       the frame's edge to the window's edge
+     --m       one margin's width: 88px at 1100, 150 at 1280, 170 at 1440, 225 at 1920, at most 320
+     --G       a margin's inner edge to the text column
+     --column  the text column, at most 1240px; past that the margins and the sky take the extra width */
+.sky-sides,.page-scale,.margin-note{display:none}
+@media(min-width:1100px){
+  html[data-look="instrument"]{
+    --g:clamp(24px,2.5vw,56px);
+    --G:clamp(28px,3vw,64px);
+    --m:calc(88px + (100vw - 1100px) * .35);
+    --column:min(1240px,100% - 2 * (var(--g) + var(--m) + var(--G)))
+  }
+  html[data-look="instrument"] main{position:relative;width:var(--column)}
+  html[data-look="instrument"] :is(.site-header,.site-footer){width:min(1240px + 2 * (var(--m) + var(--G)),100% - 2 * var(--g))}
+  /* The window-wide sky keeps its gradient, hazes and faint field stars; the margins draw their own edges. */
+  html[data-look="instrument"]:not([data-theme="paper"]) body::before{background:
+    radial-gradient(circle at 18% 7%,rgb(var(--star) / .25) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 31% 41%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 44% 3%,rgb(var(--star) / .3) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 57% 27%,rgb(var(--star) / .22) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 69% 12%,rgb(var(--star) / .28) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 62% 66%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 38% 78%,rgb(var(--star) / .2) 0 .6px,transparent 1.1px),
+    radial-gradient(circle at 72% 86%,rgb(var(--star) / .25) 0 .6px,transparent 1.1px),
+    radial-gradient(70% 42% at 96% -6%,var(--haze-green),transparent 72%),
+    radial-gradient(52% 36% at 70% -4%,var(--haze-violet),transparent 74%),
+    linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 48%,var(--sky-bottom) 100%)}
+
+  /* The sky in the margins (skySides() in site/ornament.mjs): one fixed panel per side, as wide as the space
+     beside the text column. Stars crowd the window's edge; the Milky Way crosses the left, the aurora rises
+     on the right. The mask fades each panel out over its inner half, so nothing reaches the text. */
+  html[data-look="instrument"]:not([data-theme="paper"]) .sky-sides{display:block}
+  .sky-side{position:fixed;top:0;z-index:-1;width:max((100% - 1240px) / 2,var(--g) + var(--m) + var(--G));height:100%;pointer-events:none}
+  .sky-side--left{left:0;-webkit-mask-image:linear-gradient(90deg,#000 46%,transparent 94%);mask-image:linear-gradient(90deg,#000 46%,transparent 94%)}
+  .sky-side--right{right:0;-webkit-mask-image:linear-gradient(270deg,#000 46%,transparent 94%);mask-image:linear-gradient(270deg,#000 46%,transparent 94%)}
+  .sky-side .mw-a{stop-color:var(--milkyway)}
+  .sky-side .mw-b{stop-color:var(--milkyway-edge)}
+  .sky-side .mw-core{stop-color:var(--milkyway-core)}
+  .sky-side .mw-fade{stop-color:rgb(58 48 168 / 0)}
+  .sky-side .au-a{stop-color:var(--aurora)}
+  .sky-side .au-b{stop-color:var(--aurora-high)}
+  .sky-side .au-glow{stop-color:var(--aurora-glow)}
+  .sky-side .au-fade{stop-color:rgb(57 220 200 / 0)}
+
+  /* The page scale (pageScale() in site/ornament.mjs): a graduated scale for the whole page, held in view.
+     Numerals 0 to 100 on the left, ticks every 8px (longer every 40 and 80), and each section's mark, a link,
+     where its section starts. public/portfolio.js places the marks, marks the current one and adds
+     .is-live, which shows the aurora cursor: it reads the scroll, on a CSS scroll timeline where there is one. */
+  html[data-look="instrument"] .page-scale{display:block;position:absolute;top:0;bottom:0;right:calc(100% + var(--G));width:var(--m)}
+  .scale-track{position:sticky;top:32px;height:calc(100vh - 128px);container-type:size}
+  .scale-track::before{content:"";position:absolute;top:0;bottom:0;left:35px;width:1px;background:var(--line-strong)}
+  .scale-track::after{content:"";position:absolute;top:0;bottom:0;left:24px;width:11px;background:
+    repeating-linear-gradient(180deg,var(--line-strong) 0 1px,transparent 1px 80px) right top/11px 100% no-repeat,
+    repeating-linear-gradient(180deg,var(--line-strong) 0 1px,transparent 1px 40px) right top/7px 100% no-repeat,
+    repeating-linear-gradient(180deg,var(--line) 0 1px,transparent 1px 8px) right top/4px 100% no-repeat}
+  .scale-numerals{margin:0}
+  .scale-numerals span{position:absolute;left:0;top:calc(var(--at) * 100%);width:20px;transform:translateY(-50%);font-family:var(--font-mono);font-size:10px;line-height:1;text-align:right;color:var(--faint)}
+  .page-scale ol{margin:0;padding:0;list-style:none}
+  .page-scale li{position:absolute;z-index:1;left:28px;right:0;top:calc(var(--at) * 100%);transform:translateY(-50%)}
+  .page-scale a{display:inline-flex;align-items:center;gap:8px;min-height:24px;padding-right:6px;color:var(--muted)}
+  .page-scale a::before{content:"";flex:none;width:15px;height:1px;background:var(--line-strong)}
+  .scale-n{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;color:var(--faint)}
+  .scale-name{font-family:var(--font-ui);font-size:13px;font-weight:500;white-space:nowrap}
+  .page-scale [aria-current]{color:var(--ink)}
+  .page-scale [aria-current]::before{background:var(--accent)}
+  .page-scale [aria-current] .scale-n{color:var(--accent)}
+  .scale-cursor{display:none;position:absolute;z-index:2;top:0;left:27px;width:0;height:0;margin-top:-4px;border-left:7px solid var(--accent);border-block:4px solid transparent;pointer-events:none}
+  .page-scale.is-live .scale-cursor{display:block;transform:translateY(calc(var(--p,0) * 100cqh))}
+}
+@media(min-width:1100px) and (hover:hover) and (pointer:fine){
+  .page-scale a:hover,.page-scale a:hover .scale-n{color:var(--ink)}
+}
+/* Under 1440px a margin is too narrow for the names: the marks show their numbers, and the names stay as
+   each link's accessible text. */
+@media(min-width:1100px) and (max-width:1439px){
+  .scale-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+@supports(animation-timeline:scroll()){
+  @media(min-width:1100px){
+    .page-scale.is-live .scale-cursor{animation-name:scale-read;animation-duration:auto;animation-timing-function:linear;animation-fill-mode:both;animation-timeline:scroll(root block)}
+  }
+}
+@keyframes scale-read{from{transform:translateY(0)}to{transform:translateY(100cqh)}}
+@media(min-width:1280px){
+  html[data-look="instrument"]{--m:clamp(150px,4px + 11.5vw,320px)}
+  /* Notes in the right margin (marginNote() in site/ornament.mjs), level with their chapter's number. */
+  html[data-look="instrument"] .chapter{position:relative}
+  html[data-look="instrument"] .margin-note{display:block;position:absolute;top:30px;left:calc(100% + var(--G));width:min(var(--m),220px);pointer-events:none}
+}
+.note-fig{display:block;width:100%;height:auto;overflow:visible}
+.note-fig :is(path,rect,circle,ellipse){fill:none;stroke:var(--line-strong);stroke-width:1;vector-effect:non-scaling-stroke}
+.note-fig .n-dim{stroke:var(--line)}
+.note-fig .n-mid{stroke:var(--faint);opacity:.7}
+.note-fig .n-dash{stroke-dasharray:2 4}
+.note-fig .n-violet{stroke:var(--violet)}
+.note-fig .n-fill{fill:var(--line);stroke:none}
+.note-fig .n-ink{fill:var(--ink);stroke:none}
+.note-fig .n-ink-dim{fill:var(--faint);stroke:none}
+.note-axis{display:grid;grid-template-columns:repeat(var(--years),minmax(0,1fr));margin:6px 0 0;padding:0 2%;font-family:var(--font-mono);font-size:10px;line-height:1;text-align:center;color:var(--faint)}
+.note-cap{margin:14px 0 0;font-family:var(--font-mono);font-size:11px;line-height:1.55;color:var(--faint);text-wrap:pretty}
+.note-cap span{display:block;margin-bottom:3px;letter-spacing:.14em;text-transform:uppercase}
+
 /* Print: ink on white, no sky, the ornament small; external addresses follow their links. */
 @media print{
   html[data-look="instrument"]{--paper:#fff;--card:#fff;--inset:#f4f4f4;--ink:#111;--muted:#444;--faint:#555;--line:#ccc;--line-strong:#999;--accent:#111;--violet:#666;--amber:#666;--dot:transparent;background:#fff}
   html[data-look="instrument"] body::before{display:none}
+  html[data-look="instrument"] :is(.sky-sides,.page-scale,.margin-note){display:none}
+  html[data-look="instrument"] :is(main,.site-header,.site-footer){width:100%}
   html[data-look="instrument"] .site-header,html[data-look="instrument"] .chapter,html[data-look="instrument"] .site-footer{background:none;border-top:1px solid #999}
   html[data-look="instrument"] .site-header{border-top:0;border-bottom:1px solid #999}
   .opening{padding:16px 0 24px}
@@ -727,9 +841,14 @@ html[data-look="instrument"] .stack-link a{margin-right:10px;font-family:var(--f
   .chapter-rail{break-after:avoid}
   .plate-links>a[href^="https:"]::after{content:" (" attr(href) ")";font-family:var(--font-mono);font-size:8pt;color:var(--muted);overflow-wrap:anywhere}
 }
-/* Forced colours drop the drawn scales and the sky: the structure keeps real borders. */
+/* Forced colours drop the drawn scales and the sky: the structure keeps real borders. The page scale keeps
+   its links, on a real border; its cursor and the drawn notes go. */
 @media(forced-colors:active){
   html[data-look="instrument"] body::before{display:none}
+  html[data-look="instrument"] :is(.sky-sides,.margin-note,.scale-cursor){display:none}
+  html[data-look="instrument"] .scale-track::after{display:none}
+  html[data-look="instrument"] .scale-track::before{background:none;border-left:1px solid CanvasText}
+  html[data-look="instrument"] .page-scale [aria-current]{text-decoration:underline}
   html[data-look="instrument"] .site-header{border-bottom:1px solid CanvasText}
   :is(.chapter,.readout,.stone-next,.site-footer):where(html[data-look="instrument"] *){border-top:1px solid CanvasText}
   .orrery :is(circle,path){stroke:CanvasText}

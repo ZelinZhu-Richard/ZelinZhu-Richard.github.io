@@ -268,13 +268,13 @@
     },
     {
       "file": "portfolio.css",
-      "bytes": 42357,
-      "sha256": "121f34e877c5d21b059c811f1db14a7ba059575806d30a17d120609284294786"
+      "bytes": 51804,
+      "sha256": "fb5ce1847a72b291fff5b3d6759a184e7b07da3cbee40366d248fa2f3d1f25a2"
     },
     {
       "file": "portfolio.js",
-      "bytes": 1902,
-      "sha256": "8f1abcd92552305e23cc76b7fbcabc4c48214e76bb6142784347d8164342336f"
+      "bytes": 4464,
+      "sha256": "6cdd838b0fa4c958fae3d0fcb7a22361fac096c537dc4e81997796497a093a52"
     },
     {
       "file": "richard.jpg",
