@@ -41,6 +41,20 @@ export async function createStaticServer(directory) {
       res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8', ...headers });
       res.end(req.method === 'HEAD' ? undefined : text);
     };
+    // GitHub Pages answers a missing path with the site's 404.html; do the same so the page can be seen locally.
+    const notFound = async () => {
+      try {
+        const page = await realpath(resolve(root, '404.html'));
+        if (!page.startsWith(root + sep)) return fail(404, 'Not found');
+        const info = await stat(page);
+        if (!info.isFile()) return fail(404, 'Not found');
+        res.writeHead(404, { 'Content-Type': mimeTypes['.html'], 'Content-Length': info.size, 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
+        if (req.method === 'HEAD') return res.end();
+        const stream = createReadStream(page);
+        stream.on('error', () => res.destroy());
+        stream.pipe(res);
+      } catch { fail(404, 'Not found'); }
+    };
     if (!['GET', 'HEAD'].includes(req.method)) return fail(405, 'Method not allowed', { Allow: 'GET, HEAD' });
     let pathname;
     try { pathname = decodeURIComponent((req.url || '/').split('?')[0]); }
@@ -60,12 +74,12 @@ export async function createStaticServer(directory) {
           filename = resolve(filename, 'index.html');
         }
       } catch {
-        return fail(404, 'Not found');
+        return notFound();
       }
       filename = await realpath(filename);
       if (!filename.startsWith(root + sep)) return fail(403, 'Forbidden');
       info = await stat(filename);
-      if (!info.isFile()) return fail(404, 'Not found');
+      if (!info.isFile()) return notFound();
 
       const etag = `"${info.size.toString(16)}-${Math.floor(info.mtimeMs).toString(16)}"`;
       const headers = {
@@ -106,8 +120,9 @@ export async function createStaticServer(directory) {
       res.on('close', () => stream.destroy());
       stream.pipe(res);
     } catch (error) {
-      if (!res.headersSent) fail(error.code === 'ENOENT' ? 404 : 500, 'File unavailable');
-      else res.destroy();
+      if (res.headersSent) res.destroy();
+      else if (error.code === 'ENOENT') await notFound();
+      else fail(500, 'File unavailable');
     }
   });
 }

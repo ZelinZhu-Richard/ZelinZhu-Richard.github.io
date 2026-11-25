@@ -28,4 +28,14 @@ The About page photo (and its copy on the Art page) turns into a living portrait
 
 Experience tags on About and Research float as poppable soap bubbles up the column under each date, with an opt-in pop sound. See [workspace/tag-bubbles/README.md](workspace/tag-bubbles/README.md).
 
+Everything a visitor can open is listed once, in `workspace/palette/index.mjs`. Three things read that list: the command palette (the Search button in the header, or Cmd/Ctrl+K or `/` on any page with the shared header), the index in the footer, and the “Everything here” section of the Colophon. Add a destination there and it appears in all three. Unlisted pages never go in it. See [workspace/palette/README.md](workspace/palette/README.md).
+
+The Colophon at `/colophon/` says how the site is made and credits what is borrowed. Its copy lives in `workspace/colophon/page.mjs`; the page counts on it are filled in by the build.
+
+Link previews use the 1200×630 cards in `workspace/og/cards/`. They are drawn by `npm run og` (a local Python script; it needs Pillow and the macOS system fonts) from `workspace/og/cards.json`, and committed. The build copies them and points each page’s `og:image` at its card; a page without its own card gets its section’s card or the site card. See [workspace/og/README.md](workspace/og/README.md).
+
+The blog publishes an RSS feed at `/blog/feed.xml` (`workspace/blog/feed.mjs`). Publications on the Research page carry a BibTeX entry built from `PUBLICATIONS` in `site/content.mjs` (`workspace/cite/`).
+
+A missing address gets `404.html`, which lists the seven sections and suggests the nearest real page. `npm run dev` and `npm run preview` serve that page for missing paths too, as GitHub Pages does.
+
 The `/skills/` library lives in `workspace/skills/`. Add recommended skills to `content.mjs` with a name, author, one-sentence description, repository URL, and stable slug. Names link to `/skills/#slug` for sharing. The authored-skills section is ready for future detail pages; no placeholder skill pages are published.

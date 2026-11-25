@@ -1,0 +1,83 @@
+/* /colophon/ — only what /portfolio.css does not already give. Tokens and rules: site/DESIGN.md. */
+
+/* The homepage name's font, declared here as well so its specimen is set in the real face.
+   Same file the homepage loads (workspace/hero-name/). */
+@font-face{
+  font-family:"Ibarra Real Nova";
+  font-style:italic;
+  font-weight:400;
+  font-display:swap;
+  src:url('/hero-name/ibarra-real-nova-italic.woff2') format('woff2')
+}
+
+.colophon-section{padding:56px 0;border-top:1px solid var(--ink)}
+.colophon-section>p{max-width:680px}
+.colophon-note{font-size:16px;color:var(--muted)}
+
+/* Numbers. The label comes first in the markup, so it is read as "pages, 65"; the number is drawn on top. */
+.colophon-numbers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:40px 24px;margin:36px 0 28px}
+.colophon-numbers div{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:12px}
+.colophon-numbers dt{max-width:22ch;font-family:var(--font-mono);font-size:12px;line-height:1.5;color:var(--muted)}
+.colophon-numbers dd{margin:0;font-family:var(--font-display);font-size:clamp(44px,6vw,84px);line-height:1;letter-spacing:-.04em}
+/* The page's one accent: the zero. */
+.colophon-numbers [data-stat="deps"]{color:var(--accent)}
+.colophon-numbers+.colophon-note{margin:0;font-family:var(--font-mono);font-size:12px}
+
+/* Label / value rows: Type, Borrowed, What it does not do. */
+.colophon-rows{margin:36px 0 0}
+.colophon-rows>div{display:grid;grid-template-columns:3fr 9fr;gap:24px;padding:24px 0;border-top:1px solid var(--line)}
+.colophon-rows dt{padding-top:6px;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.colophon-rows dd{min-width:0;margin:0}
+.colophon-rows p{max-width:680px;margin:0}
+.colophon-rows p+p{margin-top:10px}
+.colophon-credits dt{padding-top:0;font-family:var(--font-display);font-size:24px;line-height:1.2;letter-spacing:-.02em;color:var(--ink)}
+
+.colophon-specimen{overflow-wrap:anywhere}
+.colophon-specimen--display{font-family:var(--font-display);font-size:clamp(30px,3.4vw,46px);line-height:1.05;letter-spacing:-.035em}
+.colophon-specimen--body{font-family:var(--font-body);font-size:22px;line-height:1.5}
+.colophon-specimen--mono{font-family:var(--font-mono);font-size:13px;line-height:1.6}
+.colophon-specimen--name{font-family:"Ibarra Real Nova",Georgia,serif;font-style:italic;font-size:clamp(40px,5vw,64px);line-height:1.1;letter-spacing:-.02em}
+
+/* Short links under a row. The ::before makes the tap area taller and leaves the underline where it is. */
+.colophon-more{font-family:var(--font-mono);font-size:13px}
+.colophon-more a{position:relative}
+.colophon-more a::before{content:"";position:absolute;inset:-6px 0}
+
+/* Colour */
+.colophon-swatches{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px 16px;max-width:880px;margin:36px 0 0;padding:0;font-family:var(--font-mono);font-size:12px;line-height:1.5;color:var(--muted)}
+/* forced-color-adjust: a swatch that Windows high contrast repaints would show the wrong colour. */
+.colophon-chip{display:block;aspect-ratio:1;margin-bottom:10px;border:1px solid var(--line);forced-color-adjust:none}
+.colophon-swatches code{display:block;font:inherit;color:var(--ink)}
+
+/* Everything here: group label on the left, its rows on the right. */
+.colophon-index{margin:36px 0 0;border-bottom:1px solid var(--line)}
+.colophon-group{display:grid;grid-template-columns:3fr 9fr;gap:24px;border-top:1px solid var(--line)}
+.colophon-group h3{margin:0;padding-top:21px;font-family:var(--font-mono);font-size:13px;line-height:1.6;letter-spacing:0;color:var(--muted)}
+.colophon-group ul{list-style:none;min-width:0;margin:0;padding:0}
+.colophon-group li+li{border-top:1px solid var(--line)}
+.colophon-group a{display:grid;grid-template-columns:5fr 7fr;gap:24px;align-items:baseline;padding:14px 0}
+.colophon-title{font-family:var(--font-display);font-size:24px;line-height:1.2;letter-spacing:-.02em;overflow-wrap:anywhere}
+.colophon-label{font-family:var(--font-mono);font-size:12px;letter-spacing:0;color:var(--muted)}
+.colophon-hint{font-size:16px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
+
+@media(hover:hover) and (pointer:fine){
+  .colophon-group a:hover .colophon-title{color:var(--accent)}
+}
+@media(pointer:coarse){
+  .colophon-more a::before{inset:-16px 0}
+}
+@media(max-width:700px){
+  .colophon-section{padding:40px 0}
+  .colophon-numbers{grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 16px}
+  .colophon-rows>div,.colophon-group{grid-template-columns:1fr;gap:6px}
+  .colophon-rows dt{padding-top:0}
+  .colophon-specimen--body{font-size:19px}
+  .colophon-swatches{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .colophon-group{padding-top:18px}
+  .colophon-group h3{padding-top:0}
+  .colophon-group a{grid-template-columns:1fr;gap:2px}
+}
+/* Print swaps the tokens for ink on white, so a filled square would no longer match the value under it. */
+@media print{
+  .colophon-chip{display:none}
+}

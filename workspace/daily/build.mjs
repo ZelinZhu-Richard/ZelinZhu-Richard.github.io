@@ -36,7 +36,7 @@ export function siteChrome() {
   const header = work.match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0];
   const footer = work.match(/<footer class="site-footer">[\s\S]*?<\/footer>/)?.[0] || '';
   if (!header || !header.includes('href="/daily/"')) throw new Error('Daily navigation is missing.');
-  const active = header.replaceAll(' aria-current="page"', '').replace('href="/daily/"', 'href="/daily/" aria-current="page"');
+  const active = header.replace(/ aria-current="[^"]*"/g, '').replace('href="/daily/"', 'href="/daily/" aria-current="page"');
   return { header: active, footer };
 }
 

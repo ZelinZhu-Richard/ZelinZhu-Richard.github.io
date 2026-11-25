@@ -1,0 +1,106 @@
+[
+  {
+    "name": "site",
+    "match": { "paths": ["/"] },
+    "label": "Build. Learn. Repeat.",
+    "title": "Richard Zhu",
+    "text": "High school senior. Computer science, economics and machine learning research.",
+    "photo": true
+  },
+  {
+    "name": "about",
+    "match": { "paths": ["/about/"] },
+    "label": "01 / About",
+    "title": "Richard Zhu",
+    "text": "High school senior. I work on computer science and economics, and do machine learning research at UNC PRIMES.",
+    "photo": true
+  },
+  {
+    "name": "projects",
+    "match": { "paths": ["/projects/"] },
+    "label": "02 / Projects",
+    "title": "Projects",
+    "text": "A quant research system, a benchmark for speech-recognition bias, and an open-source stock analysis app.",
+    "photo": false
+  },
+  {
+    "name": "research",
+    "match": { "paths": ["/research/"] },
+    "label": "03 / Research",
+    "title": "Research",
+    "text": "Deep learning on brain imaging data at UNC PRIMES, and a workshop poster on agents for quantitative research.",
+    "photo": false
+  },
+  {
+    "name": "fun",
+    "match": { "paths": ["/fun/"], "section": "fun" },
+    "label": "05 / Fun",
+    "title": "Fun",
+    "text": "Small camera toys that run in your browser. Nothing is uploaded.",
+    "photo": false
+  },
+  {
+    "name": "flash",
+    "match": { "paths": ["/flash/"] },
+    "label": "05 / Fun",
+    "title": "Flash",
+    "text": "Design a holographic foil card with live textures, colors, and reflections, then download an interactive card.",
+    "photo": false
+  },
+  {
+    "name": "blog",
+    "match": { "paths": ["/blog/"], "prefix": "/blog/" },
+    "label": "06 / Blog",
+    "title": "Blog",
+    "text": "Notes on what I’m building and learning, written as I go.",
+    "photo": false
+  },
+  {
+    "name": "daily",
+    "match": { "prefix": "/daily/" },
+    "label": "07 / Daily",
+    "title": "Daily",
+    "text": "My to-do list, run as a pet game. Finish a task and the pets eat.",
+    "photo": false
+  },
+  {
+    "name": "work",
+    "match": { "paths": ["/work/"] },
+    "label": "Work / 2025–2026",
+    "title": "Things I’ve built",
+    "text": "Eight projects: quant research, AI evaluation, and five things that live on this site.",
+    "photo": false
+  },
+  {
+    "name": "skills",
+    "match": { "paths": ["/skills/"] },
+    "label": "Skills",
+    "title": "Agent skills",
+    "text": "The AI agent skills I use, and the ones I create.",
+    "photo": false
+  },
+  {
+    "name": "stars",
+    "match": { "prefix": "/github/stars/" },
+    "label": "GitHub stars",
+    "title": "GitHub stars, sorted",
+    "text": "Repositories I have starred, sorted by what they are, then by what they do.",
+    "photo": false
+  },
+  {
+    "name": "research-stack",
+    "match": { "prefix": "/github/stars/research/" },
+    "label": "GitHub stars / Research Stack",
+    "title": "Research Stack",
+    "text": "A curated research toolkit, organized by workflow and discipline.",
+    "photo": false
+  },
+  {
+    "name": "colophon",
+    "match": { "paths": ["/colophon/"] },
+    "label": "Colophon",
+    "title": "How this site is made",
+    "text": "No npm dependencies and no framework of its own. One Node script builds it.",
+    "photo": false
+  }
+]

@@ -38,9 +38,9 @@
   scroll-margin-top:24px
 }
 .work-group-head+.work-item{border-top:0;padding-top:40px}
-.work-head{min-width:0}
+.work-head,.work-body,.work-code,.work-shot{min-width:0}
 .work-num{font-family:var(--font-mono);font-size:13px;color:var(--muted);margin:0 0 10px}
-.work-head h2{font-size:clamp(32px,3.4vw,48px);margin-bottom:8px}
+.work-head :is(h2,h3){font-size:clamp(32px,3.4vw,48px);line-height:1.05;letter-spacing:-.035em;margin-bottom:8px}
 .work-context{font-family:var(--font-mono);font-size:13px;color:var(--muted);margin:0}
 .work-summary{
   font-family:var(--font-display);
@@ -69,7 +69,8 @@
 
 /* Site experiments: tighter rows, with a screenshot on the right. */
 .work-item--site{grid-template-columns:3fr 5fr 4fr;padding:44px 0}
-.work-item--site .work-head h2{font-size:clamp(28px,2.6vw,38px)}
+/* The Art page's portrait row sits under a site row, so its title matches that size. */
+.work-item--site .work-head :is(h2,h3),.art-portrait .work-head h2{font-size:clamp(28px,2.6vw,38px)}
 .work-item--site .work-summary{font-size:clamp(19px,1.6vw,22px)}
 .work-item--site .work-facts{grid-template-columns:1fr}
 .work-item--site .work-facts div{display:grid;grid-template-columns:7ch 1fr;gap:10px;align-items:baseline}
@@ -96,7 +97,7 @@
   .work-item--research .work-body,.work-item--research .work-code,.work-item--site .work-body,.work-item--site .work-shot{grid-area:auto}
   .work-facts{grid-template-columns:1fr}
   .work-code pre{font-size:13px}
-  .work-item--site .work-shot{transform:none;box-shadow:3px 3px 0 var(--ink)}
+  .work-item--site .work-shot{transform:none}
 }
 @media(prefers-reduced-motion:reduce){
   .work-shot{transform:none!important}

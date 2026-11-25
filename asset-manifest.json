@@ -98,8 +98,8 @@
     },
     {
       "file": "favicon.svg",
-      "bytes": 266,
-      "sha256": "1ca458cf386cf5a5d4af31daec8d8699005a2ff1ec1084af8e03668ab1b1987d"
+      "bytes": 263,
+      "sha256": "3dc14d01273cfe8e49bdaf80d7929c732500fb22beae455c535fa5e6dccfac57"
     },
     {
       "file": "images/loader.gif",
@@ -268,13 +268,13 @@
     },
     {
       "file": "portfolio.css",
-      "bytes": 12296,
-      "sha256": "778664e0de4cc705d33fea47faae9203c1000a10b831ab22f67b217f6852f72f"
+      "bytes": 17639,
+      "sha256": "bc72b5093e3d0a1743e6ac1fefc94854279262e79d10932981ea03f141f627b8"
     },
     {
       "file": "portfolio.js",
-      "bytes": 663,
-      "sha256": "8420d98e697c3a0e5500936222f049782bb023a15c9c50353c12852b53bd1cbb"
+      "bytes": 1902,
+      "sha256": "8f1abcd92552305e23cc76b7fbcabc4c48214e76bb6142784347d8164342336f"
     },
     {
       "file": "richard.jpg",

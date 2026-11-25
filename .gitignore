@@ -5,6 +5,7 @@ dist/
 !.env.example
 .cache/
 coverage/
+__pycache__/
 test-results/
 playwright-report/
 artifacts/
@@ -40,6 +41,7 @@ artifacts/
 /workspace/domainexp/integrate.py
 /.claude/worktrees/
 /.claude/settings.local.json
+/.claude/launch.json
 
 # Local integration worktrees and review evidence.
 /workspace/site-sync-*/

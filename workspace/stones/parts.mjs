@@ -27,7 +27,9 @@ const OWNER = [
 export const ownerOf = path => OWNER.find(([re]) => re.test(path))?.[1] || '';
 
 // The one site menu: the seven stones, numbered. Replaces the old page list everywhere.
+// A section's own page is the "page"; a page that belongs to a section (Skills under About) marks it "true".
 export function stoneNav(path) {
   const current = ownerOf(path);
-  return `<nav id="navigation" class="stone-nav" aria-label="Main navigation">${PARTS.map((p, i) => `<a href="${p.href}"${p.id === current ? ' aria-current="page"' : ''}><span>${String(i + 1).padStart(2, '0')}</span>${p.title}</a>`).join('')}</nav>`;
+  const mark = p => p.id !== current ? '' : ` aria-current="${p.href === path ? 'page' : 'true'}"`;
+  return `<nav id="navigation" class="stone-nav" aria-label="Main navigation">${PARTS.map((p, i) => `<a href="${p.href}"${mark(p)}><span aria-hidden="true">${String(i + 1).padStart(2, '0')}</span> ${p.title}</a>`).join('')}</nav>`;
 }
