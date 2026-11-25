@@ -28,10 +28,16 @@ test('production Gym build verifies pinned assets and excludes development files
     const html=await readFile(`${out}/gym/index.html`,'utf8');assert.ok(html.includes('https://zelinzhu-richard.github.io/gym/'));assert.ok(html.includes("connect-src 'self'"));assert.ok(!html.includes('/_nuxt/'));assert.ok(html.includes('experimental'));
   }finally{await rm(out,{recursive:true,force:true});}
 });
-test('Gym is reachable from both navigation systems and has a stable Work anchor',async()=>{
+test('Gym is reachable from the site index on the homepage, the palette and Work, and has a stable Work anchor',async()=>{
   const root=new URL('../../../',import.meta.url);
-  for(const path of ['site/content.mjs','public/index.html','public/contacts/index.html','tools/build.mjs'])assert.ok((await readFile(new URL(path,root),'utf8')).includes('/gym/'),path);
-  const runtime=await readFile(new URL('public/_nuxt/CbdjwYMp.js',root),'utf8');assert.ok(runtime.includes('to:"/gym/"'));assert.ok(runtime.includes('link:"/gym/",text:"Gym"'));
+  for(const path of ['site/content.mjs','tools/build.mjs'])assert.ok((await readFile(new URL(path,root),'utf8')).includes('/gym/'),path);
+  // The homepage and Contact page list every page of workspace/palette/index.mjs, which reads PROJECTS.
+  const {siteIndex,indexItem}=await import('../../palette/index.mjs');const {withHomeIndex}=await import('../../home/build.mjs');
+  assert.equal(indexItem('/gym/').title,'Gym');
+  for(const [file,path] of [['index.html','/'],['contacts/index.html','/contacts/']]){
+    const built=withHomeIndex(await readFile(new URL(`workspace/home/release/${file}`,root),'utf8'),siteIndex(),path);
+    assert.match(built.slice(built.indexOf('<nav id="home-index"')),/<a href="\/gym\/">Gym<\/a>/,file);
+  }
   const {PROJECTS}=await import('../../../site/content.mjs');assert.equal(PROJECTS.find(p=>p.id==='gym').live,'/gym/');
   const {pages}=await import('../../../site/pages.mjs');assert.ok(pages().get('work/index.html').includes('id="gym"'));
 });

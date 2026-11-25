@@ -6,6 +6,9 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildHq, HQ_FILES } from '../build.mjs';
 import { pages } from '../../../site/pages.mjs';
+import { RELEASE_DIR, readStamp } from '../../home/stamp.mjs';
+import { withHomeIndex } from '../../home/build.mjs';
+import { siteIndex } from '../../palette/index.mjs';
 
 const hqDir = fileURLToPath(new URL('..', import.meta.url));
 const repoRoot = fileURLToPath(new URL('../../..', import.meta.url));
@@ -53,8 +56,16 @@ test('/hq/ is not in the nav or any other rendered page', async () => {
   const output = pages();
   assert.ok(!output.has('hq/index.html'), 'hq is not rendered through pages()');
   for (const [file, html] of output) assert.doesNotMatch(html, /\/hq\//, `${file} links to /hq/`);
-  for (const file of ['public/index.html', 'public/contacts/index.html', 'public/_nuxt/CbdjwYMp.js']) {
-    assert.doesNotMatch(await readFile(join(repoRoot, file), 'utf8'), /\/hq\//, `${file} links to /hq/`);
+  // The homepage and Contact page: the committed Nuxt release, its scripts, and the site index the build adds.
+  const { files } = await readStamp();
+  for (const { file } of files.filter(entry => /\.(?:html|js|css|json)$/.test(entry.file))) {
+    const text = await readFile(join(RELEASE_DIR, file), 'utf8');
+    assert.doesNotMatch(text, /["'`(]\/(?:hq|duke|choices|repolarisdm)(?:[\/"'`#?)]|$)/, `release ${file} links an unlisted page`);
+  }
+  for (const [file, path] of [['index.html', '/'], ['contacts/index.html', '/contacts/']]) {
+    const built = withHomeIndex(await readFile(join(RELEASE_DIR, file), 'utf8'), siteIndex(), path);
+    assert.ok(built.includes('<nav id="home-index" aria-label="Site index">'), file);
+    assert.doesNotMatch(built, /href="\/(?:hq|duke|choices|repolarisdm)(?:[\/"#?])/, `${file} lists an unlisted page`);
   }
 });
 
@@ -96,7 +107,19 @@ test('full build: only HQ, Choices and Duke routes are noindex; none are publicl
       if (file !== 'choices/index.html') assert.doesNotMatch(html, /\/choices(?:\/|[?#"'])/, `${file} exposes /choices/`);
     }
     assert.deepEqual(pagesWithNoindex.sort(), ['choices/index.html', 'duke/becoming-blue/index.html', 'duke/index.html', 'duke/the-night-duke-lost-its-blue/index.html', 'hq/index.html']);
-    for (const file of ['index.html', 'daily/index.html', 'blog/index.html', 'gym/index.html', 'domainexp/index.html']) {
+    // / and /contacts/ are workspace/home's release (read from the repo, wherever the build runs), with the site index;
+    // the captured phoenix runtime that public/ still holds is filtered out, except the two fonts other pages load.
+    for (const [file, route] of [['index.html', 'story'], ['contacts/index.html', 'contact']]) {
+      const html = await readFile(join(dist, file), 'utf8');
+      assert.match(html, new RegExp(`<html\\b[^>]*data-home="${route}"`), file);
+      assert.equal(html.split('<nav id="home-index" aria-label="Site index">').length, 2, file);
+      assert.ok(html.indexOf('<nav id="home-index"') > html.indexOf('<div id="teleports">'), `${file}: the index is outside #__home`);
+    }
+    const { files: released } = await readStamp();
+    for (const { file } of released.filter(entry => !entry.file.endsWith('.html'))) assert.deepEqual(await readFile(join(dist, file)), await readFile(join(RELEASE_DIR, file)), file);
+    assert.deepEqual((await readdir(join(dist, '_nuxt'))).sort(), ['TTNeorisTrialRegular.CykOY4gR.ttf', 'fonnts.com-theseasons-it.CUCq9ttA.otf']);
+    for (const gone of ['start.js', 'local.css', 'story.js', 'audio', 'images', 'libs', 'models', 'textures', 'timelines']) assert.ok(!(await readdir(dist)).includes(gone), `${gone} is not built`);
+    for (const file of ['index.html', 'contacts/index.html', 'daily/index.html', 'blog/index.html', 'gym/index.html', 'domainexp/index.html']) {
       assert.doesNotMatch(await readFile(join(dist, file), 'utf8'), /\/hq\//, `${file} links to /hq/`);
       assert.doesNotMatch(await readFile(join(dist, file), 'utf8'), /href=["']\/duke(?:[\/"'#?])/, `${file} links to /duke/`);
     }

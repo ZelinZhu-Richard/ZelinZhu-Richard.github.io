@@ -2,14 +2,14 @@
 // and the facts in the copy that another file in the repo can prove or disprove.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { COLOPHON_DESCRIPTION, SWATCHES, colophonPage, fillStats } from '../page.mjs';
 import { COLOPHON_FILES, buildColophon, countDependencies, finishColophon, siteStats } from '../build.mjs';
 import { siteIndex } from '../../palette/index.mjs';
-import { HERO_NAME_FILES } from '../../hero-name/build.mjs';
 import { CLOUD, cloudEnabled } from '../../daily/app/cloud-config.js';
 
 const repo = path => new URL(`../../../${path}`, import.meta.url);
@@ -118,6 +118,8 @@ test('nothing the build forbids, and no unlisted page, is on the page or in its 
   // Unlisted pages are judged by destination, so a post called "Duke" does not fail this.
   assert.doesNotMatch(page, /href="\/(?:choices|duke|hq|repolarisdm)(?:[\/?#"])/, 'no link to an unlisted page');
   for (const word of ['/choices', '/duke', '/hq', 'repolarisdm']) assert.ok(!colophonPage({ index: [] }).includes(word) && !css.includes(word), `"${word}" must not appear in the page's own copy`);
+  // The old captured homepage is retired: nothing on the page still describes it as the current one.
+  assert.doesNotMatch(page, /phoenix|Noomo|Google Analytics|hero-name/i);
   for (const text of [page, css, COLOPHON_DESCRIPTION]) {
     for (const word of forbidden) assert.ok(!text.includes(word), `"${word}" must not appear`);
     assert.doesNotMatch(text, /https?:\/\/(?:localhost|127\.0\.0\.1)/);
@@ -171,7 +173,8 @@ test('the build copies the stylesheet, then fills the figures from the finished 
   await buildColophon(site);
   for (const file of COLOPHON_FILES) assert.equal(await readFile(join(site, 'colophon', file), 'utf8'), await read(`workspace/colophon/${file}`));
   const stats = await finishColophon(site);
-  assert.deepEqual(stats, { pages: 1, files: 2, size: '0.0', deps: 0 });
+  // The page plus the files the step copies (the stylesheet and the license texts, about 0.05 MiB).
+  assert.deepEqual(stats, { pages: 1, files: 1 + COLOPHON_FILES.length, size: '0.1', deps: 0 });
   const html = await readFile(join(site, 'colophon', 'index.html'), 'utf8');
   assert.equal(html, `<main>${fillStats(page, stats)}</main>`);
   assert.ok(!html.includes('">–</span>'));
@@ -211,25 +214,50 @@ test('the type notes match the font stacks and the font files that ship', async 
   const css = await read('public/portfolio.css');
   const stack = name => css.match(new RegExp(`${name}:([^;}\\n]+)`))[1];
   assert.match(stack('--font-display'), /^Neoris,/);
-  assert.match(css, /font-family:Neoris;\s*src:url\('\/_nuxt\/TTNeoris[^']+'\)/, 'TT Neoris comes from the captured homepage files');
+  // "TT Neoris, in a trial build. It was kept from an earlier version of the homepage": the file stays at its old address.
+  const neoris = '/_nuxt/TTNeorisTrialRegular.CykOY4gR.ttf';
+  assert.match(css, new RegExp(`font-family:Neoris;\\s*src:url\\('${neoris.replace(/\./g, '\\.')}'\\)`));
+  assert.ok(existsSync(repo(`public${neoris}`)), 'the Neoris file still ships');
   const body = stack('--font-body');
   const order = ['Iowan Old Style', 'Charter', 'Sitka Text', 'Cambria', 'Georgia'].map(face => body.indexOf(face));
   assert.ok(order.every(at => at >= 0) && order.join() === [...order].sort((a, b) => a - b).join(), 'the reading faces, in the order the page names them');
   assert.doesNotMatch(css, /fonts\.googleapis|fonts\.gstatic/, 'nothing is downloaded from a font service');
   for (const face of ['SF Mono', 'Menlo', 'Consolas']) assert.ok(stack('--font-mono').includes(face), face);
-  // The homepage name: the specimen must load the same file the homepage does, and its license must ship.
-  const font = 'ibarra-real-nova-italic.woff2';
-  assert.ok(HERO_NAME_FILES.includes(font) && HERO_NAME_FILES.includes('OFL.txt'));
-  assert.ok(existsSync(repo(`workspace/hero-name/${font}`)));
-  assert.ok((await read('workspace/hero-name/hero-name.css')).includes(`url("/hero-name/${font}")`));
-  assert.ok((await read('workspace/colophon/style.css')).includes(`url('/hero-name/${font}')`));
-  assert.ok(page.includes('<a href="/hero-name/OFL.txt">'));
-  assert.match(await read('workspace/hero-name/OFL.txt'), /SIL Open Font License/);
+  // The name on the homepage: its own --serif stack in italic, and no font file of its own.
+  const home = await read('workspace/home/app/assets/css/home.css');
+  const serif = home.match(/--serif:\s*([^;]+);/)[1].trim();
+  assert.equal(serif, '"Iowan Old Style", Charter, "Bitstream Charter", Georgia, serif');
+  assert.match(home, /\.hero-name\s*\{\s*font:\s*italic 400 [^;]*var\(--serif\)/);
+  assert.doesNotMatch(home, /@font-face|url\([^)]*\.(?:woff2?|ttf|otf)/, 'the homepage downloads no font');
+  assert.ok((await read('workspace/colophon/style.css')).includes(`.colophon-specimen--name{font-family:${serif.replace(/, /g, ',')};font-style:italic;`), 'the specimen uses the homepage stack');
+  assert.ok(page.includes('Iowan Old Style where the system has it, then Charter or Georgia. Nothing is downloaded.'));
+});
+
+// /colophon/licenses.txt: the license texts of what the homepage bundles. It is written once from
+// workspace/home/node_modules, which only exists where the homepage is built, so the texts are compared there.
+test('the homepage license file names the bundled libraries at the versions the homepage pins', async t => {
+  const text = await read('workspace/colophon/licenses.txt');
+  assert.ok(page.includes('<a href="/colophon/licenses.txt">Library licenses <span aria-hidden="true">→</span></a>'));
+  const deps = JSON.parse(await read('workspace/home/package.json')).dependencies;
+  assert.deepEqual(Object.keys(deps).sort(), ['gsap', 'nuxt', 'three', 'vue']);
+  for (const [name, version] of Object.entries(deps)) {
+    assert.match(text, new RegExp(`^${name} ${version.replace(/\./g, '\\.')}[ ,]`, 'm'), `${name} ${version}`);
+  }
+  assert.ok(text.includes('Copyright 2008-2026, GreenSock. All rights reserved.\n  Subject to the terms at https://gsap.com/standard-license'), 'the GSAP notice its terms ask to keep');
+  assert.doesNotMatch(text, /\/Users\/|localhost|127\.0\.0\.1/);
+  const modules = fileURLToPath(repo('workspace/home/node_modules'));
+  if (!existsSync(modules)) return t.skip('workspace/home/node_modules is not installed here');
+  for (const [, name, version] of text.matchAll(/^-{72}\n(\S+) (\d\S*) \(MIT\)\n-{72}$/gm)) {
+    const dir = join(modules, name);
+    assert.equal(JSON.parse(await readFile(join(dir, 'package.json'), 'utf8')).version, version, `${name} is installed at ${version}`);
+    const file = readdirSync(dir).find(f => /^licen[cs]e(\.md|\.txt)?$/i.test(f));
+    assert.ok(text.includes((await readFile(join(dir, file), 'utf8')).replace(/\r\n/g, '\n').trim()), `${name}'s license text`);
+  }
 });
 
 test('the facts in the copy still hold in the repo', async () => {
-  // "no npm dependencies", and the accent figure is a zero.
-  assert.equal(countDependencies(JSON.parse(await read('package.json'))), 0, 'the page says the project has no npm dependencies');
+  // "Its build has no npm dependencies", and the accent figure is a zero.
+  assert.equal(countDependencies(JSON.parse(await read('package.json'))), 0, 'the page says the site build has no npm dependencies');
   // "A push to main runs the tests, builds the site and deploys it."
   const deploy = await read('.github/workflows/deploy.yml');
   assert.match(deploy, /branches: \[main\]/);
@@ -251,6 +279,17 @@ test('the facts in the copy still hold in the repo', async () => {
     assert.ok(existsSync(repo(file)), file);
   }
   assert.match(await read('workspace/ascii-sharks/NOTICE.txt'), /https:\/\/github\.com\/stackedlol\/ascii-sharks/);
-  // "The borrowed homepage came with Google Analytics; it is switched off and its ID is removed."
-  assert.match(await read('public/index.html'), /gtag:\{enabled:false,initMode:"manual",id:""/);
+  // The homepage: "a Nuxt app that I build ahead of time and commit", "Nuxt, Vue and Three.js ... So is GSAP",
+  // "the room is built and baked in Blender from code", "no audio files", and "No analytics".
+  const home = JSON.parse(await read('workspace/home/package.json'));
+  assert.deepEqual(Object.keys(home.dependencies).sort(), ['gsap', 'nuxt', 'three', 'vue']);
+  assert.ok(existsSync(repo('workspace/home/release/stamp.json')), 'the built homepage is committed with its stamp');
+  for (const file of ['build_room.py', 'export_room.py', 'make_textures.py']) assert.ok(existsSync(repo(`workspace/home/assets-src/room/${file}`)), file);
+  assert.match(await read('workspace/home/engine/audio/player.js'), /WebAudio only, no audio files/);
+  const { files } = JSON.parse(await read('workspace/home/release/stamp.json'));
+  assert.ok(files.length > 0);
+  for (const { file } of files) {
+    assert.doesNotMatch(file, /\.(?:mp3|ogg|oga|wav|m4a|aac|flac|opus|webm)$/i, `${file}: the sounds are synthesized`);
+    if (/\.(?:html|js)$/.test(file)) assert.doesNotMatch(await read(`workspace/home/release/${file}`), /gtag\(|googletagmanager|google-analytics/, `${file}: no analytics`);
+  }
 });

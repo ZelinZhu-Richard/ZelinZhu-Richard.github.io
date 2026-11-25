@@ -5,6 +5,7 @@ import { pages } from '../site/pages.mjs';
 import { filterRepos, groupRepos, groupByType, stateFromSearch, searchFromState } from '../workspace/github-stars/model.js';
 import { renderTypeGroups } from '../workspace/github-stars/render.mjs';
 import { buildStars } from '../workspace/github-stars/build.mjs';
+import { withHomeIndex } from '../workspace/home/build.mjs';
 import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -101,13 +102,19 @@ test('static route includes every repo without JavaScript and excludes authoring
   assert.match(html,/href="\/github\/stars\/research\/"/);
 });
 
-test('star library is linked from About and both captured homepage menus', async () => {
+test('star library is linked from About and from the site index on the homepage and Contact page', async () => {
   // The site menu is the seven stones; Stars sits at the bottom of About.
   assert.match(pages().get('about/index.html'), /<section class="about-more"[\s\S]*href="\/github\/stars\/"/);
-  assert.match(await read('public/index.html'), /href="\/github\/stars\/"/);
-  const runtime = await read('public/_nuxt/CbdjwYMp.js');
-  assert.match(runtime, /to:"\/github\/stars\/"/);
-  assert.match(runtime, /link:"\/github\/stars\/",text:"Stars"/);
+  // The homepage's own menu is the seven sections; the build adds the site index (workspace/palette/index.mjs) to both pages.
+  const { indexItem, siteIndex } = await import('../workspace/palette/index.mjs');
+  assert.equal(indexItem('/github/stars/').title, 'GitHub stars');
+  assert.equal(indexItem('/github/stars/research/').title, 'Research Stack');
+  for (const [file, path] of [['index.html', '/'], ['contacts/index.html', '/contacts/']]) {
+    const built = withHomeIndex(await read(`workspace/home/release/${file}`), siteIndex(), path);
+    const nav = built.slice(built.indexOf('<nav id="home-index"'));
+    assert.match(nav, /<a href="\/github\/stars\/">GitHub stars<\/a>/, file);
+    assert.match(nav, /<a href="\/github\/stars\/research\/">Research Stack<\/a>/, file);
+  }
 });
 
 test('saved public star collection is complete, uniquely classified and safe to link', async () => {

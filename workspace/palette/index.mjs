@@ -66,7 +66,7 @@ function publicIndex() {
         { title: 'Colophon', hint: 'How this site is made, and a list of everything on it.', href: '/colophon/', keywords: 'about this site credits fonts build' },
         { title: 'Contact', hint: 'Email, GitHub, LinkedIn and X.', href: '/contacts/', keywords: 'email reach' },
         { title: 'CV', hint: 'My CV as a PDF.', href: LINKS.resume, keywords: 'resume pdf' },
-        { title: 'Homepage', hint: 'The phoenix scene. Heavy: it loads a 3D model and audio.', href: '/', keywords: 'home phoenix landing' },
+        { title: 'Homepage', hint: 'A 3D scene you scroll through. Heavy: it loads 3D models and WebGL code.', href: '/', keywords: 'home landing 3d scene scroll' },
       ],
     },
     {

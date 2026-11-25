@@ -54,6 +54,12 @@ export const SCENE_EVENTS = Object.freeze([
   'contextlost',
 ]);
 
+/**
+ * The id of the site index the site build appends after #__home (build.mjs). The client
+ * plugin moves its aria-current mark when the app navigates between the two pages.
+ */
+export const HOME_INDEX_ID = 'home-index';
+
 /** Where the engine fetches its generated assets from (release copies home-assets/** when present). */
 export const HOME_ASSETS_BASE = '/home-assets/';
 

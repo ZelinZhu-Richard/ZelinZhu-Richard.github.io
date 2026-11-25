@@ -3,7 +3,6 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { join, relative, sep } from 'node:path';
 import { PARTS, stoneNav } from './parts.mjs';
-import { panels } from './panels.mjs';
 
 const source = fileURLToPath(new URL('.', import.meta.url));
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -36,6 +35,9 @@ export function withStones(html, { index, noNext }) {
 const NAV = /<nav id="navigation"[^>]*>[\s\S]*?<\/nav>/;
 export const withStoneNav = (html, path) => NAV.test(html) ? html.replace(NAV, stoneNav(path)) : html;
 
+// The homepage and Contact page (workspace/home) carry html[data-home] and their own menu and stones.
+export const isHomeShell = html => /<html\b[^>]*\sdata-home=/i.test(html);
+
 async function htmlFiles(directory) {
   const out = [];
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -49,34 +51,20 @@ async function htmlFiles(directory) {
 export async function buildStones(output) {
   const target = join(output, 'stones');
   await mkdir(target, { recursive: true });
-  const home = (await readFile(join(source, 'home.js'), 'utf8')).replace('__PANELS__', JSON.stringify(panels()));
-  await writeFile(join(target, 'home.js'), home);
   const css = await readFile(join(source, 'stones.css'));
+  const arrive = await readFile(join(source, 'arrive.js'));
   await writeFile(join(target, 'stones.css'), css);
-  await writeFile(join(target, 'arrive.js'), await readFile(join(source, 'arrive.js')));
-  // Version stamps so a browser never runs a cached older build of the stone script or styles.
-  const v = createHash('sha256').update(home).update(css).digest('hex').slice(0, 10);
-  version = v;
-  // The captured phoenix homepage stays as committed; the stone script is added to the built copy only.
-  // The captured contact page runs the same runtime and gets the same menu.
-  for (const page of ['index.html', 'contacts/index.html']) {
-    const file = join(output, page);
-    const html = await readFile(file, 'utf8');
-    if (!html.includes('/stones/home.js')) {
-      // The captured pages still describe Richard as a UNC student; he is a high school senior.
-      const described = html
-        .replaceAll('computer science and economics at UNC Chapel Hill', 'high school senior, computer science and economics')
-        .replaceAll('Computer science and economics at UNC Chapel Hill.', 'High school senior. Computer science and economics.')
-        // Their no-JavaScript link list predates the seven sections: Now is retired, Art, Fun and Blog are new.
-        .replaceAll('<a href="/now/">Now</a>', '<a href="/art/">Art</a>, or <a href="/fun/">Fun</a>, or <a href="/blog/">Blog</a>');
-      await writeFile(file, described.replace(/<\/head\s*>/i, `<link rel="stylesheet" href="/stones/stones.css?v=${v}">\n<script type="module" src="/stones/home.js?v=${v}"></script>\n</head>`));
-    }
-  }
+  await writeFile(join(target, 'arrive.js'), arrive);
+  // Version stamps so a browser never runs a cached older build of the arrival script or the styles.
+  version = createHash('sha256').update(css).update(arrive).digest('hex').slice(0, 10);
+  // The homepage and Contact page are workspace/home's release: the build leaves them as they are. Their stones
+  // travel to the section pages below, whose arrive.js plays the fade (it reads the referrer).
   for (const file of await htmlFiles(output)) {
     const rel = relative(output, file).split(sep).join('/');
-    if (rel === 'index.html' || rel.startsWith('hq/')) continue;
-    const path = '/' + rel.replace(/index\.html$/, '');
+    if (rel.startsWith('hq/')) continue;
     const html = await readFile(file, 'utf8');
+    if (isHomeShell(html)) continue;
+    const path = '/' + rel.replace(/index\.html$/, '');
     const updated = withStoneNav(html, path);
     if (updated !== html) await writeFile(file, updated);
   }

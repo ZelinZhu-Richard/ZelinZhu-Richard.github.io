@@ -1,6 +1,6 @@
 # Site design: night and ink
 
-The pages outside the phoenix homepage share one look. `public/portfolio.css` defines it. Page and app stylesheets build on its tokens and do not invent new palettes.
+The pages outside the homepage share one look. `public/portfolio.css` defines it. Page and app stylesheets build on its tokens and do not invent new palettes. The homepage and Contact page have their own stylesheet, `workspace/home/app/assets/css/home.css`, which uses the same night, ink, muted, line and accent colours.
 
 Night is the default, so the pages read as a continuation of the homepage. A page can opt back into paper with `data-theme="paper"` on `<html>` (Domain Expansion does, because its camera stage is light). Every rule below is written against the tokens, so it holds in both themes.
 

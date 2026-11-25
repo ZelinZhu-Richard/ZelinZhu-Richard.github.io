@@ -1,7 +1,22 @@
 // window.__home and the data-home-* attributes on <html>. CONTRACTS.md documents them.
 // The page owns this state; SceneCanvas reports into it through $homeContract.
 import { defineNuxtPlugin } from '#imports';
-import { HOME_ATTRS, HOME_CONTRACT_VERSION, HOME_EVENTS, HOME_GLOBAL, HOME_TONES, HOME_WEBGL, homeRouteOf } from '~~/contract.mjs';
+import { HOME_ATTRS, HOME_CONTRACT_VERSION, HOME_EVENTS, HOME_GLOBAL, HOME_INDEX_ID, HOME_PAGES, HOME_TONES, HOME_WEBGL, homeRouteOf } from '~~/contract.mjs';
+
+/**
+ * The site index after #__home was built for the page the visitor loaded. After a client
+ * navigation between / and /contacts/, the current-page mark follows the route.
+ * @param {string} route
+ */
+function markSiteIndex(route) {
+  const path = Object.keys(HOME_PAGES).find(key => HOME_PAGES[key] === route);
+  const nav = document.getElementById(HOME_INDEX_ID);
+  if (!nav || !path) return;
+  for (const link of nav.querySelectorAll('a[href]')) {
+    if (link.getAttribute('href') === path) link.setAttribute('aria-current', 'page');
+    else if (link.getAttribute('aria-current') === 'page') link.removeAttribute('aria-current');
+  }
+}
 
 export default defineNuxtPlugin(nuxtApp => {
   const root = document.documentElement;
@@ -40,6 +55,7 @@ export default defineNuxtPlugin(nuxtApp => {
     const route = homeRouteOf(nuxtApp.$router.currentRoute.value.path);
     if (route === state.route) return;
     state.route = route;
+    markSiteIndex(route);
     emit(HOME_EVENTS.route, { route });
   });
 

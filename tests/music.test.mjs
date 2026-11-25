@@ -1,25 +1,27 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, stat } from 'node:fs/promises';
-import { MUSIC_FILES, MUSIC_PAGES, RUNTIME_CHUNK, availableTracks, withMusic, withoutRuntimeLoop } from '../workspace/music/build.mjs';
-import { clearOf, fallbackSlot, sharksInSlot } from '../workspace/music/dock.js';
+import { mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { MUSIC_FILES, MUSIC_PAGES, availableTracks, buildMusic, withMusic } from '../workspace/music/build.mjs';
 import { PLAYLIST } from '../workspace/music/playlist.js';
 import { VOLUME, follow, lastAction, nextIndex, prevIndex, trackLabel } from '../workspace/music/player.js';
+import { RELEASE_DIR } from '../workspace/home/stamp.mjs';
 
-test('the current phoenix music is the default, first song', async () => {
-  assert.deepEqual(PLAYLIST[0], { title: 'Phoenix', artist: 'Default', src: '/audio/BG_music_ST.mp3' });
-  assert.equal(VOLUME, 0.4, 'same level as the runtime loop it replaces');
+test('the playlist has no third-party default: every song is a file in workspace/music/tracks/', () => {
+  assert.ok(PLAYLIST.length > 0);
   for (const track of PLAYLIST) {
-    assert.ok(track.title && track.src.startsWith('/'), `${track.title} has a site-relative source`);
-    // Songs in workspace/music/tracks/ are git-ignored and may be absent; everything else must exist.
-    if (!track.src.startsWith('/music/tracks/')) assert.ok((await stat(`public${track.src}`)).size > 0, `${track.src} exists`);
+    assert.ok(track.title, 'every song has a title');
+    assert.match(track.src, /^\/music\/tracks\/[^/]+$/, `${track.title} is a local track`);
   }
+  assert.ok(!JSON.stringify(PLAYLIST).includes('/audio/'), 'the phoenix loop (/audio/BG_music_ST.mp3) is gone');
+  assert.equal(VOLUME, 0.4);
 });
 
 test('songs whose files are absent are left out of the built playlist', () => {
   const list = [{ src: '/audio/a.mp3' }, { src: '/music/tracks/here.m4a' }, { src: '/music/tracks/gone.m4a' }];
   assert.deepEqual(availableTracks(list, f => f === 'here.m4a'), list.slice(0, 2));
-  assert.deepEqual(availableTracks(PLAYLIST, () => false), [PLAYLIST[0]], 'the published site always keeps the default');
+  assert.deepEqual(availableTracks(PLAYLIST, () => false), [], 'without track files there is nothing to play');
 });
 
 test('playlist moves to the next song and wraps', () => {
@@ -34,48 +36,58 @@ test('playlist moves to the next song and wraps', () => {
   assert.equal(trackLabel({ title: 'Solo' }), 'Solo');
 });
 
-test('player follows the runtime sound switch unless the visitor paused it', () => {
-  assert.equal(follow({ active: true, playing: false, userPaused: false }), 'play', 'Click to start starts the music');
+test('player follows a sound switch unless the visitor paused it', () => {
+  assert.equal(follow({ active: true, playing: false, userPaused: false }), 'play');
   assert.equal(follow({ active: true, playing: false, userPaused: true }), 'stay');
-  assert.equal(follow({ active: false, playing: true, userPaused: false }), 'pause', 'hidden tab or muted runtime');
+  assert.equal(follow({ active: false, playing: true, userPaused: false }), 'pause');
   assert.equal(follow({ active: true, playing: true, userPaused: false }), 'stay');
   assert.equal(follow({ active: false, playing: false, userPaused: true }), 'stay');
 });
 
-test('runtime pages load the player once and the runtime loop is switched off once', async () => {
-  assert.deepEqual(MUSIC_PAGES, ['index.html', 'contacts/index.html']);
-  const html = withMusic('<head></head>', 'v1');
-  assert.equal(html, '<head><link rel="stylesheet" href="/music/player.css?v=v1">\n<script type="module" src="/music/player.js?v=v1"></script>\n<script type="module" src="/music/dock.js?v=v1"></script>\n</head>');
-  assert.equal(withMusic(html, 'v1'), html);
-  const chunk = await readFile(`public/${RUNTIME_CHUNK}`, 'utf8');
-  const patched = withoutRuntimeLoop(chunk);
-  assert.ok(patched.includes('u=()=>{}/*music player*/') && !patched.includes('l=x,x.start()'));
-  assert.equal(patched.length, chunk.length - 'if(l)return;const x=c();l=x,x.start()'.length + '/*music player*/'.length);
-  assert.equal(withoutRuntimeLoop(patched), patched);
-  assert.throws(() => withoutRuntimeLoop('nothing here'), /background loop not found/);
-});
-
-test('player files ship and the phoenix sharks toggle uses the glass pill', async () => {
+test('the player never goes on the homepage or Contact page: they have their own sound toggle', async () => {
+  assert.deepEqual(MUSIC_PAGES, []);
+  assert.deepEqual(MUSIC_FILES, ['player.js', 'playlist.js', 'player.css']);
   for (const file of MUSIC_FILES) assert.ok((await stat(`workspace/music/${file}`)).size > 0, file);
-  const css = await readFile('workspace/ascii-sharks/background.css', 'utf8');
-  assert.match(css, /body:has\(> #__nuxt\) \.sharks-toggle \{[^}]*border-radius: 100px;[^}]*backdrop-filter: blur\(6px\);[^}]*color: #29345a;/);
+  for (const file of ['index.html', 'contacts/index.html']) {
+    const html = await readFile(join(RELEASE_DIR, file), 'utf8');
+    assert.match(html, /<button type="button" class="sound-toggle"/, `${file} has its own sound toggle`);
+    assert.equal(withMusic(html, 'v1'), html, `${file} gets no player`);
+  }
+  const page = '<html><head></head><body></body></html>';
+  const once = withMusic(page, 'v1');
+  assert.equal(once, '<html><head><link rel="stylesheet" href="/music/player.css?v=v1">\n<script type="module" src="/music/player.js?v=v1"></script>\n</head><body></body></html>');
+  assert.equal(withMusic(once, 'v1'), once);
+  assert.doesNotMatch(once, /dock\.js/);
 });
 
-test('the sharks toggle takes the Reimagine Phoenix slot only while that pill is hidden', async () => {
-  assert.equal(sharksInSlot({ pillVisible: true, tapVisible: false }), false);
-  assert.equal(sharksInSlot({ pillVisible: false, tapVisible: false }), true);
-  assert.equal(sharksInSlot({ pillVisible: false, tapVisible: true }), false, 'not over the phone Tap to explore bar');
-  const css = await readFile('workspace/ascii-sharks/background.css', 'utf8');
-  assert.match(css, /width: var\(--slot-width, 220px\);\s*height: var\(--slot-height, 46px\);/);
-  assert.match(css, /html\.sharks-in-slot body:has\(> #__nuxt\) \.sharks-toggle \{\s*opacity: 1;/);
-  assert.match(css, /\.sharks-toggle::after \{[^}]*order: -1;[^}]*fill='%23000'/, 'black shark in front');
-});
+test('the build ships the player only where there is a song and a page to play it on', async t => {
+  const out = await mkdtemp(join(tmpdir(), 'music-test-'));
+  const tracks = await mkdtemp(join(tmpdir(), 'music-tracks-'));
+  t.after(() => Promise.all([rm(out, { recursive: true, force: true }), rm(tracks, { recursive: true, force: true })]));
+  const home = await readFile(join(RELEASE_DIR, 'index.html'), 'utf8');
+  const page = '<!doctype html><html><head></head><body>a page</body></html>';
+  await writeFile(join(out, 'index.html'), home);
+  await mkdir(join(out, 'fun'), { recursive: true });
+  await writeFile(join(out, 'fun/index.html'), page);
+  const song = { title: 'Song', src: '/music/tracks/song.m4a' };
 
-test('pages without the Reimagine Phoenix pill (Contact) still get the sharks toggle in its usual place', () => {
-  assert.deepEqual(fallbackSlot(1440, 900), { left: 1183, top: 829, width: 220, height: 46 }, 'matches the pill measured on the homepage');
-  assert.deepEqual(fallbackSlot(390, 844), { left: 20, top: 773, width: 220, height: 46 });
-  // Contact's footer links (measured at 1440 px) sit under that spot, so the toggle moves just above them.
-  const footer = [{ left: 1176, top: 850, width: 8, height: 20 }, { left: 1234, top: 850, width: 55, height: 20 }, { left: 40, top: 850, width: 60, height: 20 }];
-  assert.deepEqual(clearOf(fallbackSlot(1440, 900), footer), { left: 1183, top: 790, width: 220, height: 46 });
-  assert.deepEqual(clearOf(fallbackSlot(1440, 900), [{ left: 40, top: 850, width: 60, height: 20 }]), fallbackSlot(1440, 900), 'unmoved when nothing is under it');
+  // The real build: no host page, so nothing ships whatever tracks/ holds.
+  assert.deepEqual(await buildMusic(out), []);
+  // A host page but no song file.
+  assert.deepEqual(await buildMusic(out, { pages: ['fun/index.html'], playlist: [song], tracks }), []);
+  // A song but only the homepage as host.
+  await writeFile(join(tracks, 'song.m4a'), 'audio');
+  assert.deepEqual(await buildMusic(out, { pages: ['index.html'], playlist: [song], tracks }), []);
+  assert.deepEqual((await readdir(out)).sort(), ['fun', 'index.html'], 'no music/ folder');
+  assert.equal(await readFile(join(out, 'index.html'), 'utf8'), home);
+
+  // Both: the player, its playlist and the song ship, and the page loads them once.
+  assert.deepEqual(await buildMusic(out, { pages: ['index.html', 'fun/index.html'], playlist: [song, { title: 'Gone', src: '/music/tracks/gone.m4a' }], tracks }), [song]);
+  assert.deepEqual((await readdir(join(out, 'music'))).sort(), [...MUSIC_FILES, 'tracks'].sort());
+  assert.deepEqual(await readdir(join(out, 'music/tracks')), ['song.m4a']);
+  assert.match(await readFile(join(out, 'music/playlist.js'), 'utf8'), /"src": "\/music\/tracks\/song\.m4a"/);
+  const built = await readFile(join(out, 'fun/index.html'), 'utf8');
+  assert.equal(built.split('/music/player.js?v=').length, 2);
+  assert.match(await readFile(join(out, 'music/player.js'), 'utf8'), /from '\.\/playlist\.js\?v=[0-9a-f]{10}'/);
+  assert.equal(await readFile(join(out, 'index.html'), 'utf8'), home, 'the homepage still has no player');
 });

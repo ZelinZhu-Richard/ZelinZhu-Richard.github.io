@@ -1,15 +1,5 @@
 /* /colophon/ — only what /portfolio.css does not already give. Tokens and rules: site/DESIGN.md. */
 
-/* The homepage name's font, declared here as well so its specimen is set in the real face.
-   Same file the homepage loads (workspace/hero-name/). */
-@font-face{
-  font-family:"Ibarra Real Nova";
-  font-style:italic;
-  font-weight:400;
-  font-display:swap;
-  src:url('/hero-name/ibarra-real-nova-italic.woff2') format('woff2')
-}
-
 .colophon-section{padding:56px 0;border-top:1px solid var(--ink)}
 .colophon-section>p{max-width:680px}
 .colophon-note{font-size:16px;color:var(--muted)}
@@ -36,12 +26,15 @@
 .colophon-specimen--display{font-family:var(--font-display);font-size:clamp(30px,3.4vw,46px);line-height:1.05;letter-spacing:-.035em}
 .colophon-specimen--body{font-family:var(--font-body);font-size:22px;line-height:1.5}
 .colophon-specimen--mono{font-family:var(--font-mono);font-size:13px;line-height:1.6}
-.colophon-specimen--name{font-family:"Ibarra Real Nova",Georgia,serif;font-style:italic;font-size:clamp(40px,5vw,64px);line-height:1.1;letter-spacing:-.02em}
+/* The homepage's --serif stack (workspace/home/app/assets/css/home.css), so the specimen is the name as it appears there. */
+.colophon-specimen--name{font-family:"Iowan Old Style",Charter,"Bitstream Charter",Georgia,serif;font-style:italic;font-size:clamp(40px,5vw,64px);line-height:1.1;letter-spacing:-.02em}
 
 /* Short links under a row. The ::before makes the tap area taller and leaves the underline where it is. */
 .colophon-more{font-family:var(--font-mono);font-size:13px}
 .colophon-more a{position:relative}
 .colophon-more a::before{content:"";position:absolute;inset:-6px 0}
+/* Two links in a row: enough room that one link's taller tap area never covers the other. */
+.colophon-more+.colophon-more{margin-top:14px}
 
 /* Colour */
 .colophon-swatches{list-style:none;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:24px 16px;max-width:880px;margin:36px 0 0;padding:0;font-family:var(--font-mono);font-size:12px;line-height:1.5;color:var(--muted)}
@@ -65,6 +58,7 @@
 }
 @media(pointer:coarse){
   .colophon-more a::before{inset:-16px 0}
+  .colophon-more+.colophon-more{margin-top:34px}
 }
 @media(max-width:700px){
   .colophon-section{padding:40px 0}

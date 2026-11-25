@@ -1,10 +1,14 @@
 <script setup>
 // The Contact page: the contact lines and four links over the scene in 'contact' mode
 // (SceneCanvas sets the mode from the route). Plain links; it needs no JavaScript.
+import { definePageMeta } from '#imports';
 import content from '#build/site-content.mjs';
 import { useHomeHead } from '~/composables/useHomeHead.js';
 import { lines } from '~/utils/text.js';
 
+// The same file is served at /contacts/index.html; the alias keeps the router from
+// treating that address as a missing page.
+definePageMeta({ alias: ['/contacts/index.html'] });
 useHomeHead('contact');
 
 const { hero, ui } = content;

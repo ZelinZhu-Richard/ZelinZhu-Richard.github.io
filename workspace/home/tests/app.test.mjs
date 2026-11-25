@@ -327,3 +327,30 @@ test('ui words exist for every label the app shows', async () => {
     if (file.endsWith('.vue')) for (const m of template(text).matchAll(/\bui\.(\w+)/g)) assert.ok(m[1] in content.ui, `${file} uses ui.${m[1]}`);
   }
 });
+
+// ---- links ------------------------------------------------------------------------------
+
+test('both pages also answer at the index.html addresses GitHub Pages serves them at', async () => {
+  for (const [file, alias] of [['app/pages/index.vue', '/index.html'], ['app/pages/contacts.vue', '/contacts/index.html']]) {
+    assert.ok(code(await read(file), file).includes(`definePageMeta({ alias: ['${alias}'] });`), `${file} aliases ${alias}`);
+  }
+  const header = await read('app/components/HomeHeader.vue');
+  assert.ok(!/route\.path\s*[!=]==\s*'\/'/.test(code(header, 'x.vue')), 'the header asks homeRouteOf, so /index.html counts as home');
+  assert.ok(code(header, 'x.vue').includes('homeRouteOf(route.path) === HOME_ROUTES.story'));
+});
+
+test('the site index after #__home keeps its current-page mark across client navigation', async () => {
+  const plugin = code(await read('app/plugins/home-contract.client.js'), 'x.js');
+  assert.match(plugin, /import \{[^}]*\bHOME_INDEX_ID\b[^}]*\bHOME_PAGES\b[^}]*\} from '~~\/contract\.mjs'/);
+  assert.match(plugin, /state\.route = route;\s*markSiteIndex\(route\);/);
+});
+
+test('a stone click never strands the visitor: modified clicks stay native and the trip times out', async () => {
+  const source = code(await read('app/components/StoryStones.vue'), 'x.vue');
+  assert.match(source, /const modified = event => event\.defaultPrevented \|\| event\.button !== 0 \|\| event\.metaKey \|\| event\.ctrlKey \|\| event\.shiftKey \|\| event\.altKey;/);
+  assert.match(source, /function onStoneClick\(event, stone\) \{\s*if \(!sceneRef\.value \|\| modified\(event\)\) return;\s*event\.preventDefault\(\);/, 'only an unmodified click with a live scene is taken over');
+  assert.match(source, /Promise\.race\(\[Promise\.all\(\[releaseStone\(stone\.id\), wait\(hold\)\]\), wait\(RELEASE_TIMEOUT_MS\)\]\)/, 'release() racing a timeout');
+  assert.match(source, /window\.location\.assign\(stone\.href\);/);
+  const bridge = code(await read('app/composables/useScene.js'), 'x.js');
+  assert.match(bridge, /export function releaseStone\(id\) \{[\s\S]*?if \(!scene\) return Promise\.resolve\(\);[\s\S]*?\.then\(\(\) => \{\}, error => /, 'releaseStone never rejects and resolves without a scene');
+});

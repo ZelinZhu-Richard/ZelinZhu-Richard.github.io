@@ -7,7 +7,8 @@ The command palette's no-JavaScript fallback links to its `#everything` section.
 | --- | --- |
 | `page.mjs` | The copy and the page body. `site/pages.mjs` wraps it in the site frame. |
 | `style.css` | Only what `public/portfolio.css` does not already give. Every class starts with `colophon-`. |
-| `build.mjs` | `buildColophon` copies the stylesheet. `finishColophon` counts the built site and writes the four figures into the page. |
+| `licenses.txt` | The license texts of the libraries bundled into the homepage, served at `/colophon/licenses.txt`. Written by `node workspace/colophon/licenses.mjs` from `workspace/home/node_modules`; run it again when the homepage's packages change. |
+| `build.mjs` | `buildColophon` copies the stylesheet and `licenses.txt`. `finishColophon` counts the built site and writes the four figures into the page. |
 | `tests/colophon.test.mjs` | Structure, links, the figures, and the facts listed below. |
 
 ## Editing
@@ -22,13 +23,16 @@ This page makes statements of fact about the site. Keep each one tied to somethi
 
 | The page says | Checked against |
 | --- | --- |
-| No npm dependencies (the zero) | `package.json` |
+| The site build has no npm dependencies (the zero) | `package.json` |
+| The homepage is a Nuxt app built ahead of time and committed, on Nuxt, Vue, Three.js and GSAP | `workspace/home/package.json`, `workspace/home/release/stamp.json` |
+| The room is built and baked in Blender from code; the sounds are synthesized, with no audio files | `workspace/home/assets-src/room/`, `workspace/home/engine/audio/player.js`, the files in the release stamp |
+| No analytics on the homepage | the files in `workspace/home/release/` |
+| The license file names each library at the version the homepage pins, with its full license text | `workspace/home/package.json`, and `workspace/home/node_modules` where it is installed |
 | The swatch values | the first `:root` block of `public/portfolio.css` |
-| The font names, and that none is downloaded | the font tokens in `public/portfolio.css`, `workspace/hero-name/` |
+| The font names, and that none is downloaded | the font tokens in `public/portfolio.css`, the `--serif` stack and `.hero-name` rule in `workspace/home/app/assets/css/home.css` |
 | A push to main tests, builds and deploys | `.github/workflows/deploy.yml` |
 | What the checker fails the build on | the error messages in `tools/verify.mjs`, and the call to it in `tools/build.mjs` |
 | Daily asks Supabase for my game, and supabase-js handles my sign-in | `workspace/daily/app/cloud-config.js`, `workspace/daily/app/cloud.js` |
-| Google Analytics is switched off on the homepage | `public/index.html` |
 | GitHub Pages logs IP addresses | Gym's privacy note in `workspace/gym/index.html`, which links GitHub's own page |
 | MediaPipe, OpenCV.js, supabase-js and the sharks are vendored | the `vendor/` folders |
 

@@ -39,8 +39,11 @@ function sync() {
   button.hidden = preference.matches || busy;
 }
 
+// The homepage and Contact page (html[data-home], workspace/home) have their own sky: no ocean there.
+const ownSky = () => !!document.documentElement?.hasAttribute?.('data-home');
+
 function start() {
-  if (!canvas || engine || document.body.dataset.ambientBackground === 'off') return;
+  if (!canvas || engine || ownSky() || document.body.dataset.ambientBackground === 'off') return;
   try {
     const mobile = window.innerWidth < 700;
     engine = new OceanEngine(canvas, mobile ? [

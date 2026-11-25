@@ -1,10 +1,18 @@
 import { existsSync } from 'node:fs';
-import { PARTS, stoneHash } from '../workspace/stones/parts.mjs';
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
+import { PARTS } from '../workspace/stones/parts.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { pages } from '../site/pages.mjs';
-import { story } from '../site/story.mjs';
 import { PROJECTS, LINKS } from '../site/content.mjs';
+import { homeContent } from '../workspace/home/content.mjs';
+import { RELEASE_DIR, readStamp } from '../workspace/home/stamp.mjs';
+import { HOME_FEED_LINK, HOME_FILES, HOME_INDEX_STYLE, RETIRED_PUBLIC, SHARED_FONTS, homeIndex, shipsFromPublic, withHomeIndex } from '../workspace/home/build.mjs';
+import { isUnlisted, siteIndex } from '../workspace/palette/index.mjs';
+import { FEED_PATH } from '../workspace/blog/feed.mjs';
+
+const release = file => readFile(join(RELEASE_DIR, file), 'utf8');
 
 test('personal pages expose the supplied project, research, CV, and social destinations', () => {
   const output = pages();
@@ -23,16 +31,79 @@ test('personal pages expose the supplied project, research, CV, and social desti
   }
 });
 
-test('every phoenix crystal has a real personal destination and every scene fits its slot', () => {
+test('the homepage stones and menus are the seven sections from workspace/stones/parts.mjs, each a real page', async () => {
   const output = pages();
-  assert.equal(story.cards.length, 7);
-  assert.equal(story.scenes.length, 17);
-  // Each crystal hands off to one part of the site through a homepage hash (workspace/stones).
-  assert.deepEqual(story.cards.map(c => c.href), PARTS.map(stoneHash));
+  // workspace/home/content.mjs reads PARTS; the release was built from it (its stamp hashes homeContent()).
+  assert.deepEqual(homeContent().stones, PARTS.map(({ id, title, subtitle, href }) => ({ id, title, subtitle, href })));
+  const home = await release('index.html');
+  const contact = await release('contacts/index.html');
+  const stones = [...home.matchAll(/<a class="stone-link" href="([^"]+)" data-stone="([^"]+)">/g)].map(m => [m[2], m[1]]);
+  assert.deepEqual(stones, PARTS.map(p => [p.id, p.href]), 'the homepage stones');
+  const sections = [...contact.matchAll(/<a href="([^"]+)" data-stone="([^"]+)">/g)].map(m => [m[2], m[1]]);
+  assert.deepEqual(sections, PARTS.map(p => [p.id, p.href]), 'the Contact page section list');
+  for (const html of [home, contact]) {
+    assert.deepEqual([...html.matchAll(/<a class="menu-link" href="([^"]+)">/g)].map(m => m[1]), PARTS.map(p => p.href), 'the header menu');
+    assert.match(html, /<a [^>]*href="\/contacts\/"[^>]*class="[^"]*menu-contact/, 'the menu ends with Contact');
+  }
   for (const { href } of PARTS) {
     if (href === '/daily/') { assert.ok(existsSync('workspace/daily/pages/index.html')); continue; }
     assert.ok(output.get(href.slice(1) + 'index.html'), `Missing page for ${href}`);
   }
+});
+
+test('the site index goes on both homepage files once, after the Nuxt root, with every public destination', async () => {
+  const groups = siteIndex();
+  assert.deepEqual(HOME_FILES, ['index.html', 'contacts/index.html']);
+  for (const [file, path] of [['index.html', '/'], ['contacts/index.html', '/contacts/']]) {
+    const html = await release(file);
+    const built = withHomeIndex(html, groups, path);
+    assert.equal(withHomeIndex(built, groups, path), built, `${file}: a second run changes nothing`);
+    assert.equal(built.split('id="home-index"').length, 2);
+    // The app's own markup is byte-identical: the style goes before </head>, the nav just before </body>.
+    const head = html.indexOf('</head>');
+    const body = html.lastIndexOf('</body>');
+    assert.equal(built, html.slice(0, head) + HOME_FEED_LINK + HOME_INDEX_STYLE + html.slice(head, body) + homeIndex(groups, path) + html.slice(body));
+    // Feed autodiscovery, as on every other page: once, pointing at the blog's feed.
+    assert.equal(built.split('<link rel="alternate" type="application/rss+xml"').length, 2, `${file}: one feed link`);
+    assert.ok(built.includes(`href="${FEED_PATH}">`), `${file}: the feed link points at ${FEED_PATH}`);
+    assert.ok(built.indexOf('<nav id="home-index"') > built.indexOf('<div id="teleports">'), `${file}: outside #__home`);
+    const nav = built.slice(built.indexOf('<nav id="home-index"'), built.indexOf('</nav>', built.indexOf('<nav id="home-index"')));
+    const hrefs = [...nav.matchAll(/<a href="([^"]+)"/g)].map(m => m[1].replaceAll('&amp;', '&'));
+    assert.deepEqual(hrefs, groups.flatMap(g => g.items.map(item => item.href)), `${file}: every destination, in order`);
+    for (const href of ['/gym/', '/flash/', '/github/stars/', '/github/stars/research/', '/colophon/', '/work/']) assert.ok(hrefs.includes(href), `${file} links ${href}`);
+    for (const href of hrefs) assert.ok(!isUnlisted(href), `${file} lists the unlisted ${href}`);
+    assert.doesNotMatch(built, /href="\/(?:hq|duke|choices|repolarisdm)(?:[\/"#?])/);
+    assert.equal(nav.match(/aria-current="page"/g)?.length, 1, `${file}: the current page is marked`);
+    assert.ok(nav.includes(`<a href="${path}" aria-current="page">`));
+    for (const m of nav.matchAll(/<a href="(https:[^"]+)"([^>]*)>/g)) assert.match(m[2], /target="_blank" rel="noopener noreferrer"/, `${m[1]} says it opens a new tab`);
+  }
+  assert.throws(() => homeIndex([{ group: 'Oops', items: [{ title: 'HQ', href: '/hq/' }] }], '/'), /unlisted page \/hq\//);
+  assert.throws(() => withHomeIndex('<html><head></head><body><div id="__home"></div>', groups, '/'), /no <\/body>/);
+  assert.match(HOME_INDEX_STYLE, /^<style id="home-index-style">\n#home-index\{position:relative;z-index:2;/, 'above the fixed scene (z-index 0) and the story (z-index 1)');
+  assert.doesNotMatch(HOME_INDEX_STYLE, /url\(|@import|display:none/);
+});
+
+test('the captured phoenix runtime stays in public/ without shipping; what other pages load still ships', async () => {
+  for (const path of RETIRED_PUBLIC) assert.ok(existsSync(`public/${path}`), `public/${path} stays on disk`);
+  for (const file of ['index.html', 'contacts', 'contacts/index.html', 'start.js', 'local.css', '_nuxt/CbdjwYMp.js', '_nuxt/entry.BEbxiOYI.css', '_nuxt/builds', '_nuxt/builds/latest.json', 'audio/BG_music_ST.mp3', 'models/v20.glb', 'libs/draco/draco_decoder.wasm', 'textures', 'timelines/cam.glb', 'images/loader.gif']) {
+    assert.equal(shipsFromPublic(file), false, file);
+  }
+  for (const file of ['', '_nuxt', ...SHARED_FONTS, 'portfolio.css', 'portfolio.js', 'favicon.svg', 'richard.jpg', 'Zelin_Zhu_CV.pdf']) assert.equal(shipsFromPublic(file), true, file || 'public/');
+  assert.deepEqual((await readdir('public/_nuxt')).filter(name => shipsFromPublic(`_nuxt/${name}`)).sort(), SHARED_FONTS.map(f => f.slice('_nuxt/'.length)).sort());
+  // Nothing outside the retired runtime points into it: every site-relative file a page or the shared CSS names ships.
+  const named = [];
+  for (const html of [...pages().values(), await release('index.html'), await release('contacts/index.html')]) {
+    for (const m of html.matchAll(/(?:src|href)="(\/[^"#?]*)/g)) named.push(m[1]);
+  }
+  for (const m of (await readFile('public/portfolio.css', 'utf8')).matchAll(/url\(["']?(\/[^"')?#]+)/g)) named.push(m[1]);
+  const fromRelease = new Set((await readStamp()).files.map(entry => entry.file));
+  for (const path of named) {
+    const file = path.slice(1);
+    // "/" and "/contacts/" (and /_home/) come from workspace/home/release/, not from public/.
+    if (fromRelease.has(!file || file.endsWith('/') ? `${file}index.html` : file)) continue;
+    if (existsSync(`public/${file}`)) assert.ok(shipsFromPublic(file), `${path} is named by a page but would not ship`);
+  }
+  assert.ok(named.includes(SHARED_FONTS[0].replace(/^/, '/')), 'the pages preload TT Neoris from /_nuxt/');
 });
 
 test('the menu is the seven sections, and Now and Experiments are gone', async () => {
@@ -86,4 +157,29 @@ test('experience row layout stays on the rows, never on the tags inside them', a
   const css = await readFile('public/portfolio.css', 'utf8');
   assert.doesNotMatch(css, /\.experience li\s*[{,]/);
   assert.match(css, /\.experience ol>li\{display:grid/);
+});
+
+// Copy: Al9ha is a past project, ZeroMind is what Richard works on now, and no page calls the homepage the phoenix.
+test('Al9ha reads as a past project and ZeroMind as the current one', async () => {
+  const { EXPERIENCE, ABOUT } = await import('../site/content.mjs');
+  const al9ha = EXPERIENCE.find(x => x.org.startsWith('Al9ha'));
+  assert.equal(al9ha.when, 'Nov 2025–Jun 2026');
+  const nta = PROJECTS.find(p => p.id === 'nexus-tensor-alpha');
+  assert.equal(nta.year, '2025–2026');
+  assert.equal(nta.live, 'https://al9ha.vercel.app/', 'the Al9ha link stays');
+  for (const text of [al9ha.desc, nta.oneLiner, nta.desc, nta.status]) {
+    assert.doesNotMatch(text, /\bnow\b|\bso far\b|\bnext\b|\b(?:keeps|picks|is written|turn|pass|come)\b/, text);
+  }
+  assert.ok(ABOUT.paragraphs.every(text => !/quant research system I’m building/.test(text)), 'About no longer says Al9ha is being built');
+  const zeromind = EXPERIENCE.find(x => x.org === 'ZeroMind');
+  assert.deepEqual({ when: zeromind.when, title: zeromind.title }, { when: 'Nov 2026–now', title: 'Founder' });
+  assert.equal(zeromind.desc, 'ZeroMind is one agent that runs on every frontier model, keeps a single memory of your whole life, and gets better at it every week.');
+  assert.equal(EXPERIENCE[0].org, 'UNC PRIMES', 'the research role stays first (the stones panel reads it)');
+  const output = pages();
+  assert.ok(output.get('about/index.html').includes('<p class="org">ZeroMind</p>'));
+  for (const [file, html] of output) {
+    assert.doesNotMatch(html, /phoenix/i, `${file} still mentions the phoenix`);
+    if (html.includes('class="site-footer"')) assert.ok(html.includes('<a href="/">Back to the homepage</a>'), file);
+    if (html.includes('class="site-footer"')) assert.ok(html.includes('<li><a href="/contacts/">Contact</a></li>'), `${file}: the footer index links the Contact page`);
+  }
 });

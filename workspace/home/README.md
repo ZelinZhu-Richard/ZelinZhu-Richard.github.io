@@ -22,7 +22,7 @@ If `nuxt generate` reports that the esbuild binary is missing (install scripts w
 
 Do not edit `release/` by hand. It holds `index.html`, `contacts/index.html`, the `_home/` build assets and, later, `home-assets/`, plus `stamp.json`. The stamp records a hash of the sources (`app/`, `engine/`, `modules/`, `scripts/`, `public/`, `content.mjs`, `contract.mjs`, `nuxt.config.js`, `package.json`, `package-lock.json`) and of `homeContent()`, so a change to any of them, or to the PARTS and LINKS it reads, makes the release stale. Run `npm run release` and commit `release/` together with the source change.
 
-`build.mjs` exports `buildHome(output)` for the site build. It checks the stamp and copies the release into `output`. It is not wired into `tools/build.mjs` yet.
+`build.mjs` exports `buildHome(output, { index })` for the site build, and `tools/build.mjs` calls it. It checks the stamp and copies the release into `output`. With `index` (the site build passes `siteIndex()` from `workspace/palette/index.mjs`), it also adds the site index, a plain `<nav id="home-index">` of every public destination, at the end of both pages, after `#__home`, so the app's markup and hydration are untouched, and the blog's feed link in the head. Without `index` the copy is byte-identical to `release/`. `build.mjs` also decides which files in the site's `public/` ship: the retired captured homepage there stays on disk but is left out, except its two fonts in `public/_nuxt/`, which the other pages load.
 
 ## Layout
 

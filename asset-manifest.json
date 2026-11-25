@@ -1,5 +1,5 @@
 {
-  "source": "Adapted from the local noomo-storytelling project; see THIRD_PARTY.md",
+  "source": "Every file in public/, including the retired captured homepage that tools/build.mjs no longer ships; see THIRD_PARTY.md",
   "files": [
     {
       "file": "Zelin_Zhu_CV.pdf",

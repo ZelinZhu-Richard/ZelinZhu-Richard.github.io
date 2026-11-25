@@ -71,9 +71,11 @@ test('a page with the shared header gets the Search link before the menu button 
   assert.equal(withPalette(html, 'a-later-build'), html);
 });
 
-test('pages without the shared header are left as they are', () => {
-  const phoenix = '<html><head><link rel="stylesheet" href="/local.css"></head><body><button class="mobile-menu-button">Menu</button></body></html>';
-  for (const html of [phoenix, PAGE.replace('href="/portfolio.css"', 'href="/other.css"'), PAGE.replaceAll('class="menu-button"', 'class="other-button"'), '']) {
+test('pages without the shared header are left as they are, the homepage and Contact page included', async () => {
+  // The homepage and Contact page are workspace/home's Nuxt release, with their own header and menu.
+  const home = await Promise.all(['index.html', 'contacts/index.html'].map(file => readFile(new URL(`../../home/release/${file}`, import.meta.url), 'utf8')));
+  for (const html of home) assert.match(html, /<html\b[^>]*data-home="(?:story|contact)"[\s\S]*<details class="menu">/);
+  for (const html of [...home, PAGE.replace('href="/portfolio.css"', 'href="/other.css"'), PAGE.replaceAll('class="menu-button"', 'class="other-button"'), '']) {
     assert.equal(withPalette(html, 'abc123'), html);
   }
 });
@@ -101,6 +103,8 @@ test('the build ships the files, a parseable index and stamped imports, and skip
   try {
     const bare = '<!doctype html><html><head></head><body>No shared header here.</body></html>';
     for (const dir of ['about', 'github/stars', 'hq', 'flash']) await mkdir(join(out, dir), { recursive: true });
+    const home = await readFile(new URL('../../home/release/index.html', import.meta.url), 'utf8');
+    await writeFile(join(out, 'index.html'), home);
     await writeFile(join(out, 'about/index.html'), PAGE);
     await writeFile(join(out, 'github/stars/index.html'), PAGE);
     await writeFile(join(out, 'hq/index.html'), PAGE);
@@ -130,6 +134,7 @@ test('the build ships the files, a parseable index and stamped imports, and skip
     }
     assert.equal(await readFile(join(out, 'hq/index.html'), 'utf8'), PAGE, 'hq/ gets no Search button');
     assert.equal(await readFile(join(out, 'flash/index.html'), 'utf8'), bare);
+    assert.equal(await readFile(join(out, 'index.html'), 'utf8'), home, 'the homepage gets no Search button');
 
     for (const [name, text] of [...Object.entries(built), ['an injected page', withPalette(PAGE, version)]]) {
       for (const pattern of FORBIDDEN) assert.doesNotMatch(text, pattern, `${name} must not contain ${pattern}`);

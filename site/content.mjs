@@ -10,7 +10,7 @@ export const LINKS = {
 
 export const ABOUT = {
   paragraphs: [
-    "Most of my time goes into AI: machine learning research, a quant research system I’m building alone, and small experiments that end up on this site.",
+    "Most of my time goes into AI: machine learning research, my startup ZeroMind, and small experiments that end up on this site.",
     "I care about my family, my community and the wider world, roughly in that order and all at once. Right now that means research, trading experiments, and running events that bring people into the room.",
     "Where I want to end up: building trading algorithms, then running a fund.",
     "Away from the keyboard I ski, and I will stand in the snow at 3am to see the northern lights.",
@@ -37,11 +37,19 @@ export const EXPERIENCE = [
     desc: 'Selected for UNC PRIMES (Program for Research in Image Processing and Machine learning for Emerging Scholars). I build and train deep learning models on brain imaging data.',
     tags: ['Deep Learning', 'Computer Vision', 'Neuroscience'],
   },
+  // ZeroMind has no public link yet. Experience rows carry no links, and it is not in PROJECTS (which needs one).
   {
-    when: 'Nov 2025–now',
+    when: 'Nov 2026–now',
+    title: 'Founder',
+    org: 'ZeroMind',
+    desc: 'ZeroMind is one agent that runs on every frontier model, keeps a single memory of your whole life, and gets better at it every week.',
+    tags: ['AI Agents', 'Frontier Models', 'Memory'],
+  },
+  {
+    when: 'Nov 2025–Jun 2026',
     title: 'Founder',
     org: 'Al9ha (Nexus Tensor Alpha)',
-    desc: 'A quant research system: a mixture of forecasting models (TFT, MAML, N-BEATS) picked by market regime, plus LLM agents that read filings and news. Paper trading only so far.',
+    desc: 'Built a quant research system: a mixture of forecasting models (TFT, MAML, N-BEATS) picked by market regime, plus LLM agents that read filings and news. It only ever paper traded. I stopped building it in June 2026.',
     tags: ['Quant', 'AI Agents', 'Forecasting'],
   },
   {
@@ -68,12 +76,12 @@ export const PROJECTS = [
     group: 'research',
     name: 'Nexus Tensor Alpha',
     context: 'Personal, open source',
-    year: '2025–now',
+    year: '2025–2026',
     role: 'Solo: design and code',
     stack: 'Python',
-    status: 'v0.1, paper trading only',
-    oneLiner: 'A research system for stock ideas that keeps a record of where every input came from.',
-    desc: 'LLM agents turn filings, earnings calls and news into typed evidence. Ideas then pass a critique step, signal arbitration, a portfolio proposal and a risk review before they become paper trades. Forecasts come from a mixture of experts (TFT, N-BEATS, MAML) with a router that picks a model by market regime. Every step is written to an append-only audit log. Data is still fixture-backed; live feeds are next. The public site calls it Al9ha.',
+    status: 'Stopped in June 2026 at v0.1, paper trading only',
+    oneLiner: 'A research system for stock ideas that kept a record of where every input came from.',
+    desc: 'LLM agents turned filings, earnings calls and news into typed evidence. Ideas then passed a critique step, signal arbitration, a portfolio proposal and a risk review before they became paper trades. Forecasts came from a mixture of experts (TFT, N-BEATS, MAML) with a router that picked a model by market regime. Every step was written to an append-only audit log. The data was still fixture-backed when I stopped building it in June 2026. The public site calls it Al9ha.',
     artifact: { label: 'Pipeline, 11 stages', code: 'ingest → normalize → extract evidence\n→ hypothesis + critique → signals\n→ arbitration → portfolio proposal\n→ risk review → paper-trade candidate\n→ monitoring → audit trail' },
     tags: ['AI agents', 'Forecasting', 'Backtesting'],
     live: 'https://al9ha.vercel.app/',

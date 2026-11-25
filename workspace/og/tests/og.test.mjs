@@ -16,9 +16,11 @@ const repo = file => fileURLToPath(new URL(`../../../${file}`, import.meta.url))
 const SITE = 'https://zelinzhu-richard.github.io';
 const PORTRAIT = `${SITE}/richard.jpg`;
 const POSTER = `${SITE}/video/assets/neon-rain-poster.jpg`;
-// The two shapes the site writes: site/pages.mjs, and the captured homepage.
+// The shapes the site writes: site/pages.mjs and the homepage release (workspace/home: Nuxt's head) both write
+// plain; the retired captured homepage wrote both attributes, which withCard still reads.
 const plain = image => `<meta property="og:image" content="${image}">`;
 const captured = image => `<meta name="og:image" property="og:image" content="${image}">`;
+const release = file => readFile(repo(`workspace/home/release/${file}`), 'utf8');
 const page = (tags, body = '') => `<!doctype html><html><head><title>t</title>\n${tags}\n</head><body>${SITE}${body}</body></html>`;
 const details = alt => `<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n<meta property="og:image:type" content="image/png">\n<meta property="og:image:alt" content="${alt}">`;
 
@@ -183,14 +185,19 @@ test('the real pages take their cards', async () => {
   const poster = built.get('video/index.html');
   assert.ok(poster.includes(plain(POSTER)) && withCard(poster, '/video/') === poster, 'the film page keeps its own poster');
 
-  const before = await readFile(repo('public/index.html'), 'utf8');
-  const after = withCard(before, '/');
-  assert.ok(before.includes(captured(PORTRAIT)) && before.includes(`<meta name="twitter:image" content="${PORTRAIT}">`), 'the captured homepage still shares the portrait');
-  assert.ok(after.includes(captured(`${SITE}/og/site.png`)) && after.includes(`<meta name="twitter:image" content="${SITE}/og/site.png">`));
-  assert.ok(!after.includes(PORTRAIT), 'the homepage names the portrait nowhere else');
-  assert.equal(after.split('og:image:alt').length, 2, 'one set of image details');
-  const added = `\n${details('Richard Zhu: High school senior. Computer science, economics and machine learning research.')}`;
-  assert.equal(after.length - before.length, added.length + 2 * (`${SITE}/og/site.png`.length - PORTRAIT.length), 'nothing but the two tags and the details changed');
+  // The homepage and Contact page (workspace/home/release) share the portrait in Nuxt's tag shapes; both take the site card.
+  for (const [file, path] of [['index.html', '/'], ['contacts/index.html', '/contacts/']]) {
+    const before = await release(file);
+    const after = withCard(before, path);
+    assert.ok(before.includes(plain(PORTRAIT)) && before.includes(`<meta name="twitter:image" content="${PORTRAIT}">`), `${file} shares the portrait as released`);
+    assert.ok(after.includes(plain(`${SITE}/og/site.png`)) && after.includes(`<meta name="twitter:image" content="${SITE}/og/site.png">`), file);
+    assert.ok(!after.includes(PORTRAIT), `${file} names the portrait nowhere else`);
+    assert.equal(after.split('og:image:alt').length, 2, `${file}: one set of image details`);
+    const added = `\n${details('Richard Zhu: High school senior. Computer science, economics and machine learning research.')}`;
+    assert.equal(after.length - before.length, added.length + 2 * (`${SITE}/og/site.png`.length - PORTRAIT.length), `${file}: nothing but the two tags and the details changed`);
+    assert.equal(after.slice(after.indexOf('<body>')), before.slice(before.indexOf('<body>')), `${file}: the body is untouched`);
+    assert.equal(withCard(after, path), after);
+  }
 });
 
 test('withCard is safe to run twice and leaves other pages alone', () => {

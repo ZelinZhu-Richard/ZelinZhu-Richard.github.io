@@ -23,6 +23,6 @@ export async function verifyManifest() {
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const files = await inventory('public');
-  await writeFile('asset-manifest.json', JSON.stringify({ source: 'Adapted from the local noomo-storytelling project; see THIRD_PARTY.md', files }, null, 2) + '\n');
+  await writeFile('asset-manifest.json', JSON.stringify({ source: 'Every file in public/, including the retired captured homepage that tools/build.mjs no longer ships; see THIRD_PARTY.md', files }, null, 2) + '\n');
   console.log(`Recorded ${files.length} public files.`);
 }

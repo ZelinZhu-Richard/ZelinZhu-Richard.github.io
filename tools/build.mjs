@@ -1,7 +1,7 @@
 import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
+import { relative, sep } from 'node:path';
 import { pages } from '../site/pages.mjs';
-import { story } from '../site/story.mjs';
 import { verifyManifest } from './manifest.mjs';
 import { buildFlash } from '../workspace/flash/build.mjs';
 import { buildPaperPiano } from '../workspace/ppiano/build.mjs';
@@ -28,10 +28,16 @@ import { buildMusic } from '../workspace/music/build.mjs';
 import { buildColophon, finishColophon } from '../workspace/colophon/build.mjs';
 import { buildPalette } from '../workspace/palette/build.mjs';
 import { buildOg } from '../workspace/og/build.mjs';
+import { buildHome, shipsFromPublic } from '../workspace/home/build.mjs';
+import { siteIndex } from '../workspace/palette/index.mjs';
 await verifyManifest();
 await rm('dist', { recursive: true, force: true });
-await cp('public', 'dist', { recursive: true });
-await writeFile('dist/story.js', `export const story = ${JSON.stringify(story, null, 2)};\n`);
+// public/ still holds the captured phoenix homepage (asset-manifest.json covers it), but / and /contacts/ are
+// workspace/home's Nuxt release now: the old runtime stays out of dist/, and its two fonts, which every other
+// page uses, keep shipping at their URLs.
+await cp('public', 'dist', { recursive: true, filter: source => shipsFromPublic(relative('public', source).split(sep).join('/')) });
+// The homepage and Contact page, with the site index (workspace/palette/index.mjs) at the end of both.
+await buildHome('dist', { index: siteIndex() });
 for (const [file, html] of pages()) {
   await mkdir(`dist/${file.substring(0, file.lastIndexOf('/') + 1)}`, { recursive: true });
   await writeFile(`dist/${file}`, html);

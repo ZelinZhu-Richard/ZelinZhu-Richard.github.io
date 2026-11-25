@@ -1,6 +1,7 @@
-// The seven stones at the end of the phoenix homepage, one per part of the site.
-// ring: the hold ring's colours for that stone, deep to near-white; it brightens as it fills.
-// site/story.mjs turns these into the crystal cards; build.mjs links the destination pages together.
+// The seven stones, one per part of the site. workspace/home/content.mjs turns them into the
+// homepage's stones, header menu and the Contact page's section list; build.mjs links the
+// destination pages together and stoneNav() below is every other page's site menu.
+// ring: the hold ring's colours from the retired captured homepage; nothing that ships reads them now.
 export const PARTS = [
   { id: 'about', title: 'About', subtitle: 'Who I am, CV, contact, stars', href: '/about/', ring: ['#1d2a00', '#5e8a00', '#a6e22e', '#dcf7a0', '#fbfff0'] },
   { id: 'projects', title: 'Projects', subtitle: 'Quant research, AI evaluation', href: '/projects/', ring: ['#0a1a4f', '#1f4fd1', '#19b4e6', '#8fd8ff', '#eef9ff'] },
@@ -11,7 +12,7 @@ export const PARTS = [
   { id: 'daily', title: 'Daily', subtitle: 'My to-do list feeds my pets', href: '/daily/', ring: ['#3f0d08', '#c2321f', '#ff6a4d', '#ffc0b0', '#fff3ef'] },
 ];
 
-// A stone's card link is a hash on the homepage; home.js reads it and hands off to the page.
+// The retired captured homepage's card links (#to-<id>); only site/story.mjs, which nothing ships, uses it.
 export const stoneHash = part => `#to-${part.id}`;
 
 // Which stone a page belongs to, for the site menu's current marker.

@@ -24,7 +24,8 @@ const footColumn = (id, label, rows) => `<div>
 <p id="${id}">${label}</p>
 <ul aria-labelledby="${id}">${rows}</ul>
 </div>`;
-const FOOT_MORE = ['/work/', '/skills/', '/github/stars/', '/github/stars/research/', '/flash/', '/colophon/'];
+// Contact is here too: the site menu is only the seven sections, so without it most pages had no direct link to the Contact page.
+const FOOT_MORE = ['/work/', '/skills/', '/github/stars/', '/github/stars/research/', '/flash/', '/colophon/', '/contacts/'];
 const footIndex = () => `<nav class="footer-index" id="site-index" aria-label="Site index">
 ${footColumn('foot-sections', 'Sections', indexGroup('Sections').map(footRow).join(''))}
 ${footColumn('foot-more', 'More', FOOT_MORE.map(href => footRow(indexItem(href))).join(''))}
@@ -68,7 +69,7 @@ ${stoneNav(path)}
 ${footIndex()}
 <div class="footer-bottom">
 <span>Richard Zhu · High school senior · CS and economics · © 2026</span>
-<a href="/">Back to the phoenix homepage</a>
+<a href="/">Back to the homepage</a>
 </div>
 </footer>
 </body>

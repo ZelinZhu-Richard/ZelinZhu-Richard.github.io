@@ -9,7 +9,8 @@ import { UNLISTED_FOLDERS } from '../palette/index.mjs';
 const source = fileURLToPath(new URL('.', import.meta.url));
 const PACKAGE = fileURLToPath(new URL('../../package.json', import.meta.url));
 
-export const COLOPHON_FILES = ['style.css'];
+// licenses.txt: the license texts of the libraries bundled into the homepage, linked from the Borrowed section.
+export const COLOPHON_FILES = ['style.css', 'licenses.txt'];
 
 export const countDependencies = pkg => Object.keys(pkg.dependencies || {}).length + Object.keys(pkg.devDependencies || {}).length;
 
